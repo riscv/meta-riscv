@@ -1,0 +1,7 @@
+kconf hardware riscv.cfg
+
+include cfg/usb-mass-storage.scc
+include cfg/fs/vfat.scc
+
+kconf hardware riscv-user-config.cfg
+include riscv-user-patches.scc
