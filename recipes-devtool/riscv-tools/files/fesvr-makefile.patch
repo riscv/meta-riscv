@@ -1,0 +1,12 @@
+diff -rupN git/Makefile.in git-new/Makefile.in
+--- git/Makefile.in	2015-09-17 16:31:32.061178794 -0700
++++ git-new/Makefile.in	2015-09-17 16:42:54.166647463 -0700
+@@ -99,7 +99,7 @@ comma := ,
+ LD            := $(CXX)
+ LDFLAGS       := @LDFLAGS@
+ LIBS          := @LIBS@
+-LINK          := $(LD) -L. $(LDFLAGS) -Wl,-rpath,$(install_libs_dir) $(patsubst -L%,-Wl$(comma)-rpath$(comma)%,$(filter -L%,$(LDFLAGS)))
++LINK          := $(LD) -L. $(LDFLAGS)
+ 
+ # Library creation
+ 
