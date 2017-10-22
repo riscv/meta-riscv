@@ -19,13 +19,16 @@ OpenEmbedded/Yocto distributions and layer stacks, such as:
 
 This layer depends on:
 
-* URI: git://git.yoctoproject.org/poky
+* URI: git://github.com/openembedded/openembedded-core
+  * branch: master
+  * revision: HEAD
+* URI: git://github.com/openembedded/bitbake
   * branch: master
   * revision: HEAD
 
 ## Quick Start
 
-1. source poky/oe-init-build-env riscv-build
+1. source openembedded-core/oe-init-build-env riscv-build
 2. Add this layer to bblayers.conf and the dependencies above
 3. Set MACHINE in local.conf to one of the supported boards
 4. bitbake core-image-minimal
