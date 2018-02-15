@@ -1,1 +1,1 @@
-FILESEXTRAPATHS_prepend = "${THISDIR}/${BPN}:"
+FILESEXTRAPATHS_prepend := "${THISDIR}/${BPN}:"
