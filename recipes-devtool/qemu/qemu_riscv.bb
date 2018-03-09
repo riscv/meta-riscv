@@ -1,6 +1,6 @@
 require recipes-devtools/qemu/qemu.inc
 
-SRC_URI = "gitsm://github.com/riscv/riscv-qemu.git;destsuffix=${S};branch=qemu-upstream-v8.2 \
+SRC_URI = "gitsm://github.com/riscv/riscv-qemu.git;destsuffix=${S};branch=riscv-next;rebaseable=1 \
           "
 SRCREV = "25fa194b7b11901561532e435beb83d046899f7a"
 
