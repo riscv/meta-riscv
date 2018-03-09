@@ -1,8 +1,0 @@
-define KMACHINE riscv
-define KTYPE tiny
-define KARCH riscv
-
-include ktypes/tiny/tiny.scc
-branch riscv
-
-include riscv.scc

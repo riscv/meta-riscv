@@ -1,8 +1,0 @@
-define KMACHINE riscv
-define KTYPE standard
-define KARCH riscv
-
-include ktypes/standard/standard.scc
-branch riscv
-
-include riscv.scc
