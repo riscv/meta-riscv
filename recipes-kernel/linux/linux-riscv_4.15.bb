@@ -10,18 +10,19 @@ LINUX_KERNEL_TYPE ?= "standard"
 # patch version
 PV_append = ".0"
 
-# KMETA ?= ""
 KBRANCH ?= "${BRANCH}"
 KMACHINE ?= "${MACHINE}"
 KMETA = "meta"
+#KBUILD_DEFCONFIG_qemuriscv64 = "defconfig"
 
 DEPENDS_append = " libgcc"
+
 KERNEL_CC_append = " ${TOOLCHAIN_OPTIONS} ${SECURITY_NOPIE_CFLAGS}"
 KERNEL_LD_append = " -no-pie"
 
 #KERNEL_FEATURES_append_riscv += " cfg/smp.scc"
 
-KERNEL_ALT_IMAGETYPE = ""
+#KERNEL_ALT_IMAGETYPE = ""
 
 #KERNEL_OUTPUT = "vmlinux"
 #KERNEL_IMAGETYPE = "vmlinux"
@@ -37,9 +38,9 @@ SRC_URI = "git://github.com/riscv/riscv-linux.git;branch=${BRANCH} \
            file://sections.cfg \
            file://defconfig"
 
-do_install_prepend() {
-  # We are not building any modules, but the directory needs to be there.
-  mkdir -p ${D}/lib/modules/${KERNEL_VERSION}/build
-}
+#do_install_prepend() {
+#  # We are not building any modules, but the directory needs to be there.
+#  mkdir -p ${D}/lib/modules/${KERNEL_VERSION}/build
+#}
 require recipes-kernel/linux/linux-yocto.inc
 KERNEL_FEATURES_remove = "features/debug/printk.scc"
