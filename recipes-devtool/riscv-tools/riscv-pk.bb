@@ -38,6 +38,7 @@ do_deploy () {
 }
 
 addtask deploy before do_build after do_compile
+do_deploy[depends] = "${PN}:do_compile"
 
 SECURITY_CFLAGS = "${SECURITY_NOPIE_CFLAGS}"
 SECURITY_LDFLAGS = ""
