@@ -1,9 +1,8 @@
 require recipes-devtools/qemu/qemu.inc
 
-SRC_URI = "gitsm://github.com/riscv/riscv-qemu.git;destsuffix=${S};branch=master \
-           file://0001-Replace-struct-ucontext-with-ucontext_t-type.patch \
+SRC_URI = "gitsm://github.com/riscv/riscv-qemu.git;destsuffix=${S};branch=qemu-upstream-v8.2 \
           "
-SRCREV = "ff36f2f77ec3e6a6211c63bfe1707ec057b12f7d"
+SRCREV = "25fa194b7b11901561532e435beb83d046899f7a"
 
 SRC_URI_remove_class-native = "\
     file://fix-libcap-header-issue-on-some-distro.patch \
@@ -14,7 +13,7 @@ LIC_FILES_CHKSUM = "file://${S}/COPYING;md5=441c28d2cf86e15a37fa47e15a72fbac"
 
 QEMU_TARGETS = "riscv64 riscv32"
 
-EXTRA_OECONF_remove = "--disable-numa --disable-lzo --disable-opengl --disable-gnutls"
+EXTRA_OECONF_remove = "--disable-numa --disable-lzo --disable-opengl --disable-gnutls --disable-static"
 
 COMPATIBLE_HOST_class-target_mips64 = "null"
 
