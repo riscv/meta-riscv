@@ -30,9 +30,9 @@ This layer depends on:
 
 1. source openembedded-core/oe-init-build-env riscv-build
 2. Add this layer to bblayers.conf and the dependencies above
-3. Set MACHINE in local.conf to one of the supported boards
+3. Set MACHINE in local.conf to one of the supported boards ( e.g. qemuriscv64 )
 4. bitbake core-image-minimal
-6. Boot in qemu.
+6. runqemu nograhic.
 
 ## Maintainers
 
