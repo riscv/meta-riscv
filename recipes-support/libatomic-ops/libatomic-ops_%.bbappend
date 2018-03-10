@@ -6,3 +6,7 @@ SRCREV_riscv32 = "393d7a7ff54565230f44e59a9c73addc9e627f56"
 SRCREV_riscv64 = "393d7a7ff54565230f44e59a9c73addc9e627f56"
 
 SRCREV_FORMAT = "${PN}"
+
+do_install_append() {
+	chown root:root ${D}/${libdir}/libatomic_ops_gpl.a
+}
