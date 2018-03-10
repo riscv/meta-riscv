@@ -32,8 +32,8 @@ This layer depends on:
 2. Add this layer to bblayers.conf and the dependencies above
 3. Set MACHINE in local.conf to one of the supported boards ( e.g. qemuriscv64 )
 4. bitbake core-image-minimal
-6. runqemu nograhic.
+6. runqemu nographic
 
-## Maintainers
+## Maintainer(s)
 
 * Khem Raj `<raj dot khem at gmail.com>`
