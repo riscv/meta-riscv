@@ -13,9 +13,7 @@ LDFLAGS_append = " -Wl,--build-id=none"
 
 inherit autotools
 
-EXTRA_OECONF += "--enable-logo --with-payload=${DEPLOY_DIR_IMAGE}/vmlinux"
-
-#DEPENDS = "riscv-fesvr-native riscv-spike-native"
+EXTRA_OECONF += "--enable-logo --with-payload=${DEPLOY_DIR_IMAGE}/${RISCV_BBL_PAYLOAD}"
 
 INHIBIT_PACKAGE_STRIP = "1"
 
