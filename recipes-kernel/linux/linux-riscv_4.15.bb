@@ -13,7 +13,8 @@ PV_append = ".0"
 KBRANCH ?= "${BRANCH}"
 KMACHINE ?= "${MACHINE}"
 KMETA = "meta"
-#KBUILD_DEFCONFIG_qemuriscv64 = "defconfig"
+KBUILD_DEFCONFIG_qemuriscv64 = "defconfig"
+KCONFIG_MODE="--alldefconfig"
 
 DEPENDS_append = " libgcc"
 
@@ -35,8 +36,7 @@ SRCREV = "7501d87f7ebf8337ab2efa3fe692612a3b845c6f"
 SRCREV_machine = "7501d87f7ebf8337ab2efa3fe692612a3b845c6f"
 
 SRC_URI = "git://github.com/riscv/riscv-linux.git;branch=${BRANCH} \
-           file://sections.cfg \
-           file://defconfig"
+          "
 
 #do_install_prepend() {
 #  # We are not building any modules, but the directory needs to be there.
