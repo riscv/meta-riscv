@@ -1,6 +1,8 @@
+
 # meta-riscv
 RISC-V Architecture Layer for OpenEmbedded/Yocto
 
+[![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/riscv/meta-riscv/blob/kraj/master/COPYRIGHT)
 
 ## Description
 
@@ -54,3 +56,4 @@ runqemu nographic
 ## Maintainer(s)
 
 * Khem Raj `<raj dot khem at gmail.com>`
+
