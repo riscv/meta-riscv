@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<manifest>
+  <remote name="openembedded" fetch="git://github.com/openembedded/" />
+  <remote name="riscv" fetch="git://github.com/riscv/" />
+  <remote name="yocto" fetch="git://git.yoctoproject.org/" />
+  <default remote="openembedded" revision="master" />
+
+  <project name="meta-openembedded" remote="openembedded" path="meta-openembedded" revision="master" />
+  <project name="poky" remote="yocto" path="poky" revision="master" />
+  <project name="meta-riscv" remote="riscv" path="meta-riscv" revision="master" />
+
+</manifest>
+
