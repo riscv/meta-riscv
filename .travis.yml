@@ -11,11 +11,11 @@ install:
 - sudo apt-get remove -y -qq oss4-dev
 - sudo apt-get install -y -qq gawk wget git-core diffstat unzip texinfo gcc-multilib build-essential chrpath socat cpio python python3 python3-pip python3-pexpect xz-utils debianutils iputils-ping python-git
 script:
-- mkdir ~/bin
+- mkdir -p ~/bin
 - PATH=~/bin:$PATH
 - curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
 - chmod a+x ~/bin/repo
-- mkdir riscv-yocto
+- mkdir -p riscv-yocto
 - git config --global color.ui true
 - repo init -u git://github.com/riscv/meta-riscv  -b master -m tools/manifests/riscv-yocto.xml
 - repo sync
