@@ -28,12 +28,29 @@ This layer depends on:
 
 ## Quick Start
 
-1. source openembedded-core/oe-init-build-env riscv-build
-2. Add this layer to bblayers.conf and the dependencies above
-3. Set MACHINE in local.conf to one of the supported boards ( e.g. qemuriscv64 )
-4. bitbake core-image-minimal
-6. runqemu nographic
+Note: You only need this if you do not have an existing Yocto Project build environment.
 
+Make sure to [install the `repo` command by Google](https://source.android.com/setup/downloading#installing-repo) first. 
+
+## Create workspace
+```shell
+mkdir riscv-yocto
+repo init -u git://github.com/riscv/meta-riscv  -b master -m tools/manifests/riscv-yocto.xml
+repo sync
+repo start work --all
+```
+## Setup Build Environment
+```shell
+. ./meta-riscv/setup.sh
+```
+## Build Image
+```shell
+bitbake core-image-full-cmdline
+```
+## Run in QEMU
+```shell
+runqemu nographic
+```
 ## Maintainer(s)
 
 * Khem Raj `<raj dot khem at gmail.com>`
