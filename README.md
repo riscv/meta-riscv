@@ -3,7 +3,7 @@
 RISC-V Architecture Layer for OpenEmbedded/Yocto
 
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/riscv/meta-riscv/blob/kraj/master/COPYRIGHT)
-[![Build Status](https://travis-ci.org/riscv/meta-riscv.svg?branch=master%2Fmaster)](https://travis-ci.org/kraj/meta-riscv)
+[![Build Status](https://travis-ci.org/riscv/meta-riscv.svg?branch=master%2Fmaster)](https://travis-ci.org/riscv/meta-riscv)
 
 ## Description
 
