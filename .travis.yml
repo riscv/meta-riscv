@@ -1,0 +1,28 @@
+dist: xenial
+sudo: required
+language: shell
+compiler:
+env:
+
+before_install:
+
+install:
+- sudo apt-get update -qq
+- sudo apt-get remove -y -qq oss4-dev
+- sudo apt-get install -y -qq gawk wget git-core diffstat unzip texinfo gcc-multilib \
+     build-essential chrpath socat cpio python python3 python3-pip python3-pexpect \
+     xz-utils debianutils iputils-ping python-git
+script:
+- mkdir ~/bin
+- PATH=~/bin:$PATH
+- curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+- chmod a+x ~/bin/repo
+- mkdir riscv-yocto
+- repo init -u git://github.com/riscv/meta-riscv  -b master -m tools/manifests/riscv-yocto.xml
+- repo sync
+- repo start work --all
+- . ./meta-riscv/setup.sh
+- bitbake core-image-minimal
+
+after_success:
+
