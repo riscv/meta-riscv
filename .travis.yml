@@ -16,6 +16,7 @@ script:
 - curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
 - chmod a+x ~/bin/repo
 - mkdir riscv-yocto
+- git config --global color.ui true
 - repo init -u git://github.com/riscv/meta-riscv  -b master -m tools/manifests/riscv-yocto.xml
 - repo sync
 - repo start work --all
