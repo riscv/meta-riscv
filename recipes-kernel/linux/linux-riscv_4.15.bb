@@ -32,15 +32,12 @@ inherit kernel siteinfo
 
 BRANCH = "riscv-linux-4.15"
 
-SRCREV = "7501d87f7ebf8337ab2efa3fe692612a3b845c6f"
-SRCREV_machine = "7501d87f7ebf8337ab2efa3fe692612a3b845c6f"
+SRCREV = "2b0aa1de45f63535f6d26757aa22b48515289302"
+SRCREV_machine = "2b0aa1de45f63535f6d26757aa22b48515289302"
 
 SRC_URI = "git://github.com/riscv/riscv-linux.git;branch=${BRANCH} \
+           file://earlyprintk.cfg \
           "
 
-#do_install_prepend() {
-#  # We are not building any modules, but the directory needs to be there.
-#  mkdir -p ${D}/lib/modules/${KERNEL_VERSION}/build
-#}
 require recipes-kernel/linux/linux-yocto.inc
 KERNEL_FEATURES_remove = "features/debug/printk.scc"
