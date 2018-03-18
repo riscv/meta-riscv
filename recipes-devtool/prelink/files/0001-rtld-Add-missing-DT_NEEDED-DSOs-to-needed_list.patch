@@ -1,0 +1,107 @@
+From 564b0d7a21dc3b6eef3b3e7819910d9376e708ed Mon Sep 17 00:00:00 2001
+From: Kyle Russell <bkylerussell@gmail.com>
+Date: Thu, 25 Aug 2016 11:39:17 -0400
+Subject: [PATCH] rtld: Add missing DT_NEEDED DSOs to needed_list
+
+prelink-rtld may report an "error while loading shared libraries" for
+the wrong library.
+
+If some set of DT_NEEDED DSOs are not in the default search path, they
+may have a dso_list entry added, but no matching entry is added to the
+needed_list.  This causes the linker to miscalculate the max number of
+dsos during build_local_scope(), which later causes find_needed() to not
+search the entire l_local_scope[0]->r_list during
+_dl_check_map_versions() (since the max from build_local_scope() becomes
+l_local_scope[0]->r_nlist).
+
+Since find_needed() searches through the r_list, which would have the
+dso_list entries for the libraries that weren't found earlier, this cuts
+the search short, meaning libraries near the end of the local scope don't
+get included in the map version search.
+
+As the comment in _dl_check_map_versions() suggests, if needed is NULL,
+that means a dependency was not found and no stub entry created, which
+should never happen.
+
+Signed-off-by: Kyle Russell <bkylerussell@gmail.com>
+Signed-off-by: Mark Hatle <mark.hatle@windriver.com>
+---
+ ChangeLog       |  3 +++
+ src/rtld/rtld.c | 36 ++++++++++++++++++++++--------------
+ 2 files changed, 25 insertions(+), 14 deletions(-)
+
+diff --git a/ChangeLog b/ChangeLog
+index c72dca8..274b420 100644
+--- a/ChangeLog
++++ b/ChangeLog
+@@ -1,3 +1,6 @@
++2017-06-20   Kyle Russell <bkylerussell@gmail.com>
++	* src/rtld/rtld.c: Add missing DT_NEEDED DSOs to needed_list
++
+ 2017-06-20   Mark Hatle <mark.hatle@windriver.com>
+ 	* doc/Makefile.am: Disable automatic generation of prelink.pdf
+ 
+diff --git a/src/rtld/rtld.c b/src/rtld/rtld.c
+index 3196981..3024868 100644
+--- a/src/rtld/rtld.c
++++ b/src/rtld/rtld.c
+@@ -698,6 +698,25 @@ find_lib_by_soname (const char *soname, struct dso_list *loader,
+   return NULL;
+ }
+ 
++static void
++add_dso_to_needed (struct dso_list *cur_dso_ent, struct dso_list *new_dso_ent)
++{
++  if (!cur_dso_ent->needed)
++    {
++      cur_dso_ent->needed = malloc (sizeof (struct needed_list));
++      cur_dso_ent->needed_tail = cur_dso_ent->needed;
++      cur_dso_ent->needed_tail->ent = new_dso_ent;
++      cur_dso_ent->needed_tail->next = NULL;
++    }
++  else if (!in_needed_list (cur_dso_ent->needed, new_dso_ent->name))
++    {
++      cur_dso_ent->needed_tail->next = malloc (sizeof (struct needed_list));
++      cur_dso_ent->needed_tail = cur_dso_ent->needed_tail->next;
++      cur_dso_ent->needed_tail->ent = new_dso_ent;
++      cur_dso_ent->needed_tail->next = NULL;
++    }
++}
++
+ static struct dso_list *
+ load_dsos (DSO *dso, int host_paths)
+ {
+@@ -824,6 +843,8 @@ load_dsos (DSO *dso, int host_paths)
+ 			  dso_list_tail->canon_filename = strdup(soname);
+ 			  dso_list_tail->err_no = errno;
+ 
++                          add_dso_to_needed(cur_dso_ent, new_dso_ent);
++
+ 			  continue;
+ 			}
+ 
+@@ -866,20 +887,7 @@ load_dsos (DSO *dso, int host_paths)
+ 			dso_list_tail->name = new_dso->soname;
+ 		    }
+ 
+-		  if (!cur_dso_ent->needed)
+-		    {
+-		      cur_dso_ent->needed = malloc (sizeof (struct needed_list));
+-		      cur_dso_ent->needed_tail = cur_dso_ent->needed;
+-		      cur_dso_ent->needed_tail->ent = new_dso_ent;
+-		      cur_dso_ent->needed_tail->next = NULL;
+-		    }
+-		  else if (!in_needed_list (cur_dso_ent->needed, soname))
+-		    {
+-		      cur_dso_ent->needed_tail->next = malloc (sizeof (struct needed_list));
+-		      cur_dso_ent->needed_tail = cur_dso_ent->needed_tail->next;
+-		      cur_dso_ent->needed_tail->ent = new_dso_ent;
+-		      cur_dso_ent->needed_tail->next = NULL;
+-		    }
++                  add_dso_to_needed(cur_dso_ent, new_dso_ent);
+ 
+ 		  continue;
+ 		}
+-- 
+2.16.2
+
