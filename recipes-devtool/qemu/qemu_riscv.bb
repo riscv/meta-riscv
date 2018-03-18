@@ -23,3 +23,4 @@ do_install() {
     # Prevent QA warnings about installed ${localstatedir}/run
     if [ -d ${D}${localstatedir}/run ]; then rmdir ${D}${localstatedir}/run; fi
 }
+COMPATIBLE_HOST_class-target = "(riscv64|riscv32).*-linux"
