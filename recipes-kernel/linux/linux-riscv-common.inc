@@ -11,6 +11,10 @@ SRC_URI = "\
     file://earlyprintk.cfg \
 "
 
+# qemu uses in-tree defconfig
+# freedom-u540 uses out-of-tree defconfig
+SRC_URI_append_freedom-u540 = " file://defconfig"
+
 LINUX_VERSION_EXTENSION = "-riscv"
 
 PV = "${LINUX_VERSION}+git${SRCPV}"
