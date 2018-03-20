@@ -30,18 +30,20 @@ do_install_append() {
         rm -rf ${D}${exec_prefix}/riscv64-unknown-elf
 }
 
+do_install_append_freedom-u540() {
+        ${OBJCOPY} -S -O binary --change-addresses -0x80000000 \
+               ${WORKDIR}/build/bbl ${WORKDIR}/build/bbl.bin
+}
+
 do_deploy () {
         install -d ${DEPLOY_DIR_IMAGE}
         install -m 755 ${WORKDIR}/build/bbl ${DEPLOY_DIR_IMAGE}/bbl
 }
 
-addtask deploy before do_build after do_compile
-do_deploy[depends] = "${PN}:do_compile"
+do_deploy_append_freedom-u540() {
+        install -m 755 ${WORKDIR}/build/bbl.bin ${DEPLOY_DIR_IMAGE}/bbl.bin
+}
+addtask deploy before do_build after do_install
 
 SECURITY_CFLAGS = "${SECURITY_NOPIE_CFLAGS}"
 SECURITY_LDFLAGS = ""
-
-do_configure[nostamp] = "1"
-do_compile[nostamp] = "1"
-do_install[nostamp] = "1"
-do_deploy[nostamp] = "1"
