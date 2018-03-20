@@ -27,6 +27,6 @@ KCONFIG_MODE="--alldefconfig"
 KERNEL_CC_append = " ${TOOLCHAIN_OPTIONS} ${SECURITY_NOPIE_CFLAGS}"
 KERNEL_LD_append = " -no-pie"
 
-COMPATIBLE_MACHINE = "(qemuriscv64)"
+COMPATIBLE_MACHINE = "(qemuriscv64|freedom-u540)"
 
 KERNEL_FEATURES_remove = "features/debug/printk.scc"
