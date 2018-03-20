@@ -19,7 +19,7 @@ INHIBIT_PACKAGE_STRIP = "1"
 
 S = "${WORKDIR}/git"
 
-do_configure[depends] = "virtual/kernel:do_deploy"
+DEPENDS = "virtual/kernel"
 
 do_install_prepend () {
         install -d ${D}${datadir}/riscv-pk
