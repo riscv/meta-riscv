@@ -13,7 +13,9 @@ SRC_URI = "\
 
 # qemu uses in-tree defconfig
 # freedom-u540 uses out-of-tree defconfig
-SRC_URI_append_freedom-u540 = " file://defconfig"
+SRC_URI_append_freedom-u540 = " file://defconfig \
+                                file://0001-risc-v-Fix-issue-ignoring-CONFIG_CMDLINE_OVERRIDE.patch \
+                              "
 
 LINUX_VERSION_EXTENSION = "-riscv"
 
