@@ -54,6 +54,16 @@ bitbake core-image-full-cmdline
 ```shell
 runqemu nographic
 ```
+
+## Running wic.gz image on hardware
+
+The output of the build will be a ```<image>.wic.gz``` file. You can write this file to an sd card using:
+
+```shell
+$ zcat <image>-<machine>.wic.gz | sudo dd of=/dev/sdX bs=4M iflag=fullblock
+oflag=direct conv=fsync status=progress
+```
+
 ## Maintainer(s)
 
 * Khem Raj `<raj dot khem at gmail.com>`
