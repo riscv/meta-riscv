@@ -10,10 +10,10 @@ AVAILTUNES += "riscv64 riscv32"
 TUNE_FEATURES_tune-riscv64 = "riscv64 littleendian"
 TUNE_ARCH_tune-riscv64 = "riscv64"
 TUNE_PKGARCH_tune-riscv64 = "riscv64"
-PACKAGE_EXTRA_ARCHS_tune-riscv64 = ""
+PACKAGE_EXTRA_ARCHS_tune-riscv64 = "riscv64"
 
 TUNE_FEATURES_tune-riscv32 = "riscv32 littleendian"
 TUNE_ARCH_tune-riscv32 = "riscv32"
 TUNE_PKGARCH_tune-riscv32 = "riscv32"
-PACKAGE_EXTRA_ARCHS_tune-riscv32 = ""
+PACKAGE_EXTRA_ARCHS_tune-riscv32 = "riscv32"
 
