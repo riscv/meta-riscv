@@ -9,6 +9,8 @@ SRC_URI = "git://github.com/riscv/riscv-pk.git \
            file://0001-add-acinclude.m4.patch \
           "
 
+PACKAGE_ARCH = "${MACHINE_ARCH}"
+
 LDFLAGS_append = " -Wl,--build-id=none"
 
 inherit autotools
