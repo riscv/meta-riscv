@@ -4,7 +4,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=59530bdf33659b29e73d4adb9f9f6552 \
                     file://COPYING3.LIB;md5=6a6a8e020838b23406c81b19c1d46df6 \
                     file://COPYING.LIB;md5=9f604d8a4f8e74f4f5140845a21b6674"
 
-SRCREV = "5b858aaab5a71268ac1d5da638de9d865addd38f"
-SRC_URI = "git://github.com/kraj/binutils-gdb;branch=oe/gdb-master;rebasable=1"
+SRCREV = "c025f0bed5fcb51fdd2e1e84cdc17ee562411f15"
+SRC_URI = "git://github.com/kraj/binutils-gdb;branch=oe/riscv;rebasable=1"
 S = "${WORKDIR}/git"
 
