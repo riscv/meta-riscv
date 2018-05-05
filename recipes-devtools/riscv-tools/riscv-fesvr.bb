@@ -4,7 +4,7 @@ LICENSE = "GPLv2+"
 
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.GPLv2;md5=751419260aa954499f7abaabaa882bbe"
 
-SRCREV = "68c12d06ebbdfe20856b886570822fe66804fd26"
+SRCREV = "d50327faefd454ed812d820110227166c740ced2"
 SRC_URI = "git://github.com/riscv/riscv-fesvr.git \
            file://fesvr-makefile.patch"
 
@@ -24,3 +24,4 @@ do_install_append () {
         # Make install doesn't properly install these
         oe_libinstall -so libfesvr ${D}${libdir}
 }
+COMPATIBLE_HOST_class-target = "(riscv64|riscv32).*-linux"

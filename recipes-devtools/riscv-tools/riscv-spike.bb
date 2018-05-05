@@ -4,7 +4,7 @@ LICENSE = "GPLv2+"
 
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.GPLv2;md5=751419260aa954499f7abaabaa882bbe"
 
-SRCREV = "9d1e10a36e771bf8cfbf515e07e856e021c1007a"
+SRCREV = "d48f107dba6a96fb827cb47fdf290261feadeb35"
 SRC_URI = "git://github.com/riscv/riscv-isa-sim.git \
            file://spike-makefile.patch"
 
@@ -22,3 +22,4 @@ do_configure_prepend () {
         fi
 }
 BBCLASSEXTEND = "native nativesdk"
+COMPATIBLE_HOST_class-target = "(riscv64|riscv32).*-linux"

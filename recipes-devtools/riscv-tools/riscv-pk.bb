@@ -4,7 +4,7 @@ LICENSE = "GPLv2+"
 
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.GPLv2;md5=751419260aa954499f7abaabaa882bbe"
 
-SRCREV = "2bbd8e1a1bccae13ec87882baf423abfc6ef76fd"
+SRCREV = "9d0911092df8e9bd483edf495a9a780e5f0e660f"
 SRC_URI = "git://github.com/riscv/riscv-pk.git \
            file://0001-add-acinclude.m4.patch \
           "
@@ -29,7 +29,7 @@ do_install_prepend () {
 }
 
 do_install_append() {
-        rm -rf ${D}${exec_prefix}/riscv64-unknown-elf
+        rm -rf ${D}${exec_prefix}/riscv64-*
 }
 
 do_install_append_freedom-u540() {
@@ -49,3 +49,5 @@ addtask deploy before do_build after do_install
 
 SECURITY_CFLAGS = "${SECURITY_NOPIE_CFLAGS}"
 SECURITY_LDFLAGS = ""
+
+COMPATIBLE_HOST = "(riscv64|riscv32).*-linux"
