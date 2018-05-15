@@ -21,7 +21,8 @@ INHIBIT_PACKAGE_STRIP = "1"
 
 S = "${WORKDIR}/git"
 
-DEPENDS = "virtual/kernel"
+# bbl_payload needs kernel deployed artifacts (e.g. vmlinux)
+do_compile[depends] += "virtual/kernel:do_deploy"
 
 do_install_prepend () {
         install -d ${D}${datadir}/riscv-pk
