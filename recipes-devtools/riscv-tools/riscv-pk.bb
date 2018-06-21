@@ -48,7 +48,4 @@ do_deploy_append_freedom-u540() {
 }
 addtask deploy before do_build after do_install
 
-SECURITY_CFLAGS = "${SECURITY_NOPIE_CFLAGS}"
-SECURITY_LDFLAGS = ""
-
 COMPATIBLE_HOST = "(riscv64|riscv32).*-linux"
