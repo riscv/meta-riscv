@@ -42,6 +42,16 @@ repo init -u git://github.com/riscv/meta-riscv  -b master -m tools/manifests/ris
 repo sync
 repo start work --all
 ```
+## Update existing workspace
+
+In order to bring all layers uptodate with upstream
+
+```shell
+cd riscv-yocto
+repo sync
+repo rebase
+```
+
 ## Setup Build Environment
 ```shell
 . ./meta-riscv/setup.sh
