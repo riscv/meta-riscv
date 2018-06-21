@@ -1,8 +1,8 @@
 require recipes-devtools/qemu/qemu.inc
 
-SRC_URI = "gitsm://github.com/riscv/riscv-qemu.git;destsuffix=${S};branch=master;rebaseable=1 \
+SRC_URI = "gitsm://github.com/riscv/riscv-qemu.git;destsuffix=${S};branch=riscv-all;rebaseable=1 \
           "
-SRCREV = "59255887e6cafeff747250d2613003a41d1d9dff"
+SRCREV = "8dad5ee5a63889fb8cb965df23a8101b12786e68"
 
 SRC_URI_remove_class-native = "\
     file://fix-libcap-header-issue-on-some-distro.patch \
@@ -15,12 +15,9 @@ QEMU_TARGETS = "riscv64 riscv32"
 
 EXTRA_OECONF_remove = "--disable-numa --disable-lzo --disable-opengl --disable-gnutls --disable-static"
 
-do_install() {
-    export STRIP="true"
-    autotools_do_install
-    install -d ${D}${datadir}/qemu
-
+do_install_append() {
     # Prevent QA warnings about installed ${localstatedir}/run
     if [ -d ${D}${localstatedir}/run ]; then rmdir ${D}${localstatedir}/run; fi
 }
+
 COMPATIBLE_HOST_class-target = "(riscv64|riscv32).*-linux"
