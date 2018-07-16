@@ -32,3 +32,4 @@ KERNEL_LD_append = " -no-pie"
 COMPATIBLE_MACHINE = "(qemuriscv64|freedom-u540)"
 
 KERNEL_FEATURES_remove = "features/debug/printk.scc"
+KERNEL_FEATURES_remove = "features/kernel-sample/kernel-sample.scc"
