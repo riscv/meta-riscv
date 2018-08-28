@@ -1,6 +1,8 @@
 require recipes-devtools/gdb/gdb.inc
 require gdb-${PV}.inc
 
+DEPENDS += "bison-native"
+
 SRC_URI += "file://0001-linux-ptrace-Fix-RISC-V-cross-compilation-error.patch"
 
 inherit python3-dir
