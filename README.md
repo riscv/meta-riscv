@@ -37,7 +37,7 @@ Make sure to [install the `repo` command by Google](https://source.android.com/s
 
 ## Create workspace
 ```shell
-mkdir riscv-yocto
+mkdir riscv-yocto && cd riscv-yocto
 repo init -u git://github.com/riscv/meta-riscv  -b master -m tools/manifests/riscv-yocto.xml
 repo sync
 repo start work --all
