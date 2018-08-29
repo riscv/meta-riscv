@@ -21,7 +21,7 @@ chmod -R 755 .
 
 # bootstrap OE
 echo "Init OE"
-export BASH_SOURCE="poky/oe-init-build-env"
+export BASH_SOURCE="openembedded-core/oe-init-build-env"
 . ./openembedded-core/oe-init-build-env $DIR
 
 # Symlink the cache
