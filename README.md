@@ -36,7 +36,7 @@ Note: You only need this if you do not have an existing Yocto Project build envi
 Make sure to [install the `repo` command by Google](https://source.android.com/setup/downloading#installing-repo) first. 
 
 ## Create workspace
-```shell
+```text
 mkdir riscv-yocto && cd riscv-yocto
 repo init -u git://github.com/riscv/meta-riscv  -b master -m tools/manifests/riscv-yocto.xml
 repo sync
@@ -46,22 +46,22 @@ repo start work --all
 
 In order to bring all layers uptodate with upstream
 
-```shell
+```text
 cd riscv-yocto
 repo sync
 repo rebase
 ```
 
 ## Setup Build Environment
-```shell
+```text
 . ./meta-riscv/setup.sh
 ```
 ## Build Image
-```shell
+```text
 bitbake core-image-full-cmdline
 ```
 ## Run in QEMU
-```shell
+```text
 runqemu nographic
 ```
 
@@ -69,7 +69,7 @@ runqemu nographic
 
 The output of the build will be a ```<image>.wic.gz``` file. You can write this file to an sd card using:
 
-```shell
+```text
 $ zcat <image>-<machine>.wic.gz | sudo dd of=/dev/sdX bs=4M iflag=fullblock
 oflag=direct conv=fsync status=progress
 ```
