@@ -57,9 +57,20 @@ repo rebase
 . ./meta-riscv/setup.sh
 ```
 ## Build Image
+
+A console-only image
 ```text
 bitbake core-image-full-cmdline
 ```
+
+Basic image without X support suitable for Linux Standard Base (LSB) implementations.
+It includes the full meta-toolchain, plus development headers and libraries to form
+a standalone (on device) SDK
+
+```
+bitbake core-image-lsb-sdk
+```
+
 ## Run in QEMU
 ```text
 runqemu nographic
