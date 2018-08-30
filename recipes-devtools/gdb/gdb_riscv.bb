@@ -29,3 +29,5 @@ EOF
 	fi
 }
 CFLAGS_append_libc-musl = " -Drpl_gettimeofday=gettimeofday"
+
+ALLOW_EMPTY_gdbserver = "1"
