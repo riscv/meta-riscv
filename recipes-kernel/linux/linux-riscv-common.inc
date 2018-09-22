@@ -9,6 +9,7 @@ require recipes-kernel/linux/linux-yocto.inc
 SRC_URI = "\
     git://github.com/riscv/riscv-linux.git;branch=${BRANCH} \
     file://earlyprintk.cfg \
+    file://pci.cfg \
 "
 
 # qemu uses in-tree defconfig
