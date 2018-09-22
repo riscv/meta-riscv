@@ -50,7 +50,19 @@ MACHINE = "${MACHINE}"
 # rootfs for debugging
 #IMAGE_GEN_DEBUGFS = "1"
 #IMAGE_FSTYPES_DEBUGFS = "tar.gz"
-# explicitly disable x11 and enable opengl
+EXTRA_IMAGE_FEATURES_append = " ssh-server-dropbear"
+EXTRA_IMAGE_FEATURES_append = " package-management"
+PACKAGECONFIG_append_pn-qemu-native = " sdl"
+PACKAGECONFIG_append_pn-nativesdk-qemu = " sdl"
+USER_CLASSES ?= "buildstats buildhistory buildstats-summary image-mklibs image-p
+
+require conf/distro/include/no-static-libs.inc
+require conf/distro/include/yocto-uninative.inc
+require conf/distro/include/security_flags.inc
+
+INHERIT += "uninative"
+
+DISTRO_FEATURES_append = " largefile opengl ptest multiarch wayland pam "
 HOSTTOOLS_NONFATAL_append = " ssh"
 EOF
 
