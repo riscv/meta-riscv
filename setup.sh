@@ -15,10 +15,20 @@ rm -rf $DIR
 #mkdir -p ~/sstate/$MACHINE
 
 # fix permissions set by buildbot
-echo "Fixing permissions for buildbot"
-umask -S u=rwx,g=rx,o=rx
-chmod -R 755 .
+#echo "Fixing permissions for buildbot"
+#umask -S u=rwx,g=rx,o=rx
+#chmod -R 755 .
 
+# Reconfigure dash on debian-like systems
+which aptitude > /dev/null 2>&1
+ret=$?
+if [ "$(readlink /bin/sh)" = "dash" -a "$ret" = "0" ]; then
+  sudo aptitude install expect -y
+  expect -c 'spawn sudo dpkg-reconfigure -freadline dash; send "n\n"; interact;'
+elif [ "${0##*/}" = "dash" ]; then
+  echo "dash as default shell is not supported"
+  return
+fi
 # bootstrap OE
 echo "Init OE"
 export BASH_SOURCE="openembedded-core/oe-init-build-env"
