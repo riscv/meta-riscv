@@ -1,3 +1,5 @@
-SRC_URI = "git://git.denx.de/u-boot-x86.git;branch=riscv-working"
+SRC_URI_riscv64 = "git://git.denx.de/u-boot-x86.git;branch=riscv-working;rebaseable=1"
 
-SRCREV = "0b6036bcfd4bd9d9ef7687db43a4573e48ad0836"
+SRCREV_riscv64  = "07985f7aedfc017f539fb1984d432497193121cb"
+
+COMPATIBLE_MACHINE_qemuriscv64 = "qemuriscv64"
