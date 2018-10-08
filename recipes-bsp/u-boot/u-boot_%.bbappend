@@ -1,5 +1,6 @@
-SRC_URI_riscv64 = "git://git.denx.de/u-boot-x86.git;branch=riscv-working;rebaseable=1"
+# Remove patches applied in the common .bb
+SRC_URI_riscv64 = "git://git.denx.de/u-boot.git"
 
-SRCREV_riscv64  = "07985f7aedfc017f539fb1984d432497193121cb"
+SRCREV_riscv64  = "94228a9188803473206544c8f33649ea72bf1ee1"
 
 COMPATIBLE_MACHINE_qemuriscv64 = "qemuriscv64"
