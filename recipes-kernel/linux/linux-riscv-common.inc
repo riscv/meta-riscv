@@ -7,7 +7,7 @@ inherit kernel
 require recipes-kernel/linux/linux-yocto.inc
 
 SRC_URI = "\
-    git://github.com/riscv/riscv-linux.git;branch=${BRANCH} \
+    git://git.kernel.org/pub/scm/linux/kernel/git/palmer/riscv-linux.git;branch=${BRANCH} \
     file://earlyprintk.cfg \
     file://pci.cfg \
 "
