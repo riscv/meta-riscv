@@ -4,7 +4,7 @@ LICENSE = "GPLv2+"
 
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.GPLv2;md5=751419260aa954499f7abaabaa882bbe"
 
-SRCREV = "d50327faefd454ed812d820110227166c740ced2"
+SRCREV = "8d108a0a647901550d95925549337c2c3aec9ac8"
 SRC_URI = "git://github.com/riscv/riscv-fesvr.git \
            file://fesvr-makefile.patch"
 
