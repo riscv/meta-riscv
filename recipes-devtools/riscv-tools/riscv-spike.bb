@@ -4,7 +4,7 @@ LICENSE = "GPLv2+"
 
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.GPLv2;md5=751419260aa954499f7abaabaa882bbe"
 
-SRCREV = "d48f107dba6a96fb827cb47fdf290261feadeb35"
+SRCREV = "65c8ac48af16235097084b413c10c7bff576b331"
 SRC_URI = "git://github.com/riscv/riscv-isa-sim.git \
            file://spike-makefile.patch"
 
