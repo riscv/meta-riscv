@@ -26,13 +26,14 @@ PV = "${LINUX_VERSION}+git${SRCPV}"
 
 DEPENDS_append = " libgcc"
 
+KBUILD_DEFCONFIG_qemuriscv32 = "defconfig"
 KBUILD_DEFCONFIG_qemuriscv64 = "defconfig"
 KCONFIG_MODE="--alldefconfig"
 
 KERNEL_CC_append = " ${TOOLCHAIN_OPTIONS} ${SECURITY_NOPIE_CFLAGS}"
 KERNEL_LD_append = " -no-pie"
 
-COMPATIBLE_MACHINE = "(qemuriscv64|freedom-u540)"
+COMPATIBLE_MACHINE = "(qemuriscv32|qemuriscv64|freedom-u540)"
 
 KERNEL_FEATURES_remove = "features/debug/printk.scc"
 KERNEL_FEATURES_remove = "features/kernel-sample/kernel-sample.scc"
