@@ -17,6 +17,9 @@ SRC_URI_append_freedom-u540 = " file://defconfig \
                                 file://0001-risc-v-Fix-issue-ignoring-CONFIG_CMDLINE_OVERRIDE.patch \
                               "
 
+SRC_URI_append_qemuriscv32 = " file://32bit.cfg \
+                            "
+
 LINUX_VERSION_EXTENSION = "-riscv"
 
 PV = "${LINUX_VERSION}+git${SRCPV}"
