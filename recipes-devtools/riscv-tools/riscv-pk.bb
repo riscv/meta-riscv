@@ -4,7 +4,7 @@ LICENSE = "GPLv2+"
 
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.GPLv2;md5=751419260aa954499f7abaabaa882bbe"
 
-SRCREV = "6ebd0f2a46255d0c76dad3c05b16c1d154795d26"
+SRCREV = "92434c4f697564929f2ceb724bc82d3b6bc58879"
 SRC_URI = "git://github.com/riscv/riscv-pk.git \
            file://0001-add-acinclude.m4.patch \
           "
