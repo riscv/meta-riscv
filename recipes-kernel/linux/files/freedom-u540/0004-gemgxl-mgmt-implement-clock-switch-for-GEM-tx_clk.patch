@@ -1,0 +1,235 @@
+From c61e4295c2b2e29bbfe4af4795e2ca862c5de8e3 Mon Sep 17 00:00:00 2001
+From: "Wesley W. Terpstra" <wesley@sifive.com>
+Date: Tue, 6 Feb 2018 11:03:07 -0800
+Subject: [PATCH 04/11] gemgxl-mgmt: implement clock switch for GEM tx_clk
+
+Signed-off-by: Palmer Dabbelt <palmer@sifive.com>
+---
+ .../bindings/clock/sifive,gemgxl-mgmt.txt          |  26 +++++
+ drivers/clk/Kconfig                                |   1 +
+ drivers/clk/Makefile                               |   1 +
+ drivers/clk/sifive/Kconfig                         |   9 ++
+ drivers/clk/sifive/Makefile                        |   2 +
+ drivers/clk/sifive/gemgxl-mgmt.c                   | 129 +++++++++++++++++++++
+ 6 files changed, 168 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/clock/sifive,gemgxl-mgmt.txt
+ create mode 100644 drivers/clk/sifive/Kconfig
+ create mode 100644 drivers/clk/sifive/Makefile
+ create mode 100644 drivers/clk/sifive/gemgxl-mgmt.c
+
+diff --git a/Documentation/devicetree/bindings/clock/sifive,gemgxl-mgmt.txt b/Documentation/devicetree/bindings/clock/sifive,gemgxl-mgmt.txt
+new file mode 100644
+index 00000000..349489e3
+--- /dev/null
++++ b/Documentation/devicetree/bindings/clock/sifive,gemgxl-mgmt.txt
+@@ -0,0 +1,26 @@
++TX clock switch for GEMGXL in U540 SoCs
++
++This binding uses the common clock binding:
++    Documentation/devicetree/bindings/clock/clock-bindings.txt
++
++The U54 includes a clock mux to control the ethernet TX frequenecy. It
++switches between the local TX clock (125MHz) and PHY TX clocks. This is
++necessary to toggle between 1Gb and 100/10Mb speeds.
++
++Required properties:
++- compatible:	Should be "sifive,cadencegemgxlmgmt0"
++- #clock-cells:	Should be <0>
++- reg:		Specifies base physical address and size of the registers
++
++Example:
++
++	mgmt: cadence-gemgxl-mgmt@100a00000 {
++		compatible = "sifive,cadencegemgxlmgmt0";
++		#clock-cells = <0>;
++		reg = <0x0 0x100a0000 0x0 0x1000>;
++	};
++
++	ethernet@10090000 {
++		...
++		clocks = <&mgmt>; /* TX clock */
++	};
+diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
+index 292056bb..d4cca333 100644
+--- a/drivers/clk/Kconfig
++++ b/drivers/clk/Kconfig
+@@ -299,5 +299,6 @@ source "drivers/clk/sunxi-ng/Kconfig"
+ source "drivers/clk/tegra/Kconfig"
+ source "drivers/clk/ti/Kconfig"
+ source "drivers/clk/uniphier/Kconfig"
++source "drivers/clk/sifive/Kconfig"
+ 
+ endmenu
+diff --git a/drivers/clk/Makefile b/drivers/clk/Makefile
+index a84c5573..858bdb9b 100644
+--- a/drivers/clk/Makefile
++++ b/drivers/clk/Makefile
+@@ -90,6 +90,7 @@ obj-$(CONFIG_COMMON_CLK_QCOM)		+= qcom/
+ obj-y					+= renesas/
+ obj-$(CONFIG_ARCH_ROCKCHIP)		+= rockchip/
+ obj-$(CONFIG_COMMON_CLK_SAMSUNG)	+= samsung/
++obj-y					+= sifive/
+ obj-$(CONFIG_ARCH_SIRF)			+= sirf/
+ obj-$(CONFIG_ARCH_SOCFPGA)		+= socfpga/
+ obj-$(CONFIG_PLAT_SPEAR)		+= spear/
+diff --git a/drivers/clk/sifive/Kconfig b/drivers/clk/sifive/Kconfig
+new file mode 100644
+index 00000000..284bffb1
+--- /dev/null
++++ b/drivers/clk/sifive/Kconfig
+@@ -0,0 +1,9 @@
++config CLK_U54_PRCI
++	bool "PRCI driver for U54 SoCs"
++	---help---
++	  Supports Power Reset Clock interface found in U540 SoCs
++
++config CLK_GEMGXL_MGMT
++	bool "TX clock switch for GEMGXL in U540 SoCs"
++	---help---
++	  Supports clock muxing between 10/100Mbit and 1Gbit TX clock on U540 SoCs
+diff --git a/drivers/clk/sifive/Makefile b/drivers/clk/sifive/Makefile
+new file mode 100644
+index 00000000..7784d2ee
+--- /dev/null
++++ b/drivers/clk/sifive/Makefile
+@@ -0,0 +1,2 @@
++obj-$(CONFIG_CLK_U54_PRCI)	+= u54-prci.o
++obj-$(CONFIG_CLK_GEMGXL_MGMT)	+= gemgxl-mgmt.o
+diff --git a/drivers/clk/sifive/gemgxl-mgmt.c b/drivers/clk/sifive/gemgxl-mgmt.c
+new file mode 100644
+index 00000000..00b07580
+--- /dev/null
++++ b/drivers/clk/sifive/gemgxl-mgmt.c
+@@ -0,0 +1,129 @@
++/*
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * Copyright (C) 2018 SiFive, Inc.
++ */
++
++#include <linux/clkdev.h>
++#include <linux/clk-provider.h>
++#include <linux/err.h>
++#include <linux/of.h>
++#include <linux/platform_device.h>
++#include <linux/slab.h>
++
++struct sifive_gemgxl_mgmt {
++	void __iomem *reg;
++	unsigned long rate;
++	struct clk_hw hw;
++};
++
++#define to_sifive_gemgxl_mgmt(mgmt) container_of(mgmt, struct sifive_gemgxl_mgmt, hw)
++
++static unsigned long sifive_gemgxl_mgmt_recalc_rate(struct clk_hw *hw,
++				      unsigned long parent_rate)
++{
++	struct sifive_gemgxl_mgmt *mgmt = to_sifive_gemgxl_mgmt(hw);
++	return mgmt->rate;
++}
++
++static long sifive_gemgxl_mgmt_round_rate(struct clk_hw *hw, unsigned long rate,
++		unsigned long *parent_rate)
++{
++	if (WARN_ON(rate < 2500000)) {
++		return 2500000;
++	} else if (rate == 2500000) {
++		return 2500000;
++	} else if (WARN_ON(rate < 13750000)) {
++		return 2500000;
++	} else if (WARN_ON(rate < 25000000)) {
++		return 25000000;
++	} else if (rate == 25000000) {
++		return 25000000;
++	} else if (WARN_ON(rate < 75000000)) {
++		return 25000000;
++	} else if (WARN_ON(rate < 125000000)) {
++		return 125000000;
++	} else if (rate == 125000000) {
++		return 125000000;
++	} else {
++		WARN_ON(rate > 125000000);
++		return 125000000;
++	}
++}
++
++static int sifive_gemgxl_mgmt_set_rate(struct clk_hw *hw, unsigned long rate,
++		unsigned long parent_rate)
++{
++	struct sifive_gemgxl_mgmt *mgmt = to_sifive_gemgxl_mgmt(hw);
++	rate = sifive_gemgxl_mgmt_round_rate(hw, rate, &parent_rate);
++	iowrite32(rate != 125000000, mgmt->reg);
++	mgmt->rate = rate;
++	return 0;
++}
++
++static const struct clk_ops sifive_gemgxl_mgmt_ops = {
++	.recalc_rate = sifive_gemgxl_mgmt_recalc_rate,
++	.round_rate = sifive_gemgxl_mgmt_round_rate,
++	.set_rate = sifive_gemgxl_mgmt_set_rate,
++};
++
++static int sifive_gemgxl_mgmt_probe(struct platform_device *pdev)
++{
++	struct clk_init_data init;
++	struct sifive_gemgxl_mgmt *mgmt;
++	struct resource *res;
++	struct clk *clk;
++
++	mgmt = devm_kzalloc(&pdev->dev, sizeof(*mgmt), GFP_KERNEL);
++	if (!mgmt)
++		return -ENOMEM;
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	mgmt->reg = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(mgmt->reg))
++		return PTR_ERR(mgmt->reg);
++
++	init.name = pdev->dev.of_node->name;
++	init.ops = &sifive_gemgxl_mgmt_ops;
++	init.flags = 0;
++	init.num_parents = 0;
++
++	mgmt->rate = 0;
++	mgmt->hw.init = &init;
++
++	clk = clk_register(NULL, &mgmt->hw);
++	if (IS_ERR(clk))
++		return PTR_ERR(clk);
++
++	of_clk_add_provider(pdev->dev.of_node, of_clk_src_simple_get, clk);
++
++	dev_info(&pdev->dev, "Registered clock switch '%s'\n", init.name);
++
++	return 0;
++}
++
++static const struct of_device_id sifive_gemgxl_mgmt_of_match[] = {
++	{ .compatible = "sifive,cadencegemgxlmgmt0", },
++	{}
++};
++
++static struct platform_driver sifive_gemgxl_mgmt_driver = {
++	.driver	= {
++		.name = "sifive-gemgxl-mgmt",
++		.of_match_table = sifive_gemgxl_mgmt_of_match,
++	},
++	.probe = sifive_gemgxl_mgmt_probe,
++};
++
++static int __init sifive_gemgxl_mgmt_init(void)
++{
++	return platform_driver_register(&sifive_gemgxl_mgmt_driver);
++}
++core_initcall(sifive_gemgxl_mgmt_init);
+-- 
+2.7.4
+

@@ -1,0 +1,39 @@
+From aa230e7dc2ab01db5b630f427e57297ffc25c884 Mon Sep 17 00:00:00 2001
+From: Atish Patra <atish.patra@wdc.com>
+Date: Fri, 7 Sep 2018 10:22:27 -0700
+Subject: [PATCH 09/11] RISC-V: Networking fix Hack
+
+It looks like that kernel driver now supports reseting the
+signal one additional time. As it had been  already reset
+twice in FSBL, PHY gets into incorrect state causing below error.
+
+----------------------------------------------------------------------
+macb 10090000.ethernet (unnamed net_device) (uninitialized): Could not attach to PHY
+macb: probe of 10090000.ethernet failed with error -110
+----------------------------------------------------------------------
+
+This patch is just a temporary fix until we have a fix a FSBL.
+It is just a **HACK** and **NOT TO BE MERGED** into mainline.
+
+Signed-off-by: Atish Patra <atish.patra@wdc.com>
+---
+ drivers/net/phy/mdio_bus.c | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/drivers/net/phy/mdio_bus.c b/drivers/net/phy/mdio_bus.c
+index 98f4b1f7..02c31f83 100644
+--- a/drivers/net/phy/mdio_bus.c
++++ b/drivers/net/phy/mdio_bus.c
+@@ -64,9 +64,6 @@ static int mdiobus_register_gpiod(struct mdio_device *mdiodev)
+ 
+ 	mdiodev->reset = gpiod;
+ 
+-	/* Assert the reset signal again */
+-	mdio_device_reset(mdiodev, 1);
+-
+ 	return 0;
+ }
+ 
+-- 
+2.7.4
+
