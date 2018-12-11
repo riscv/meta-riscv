@@ -1,14 +1,14 @@
-From d1124a7b2aca0592088437f5e10917e4d3446c19 Mon Sep 17 00:00:00 2001
-From: Alistair Francis <alistair.francis@wdc.com>
-Date: Fri, 30 Nov 2018 09:15:54 -0800
-Subject: [PATCH Libgpg-error] syscfg: Add a riscv32 architecture.
+From 27ded21fea2a6f1fc161a91744014cce711ad1b3 Mon Sep 17 00:00:00 2001
+From: Alistair Francis <Alistair.Francis@wdc.com>
+Date: Mon, 10 Dec 2018 17:34:29 +0000
+Subject: [PATCH Libgpg-error] syscfg: Add a riscv32 architecture
 
 * src/syscfg/lock-obj-pub.riscv32-unknown-linux-gnu.h: New.
 * src/Makefile.am (lock_obj_pub): Add it.
 
 Signed-off-by: Alistair Francis <alistair.francis@wdc.com>
 Signed-off-by: pino-kim <sungwon.pino@gmail.com>
-Upstream-Status: Pending
+Upstream-Status: Accepted [1.34]
 ---
  src/Makefile.am                               |  1 +
  .../lock-obj-pub.riscv32-unknown-linux-gnu.h  | 23 +++++++++++++++++++
