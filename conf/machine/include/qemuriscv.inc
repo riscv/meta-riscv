@@ -14,7 +14,6 @@ GDBVERSION = "riscv"
 
 SERIAL_CONSOLES = "115200;ttyS0"
 
-TCLIBC = "glibc"
 IMAGE_FSTYPES_append = " ext4"
 
 MACHINE_EXTRA_RRECOMMENDS += " kernel-modules"
