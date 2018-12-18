@@ -14,7 +14,14 @@ SRC_URI = "\
 # qemu uses in-tree defconfig
 # freedom-u540 uses out-of-tree defconfig
 SRC_URI_append_freedom-u540 = " file://defconfig \
-                                file://0001-risc-v-Fix-issue-ignoring-CONFIG_CMDLINE_OVERRIDE.patch \
+                                file://0001-spi-sifive-support-SiFive-SPI-controller-in-Quad-Mod.patch \
+                                file://0002-spi-nor-add-support-for-is25wp-32-64-128-256.patch \
+                                file://0003-serial-sifive-initial-driver-from-Paul-Walmsley.patch \
+                                file://0005-u54-prci-driver-for-core-U54-clocks.patch \
+                                file://0006-u54-prci-driver-for-core-U54-clocks.patch \
+                                file://0008-pwm-sifive-add-a-driver-for-SiFive-SoC-PWM.patch \
+                                file://0009-RISC-V-Networking-fix-Hack.patch \
+                                file://0010-pcie-microsemi-added-support-for-the-Vera-board-root.patch \
                               "
 
 SRC_URI_append_qemuriscv32 = " file://32bit.cfg \
