@@ -9,6 +9,12 @@ SRC_URI = "git://github.com/riscv/riscv-pk.git \
            file://0001-add-acinclude.m4.patch \
           "
 
+SRC_URI_append_freedom-u540 = " \
+                                file://0002-Add-libfdt-support.patch \
+                                file://0003-Add-microsemi-pcie-entry-in-bbl.patch \
+                                file://0004-Rename-bcopy-to-acopy.patch \
+                              "
+
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 LDFLAGS_append = " -Wl,--build-id=none"
