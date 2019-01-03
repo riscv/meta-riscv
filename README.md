@@ -84,6 +84,16 @@ The output of the build will be a ```<image>.wic.gz``` file. You can write this 
 $ zcat <image>-<machine>.wic.gz | sudo dd of=/dev/sdX bs=4M iflag=fullblock oflag=direct conv=fsync status=progress
 ```
 
+## Sparse Image Creation
+
+The output of the build can also be written to an SD card using bmaptool, the steps to do this are below:
+
+```text
+$ MACHINE=freedom-u540 wic create freedom-u540-bbl -e core-image-minimal
+$ bmaptool create ./freedom-u540-bbl-201812181337-mmcblk.direct > image.bmap
+$ sudo bmaptool copy --bmap image.bmap ./freedom-u540-bbl-201812181337-mmcblk.direct /dev/sdd
+```
+
 ## Maintainer(s)
 
 * Khem Raj `<raj dot khem at gmail.com>`
