@@ -1,6 +1,3 @@
-PREFERRED_PROVIDER_virtual/kernel ?= "linux-riscv"
-PREFERRED_VERSION_linux-riscv ?= "4.19%"
-
 PREFERRED_PROVIDER_virtual/bootloader ?= "u-boot"
 
 require conf/machine/include/qemu.inc
