@@ -1,0 +1,53 @@
+From e257365645012bc47a4273eeb2224451b656a3ad Mon Sep 17 00:00:00 2001
+From: Drew DeVault <sir@cmpwn.com>
+Date: Fri, 14 Dec 2018 20:32:12 -0500
+Subject: [PATCH 3/5] RISC-V: Fix syscall_cp on riscv64/32
+
+Thanks to Rich Felker for pointing out this error on the musl list. In
+addition to fixing the labels, this loads the cancel flag with lw
+instead of ld.
+---
+ src/thread/riscv32/syscall_cp.s | 4 ++--
+ src/thread/riscv64/syscall_cp.s | 6 +++---
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/src/thread/riscv32/syscall_cp.s b/src/thread/riscv32/syscall_cp.s
+index 71bf6d3e..9c450402 100644
+--- a/src/thread/riscv32/syscall_cp.s
++++ b/src/thread/riscv32/syscall_cp.s
+@@ -23,7 +23,7 @@ __cp_begin:
+         lw a6, 0(sp)
+         mv a7, t0
+         scall
+-__cp_cancel:
+-        ret
+ __cp_end:
++        ret
++__cp_cancel:
+         j __cancel
+diff --git a/src/thread/riscv64/syscall_cp.s b/src/thread/riscv64/syscall_cp.s
+index c745b328..65cf722f 100644
+--- a/src/thread/riscv64/syscall_cp.s
++++ b/src/thread/riscv64/syscall_cp.s
+@@ -10,7 +10,7 @@
+ .type __syscall_cp_asm, %function
+ __syscall_cp_asm:
+ __cp_begin:
+-        ld t0, 0(a0)
++        lw t0, 0(a0)
+         bnez t0, __cp_cancel
+ 
+         mv t0, a1
+@@ -23,7 +23,7 @@ __cp_begin:
+         ld a6, 0(sp)
+         mv a7, t0
+         scall
+-__cp_cancel:
+-        ret
+ __cp_end:
++        ret
++__cp_cancel:
+         j __cancel
+-- 
+2.20.1
+

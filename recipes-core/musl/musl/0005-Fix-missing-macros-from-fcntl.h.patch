@@ -1,0 +1,56 @@
+From 6731272acf55de3bb82d186c0c7690211feb064a Mon Sep 17 00:00:00 2001
+From: Nick Kossifidis <mickflemm@gmail.com>
+Date: Sun, 4 Nov 2018 20:38:48 +0200
+Subject: [PATCH 5/5] Fix missing macros from fcntl.h
+
+This fixes file locking, tested with busybox
+---
+ arch/generic/bits/fcntl.h | 10 ++++++----
+ include/fcntl.h           |  2 ++
+ 2 files changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/arch/generic/bits/fcntl.h b/arch/generic/bits/fcntl.h
+index ae233cc0..d9e779a6 100644
+--- a/arch/generic/bits/fcntl.h
++++ b/arch/generic/bits/fcntl.h
+@@ -24,15 +24,17 @@
+ #define F_SETFD  2
+ #define F_GETFL  3
+ #define F_SETFL  4
+-
++#define F_GETLK  5
++#define F_SETLK  6
++#define F_SETLKW 7
+ #define F_SETOWN 8
+ #define F_GETOWN 9
+ #define F_SETSIG 10
+ #define F_GETSIG 11
+ 
+-#define F_GETLK 12
+-#define F_SETLK 13
+-#define F_SETLKW 14
++#define F_GETLK64 12
++#define F_SETLK64 13
++#define F_SETLKW64 14
+ 
+ #define F_SETOWN_EX 15
+ #define F_GETOWN_EX 16
+diff --git a/include/fcntl.h b/include/fcntl.h
+index 4d91338b..c34de91f 100644
+--- a/include/fcntl.h
++++ b/include/fcntl.h
+@@ -187,9 +187,11 @@ ssize_t tee(int, int, size_t, unsigned);
+ #endif
+ 
+ #if defined(_LARGEFILE64_SOURCE) || defined(_GNU_SOURCE)
++#ifndef F_GETLK64
+ #define F_GETLK64 F_GETLK
+ #define F_SETLK64 F_SETLK
+ #define F_SETLKW64 F_SETLKW
++#endif
+ #define flock64 flock
+ #define open64 open
+ #define openat64 openat
+-- 
+2.20.1
+
