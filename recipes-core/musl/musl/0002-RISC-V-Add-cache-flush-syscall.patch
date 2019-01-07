@@ -1,0 +1,51 @@
+From d471b10ce2abe4f3dfec6d24ad0f8ef1fe1070b3 Mon Sep 17 00:00:00 2001
+From: Drew DeVault <sir@cmpwn.com>
+Date: Sun, 16 Dec 2018 10:55:09 -0500
+Subject: [PATCH 2/5] RISC-V: Add cache flush syscall
+
+---
+ arch/riscv32/bits/syscall.h.in | 1 +
+ arch/riscv64/bits/syscall.h.in | 1 +
+ src/linux/cache.c              | 9 +++++++++
+ 3 files changed, 11 insertions(+)
+
+diff --git a/arch/riscv32/bits/syscall.h.in b/arch/riscv32/bits/syscall.h.in
+index 3c81c107..11393c29 100644
+--- a/arch/riscv32/bits/syscall.h.in
++++ b/arch/riscv32/bits/syscall.h.in
+@@ -275,4 +275,5 @@
+ #define __NR_pkey_alloc 289
+ #define __NR_pkey_free 290
+ #define __NR_sysriscv __NR_arch_specific_syscall
++#define __NR_riscv_flush_icache (__NR_sysriscv + 15)
+ 
+diff --git a/arch/riscv64/bits/syscall.h.in b/arch/riscv64/bits/syscall.h.in
+index 3c81c107..11393c29 100644
+--- a/arch/riscv64/bits/syscall.h.in
++++ b/arch/riscv64/bits/syscall.h.in
+@@ -275,4 +275,5 @@
+ #define __NR_pkey_alloc 289
+ #define __NR_pkey_free 290
+ #define __NR_sysriscv __NR_arch_specific_syscall
++#define __NR_riscv_flush_icache (__NR_sysriscv + 15)
+ 
+diff --git a/src/linux/cache.c b/src/linux/cache.c
+index 84a138a4..4ce919cf 100644
+--- a/src/linux/cache.c
++++ b/src/linux/cache.c
+@@ -15,3 +15,12 @@ int __cachectl(void *addr, int len, int op)
+ }
+ weak_alias(__cachectl, cachectl);
+ #endif
++
++#ifdef SYS_riscv_flush_icache
++int __riscv_flush_icache(void *start, void *end, unsigned long int flags) 
++{
++	// TODO: Use vdso
++	return syscall(SYS_riscv_flush_icache, start, end, flags);
++}
++weak_alias(__riscv_flush_icache, riscv_flush_icache);
++#endif
+-- 
+2.20.1
+
