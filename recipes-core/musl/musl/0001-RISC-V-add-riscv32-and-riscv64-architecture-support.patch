@@ -213,9 +213,6 @@ Author: Michael Clark <mjc@sifive.com>
  create mode 100644 src/thread/riscv64/clone.s
  create mode 100644 src/thread/riscv64/syscall_cp.s
 
-diff --git a/arch/riscv32/atomic_arch.h b/arch/riscv32/atomic_arch.h
-new file mode 100644
-index 00000000..93c89cc2
 --- /dev/null
 +++ b/arch/riscv32/atomic_arch.h
 @@ -0,0 +1,35 @@
@@ -254,9 +251,6 @@ index 00000000..93c89cc2
 +		: "r"(t), "r"(s));
 +	return old;
 +}
-diff --git a/arch/riscv32/bits/alltypes.h.in b/arch/riscv32/bits/alltypes.h.in
-new file mode 100644
-index 00000000..66ca18ad
 --- /dev/null
 +++ b/arch/riscv32/bits/alltypes.h.in
 @@ -0,0 +1,26 @@
@@ -286,9 +280,6 @@ index 00000000..66ca18ad
 +TYPEDEF struct { union { int __i[12]; volatile int __vi[12]; void *__p[12]; } __u; } cnd_t;
 +TYPEDEF struct { union { int __i[8]; volatile int __vi[8]; void *__p[8]; } __u; } pthread_rwlock_t;
 +TYPEDEF struct { union { int __i[5]; volatile int __vi[5]; void *__p[5]; } __u; } pthread_barrier_t;
-diff --git a/arch/riscv32/bits/endian.h b/arch/riscv32/bits/endian.h
-new file mode 100644
-index 00000000..7df0e02a
 --- /dev/null
 +++ b/arch/riscv32/bits/endian.h
 @@ -0,0 +1,5 @@
@@ -297,9 +288,6 @@ index 00000000..7df0e02a
 +#else
 +#define __BYTE_ORDER __LITTLE_ENDIAN
 +#endif
-diff --git a/arch/riscv32/bits/fcntl.h b/arch/riscv32/bits/fcntl.h
-new file mode 100644
-index 00000000..92787976
 --- /dev/null
 +++ b/arch/riscv32/bits/fcntl.h
 @@ -0,0 +1,38 @@
@@ -341,9 +329,6 @@ index 00000000..92787976
 +#define F_GETOWN_EX 16
 +
 +#define F_GETOWNER_UIDS 17
-diff --git a/arch/riscv32/bits/fenv.h b/arch/riscv32/bits/fenv.h
-new file mode 100644
-index 00000000..6ac43e4e
 --- /dev/null
 +++ b/arch/riscv32/bits/fenv.h
 @@ -0,0 +1,18 @@
@@ -365,9 +350,6 @@ index 00000000..6ac43e4e
 +typedef unsigned int fenv_t;
 +
 +#define FE_DFL_ENV      ((const fenv_t *) -1)
-diff --git a/arch/riscv32/bits/float.h b/arch/riscv32/bits/float.h
-new file mode 100644
-index 00000000..719c7908
 --- /dev/null
 +++ b/arch/riscv32/bits/float.h
 @@ -0,0 +1,16 @@
@@ -387,9 +369,6 @@ index 00000000..719c7908
 +#define LDBL_MAX_10_EXP 4932
 +
 +#define DECIMAL_DIG 36
-diff --git a/arch/riscv32/bits/ipc.h b/arch/riscv32/bits/ipc.h
-new file mode 100644
-index 00000000..6f3328a8
 --- /dev/null
 +++ b/arch/riscv32/bits/ipc.h
 @@ -0,0 +1,14 @@
@@ -407,9 +386,6 @@ index 00000000..6f3328a8
 +};
 +
 +#define IPC_64 0
-diff --git a/arch/riscv32/bits/limits.h b/arch/riscv32/bits/limits.h
-new file mode 100644
-index 00000000..fbc6d238
 --- /dev/null
 +++ b/arch/riscv32/bits/limits.h
 @@ -0,0 +1,7 @@
@@ -420,9 +396,6 @@ index 00000000..fbc6d238
 +
 +#define LONG_MAX  0x7fffffffL
 +#define LLONG_MAX  0x7fffffffffffffffLL
-diff --git a/arch/riscv32/bits/msg.h b/arch/riscv32/bits/msg.h
-new file mode 100644
-index 00000000..641e1703
 --- /dev/null
 +++ b/arch/riscv32/bits/msg.h
 @@ -0,0 +1,13 @@
@@ -439,17 +412,11 @@ index 00000000..641e1703
 +	unsigned long __pad1;
 +	unsigned long __pad2;
 +};
-diff --git a/arch/riscv32/bits/posix.h b/arch/riscv32/bits/posix.h
-new file mode 100644
-index 00000000..7563df5d
 --- /dev/null
 +++ b/arch/riscv32/bits/posix.h
 @@ -0,0 +1,2 @@
 +# define _POSIX_V6_ILP32_OFFBIG 1
 +# define _POSIX_V7_ILP32_OFFBIG 1
-diff --git a/arch/riscv32/bits/reg.h b/arch/riscv32/bits/reg.h
-new file mode 100644
-index 00000000..e0bf40d5
 --- /dev/null
 +++ b/arch/riscv32/bits/reg.h
 @@ -0,0 +1,8 @@
@@ -461,9 +428,6 @@ index 00000000..e0bf40d5
 +#define REG_TP 4
 +#define REG_S0 8
 +#define REG_A0 10
-diff --git a/arch/riscv32/bits/sem.h b/arch/riscv32/bits/sem.h
-new file mode 100644
-index 00000000..5f93c12d
 --- /dev/null
 +++ b/arch/riscv32/bits/sem.h
 @@ -0,0 +1,9 @@
@@ -476,16 +440,10 @@ index 00000000..5f93c12d
 +	time_t __unused3;
 +	time_t __unused4;
 +};
-diff --git a/arch/riscv32/bits/setjmp.h b/arch/riscv32/bits/setjmp.h
-new file mode 100644
-index 00000000..ef6a017a
 --- /dev/null
 +++ b/arch/riscv32/bits/setjmp.h
 @@ -0,0 +1 @@
 +typedef unsigned long __jmp_buf[40];
-diff --git a/arch/riscv32/bits/shm.h b/arch/riscv32/bits/shm.h
-new file mode 100644
-index 00000000..f4b87126
 --- /dev/null
 +++ b/arch/riscv32/bits/shm.h
 @@ -0,0 +1,26 @@
@@ -515,9 +473,6 @@ index 00000000..f4b87126
 +	unsigned long __swap_attempts, __swap_successes;
 +};
 +
-diff --git a/arch/riscv32/bits/signal.h b/arch/riscv32/bits/signal.h
-new file mode 100644
-index 00000000..8b992cc8
 --- /dev/null
 +++ b/arch/riscv32/bits/signal.h
 @@ -0,0 +1,113 @@
@@ -634,9 +589,6 @@ index 00000000..8b992cc8
 +#define SIGUNUSED SIGSYS
 +
 +#define _NSIG     65
-diff --git a/arch/riscv32/bits/socket.h b/arch/riscv32/bits/socket.h
-new file mode 100644
-index 00000000..c11677e9
 --- /dev/null
 +++ b/arch/riscv32/bits/socket.h
 @@ -0,0 +1,33 @@
@@ -673,9 +625,6 @@ index 00000000..c11677e9
 +	int cmsg_level;
 +	int cmsg_type;
 +};
-diff --git a/arch/riscv32/bits/stat.h b/arch/riscv32/bits/stat.h
-new file mode 100644
-index 00000000..b7f4221b
 --- /dev/null
 +++ b/arch/riscv32/bits/stat.h
 @@ -0,0 +1,18 @@
@@ -697,9 +646,6 @@ index 00000000..b7f4221b
 +	struct timespec st_ctim;
 +	unsigned __unused[2];
 +};
-diff --git a/arch/riscv32/bits/stdint.h b/arch/riscv32/bits/stdint.h
-new file mode 100644
-index 00000000..d1b27121
 --- /dev/null
 +++ b/arch/riscv32/bits/stdint.h
 @@ -0,0 +1,20 @@
@@ -723,9 +669,6 @@ index 00000000..d1b27121
 +#define PTRDIFF_MIN     INT32_MIN
 +#define PTRDIFF_MAX     INT32_MAX
 +#define SIZE_MAX        UINT32_MAX
-diff --git a/arch/riscv32/bits/syscall.h.in b/arch/riscv32/bits/syscall.h.in
-new file mode 100644
-index 00000000..3c81c107
 --- /dev/null
 +++ b/arch/riscv32/bits/syscall.h.in
 @@ -0,0 +1,278 @@
@@ -1007,9 +950,6 @@ index 00000000..3c81c107
 +#define __NR_pkey_free 290
 +#define __NR_sysriscv __NR_arch_specific_syscall
 +
-diff --git a/arch/riscv32/bits/user.h b/arch/riscv32/bits/user.h
-new file mode 100644
-index 00000000..bd0f0fc7
 --- /dev/null
 +++ b/arch/riscv32/bits/user.h
 @@ -0,0 +1,43 @@
@@ -1056,9 +996,6 @@ index 00000000..bd0f0fc7
 +#define ELF_NGREG 32
 +typedef unsigned long elf_greg_t, elf_gregset_t[ELF_NGREG];
 +typedef struct user_fpregs_struct elf_fpregset_t;
-diff --git a/arch/riscv32/crt_arch.h b/arch/riscv32/crt_arch.h
-new file mode 100644
-index 00000000..65187e19
 --- /dev/null
 +++ b/arch/riscv32/crt_arch.h
 @@ -0,0 +1,18 @@
@@ -1080,9 +1017,6 @@ index 00000000..65187e19
 +"andi sp, sp, -16\n\t"
 +"jal " START "_c"
 +);
-diff --git a/arch/riscv32/pthread_arch.h b/arch/riscv32/pthread_arch.h
-new file mode 100644
-index 00000000..feffaa47
 --- /dev/null
 +++ b/arch/riscv32/pthread_arch.h
 @@ -0,0 +1,12 @@
@@ -1098,9 +1032,6 @@ index 00000000..feffaa47
 +#define TP_ADJ(p) ((char *)p + sizeof(struct pthread))
 +
 +#define MC_PC gregs[0]
-diff --git a/arch/riscv32/reloc.h b/arch/riscv32/reloc.h
-new file mode 100644
-index 00000000..d057bbee
 --- /dev/null
 +++ b/arch/riscv32/reloc.h
 @@ -0,0 +1,27 @@
@@ -1131,9 +1062,6 @@ index 00000000..d057bbee
 +
 +#define CRTJMP(pc,sp) __asm__ __volatile__( \
 +	"mv sp, %1 ; jr %0" : : "r"(pc), "r"(sp) : "memory" )
-diff --git a/arch/riscv32/syscall_arch.h b/arch/riscv32/syscall_arch.h
-new file mode 100644
-index 00000000..bc60d1f6
 --- /dev/null
 +++ b/arch/riscv32/syscall_arch.h
 @@ -0,0 +1,78 @@
@@ -1215,9 +1143,6 @@ index 00000000..bc60d1f6
 +/* We don't have a clock_gettime function.
 +#define VDSO_CGT_SYM "__vdso_clock_gettime"
 +#define VDSO_CGT_VER "LINUX_2.6" */
-diff --git a/arch/riscv64/atomic_arch.h b/arch/riscv64/atomic_arch.h
-new file mode 100644
-index 00000000..018c7fd2
 --- /dev/null
 +++ b/arch/riscv64/atomic_arch.h
 @@ -0,0 +1,66 @@
@@ -1287,9 +1212,6 @@ index 00000000..018c7fd2
 +		: "r"(t), "r"(s));
 +	return old;
 +}
-diff --git a/arch/riscv64/bits/alltypes.h.in b/arch/riscv64/bits/alltypes.h.in
-new file mode 100644
-index 00000000..ae9ba41d
 --- /dev/null
 +++ b/arch/riscv64/bits/alltypes.h.in
 @@ -0,0 +1,29 @@
@@ -1322,9 +1244,6 @@ index 00000000..ae9ba41d
 +TYPEDEF struct { union { int __i[12]; volatile int __vi[12]; void *__p[6]; } __u; } cnd_t;
 +TYPEDEF struct { union { int __i[14]; volatile int __vi[14]; void *__p[7]; } __u; } pthread_rwlock_t;
 +TYPEDEF struct { union { int __i[8]; volatile int __vi[8]; void *__p[4]; } __u; } pthread_barrier_t;
-diff --git a/arch/riscv64/bits/endian.h b/arch/riscv64/bits/endian.h
-new file mode 100644
-index 00000000..7df0e02a
 --- /dev/null
 +++ b/arch/riscv64/bits/endian.h
 @@ -0,0 +1,5 @@
@@ -1333,9 +1252,6 @@ index 00000000..7df0e02a
 +#else
 +#define __BYTE_ORDER __LITTLE_ENDIAN
 +#endif
-diff --git a/arch/riscv64/bits/fcntl.h b/arch/riscv64/bits/fcntl.h
-new file mode 100644
-index 00000000..92787976
 --- /dev/null
 +++ b/arch/riscv64/bits/fcntl.h
 @@ -0,0 +1,38 @@
@@ -1377,9 +1293,6 @@ index 00000000..92787976
 +#define F_GETOWN_EX 16
 +
 +#define F_GETOWNER_UIDS 17
-diff --git a/arch/riscv64/bits/fenv.h b/arch/riscv64/bits/fenv.h
-new file mode 100644
-index 00000000..806ec40f
 --- /dev/null
 +++ b/arch/riscv64/bits/fenv.h
 @@ -0,0 +1,17 @@
@@ -1400,9 +1313,6 @@ index 00000000..806ec40f
 +typedef unsigned int fenv_t;
 +
 +#define FE_DFL_ENV      ((const fenv_t *) -1)
-diff --git a/arch/riscv64/bits/float.h b/arch/riscv64/bits/float.h
-new file mode 100644
-index 00000000..719c7908
 --- /dev/null
 +++ b/arch/riscv64/bits/float.h
 @@ -0,0 +1,16 @@
@@ -1422,9 +1332,6 @@ index 00000000..719c7908
 +#define LDBL_MAX_10_EXP 4932
 +
 +#define DECIMAL_DIG 36
-diff --git a/arch/riscv64/bits/ipc.h b/arch/riscv64/bits/ipc.h
-new file mode 100644
-index 00000000..6f3328a8
 --- /dev/null
 +++ b/arch/riscv64/bits/ipc.h
 @@ -0,0 +1,14 @@
@@ -1442,9 +1349,6 @@ index 00000000..6f3328a8
 +};
 +
 +#define IPC_64 0
-diff --git a/arch/riscv64/bits/limits.h b/arch/riscv64/bits/limits.h
-new file mode 100644
-index 00000000..0226588c
 --- /dev/null
 +++ b/arch/riscv64/bits/limits.h
 @@ -0,0 +1,7 @@
@@ -1455,16 +1359,10 @@ index 00000000..0226588c
 +
 +#define LONG_MAX  0x7fffffffffffffffL
 +#define LLONG_MAX  0x7fffffffffffffffLL
-diff --git a/arch/riscv64/bits/mman.h b/arch/riscv64/bits/mman.h
-new file mode 100644
-index 00000000..36950573
 --- /dev/null
 +++ b/arch/riscv64/bits/mman.h
 @@ -0,0 +1 @@
 +#define MAP_32BIT       0x40
-diff --git a/arch/riscv64/bits/msg.h b/arch/riscv64/bits/msg.h
-new file mode 100644
-index 00000000..641e1703
 --- /dev/null
 +++ b/arch/riscv64/bits/msg.h
 @@ -0,0 +1,13 @@
@@ -1481,17 +1379,11 @@ index 00000000..641e1703
 +	unsigned long __pad1;
 +	unsigned long __pad2;
 +};
-diff --git a/arch/riscv64/bits/posix.h b/arch/riscv64/bits/posix.h
-new file mode 100644
-index 00000000..8068ce98
 --- /dev/null
 +++ b/arch/riscv64/bits/posix.h
 @@ -0,0 +1,2 @@
 +#define _POSIX_V6_LP64_OFF64 1
 +#define _POSIX_V7_LP64_OFF64 1
-diff --git a/arch/riscv64/bits/reg.h b/arch/riscv64/bits/reg.h
-new file mode 100644
-index 00000000..c800788c
 --- /dev/null
 +++ b/arch/riscv64/bits/reg.h
 @@ -0,0 +1,8 @@
@@ -1503,9 +1395,6 @@ index 00000000..c800788c
 +#define REG_TP 4
 +#define REG_S0 8
 +#define REG_A0 10
-diff --git a/arch/riscv64/bits/sem.h b/arch/riscv64/bits/sem.h
-new file mode 100644
-index 00000000..5f93c12d
 --- /dev/null
 +++ b/arch/riscv64/bits/sem.h
 @@ -0,0 +1,9 @@
@@ -1518,16 +1407,10 @@ index 00000000..5f93c12d
 +	time_t __unused3;
 +	time_t __unused4;
 +};
-diff --git a/arch/riscv64/bits/setjmp.h b/arch/riscv64/bits/setjmp.h
-new file mode 100644
-index 00000000..b6cdc8e8
 --- /dev/null
 +++ b/arch/riscv64/bits/setjmp.h
 @@ -0,0 +1 @@
 +typedef unsigned long __jmp_buf[28];
-diff --git a/arch/riscv64/bits/shm.h b/arch/riscv64/bits/shm.h
-new file mode 100644
-index 00000000..f4b87126
 --- /dev/null
 +++ b/arch/riscv64/bits/shm.h
 @@ -0,0 +1,26 @@
@@ -1557,9 +1440,6 @@ index 00000000..f4b87126
 +	unsigned long __swap_attempts, __swap_successes;
 +};
 +
-diff --git a/arch/riscv64/bits/signal.h b/arch/riscv64/bits/signal.h
-new file mode 100644
-index 00000000..8b992cc8
 --- /dev/null
 +++ b/arch/riscv64/bits/signal.h
 @@ -0,0 +1,113 @@
@@ -1676,9 +1556,6 @@ index 00000000..8b992cc8
 +#define SIGUNUSED SIGSYS
 +
 +#define _NSIG     65
-diff --git a/arch/riscv64/bits/socket.h b/arch/riscv64/bits/socket.h
-new file mode 100644
-index 00000000..c11677e9
 --- /dev/null
 +++ b/arch/riscv64/bits/socket.h
 @@ -0,0 +1,33 @@
@@ -1715,9 +1592,6 @@ index 00000000..c11677e9
 +	int cmsg_level;
 +	int cmsg_type;
 +};
-diff --git a/arch/riscv64/bits/stat.h b/arch/riscv64/bits/stat.h
-new file mode 100644
-index 00000000..b7f4221b
 --- /dev/null
 +++ b/arch/riscv64/bits/stat.h
 @@ -0,0 +1,18 @@
@@ -1739,9 +1613,6 @@ index 00000000..b7f4221b
 +	struct timespec st_ctim;
 +	unsigned __unused[2];
 +};
-diff --git a/arch/riscv64/bits/stdint.h b/arch/riscv64/bits/stdint.h
-new file mode 100644
-index 00000000..1bb147f2
 --- /dev/null
 +++ b/arch/riscv64/bits/stdint.h
 @@ -0,0 +1,20 @@
@@ -1765,9 +1636,6 @@ index 00000000..1bb147f2
 +#define PTRDIFF_MIN     INT64_MIN
 +#define PTRDIFF_MAX     INT64_MAX
 +#define SIZE_MAX        UINT64_MAX
-diff --git a/arch/riscv64/bits/syscall.h.in b/arch/riscv64/bits/syscall.h.in
-new file mode 100644
-index 00000000..3c81c107
 --- /dev/null
 +++ b/arch/riscv64/bits/syscall.h.in
 @@ -0,0 +1,278 @@
@@ -2049,9 +1917,6 @@ index 00000000..3c81c107
 +#define __NR_pkey_free 290
 +#define __NR_sysriscv __NR_arch_specific_syscall
 +
-diff --git a/arch/riscv64/bits/user.h b/arch/riscv64/bits/user.h
-new file mode 100644
-index 00000000..bd0f0fc7
 --- /dev/null
 +++ b/arch/riscv64/bits/user.h
 @@ -0,0 +1,43 @@
@@ -2098,9 +1963,6 @@ index 00000000..bd0f0fc7
 +#define ELF_NGREG 32
 +typedef unsigned long elf_greg_t, elf_gregset_t[ELF_NGREG];
 +typedef struct user_fpregs_struct elf_fpregset_t;
-diff --git a/arch/riscv64/crt_arch.h b/arch/riscv64/crt_arch.h
-new file mode 100644
-index 00000000..d0e32a6c
 --- /dev/null
 +++ b/arch/riscv64/crt_arch.h
 @@ -0,0 +1,18 @@
@@ -2122,9 +1984,6 @@ index 00000000..d0e32a6c
 +"andi sp, sp, -16\n\t"
 +"jal " START "_c"
 +);
-diff --git a/arch/riscv64/pthread_arch.h b/arch/riscv64/pthread_arch.h
-new file mode 100644
-index 00000000..feffaa47
 --- /dev/null
 +++ b/arch/riscv64/pthread_arch.h
 @@ -0,0 +1,12 @@
@@ -2140,9 +1999,6 @@ index 00000000..feffaa47
 +#define TP_ADJ(p) ((char *)p + sizeof(struct pthread))
 +
 +#define MC_PC gregs[0]
-diff --git a/arch/riscv64/reloc.h b/arch/riscv64/reloc.h
-new file mode 100644
-index 00000000..8bd90dda
 --- /dev/null
 +++ b/arch/riscv64/reloc.h
 @@ -0,0 +1,27 @@
@@ -2173,9 +2029,6 @@ index 00000000..8bd90dda
 +
 +#define CRTJMP(pc,sp) __asm__ __volatile__( \
 +	"mv sp, %1 ; jr %0" : : "r"(pc), "r"(sp) : "memory" )
-diff --git a/arch/riscv64/syscall_arch.h b/arch/riscv64/syscall_arch.h
-new file mode 100644
-index 00000000..7b6e3fd5
 --- /dev/null
 +++ b/arch/riscv64/syscall_arch.h
 @@ -0,0 +1,76 @@
@@ -2255,20 +2108,18 @@ index 00000000..7b6e3fd5
 +/* We don't have a clock_gettime function.
 +#define VDSO_CGT_SYM "__vdso_clock_gettime"
 +#define VDSO_CGT_VER "LINUX_2.6" */
-diff --git a/configure b/configure
-index 997e6652..4d3d8b44 100755
 --- a/configure
 +++ b/configure
 @@ -322,6 +322,8 @@ microblaze*) ARCH=microblaze ;;
  or1k*) ARCH=or1k ;;
- powerpc64*) ARCH=powerpc64 ;;
- powerpc*) ARCH=powerpc ;;
+ powerpc64*|ppc64*) ARCH=powerpc64 ;;
+ powerpc*|ppc*) ARCH=powerpc ;;
 +riscv64*) ARCH=riscv64 ;;
 +riscv*) ARCH=riscv32 ;;
  sh[1-9bel-]*|sh|superh*) ARCH=sh ;;
  s390x*) ARCH=s390x ;;
  unknown) fail "$0: unable to detect target arch; try $0 --target=..." ;;
-@@ -640,6 +642,11 @@ trycppif __LITTLE_ENDIAN__ "$t" && SUBARCH=${SUBARCH}le
+@@ -640,6 +642,11 @@ trycppif __LITTLE_ENDIAN__ "$t" && SUBAR
  trycppif _SOFT_FLOAT "$t" && fail "$0: error: soft-float not supported on powerpc64"
  fi
  
@@ -2280,9 +2131,6 @@ index 997e6652..4d3d8b44 100755
  if test "$ARCH" = "sh" ; then
  tryflag CFLAGS_AUTO -Wa,--isa=any
  trycppif __BIG_ENDIAN__ "$t" && SUBARCH=${SUBARCH}eb
-diff --git a/crt/riscv32/crti.s b/crt/riscv32/crti.s
-new file mode 100644
-index 00000000..6916bfd6
 --- /dev/null
 +++ b/crt/riscv32/crti.s
 @@ -0,0 +1,11 @@
@@ -2297,12 +2145,6 @@ index 00000000..6916bfd6
 +.type _fini,%function
 +_fini:
 +        ret
-diff --git a/crt/riscv32/crtn.s b/crt/riscv32/crtn.s
-new file mode 100644
-index 00000000..e69de29b
-diff --git a/crt/riscv64/crti.s b/crt/riscv64/crti.s
-new file mode 100644
-index 00000000..8b54a65d
 --- /dev/null
 +++ b/crt/riscv64/crti.s
 @@ -0,0 +1,11 @@
@@ -2317,14 +2159,9 @@ index 00000000..8b54a65d
 +.type _fini %function
 +_fini:
 +        ret
-diff --git a/crt/riscv64/crtn.s b/crt/riscv64/crtn.s
-new file mode 100644
-index 00000000..e69de29b
-diff --git a/include/elf.h b/include/elf.h
-index c2297353..ec2e8fd0 100644
 --- a/include/elf.h
 +++ b/include/elf.h
-@@ -3164,6 +3164,62 @@ enum
+@@ -3166,6 +3166,62 @@ enum
  #define R_BPF_NONE		0
  #define R_BPF_MAP_FD		1
  
@@ -2387,18 +2224,12 @@ index c2297353..ec2e8fd0 100644
  #ifdef __cplusplus
  }
  #endif
-diff --git a/src/fenv/riscv32/fenv-sf.c b/src/fenv/riscv32/fenv-sf.c
-new file mode 100644
-index 00000000..9ff7b792
 --- /dev/null
 +++ b/src/fenv/riscv32/fenv-sf.c
 @@ -0,0 +1,3 @@
 +#ifdef __riscv_soft_float
 +#include "../fenv.c"
 +#endif
-diff --git a/src/fenv/riscv32/fenv.S b/src/fenv/riscv32/fenv.S
-new file mode 100644
-index 00000000..a55aa4ab
 --- /dev/null
 +++ b/src/fenv/riscv32/fenv.S
 @@ -0,0 +1,53 @@
@@ -2455,18 +2286,12 @@ index 00000000..a55aa4ab
 +        ret
 +
 +#endif
-diff --git a/src/fenv/riscv64/fenv-sf.c b/src/fenv/riscv64/fenv-sf.c
-new file mode 100644
-index 00000000..9ff7b792
 --- /dev/null
 +++ b/src/fenv/riscv64/fenv-sf.c
 @@ -0,0 +1,3 @@
 +#ifdef __riscv_soft_float
 +#include "../fenv.c"
 +#endif
-diff --git a/src/fenv/riscv64/fenv.S b/src/fenv/riscv64/fenv.S
-new file mode 100644
-index 00000000..a55aa4ab
 --- /dev/null
 +++ b/src/fenv/riscv64/fenv.S
 @@ -0,0 +1,53 @@
@@ -2523,9 +2348,6 @@ index 00000000..a55aa4ab
 +        ret
 +
 +#endif
-diff --git a/src/internal/riscv32/syscall.s b/src/internal/riscv32/syscall.s
-new file mode 100644
-index 00000000..a7d125af
 --- /dev/null
 +++ b/src/internal/riscv32/syscall.s
 @@ -0,0 +1,15 @@
@@ -2544,9 +2366,6 @@ index 00000000..a7d125af
 +        mv a7, t0
 +        scall
 +        ret
-diff --git a/src/internal/riscv64/syscall.s b/src/internal/riscv64/syscall.s
-new file mode 100644
-index 00000000..a7d125af
 --- /dev/null
 +++ b/src/internal/riscv64/syscall.s
 @@ -0,0 +1,15 @@
@@ -2565,9 +2384,6 @@ index 00000000..a7d125af
 +        mv a7, t0
 +        scall
 +        ret
-diff --git a/src/ldso/riscv32/dlsym.s b/src/ldso/riscv32/dlsym.s
-new file mode 100644
-index 00000000..ff9109dc
 --- /dev/null
 +++ b/src/ldso/riscv32/dlsym.s
 @@ -0,0 +1,6 @@
@@ -2577,9 +2393,6 @@ index 00000000..ff9109dc
 +dlsym:
 +        mv a2, ra
 +        j __dlsym
-diff --git a/src/ldso/riscv64/dlsym.s b/src/ldso/riscv64/dlsym.s
-new file mode 100644
-index 00000000..ff9109dc
 --- /dev/null
 +++ b/src/ldso/riscv64/dlsym.s
 @@ -0,0 +1,6 @@
@@ -2589,9 +2402,6 @@ index 00000000..ff9109dc
 +dlsym:
 +        mv a2, ra
 +        j __dlsym
-diff --git a/src/math/riscv32/copysign.s b/src/math/riscv32/copysign.s
-new file mode 100644
-index 00000000..81afa8b2
 --- /dev/null
 +++ b/src/math/riscv32/copysign.s
 @@ -0,0 +1,5 @@
@@ -2600,9 +2410,6 @@ index 00000000..81afa8b2
 +copysign:
 +        fsgnj.d fa0, fa0, fa1
 +        ret
-diff --git a/src/math/riscv32/copysignf.s b/src/math/riscv32/copysignf.s
-new file mode 100644
-index 00000000..fe36f909
 --- /dev/null
 +++ b/src/math/riscv32/copysignf.s
 @@ -0,0 +1,5 @@
@@ -2611,9 +2418,6 @@ index 00000000..fe36f909
 +copysignf:
 +        fsgnj.s fa0, fa0, fa1
 +        ret
-diff --git a/src/math/riscv32/fabs.s b/src/math/riscv32/fabs.s
-new file mode 100644
-index 00000000..27def33c
 --- /dev/null
 +++ b/src/math/riscv32/fabs.s
 @@ -0,0 +1,5 @@
@@ -2622,9 +2426,6 @@ index 00000000..27def33c
 +fabs:
 +        fabs.d fa0, fa0
 +        ret
-diff --git a/src/math/riscv32/fabsf.s b/src/math/riscv32/fabsf.s
-new file mode 100644
-index 00000000..8e0b9d64
 --- /dev/null
 +++ b/src/math/riscv32/fabsf.s
 @@ -0,0 +1,5 @@
@@ -2633,9 +2434,6 @@ index 00000000..8e0b9d64
 +fabsf:
 +        fabs.s fa0, fa0
 +        ret
-diff --git a/src/math/riscv32/fma.s b/src/math/riscv32/fma.s
-new file mode 100644
-index 00000000..17e1d136
 --- /dev/null
 +++ b/src/math/riscv32/fma.s
 @@ -0,0 +1,5 @@
@@ -2644,9 +2442,6 @@ index 00000000..17e1d136
 +fma:
 +        fmadd.d fa0, fa0, fa1, fa2
 +        ret
-diff --git a/src/math/riscv32/fmaf.s b/src/math/riscv32/fmaf.s
-new file mode 100644
-index 00000000..cfe17100
 --- /dev/null
 +++ b/src/math/riscv32/fmaf.s
 @@ -0,0 +1,5 @@
@@ -2655,9 +2450,6 @@ index 00000000..cfe17100
 +fmaf:
 +        fmadd.s fa0, fa0, fa1, fa2
 +        ret
-diff --git a/src/math/riscv32/fmax.s b/src/math/riscv32/fmax.s
-new file mode 100644
-index 00000000..40655d37
 --- /dev/null
 +++ b/src/math/riscv32/fmax.s
 @@ -0,0 +1,5 @@
@@ -2666,9 +2458,6 @@ index 00000000..40655d37
 +fmax:
 +        fmax.d fa0, fa0, fa1
 +        ret
-diff --git a/src/math/riscv32/fmaxf.s b/src/math/riscv32/fmaxf.s
-new file mode 100644
-index 00000000..490b6e91
 --- /dev/null
 +++ b/src/math/riscv32/fmaxf.s
 @@ -0,0 +1,5 @@
@@ -2677,9 +2466,6 @@ index 00000000..490b6e91
 +fmaxf:
 +        fmax.s fa0, fa0, fa1
 +        ret
-diff --git a/src/math/riscv32/fmin.s b/src/math/riscv32/fmin.s
-new file mode 100644
-index 00000000..97f72e08
 --- /dev/null
 +++ b/src/math/riscv32/fmin.s
 @@ -0,0 +1,5 @@
@@ -2688,9 +2474,6 @@ index 00000000..97f72e08
 +fmin:
 +        fmin.d fa0, fa0, fa1
 +        ret
-diff --git a/src/math/riscv32/fminf.s b/src/math/riscv32/fminf.s
-new file mode 100644
-index 00000000..4f8e55ee
 --- /dev/null
 +++ b/src/math/riscv32/fminf.s
 @@ -0,0 +1,5 @@
@@ -2699,9 +2482,6 @@ index 00000000..4f8e55ee
 +fminf:
 +        fmin.s fa0, fa0, fa1
 +        ret
-diff --git a/src/math/riscv32/sqrt.s b/src/math/riscv32/sqrt.s
-new file mode 100644
-index 00000000..a4c8b3ea
 --- /dev/null
 +++ b/src/math/riscv32/sqrt.s
 @@ -0,0 +1,5 @@
@@ -2710,9 +2490,6 @@ index 00000000..a4c8b3ea
 +sqrt:
 +        fsqrt.d fa0, fa0
 +        ret
-diff --git a/src/math/riscv32/sqrtf.s b/src/math/riscv32/sqrtf.s
-new file mode 100644
-index 00000000..ff7abcf3
 --- /dev/null
 +++ b/src/math/riscv32/sqrtf.s
 @@ -0,0 +1,5 @@
@@ -2721,9 +2498,6 @@ index 00000000..ff7abcf3
 +sqrtf:
 +        fsqrt.s fa0, fa0
 +        ret
-diff --git a/src/math/riscv64/copysign.s b/src/math/riscv64/copysign.s
-new file mode 100644
-index 00000000..81afa8b2
 --- /dev/null
 +++ b/src/math/riscv64/copysign.s
 @@ -0,0 +1,5 @@
@@ -2732,9 +2506,6 @@ index 00000000..81afa8b2
 +copysign:
 +        fsgnj.d fa0, fa0, fa1
 +        ret
-diff --git a/src/math/riscv64/copysignf.s b/src/math/riscv64/copysignf.s
-new file mode 100644
-index 00000000..fe36f909
 --- /dev/null
 +++ b/src/math/riscv64/copysignf.s
 @@ -0,0 +1,5 @@
@@ -2743,9 +2514,6 @@ index 00000000..fe36f909
 +copysignf:
 +        fsgnj.s fa0, fa0, fa1
 +        ret
-diff --git a/src/math/riscv64/fabs.s b/src/math/riscv64/fabs.s
-new file mode 100644
-index 00000000..27def33c
 --- /dev/null
 +++ b/src/math/riscv64/fabs.s
 @@ -0,0 +1,5 @@
@@ -2754,9 +2522,6 @@ index 00000000..27def33c
 +fabs:
 +        fabs.d fa0, fa0
 +        ret
-diff --git a/src/math/riscv64/fabsf.s b/src/math/riscv64/fabsf.s
-new file mode 100644
-index 00000000..8e0b9d64
 --- /dev/null
 +++ b/src/math/riscv64/fabsf.s
 @@ -0,0 +1,5 @@
@@ -2765,9 +2530,6 @@ index 00000000..8e0b9d64
 +fabsf:
 +        fabs.s fa0, fa0
 +        ret
-diff --git a/src/math/riscv64/fma.s b/src/math/riscv64/fma.s
-new file mode 100644
-index 00000000..17e1d136
 --- /dev/null
 +++ b/src/math/riscv64/fma.s
 @@ -0,0 +1,5 @@
@@ -2776,9 +2538,6 @@ index 00000000..17e1d136
 +fma:
 +        fmadd.d fa0, fa0, fa1, fa2
 +        ret
-diff --git a/src/math/riscv64/fmaf.s b/src/math/riscv64/fmaf.s
-new file mode 100644
-index 00000000..cfe17100
 --- /dev/null
 +++ b/src/math/riscv64/fmaf.s
 @@ -0,0 +1,5 @@
@@ -2787,9 +2546,6 @@ index 00000000..cfe17100
 +fmaf:
 +        fmadd.s fa0, fa0, fa1, fa2
 +        ret
-diff --git a/src/math/riscv64/fmax.s b/src/math/riscv64/fmax.s
-new file mode 100644
-index 00000000..40655d37
 --- /dev/null
 +++ b/src/math/riscv64/fmax.s
 @@ -0,0 +1,5 @@
@@ -2798,9 +2554,6 @@ index 00000000..40655d37
 +fmax:
 +        fmax.d fa0, fa0, fa1
 +        ret
-diff --git a/src/math/riscv64/fmaxf.s b/src/math/riscv64/fmaxf.s
-new file mode 100644
-index 00000000..490b6e91
 --- /dev/null
 +++ b/src/math/riscv64/fmaxf.s
 @@ -0,0 +1,5 @@
@@ -2809,9 +2562,6 @@ index 00000000..490b6e91
 +fmaxf:
 +        fmax.s fa0, fa0, fa1
 +        ret
-diff --git a/src/math/riscv64/fmin.s b/src/math/riscv64/fmin.s
-new file mode 100644
-index 00000000..97f72e08
 --- /dev/null
 +++ b/src/math/riscv64/fmin.s
 @@ -0,0 +1,5 @@
@@ -2820,9 +2570,6 @@ index 00000000..97f72e08
 +fmin:
 +        fmin.d fa0, fa0, fa1
 +        ret
-diff --git a/src/math/riscv64/fminf.s b/src/math/riscv64/fminf.s
-new file mode 100644
-index 00000000..4f8e55ee
 --- /dev/null
 +++ b/src/math/riscv64/fminf.s
 @@ -0,0 +1,5 @@
@@ -2831,9 +2578,6 @@ index 00000000..4f8e55ee
 +fminf:
 +        fmin.s fa0, fa0, fa1
 +        ret
-diff --git a/src/math/riscv64/sqrt.s b/src/math/riscv64/sqrt.s
-new file mode 100644
-index 00000000..a4c8b3ea
 --- /dev/null
 +++ b/src/math/riscv64/sqrt.s
 @@ -0,0 +1,5 @@
@@ -2842,9 +2586,6 @@ index 00000000..a4c8b3ea
 +sqrt:
 +        fsqrt.d fa0, fa0
 +        ret
-diff --git a/src/math/riscv64/sqrtf.s b/src/math/riscv64/sqrtf.s
-new file mode 100644
-index 00000000..ff7abcf3
 --- /dev/null
 +++ b/src/math/riscv64/sqrtf.s
 @@ -0,0 +1,5 @@
@@ -2853,9 +2594,6 @@ index 00000000..ff7abcf3
 +sqrtf:
 +        fsqrt.s fa0, fa0
 +        ret
-diff --git a/src/setjmp/riscv32/longjmp.S b/src/setjmp/riscv32/longjmp.S
-new file mode 100644
-index 00000000..fbf2439a
 --- /dev/null
 +++ b/src/setjmp/riscv32/longjmp.S
 @@ -0,0 +1,44 @@
@@ -2903,9 +2641,6 @@ index 00000000..fbf2439a
 +        bnez a1, 1f
 +        li a0, 1
 +1:      ret
-diff --git a/src/setjmp/riscv32/setjmp.S b/src/setjmp/riscv32/setjmp.S
-new file mode 100644
-index 00000000..14d5414d
 --- /dev/null
 +++ b/src/setjmp/riscv32/setjmp.S
 @@ -0,0 +1,42 @@
@@ -2951,9 +2686,6 @@ index 00000000..14d5414d
 +
 +        li a0, 0
 +        ret
-diff --git a/src/setjmp/riscv64/longjmp.S b/src/setjmp/riscv64/longjmp.S
-new file mode 100644
-index 00000000..d87a1afe
 --- /dev/null
 +++ b/src/setjmp/riscv64/longjmp.S
 @@ -0,0 +1,44 @@
@@ -3001,9 +2733,6 @@ index 00000000..d87a1afe
 +        bnez a1, 1f
 +        li a0, 1
 +1:      ret
-diff --git a/src/setjmp/riscv64/setjmp.S b/src/setjmp/riscv64/setjmp.S
-new file mode 100644
-index 00000000..abc05aa5
 --- /dev/null
 +++ b/src/setjmp/riscv64/setjmp.S
 @@ -0,0 +1,42 @@
@@ -3049,9 +2778,6 @@ index 00000000..abc05aa5
 +
 +        li a0, 0
 +        ret
-diff --git a/src/signal/riscv32/restore.s b/src/signal/riscv32/restore.s
-new file mode 100644
-index 00000000..732736d1
 --- /dev/null
 +++ b/src/signal/riscv32/restore.s
 @@ -0,0 +1,8 @@
@@ -3063,9 +2789,6 @@ index 00000000..732736d1
 +__restore_rt:
 +	li a7, 139 # SYS_rt_sigreturn
 +	scall
-diff --git a/src/signal/riscv32/sigsetjmp.s b/src/signal/riscv32/sigsetjmp.s
-new file mode 100644
-index 00000000..7e4cb1f4
 --- /dev/null
 +++ b/src/signal/riscv32/sigsetjmp.s
 @@ -0,0 +1,21 @@
@@ -3090,9 +2813,6 @@ index 00000000..7e4cb1f4
 +
 +.hidden __sigsetjmp_tail
 +        j __sigsetjmp_tail
-diff --git a/src/signal/riscv64/restore.s b/src/signal/riscv64/restore.s
-new file mode 100644
-index 00000000..732736d1
 --- /dev/null
 +++ b/src/signal/riscv64/restore.s
 @@ -0,0 +1,8 @@
@@ -3104,9 +2824,6 @@ index 00000000..732736d1
 +__restore_rt:
 +	li a7, 139 # SYS_rt_sigreturn
 +	scall
-diff --git a/src/signal/riscv64/sigsetjmp.s b/src/signal/riscv64/sigsetjmp.s
-new file mode 100644
-index 00000000..9ed9500b
 --- /dev/null
 +++ b/src/signal/riscv64/sigsetjmp.s
 @@ -0,0 +1,21 @@
@@ -3131,9 +2848,6 @@ index 00000000..9ed9500b
 +
 +.hidden __sigsetjmp_tail
 +        j __sigsetjmp_tail
-diff --git a/src/thread/riscv32/__set_thread_area.s b/src/thread/riscv32/__set_thread_area.s
-new file mode 100644
-index 00000000..828154d2
 --- /dev/null
 +++ b/src/thread/riscv32/__set_thread_area.s
 @@ -0,0 +1,6 @@
@@ -3143,9 +2857,6 @@ index 00000000..828154d2
 +	mv tp, a0
 +	li a0, 0
 +	ret
-diff --git a/src/thread/riscv32/__unmapself.s b/src/thread/riscv32/__unmapself.s
-new file mode 100644
-index 00000000..98e7881f
 --- /dev/null
 +++ b/src/thread/riscv32/__unmapself.s
 @@ -0,0 +1,7 @@
@@ -3156,9 +2867,6 @@ index 00000000..98e7881f
 +       scall
 +       li a7, 93  # SYS_exit
 +       scall
-diff --git a/src/thread/riscv32/clone.s b/src/thread/riscv32/clone.s
-new file mode 100644
-index 00000000..30126d2c
 --- /dev/null
 +++ b/src/thread/riscv32/clone.s
 @@ -0,0 +1,34 @@
@@ -3196,9 +2904,6 @@ index 00000000..30126d2c
 +        # Exit
 +        li a7, 93 # SYS_exit
 +        scall
-diff --git a/src/thread/riscv32/syscall_cp.s b/src/thread/riscv32/syscall_cp.s
-new file mode 100644
-index 00000000..71bf6d3e
 --- /dev/null
 +++ b/src/thread/riscv32/syscall_cp.s
 @@ -0,0 +1,29 @@
@@ -3231,9 +2936,6 @@ index 00000000..71bf6d3e
 +        ret
 +__cp_end:
 +        j __cancel
-diff --git a/src/thread/riscv64/__set_thread_area.s b/src/thread/riscv64/__set_thread_area.s
-new file mode 100644
-index 00000000..828154d2
 --- /dev/null
 +++ b/src/thread/riscv64/__set_thread_area.s
 @@ -0,0 +1,6 @@
@@ -3243,9 +2945,6 @@ index 00000000..828154d2
 +	mv tp, a0
 +	li a0, 0
 +	ret
-diff --git a/src/thread/riscv64/__unmapself.s b/src/thread/riscv64/__unmapself.s
-new file mode 100644
-index 00000000..98e7881f
 --- /dev/null
 +++ b/src/thread/riscv64/__unmapself.s
 @@ -0,0 +1,7 @@
@@ -3256,9 +2955,6 @@ index 00000000..98e7881f
 +       scall
 +       li a7, 93  # SYS_exit
 +       scall
-diff --git a/src/thread/riscv64/clone.s b/src/thread/riscv64/clone.s
-new file mode 100644
-index 00000000..b2d4f02d
 --- /dev/null
 +++ b/src/thread/riscv64/clone.s
 @@ -0,0 +1,34 @@
@@ -3296,9 +2992,6 @@ index 00000000..b2d4f02d
 +        # Exit
 +        li a7, 93 # SYS_exit
 +        scall
-diff --git a/src/thread/riscv64/syscall_cp.s b/src/thread/riscv64/syscall_cp.s
-new file mode 100644
-index 00000000..c745b328
 --- /dev/null
 +++ b/src/thread/riscv64/syscall_cp.s
 @@ -0,0 +1,29 @@
@@ -3331,6 +3024,3 @@ index 00000000..c745b328
 +        ret
 +__cp_end:
 +        j __cancel
--- 
-2.20.1
-
