@@ -7,7 +7,7 @@ MACHINE_FEATURES = "screen keyboard ext2 ext3 serial"
 
 PREFERRED_PROVIDER_virtual/kernel ?= "linux-yocto-dev"
 
-KERNEL_IMAGETYPE = "vmlinux"
+KERNEL_IMAGETYPE = "Image"
 
 GDBVERSION = "riscv"
 
@@ -20,11 +20,15 @@ MACHINE_EXTRA_RRECOMMENDS += " kernel-modules"
 EXTRA_IMAGEDEPENDS += "riscv-pk"
 RISCV_BBL_PAYLOAD ?= "${KERNEL_IMAGETYPE}"
 
+EXTRA_IMAGEDEPENDS += "opensbi"
+RISCV_SBI_PLAT = "qemu/virt"
+RISCV_SBI_PAYLOAD ?= "${KERNEL_IMAGETYPE}-${MACHINE}.bin"
+
 # qemuboot options
 QB_KERNEL_CMDLINE_APPEND = "console=ttyS0,115200 console=tty"
 QB_MEM = "-m 512"
 QB_MACHINE = "-machine virt"
-QB_DEFAULT_KERNEL = "bbl"
+QB_DEFAULT_KERNEL = "fw_payload.elf"
 #QB_SLIRP_OPT = "-netdev user,id=net0,hostfwd=tcp::22222-:22"
 QB_OPT_APPEND = "-show-cursor -monitor null"
 QB_TAP_OPT = "-netdev tap,id=net0,ifname=@TAP@,script=no,downscript=no"
