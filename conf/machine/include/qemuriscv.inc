@@ -5,6 +5,8 @@ require conf/machine/include/tune-riscv.inc
 
 MACHINE_FEATURES = "screen keyboard ext2 ext3 serial"
 
+PREFERRED_PROVIDER_virtual/kernel ?= "linux-yocto-dev"
+
 KERNEL_IMAGETYPE = "vmlinux"
 
 GDBVERSION = "riscv"
