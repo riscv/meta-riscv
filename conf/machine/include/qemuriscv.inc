@@ -5,7 +5,7 @@ require conf/machine/include/tune-riscv.inc
 
 MACHINE_FEATURES = "screen keyboard ext2 ext3 serial"
 
-KERNEL_IMAGETYPE = "vmlinux"
+KERNEL_IMAGETYPE = "Image"
 
 GDBVERSION = "riscv"
 
@@ -15,16 +15,15 @@ IMAGE_FSTYPES_append = " ext4"
 
 MACHINE_EXTRA_RRECOMMENDS += " kernel-modules"
 
-EXTRA_IMAGEDEPENDS += "riscv-pk"
-RISCV_BBL_PAYLOAD ?= "${KERNEL_IMAGETYPE}"
+EXTRA_IMAGEDEPENDS += "opensbi"
+RISCV_SBI_PLAT = "qemu/virt"
+RISCV_SBI_PAYLOAD ?= "${KERNEL_IMAGETYPE}-${MACHINE}.bin"
 
 # qemuboot options
 QB_KERNEL_CMDLINE_APPEND = "console=ttyS0,115200 console=tty"
 QB_MEM = "-m 512"
 QB_MACHINE = "-machine virt"
-QB_DEFAULT_KERNEL = "bbl"
-#QB_SLIRP_OPT = "-netdev user,id=net0,hostfwd=tcp::22222-:22"
-QB_OPT_APPEND = "-show-cursor -monitor null"
+QB_DEFAULT_KERNEL = "fw_jump.elf"
 QB_TAP_OPT = "-netdev tap,id=net0,ifname=@TAP@,script=no,downscript=no"
 QB_NETWORK_DEVICE = "-device virtio-net-device,netdev=net0,mac=@MAC@"
 QB_ROOTFS_OPT = "-drive id=disk0,file=@ROOTFS@,if=none,format=raw -device virtio-blk-device,drive=disk0"
