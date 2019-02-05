@@ -20,7 +20,7 @@ RISCV_SBI_PLAT = "qemu/virt"
 RISCV_SBI_PAYLOAD ?= "${KERNEL_IMAGETYPE}-${MACHINE}.bin"
 
 # qemuboot options
-QB_KERNEL_CMDLINE_APPEND = "console=ttyS0,115200 console=tty"
+QB_KERNEL_CMDLINE_APPEND = "earlycon=sbi"
 QB_MEM = "-m 512"
 QB_MACHINE = "-machine virt"
 QB_DEFAULT_KERNEL = "fw_jump.elf"
