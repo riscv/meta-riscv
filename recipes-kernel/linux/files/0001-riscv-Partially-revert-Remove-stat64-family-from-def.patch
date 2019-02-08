@@ -1,0 +1,51 @@
+From 558c286b9cad300a9265a4517025414ab46993fb Mon Sep 17 00:00:00 2001
+From: Alistair Francis <alistair.francis@wdc.com>
+Date: Thu, 7 Feb 2019 14:40:38 -0800
+Subject: [PATCH] riscv: Partially revert "Remove stat64 family from default
+ syscall set"
+
+To fix systemd/sysVinit crashes enable __ARCH_WANT_STAT64.
+
+systemd failed to start with this error for 32-bit RISC-V:
+[    2.833864] Run /sbin/init as init process
+/sbin/init: error while loading shared libraries: libsystemd-shared-239.so: cannot stat shared object: Error 38
+[    2.933593] Kernel panic - not syncing: Attempted to kill init! exitcode=0x00007f00
+[    2.934120] CPU: 0 PID: 1 Comm: init Not tainted 5.0.0-rc4-yoctodev-standard #1
+[    2.934589] Call Trace:
+[    2.934919] [<c0048a30>] walk_stackframe+0x0/0xa0
+[    2.935243] [<c0048c14>] show_stack+0x28/0x32
+[    2.935518] [<c05fa418>] dump_stack+0x68/0x88
+[    2.935788] [<c004de48>] panic+0xf0/0x252
+[    2.936041] [<c0051780>] do_exit+0x7de/0x7fc
+[    2.936387] [<c00517f4>] do_group_exit+0x2a/0x82
+[    2.936674] [<c005185e>] __wake_up_parent+0x0/0x22
+[    2.936982] [<c00475fa>] ret_from_syscall+0x0/0xe
+[    2.937673] ---[ end Kernel panic - not syncing: Attempted to kill init! exitcode=0x00007f00 ]---
+
+sysVinit had a similar problem as well. By enabling __ARCH_WANT_STAT64
+for 32-bit RISC-V the problem disapears and 32-bit RISC-V is able to
+boot.
+
+Signed-off-by: Alistair Francis <alistair.francis@wdc.com>
+Upstream-Status: Inappropriate [other]
+---
+ arch/riscv/include/uapi/asm/unistd.h | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/arch/riscv/include/uapi/asm/unistd.h b/arch/riscv/include/uapi/asm/unistd.h
+index 1f3bd3ebbb0d..031b7d78e11c 100644
+--- a/arch/riscv/include/uapi/asm/unistd.h
++++ b/arch/riscv/include/uapi/asm/unistd.h
+@@ -20,6 +20,9 @@
+ #endif /* __LP64__ */
+ 
+ #include <asm-generic/unistd.h>
++#if __BITS_PER_LONG == 32
++#define __ARCH_WANT_STAT64
++#endif
+ 
+ /*
+  * Allows the instruction cache to be flushed from userspace.  Despite RISC-V
+-- 
+2.20.1
+
