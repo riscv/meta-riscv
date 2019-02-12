@@ -89,9 +89,9 @@ $ zcat <image>-<machine>.wic.gz | sudo dd of=/dev/sdX bs=4M iflag=fullblock ofla
 The output of the build can also be written to an SD card using bmaptool, the steps to do this are below:
 
 ```text
-$ MACHINE=freedom-u540 wic create freedom-u540-bbl -e core-image-minimal
-$ bmaptool create ./freedom-u540-bbl-201812181337-mmcblk.direct > image.bmap
-$ sudo bmaptool copy --bmap image.bmap ./freedom-u540-bbl-201812181337-mmcblk.direct /dev/sdd
+$ MACHINE=freedom-u540 wic create freedom-u540-opensbi -e core-image-minimal
+$ bmaptool create ./freedom-u540-opensbi-201812181337-mmcblk.direct > image.bmap
+$ sudo bmaptool copy --bmap image.bmap ./freedom-u540-opensbi-201812181337-mmcblk.direct /dev/sdd
 ```
 
 ## Maintainer(s)
