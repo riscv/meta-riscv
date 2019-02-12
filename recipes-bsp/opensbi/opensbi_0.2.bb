@@ -1,21 +1,21 @@
 SUMMARY = "RISC-V Open Source Supervisor Binary Interface (OpenSBI)"
 DESCRIPTION = "OpenSBI aims to provide an open-source and extensible implementation of the RISC-V SBI specification for a platform specific firmware (M-mode) and a general purpose OS, hypervisor or bootloader (S-mode or HS-mode). OpenSBI implementation can be easily extended by RISC-V platform or System-on-Chip vendors to fit a particular hadware configuration."
 LICENSE = "BSD-2-Clause"
-
 LIC_FILES_CHKSUM = "file://COPYING.BSD;md5=c36118b4f615f9da37635f2a7ac8ccaf"
-
-SRC_URI = "https://github.com/riscv/opensbi/archive/v${PV}.tar.gz"
-
-SRC_URI[md5sum] = "60ab3ebe6fc4ff7ef155c2e4682737b7"
-SRC_URI[sha256sum] = "eb34ae6691952078189982260158376619b87b56d37a24e8dc16ee67e3ca21ad"
+DEPENDS += "dtc-native"
 
 require opensbi-payloads.inc
 
 inherit autotools-brokensep
 
+SRC_URI = "https://github.com/riscv/opensbi/archive/v${PV}.tar.gz"
+
+SRC_URI[md5sum] = "adb2da859f9b77eccc5de871ecf84093"
+SRC_URI[sha256sum] = "2d3de5a2e2fec71c79ec1a72d36302a5d8b814f20fa73d9fec854e3eef755e1c"
+
 EXTRA_OEMAKE += "PLATFORM=${RISCV_SBI_PLAT} I=${D}"
 # If RISCV_SBI_PAYLOAD is set then include it as a payload
-EXTRA_OEMAKE_append = " ${@riscv_get_extra_oemake(d)}"
+EXTRA_OEMAKE_append = " ${@riscv_get_extra_oemake_image(d)} ${@riscv_get_extra_oemake_fdt(d)}"
 
 # Required if specifying a custom payload
 do_compile[depends] += "${@riscv_get_do_compile_depends(d)}"
