@@ -1,6 +1,6 @@
 # short-description: Create SD card image for HiFive Unleashed development board
 
-part opensbi --source rawcopy --sourceparams="file=fw_payload.bin" --ondisk mmcblk --align 1 --part-type 2e54b353-1271-4842-806f-e436d6af6985
+part opensbi --source rawcopy --sourceparams="file=fw_payload.bin" --ondisk mmcblk --size 32M --align 1 --part-type 2e54b353-1271-4842-806f-e436d6af6985
 part / --source rootfs --ondisk mmcblk --fstype=ext4 --label root --align 4096 --size 5G
 
 bootloader --ptable gpt
