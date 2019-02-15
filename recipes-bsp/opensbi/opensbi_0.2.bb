@@ -8,7 +8,10 @@ require opensbi-payloads.inc
 
 inherit autotools-brokensep
 
-SRC_URI = "https://github.com/riscv/opensbi/archive/v${PV}.tar.gz"
+SRC_URI = "https://github.com/riscv/opensbi/archive/v${PV}.tar.gz \
+           file://0001-Makefile-Don-t-specify-mabi-or-march.patch \
+           file://0002-Makefile-Set-the-platform-variables-before-parsing-t.patch \
+          "
 
 SRC_URI[md5sum] = "adb2da859f9b77eccc5de871ecf84093"
 SRC_URI[sha256sum] = "2d3de5a2e2fec71c79ec1a72d36302a5d8b814f20fa73d9fec854e3eef755e1c"
