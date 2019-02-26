@@ -8,13 +8,15 @@ require opensbi-payloads.inc
 
 inherit autotools-brokensep
 
-SRC_URI = "https://github.com/riscv/opensbi/archive/v${PV}.tar.gz \
+SRCREV = "ca20ac0cd4c099006d4eea4d9ac7bd7b58e2ae0f"
+SRC_URI = "git://github.com/riscv/opensbi.git \
            file://0001-Makefile-Don-t-specify-mabi-or-march.patch \
-           file://0002-Makefile-Set-the-platform-variables-before-parsing-t.patch \
           "
 
-SRC_URI[md5sum] = "adb2da859f9b77eccc5de871ecf84093"
-SRC_URI[sha256sum] = "2d3de5a2e2fec71c79ec1a72d36302a5d8b814f20fa73d9fec854e3eef755e1c"
+S = "${WORKDIR}/git"
+
+SRC_URI[md5sum] = "621f38d8205ef5fb185e4055025e73df"
+SRC_URI[sha256sum] = "07f18b73abf3b85aabe5bead19a923716c100d30eb58033459f39c3a224be300"
 
 EXTRA_OEMAKE += "PLATFORM=${RISCV_SBI_PLAT} I=${D}"
 # If RISCV_SBI_PAYLOAD is set then include it as a payload
