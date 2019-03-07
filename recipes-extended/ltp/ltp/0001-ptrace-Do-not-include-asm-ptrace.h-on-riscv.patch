@@ -1,0 +1,26 @@
+From 826dee234397233597849e4d2682f4fea5275afd Mon Sep 17 00:00:00 2001
+From: Khem Raj <raj.khem@gmail.com>
+Date: Tue, 5 Mar 2019 13:24:25 -0800
+Subject: [PATCH] ptrace: Do not include asm/ptrace.h on riscv
+
+These defines conflict with bits/signal.h especially on musl
+
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
+---
+ testcases/kernel/syscalls/ptrace/ptrace.h | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+--- a/testcases/kernel/syscalls/ptrace/ptrace.h
++++ b/testcases/kernel/syscalls/ptrace/ptrace.h
+@@ -15,10 +15,7 @@
+ # define ia64_fpreg FU_ia64_fpreg
+ # define pt_all_user_regs FU_pt_all_user_regs
+ #endif
+-#ifdef HAVE_ASM_PTRACE_H
+-# include <asm/ptrace.h>
+-#endif
+-#ifdef HAVE_LINUX_PTRACE_H
++#if defined(HAVE_LINUX_PTRACE_H) && !defined(__riscv)
+ # ifndef HAVE_STRUCT_PTRACE_PEEKSIGINFO_ARGS
+ #  include <linux/ptrace.h>
+ # endif
