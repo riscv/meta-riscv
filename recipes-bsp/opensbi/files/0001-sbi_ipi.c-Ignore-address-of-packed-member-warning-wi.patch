@@ -1,0 +1,52 @@
+From dbd2fdb9956417e1d49a14b9aea162b10598c6c0 Mon Sep 17 00:00:00 2001
+From: Khem Raj <raj.khem@gmail.com>
+Date: Thu, 7 Mar 2019 20:48:04 -0800
+Subject: [PATCH] sbi_ipi.c: Ignore address-of-packed-member warning with gcc 9
+ or newer
+
+This is a workaround until fixed correctly, for following error
+
+sbi_ipi.c:34:28: error: taking address of packed member of 'struct sbi_scratch' may result in an unaligned pointer value [-Werror=address-of-packed-member]
+|    34 |  atomic_raw_set_bit(event, &remote_scratch->ipi_type);
+|       |                            ^~~~~~~~~~~~~~~~~~~~~~~~~
+
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
+---
+ lib/sbi_ipi.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/lib/sbi_ipi.c b/lib/sbi_ipi.c
+index 5f189c8..bc9df11 100644
+--- a/lib/sbi_ipi.c
++++ b/lib/sbi_ipi.c
+@@ -31,7 +31,13 @@ static int sbi_ipi_send(struct sbi_scratch *scratch, u32 hartid, u32 event)
+ 	 * trigger the interrupt
+ 	 */
+ 	remote_scratch = sbi_hart_id_to_scratch(scratch, hartid);
++#if __GNUC__ >= 9
++#pragma GCC diagnostic ignored "-Waddress-of-packed-member"
++#endif
+ 	atomic_raw_set_bit(event, &remote_scratch->ipi_type);
++#if __GNUC__ >= 9
++#pragma GCC diagnostic pop
++#endif
+ 	mb();
+ 	sbi_platform_ipi_send(plat, hartid);
+ 	if (event != SBI_IPI_EVENT_SOFT)
+@@ -97,7 +103,13 @@ void sbi_ipi_process(struct sbi_scratch *scratch)
+ 			sbi_hart_hang();
+ 			break;
+ 		};
++#if __GNUC__ >= 9
++#pragma GCC diagnostic ignored "-Waddress-of-packed-member"
++#endif
+ 		ipi_type = atomic_raw_clear_bit(ipi_event, &scratch->ipi_type);
++#if __GNUC__ >= 9
++#pragma GCC diagnostic pop
++#endif
+ 	} while(ipi_type > 0);
+ }
+ 
+-- 
+2.21.0
+
