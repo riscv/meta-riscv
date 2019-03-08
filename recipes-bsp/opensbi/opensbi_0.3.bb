@@ -11,6 +11,7 @@ inherit autotools-brokensep
 SRCREV = "ca20ac0cd4c099006d4eea4d9ac7bd7b58e2ae0f"
 SRC_URI = "git://github.com/riscv/opensbi.git \
            file://0001-Makefile-Don-t-specify-mabi-or-march.patch \
+           file://0001-sbi_ipi.c-Ignore-address-of-packed-member-warning-wi.patch \
           "
 
 S = "${WORKDIR}/git"
