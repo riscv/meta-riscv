@@ -1,0 +1,26 @@
+From 03ce1cff5630139c6f07de149e95cfa0d826ce76 Mon Sep 17 00:00:00 2001
+From: Khem Raj <raj.khem@gmail.com>
+Date: Fri, 15 Mar 2019 18:26:40 -0700
+Subject: [PATCH] Recongnise riscv64 target arch
+
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
+---
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index 31d2817..e603730 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -183,7 +183,7 @@ AM_CONDITIONAL(OS_QNX, expr x$target_os : xnto-qnx >/dev/null)
+ AC_MSG_CHECKING([for ELF helper width])
+ case "${target_arch}" in
+ (arm|hppa|ppc32|x86|sh) use_elf32=yes; AC_MSG_RESULT([32]);;
+-(aarch64|ia64|ppc64|x86_64|tilegx)  use_elf64=yes; AC_MSG_RESULT([64]);;
++(aarch64|ia64|ppc64|x86_64|tilegx|riscv64)  use_elf64=yes; AC_MSG_RESULT([64]);;
+ (mips)                 use_elfxx=yes; AC_MSG_RESULT([xx]);;
+ *)                     AC_MSG_ERROR([Unknown ELF target: ${target_arch}])
+ esac
+-- 
+2.21.0
+
