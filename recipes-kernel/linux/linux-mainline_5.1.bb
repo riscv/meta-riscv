@@ -1,0 +1,35 @@
+require recipes-kernel/linux/linux-riscv-common.inc
+
+DESCRIPTION = "Mainline Linux Kernel"
+
+LINUX_VERSION ?= "5.1"
+LINUX_VERSION_EXTENSION = ""
+
+# Update this to point to the stable release branches after the official release
+BRANCH = "master"
+SRCREV = "${AUTOREV}"
+SRC_URI = " \
+    git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git;branch=${BRANCH} \
+"
+
+# Out of tree patches required for HiFive Unleashed
+SRC_URI_append_freedom-u540 = " \
+    file://0001-tty-serial-add-driver-for-the-SiFive-UART.patch \
+    file://0002-gemgxl-mgmt-implement-clock-switch-for-GEM-tx_clk.patch \
+    file://0003-u54-prci-driver-for-core-U54-clocks.patch \
+    file://0004-u54-prci-driver-for-core-U54-clocks.patch \
+    file://0005-gpio-sifive-support-GPIO-on-SiFive-SoCs.patch \
+    file://0006-pwm-sifive-add-a-driver-for-SiFive-SoC-PWM.patch \
+    file://0007-RISC-V-Networking-fix-Hack.patch \
+    file://0008-pcie-microsemi-Add-support-for-the-Vera-board-root-c.patch \
+    file://0009-HACK-Revert-of-device-Really-only-set-bus-DMA-mask-w.patch \
+    file://0010-HACK-radeon-Don-t-set-PCI-DMA-mask.patch \
+"
+
+# qemu uses in-tree defconfig
+# freedom-u540 uses out-of-tree defconfig
+SRC_URI_append_freedom-u540 = " file://defconfig"
+
+SRC_URI_append_qemuriscv32 = " file://32bit.cfg"
+
+KERNEL_VERSION_SANITY_SKIP = "1"
