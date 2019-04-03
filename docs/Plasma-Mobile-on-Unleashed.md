@@ -63,6 +63,6 @@ Follow the top level README to flash the image to an SD card (you will probably 
 
 ## Known issues
 
-  * Sometimes the PCIe devices do not work on first boot. In you can't detect the PCIe devices on the board try power cycling the board and then they should appear.
+  * Sometimes the PCIe devices do not work on first boot. In case you can't detect the PCIe devices on the board try power cycling the board and then they should appear.
 
 Please feel free to raise issues for any problems that you encounter.
