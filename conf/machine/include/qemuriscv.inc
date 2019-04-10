@@ -16,7 +16,7 @@ IMAGE_FSTYPES_append = " ext4"
 MACHINE_EXTRA_RRECOMMENDS += " kernel-modules"
 
 EXTRA_IMAGEDEPENDS += "opensbi"
-RISCV_SBI_PLAT = "qemu/virt"
+RISCV_SBI_PLAT ?= "qemu/virt"
 RISCV_SBI_PAYLOAD ?= "${KERNEL_IMAGETYPE}-${MACHINE}.bin"
 
 # qemuboot options
