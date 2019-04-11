@@ -12,8 +12,6 @@ PV = "${LINUX_VERSION}+git${SRCPV}"
 
 DEPENDS_append = " libgcc"
 
-KBUILD_DEFCONFIG_qemuriscv32 = "defconfig"
-KBUILD_DEFCONFIG_qemuriscv64 = "defconfig"
 KCONFIG_MODE="--alldefconfig"
 
 KERNEL_CC_append = " ${TOOLCHAIN_OPTIONS} ${SECURITY_NOPIE_CFLAGS}"

@@ -29,9 +29,11 @@ SRC_URI_append_freedom-u540 = " \
 # qemu uses in-tree defconfig
 # freedom-u540 uses out-of-tree defconfig
 SRC_URI_append_freedom-u540 = " file://defconfig"
-SRC_URI_append_qemuriscv32 = " file://32bit.cfg"
 
 # Fix a breakage with the current 32bit glibc fork
 SRC_URI_append_qemuriscv32 = " file://0001-Revert-riscv-Use-latest-system-call-ABI.patch"
+
+KBUILD_DEFCONFIG_qemuriscv32 = "rv32_defconfig"
+KBUILD_DEFCONFIG_qemuriscv64 = "defconfig"
 
 KERNEL_VERSION_SANITY_SKIP = "1"

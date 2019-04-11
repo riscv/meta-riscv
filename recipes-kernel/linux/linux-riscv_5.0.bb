@@ -12,5 +12,7 @@ SRC_URI = " \
 # qemu uses in-tree defconfig
 # freedom-u540 uses out-of-tree defconfig
 SRC_URI_append_freedom-u540 = " file://defconfig"
-
 SRC_URI_append_qemuriscv32 = " file://32bit.cfg"
+
+KBUILD_DEFCONFIG_qemuriscv32 = "defconfig"
+KBUILD_DEFCONFIG_qemuriscv64 = "defconfig"
