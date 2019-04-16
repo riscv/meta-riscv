@@ -1,0 +1,209 @@
+From 0d389468e2144f3ba3bdbc566c05c0c05dc14fc6 Mon Sep 17 00:00:00 2001
+From: Rick Chen <rick@andestech.com>
+Date: Tue, 2 Apr 2019 15:56:39 +0800
+Subject: [PATCH 12/18] riscv: Add a SYSCON driver for Andestech's PLIC
+
+The Platform-Level Interrupt Controller (PLIC)
+block holds memory-mapped claim and pending registers
+associated with software interrupt. It is required
+for handling IPI.
+
+Signed-off-by: Rick Chen <rick@andestech.com>
+Cc: Greentime Hu <greentime@andestech.com>
+Reviewed-by: Bin Meng <bmeng.cn@gmail.com>
+Reviewed-by: Lukas Auer <lukas.auer@aisec.fraunhofer.de>
+---
+ arch/riscv/Kconfig                   |   9 +++
+ arch/riscv/include/asm/global_data.h |   3 +
+ arch/riscv/include/asm/syscon.h      |   3 +-
+ arch/riscv/lib/Makefile              |   1 +
+ arch/riscv/lib/andes_plic.c          | 113 +++++++++++++++++++++++++++
+ 5 files changed, 127 insertions(+), 2 deletions(-)
+ create mode 100644 arch/riscv/lib/andes_plic.c
+
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 3a4470daf3..511768befc 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -109,6 +109,15 @@ config SIFIVE_CLINT
+ 	  The SiFive CLINT block holds memory-mapped control and status registers
+ 	  associated with software and timer interrupts.
+ 
++config ANDES_PLIC
++	bool
++	depends on RISCV_MMODE
++	select REGMAP
++	select SYSCON
++	help
++	  The Andes PLIC block holds memory-mapped claim and pending registers
++	  associated with software interrupt.
++
+ config RISCV_RDTIME
+ 	bool
+ 	default y if RISCV_SMODE
+diff --git a/arch/riscv/include/asm/global_data.h b/arch/riscv/include/asm/global_data.h
+index 80e3165e39..b86791094b 100644
+--- a/arch/riscv/include/asm/global_data.h
++++ b/arch/riscv/include/asm/global_data.h
+@@ -18,6 +18,9 @@ struct arch_global_data {
+ #ifdef CONFIG_SIFIVE_CLINT
+ 	void __iomem *clint;	/* clint base address */
+ #endif
++#ifdef CONFIG_ANDES_PLIC
++	void __iomem *plic;	/* plic base address */
++#endif
+ #ifdef CONFIG_SMP
+ 	struct ipi_data ipi[CONFIG_NR_CPUS];
+ #endif
+diff --git a/arch/riscv/include/asm/syscon.h b/arch/riscv/include/asm/syscon.h
+index d311ee6b45..a086208261 100644
+--- a/arch/riscv/include/asm/syscon.h
++++ b/arch/riscv/include/asm/syscon.h
+@@ -8,12 +8,11 @@
+ 
+ /*
+  * System controllers in a RISC-V system
+- *
+- * So far only SiFive's Core Local Interruptor (CLINT) is defined.
+  */
+ enum {
+ 	RISCV_NONE,
+ 	RISCV_SYSCON_CLINT,	/* Core Local Interruptor (CLINT) */
++	RISCV_SYSCON_PLIC,	/* Platform Level Interrupt Controller (PLIC) */
+ };
+ 
+ #endif /* _ASM_SYSCON_H */
+diff --git a/arch/riscv/lib/Makefile b/arch/riscv/lib/Makefile
+index 35dbf643e4..1bf554bad5 100644
+--- a/arch/riscv/lib/Makefile
++++ b/arch/riscv/lib/Makefile
+@@ -11,6 +11,7 @@ obj-$(CONFIG_CMD_GO) += boot.o
+ obj-y	+= cache.o
+ obj-$(CONFIG_RISCV_RDTIME) += rdtime.o
+ obj-$(CONFIG_SIFIVE_CLINT) += sifive_clint.o
++obj-$(CONFIG_ANDES_PLIC) += andes_plic.o
+ obj-y	+= interrupts.o
+ obj-y	+= reset.o
+ obj-$(CONFIG_SBI_IPI) += sbi_ipi.o
+diff --git a/arch/riscv/lib/andes_plic.c b/arch/riscv/lib/andes_plic.c
+new file mode 100644
+index 0000000000..2ffe49ac90
+--- /dev/null
++++ b/arch/riscv/lib/andes_plic.c
+@@ -0,0 +1,113 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2019, Rick Chen <rick@andestech.com>
++ *
++ * U-Boot syscon driver for Andes's Platform Level Interrupt Controller (PLIC).
++ * The PLIC block holds memory-mapped claim and pending registers
++ * associated with software interrupt.
++ */
++
++#include <common.h>
++#include <dm.h>
++#include <dm/device-internal.h>
++#include <dm/lists.h>
++#include <dm/uclass-internal.h>
++#include <regmap.h>
++#include <syscon.h>
++#include <asm/io.h>
++#include <asm/syscon.h>
++#include <cpu.h>
++
++/* pending register */
++#define PENDING_REG(base, hart)	((ulong)(base) + 0x1000 + (hart) * 8)
++/* enable register */
++#define ENABLE_REG(base, hart)	((ulong)(base) + 0x2000 + (hart) * 0x80)
++/* claim register */
++#define CLAIM_REG(base, hart)	((ulong)(base) + 0x200004 + (hart) * 0x1000)
++
++#define ENABLE_HART_IPI         (0x80808080)
++#define SEND_IPI_TO_HART(hart)  (0x80 >> (hart))
++
++DECLARE_GLOBAL_DATA_PTR;
++static int init_plic(void);
++
++#define PLIC_BASE_GET(void)						\
++	do {								\
++		long *ret;						\
++									\
++		if (!gd->arch.plic) {					\
++			ret = syscon_get_first_range(RISCV_SYSCON_PLIC); \
++			if (IS_ERR(ret))				\
++				return PTR_ERR(ret);			\
++			gd->arch.plic = ret;				\
++			init_plic();					\
++		}							\
++	} while (0)
++
++static int enable_ipi(int harts)
++{
++	int i;
++	int en = ENABLE_HART_IPI;
++
++	for (i = 0; i < harts; i++) {
++		en = en >> i;
++		writel(en, (void __iomem *)ENABLE_REG(gd->arch.plic, i));
++	}
++
++	return 0;
++}
++
++static int init_plic(void)
++{
++	struct udevice *dev;
++	int ret;
++
++	ret = uclass_find_first_device(UCLASS_CPU, &dev);
++	if (ret)
++		return ret;
++
++	if (ret == 0 && dev) {
++		ret = cpu_get_count(dev);
++		if (ret < 0)
++			return ret;
++
++		enable_ipi(ret);
++		return 0;
++	}
++
++	return -ENODEV;
++}
++
++int riscv_send_ipi(int hart)
++{
++	PLIC_BASE_GET();
++
++	writel(SEND_IPI_TO_HART(hart),
++	       (void __iomem *)PENDING_REG(gd->arch.plic, gd->arch.boot_hart));
++
++	return 0;
++}
++
++int riscv_clear_ipi(int hart)
++{
++	u32 source_id;
++
++	PLIC_BASE_GET();
++
++	source_id = readl((void __iomem *)CLAIM_REG(gd->arch.plic, hart));
++	writel(source_id, (void __iomem *)CLAIM_REG(gd->arch.plic, hart));
++
++	return 0;
++}
++
++static const struct udevice_id andes_plic_ids[] = {
++	{ .compatible = "riscv,plic1", .data = RISCV_SYSCON_PLIC },
++	{ }
++};
++
++U_BOOT_DRIVER(andes_plic) = {
++	.name		= "andes_plic",
++	.id		= UCLASS_SYSCON,
++	.of_match	= andes_plic_ids,
++	.flags		= DM_FLAG_PRE_RELOC,
++};
+-- 
+2.21.0
+

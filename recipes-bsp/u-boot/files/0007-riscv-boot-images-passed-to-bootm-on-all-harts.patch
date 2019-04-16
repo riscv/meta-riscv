@@ -1,0 +1,55 @@
+From f28ad250e6ef95ca58490b4e8651749d4f7e5c06 Mon Sep 17 00:00:00 2001
+From: Lukas Auer <lukas.auer@aisec.fraunhofer.de>
+Date: Sun, 17 Mar 2019 19:28:38 +0100
+Subject: [PATCH 07/18] riscv: boot images passed to bootm on all harts
+
+Signed-off-by: Lukas Auer <lukas.auer@aisec.fraunhofer.de>
+Reviewed-by: Anup Patel <anup.patel@wdc.com>
+Reviewed-by: Bin Meng <bmeng.cn@gmail.com>
+Tested-by: Bin Meng <bmeng.cn@gmail.com>
+---
+ arch/riscv/lib/bootm.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/arch/riscv/lib/bootm.c b/arch/riscv/lib/bootm.c
+index f36b8702ef..efbd3e23e7 100644
+--- a/arch/riscv/lib/bootm.c
++++ b/arch/riscv/lib/bootm.c
+@@ -13,6 +13,7 @@
+ #include <image.h>
+ #include <asm/byteorder.h>
+ #include <asm/csr.h>
++#include <asm/smp.h>
+ #include <dm/device.h>
+ #include <dm/root.h>
+ #include <u-boot/zlib.h>
+@@ -81,6 +82,9 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
+ {
+ 	void (*kernel)(ulong hart, void *dtb);
+ 	int fake = (flag & BOOTM_STATE_OS_FAKE_GO);
++#ifdef CONFIG_SMP
++	int ret;
++#endif
+ 
+ 	kernel = (void (*)(ulong, void *))images->ep;
+ 
+@@ -92,8 +96,15 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
+ 	announce_and_cleanup(fake);
+ 
+ 	if (!fake) {
+-		if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len)
++		if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len) {
++#ifdef CONFIG_SMP
++			ret = smp_call_function(images->ep,
++						(ulong)images->ft_addr, 0);
++			if (ret)
++				hang();
++#endif
+ 			kernel(gd->arch.boot_hart, images->ft_addr);
++		}
+ 	}
+ }
+ 
+-- 
+2.21.0
+

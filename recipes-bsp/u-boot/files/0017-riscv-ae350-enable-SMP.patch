@@ -1,0 +1,27 @@
+From 076b845893f3bb59dfad80b012d28191c19e2f7b Mon Sep 17 00:00:00 2001
+From: Rick Chen <rick@andestech.com>
+Date: Tue, 2 Apr 2019 15:56:44 +0800
+Subject: [PATCH 17/18] riscv: ae350: enable SMP
+
+Signed-off-by: Rick Chen <rick@andestech.com>
+Cc: Greentime Hu <greentime@andestech.com>
+Reviewed-by: Bin Meng <bmeng.cn@gmail.com>
+Reviewed-by: Lukas Auer <lukas.auer@aisec.fraunhofer.de>
+---
+ board/AndesTech/ax25-ae350/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/board/AndesTech/ax25-ae350/Kconfig b/board/AndesTech/ax25-ae350/Kconfig
+index 44cb302f70..5e682b679d 100644
+--- a/board/AndesTech/ax25-ae350/Kconfig
++++ b/board/AndesTech/ax25-ae350/Kconfig
+@@ -24,5 +24,6 @@ config ENV_OFFSET
+ config BOARD_SPECIFIC_OPTIONS # dummy
+ 	def_bool y
+ 	select RISCV_NDS
++	imply SMP
+ 
+ endif
+-- 
+2.21.0
+
