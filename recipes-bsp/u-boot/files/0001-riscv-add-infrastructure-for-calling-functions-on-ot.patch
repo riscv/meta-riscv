@@ -1,0 +1,286 @@
+From fa33f08fd657b8568ede929df8a79bd113e9c5b1 Mon Sep 17 00:00:00 2001
+From: Lukas Auer <lukas.auer@aisec.fraunhofer.de>
+Date: Sun, 17 Mar 2019 19:28:32 +0100
+Subject: [PATCH 01/18] riscv: add infrastructure for calling functions on
+ other harts
+
+Harts on RISC-V boot independently, U-Boot is responsible for managing
+them. Functions are called on other harts with smp_call_function(),
+which sends inter-processor interrupts (IPIs) to all other available
+harts. Available harts are those marked as available in the device tree
+and present in the available_harts mask stored in global data. The
+available_harts mask is used to register all harts that have entered
+U-Boot. Functions are specified with their address and two function
+arguments (argument 2 and 3). The first function argument is always the
+hart ID of the hart calling the function. On the other harts, the IPI
+interrupt handler handle_ipi() must be called on software interrupts to
+handle the request and call the specified function.
+
+Functions are stored in the ipi_data data structure. Every hart has its
+own data structure in global data. While this is not required at the
+moment (all harts are expected to boot Linux), this does allow future
+expansion, where other harts may be used for monitoring or other tasks.
+
+Signed-off-by: Lukas Auer <lukas.auer@aisec.fraunhofer.de>
+Reviewed-by: Anup Patel <anup.patel@wdc.com>
+Reviewed-by: Bin Meng <bmeng.cn@gmail.com>
+Tested-by: Bin Meng <bmeng.cn@gmail.com>
+---
+ arch/riscv/Kconfig                   |  19 +++++
+ arch/riscv/include/asm/global_data.h |   6 ++
+ arch/riscv/include/asm/smp.h         |  53 ++++++++++++
+ arch/riscv/lib/Makefile              |   1 +
+ arch/riscv/lib/smp.c                 | 118 +++++++++++++++++++++++++++
+ 5 files changed, 197 insertions(+)
+ create mode 100644 arch/riscv/include/asm/smp.h
+ create mode 100644 arch/riscv/lib/smp.c
+
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 36512a8995..4d7a115569 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -120,4 +120,23 @@ config RISCV_RDTIME
+ config SYS_MALLOC_F_LEN
+ 	default 0x1000
+ 
++config SMP
++	bool "Symmetric Multi-Processing"
++	help
++	  This enables support for systems with more than one CPU. If
++	  you say N here, U-Boot will run on single and multiprocessor
++	  machines, but will use only one CPU of a multiprocessor
++	  machine. If you say Y here, U-Boot will run on many, but not
++	  all, single processor machines.
++
++config NR_CPUS
++	int "Maximum number of CPUs (2-32)"
++	range 2 32
++	depends on SMP
++	default 8
++	help
++	  On multiprocessor machines, U-Boot sets up a stack for each CPU.
++	  Stack memory is pre-allocated. U-Boot must therefore know the
++	  maximum number of CPUs that may be present.
++
+ endmenu
+diff --git a/arch/riscv/include/asm/global_data.h b/arch/riscv/include/asm/global_data.h
+index a3a342c6e1..80e3165e39 100644
+--- a/arch/riscv/include/asm/global_data.h
++++ b/arch/riscv/include/asm/global_data.h
+@@ -10,12 +10,18 @@
+ #ifndef	__ASM_GBL_DATA_H
+ #define __ASM_GBL_DATA_H
+ 
++#include <asm/smp.h>
++
+ /* Architecture-specific global data */
+ struct arch_global_data {
+ 	long boot_hart;		/* boot hart id */
+ #ifdef CONFIG_SIFIVE_CLINT
+ 	void __iomem *clint;	/* clint base address */
+ #endif
++#ifdef CONFIG_SMP
++	struct ipi_data ipi[CONFIG_NR_CPUS];
++#endif
++	ulong available_harts;
+ };
+ 
+ #include <asm-generic/global_data.h>
+diff --git a/arch/riscv/include/asm/smp.h b/arch/riscv/include/asm/smp.h
+new file mode 100644
+index 0000000000..bc863fdbaf
+--- /dev/null
++++ b/arch/riscv/include/asm/smp.h
+@@ -0,0 +1,53 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Copyright (C) 2019 Fraunhofer AISEC,
++ * Lukas Auer <lukas.auer@aisec.fraunhofer.de>
++ */
++
++#ifndef _ASM_RISCV_SMP_H
++#define _ASM_RISCV_SMP_H
++
++/**
++ * struct ipi_data - Inter-processor interrupt (IPI) data structure
++ *
++ * IPIs are used for SMP support to communicate to other harts what function to
++ * call. Functions are in the form
++ * void (*addr)(ulong hart, ulong arg0, ulong arg1).
++ *
++ * The function address and the two arguments, arg0 and arg1, are stored in the
++ * IPI data structure. The hart ID is inserted by the hart handling the IPI and
++ * calling the function.
++ *
++ * @addr: Address of function
++ * @arg0: First argument of function
++ * @arg1: Second argument of function
++ */
++struct ipi_data {
++	ulong addr;
++	ulong arg0;
++	ulong arg1;
++};
++
++/**
++ * handle_ipi() - interrupt handler for software interrupts
++ *
++ * The IPI interrupt handler must be called to handle software interrupts. It
++ * calls the function specified in the hart's IPI data structure.
++ *
++ * @hart: Hart ID of the current hart
++ */
++void handle_ipi(ulong hart);
++
++/**
++ * smp_call_function() - Call a function on all other harts
++ *
++ * Send IPIs with the specified function call to all harts.
++ *
++ * @addr: Address of function
++ * @arg0: First argument of function
++ * @arg1: Second argument of function
++ * @return 0 if OK, -ve on error
++ */
++int smp_call_function(ulong addr, ulong arg0, ulong arg1);
++
++#endif
+diff --git a/arch/riscv/lib/Makefile b/arch/riscv/lib/Makefile
+index edfa61690c..19370f9749 100644
+--- a/arch/riscv/lib/Makefile
++++ b/arch/riscv/lib/Makefile
+@@ -14,6 +14,7 @@ obj-$(CONFIG_SIFIVE_CLINT) += sifive_clint.o
+ obj-y	+= interrupts.o
+ obj-y	+= reset.o
+ obj-y   += setjmp.o
++obj-$(CONFIG_SMP) += smp.o
+ 
+ # For building EFI apps
+ CFLAGS_$(EFI_CRT0) := $(CFLAGS_EFI)
+diff --git a/arch/riscv/lib/smp.c b/arch/riscv/lib/smp.c
+new file mode 100644
+index 0000000000..caa292ccd2
+--- /dev/null
++++ b/arch/riscv/lib/smp.c
+@@ -0,0 +1,118 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2019 Fraunhofer AISEC,
++ * Lukas Auer <lukas.auer@aisec.fraunhofer.de>
++ */
++
++#include <common.h>
++#include <dm.h>
++#include <asm/barrier.h>
++#include <asm/smp.h>
++
++DECLARE_GLOBAL_DATA_PTR;
++
++/**
++ * riscv_send_ipi() - Send inter-processor interrupt (IPI)
++ *
++ * Platform code must provide this function.
++ *
++ * @hart: Hart ID of receiving hart
++ * @return 0 if OK, -ve on error
++ */
++extern int riscv_send_ipi(int hart);
++
++/**
++ * riscv_clear_ipi() - Clear inter-processor interrupt (IPI)
++ *
++ * Platform code must provide this function.
++ *
++ * @hart: Hart ID of hart to be cleared
++ * @return 0 if OK, -ve on error
++ */
++extern int riscv_clear_ipi(int hart);
++
++static int send_ipi_many(struct ipi_data *ipi)
++{
++	ofnode node, cpus;
++	u32 reg;
++	int ret;
++
++	cpus = ofnode_path("/cpus");
++	if (!ofnode_valid(cpus)) {
++		pr_err("Can't find cpus node!\n");
++		return -EINVAL;
++	}
++
++	ofnode_for_each_subnode(node, cpus) {
++		/* skip if hart is marked as not available in the device tree */
++		if (!ofnode_is_available(node))
++			continue;
++
++		/* read hart ID of CPU */
++		ret = ofnode_read_u32(node, "reg", &reg);
++		if (ret)
++			continue;
++
++		/* skip if it is the hart we are running on */
++		if (reg == gd->arch.boot_hart)
++			continue;
++
++		if (reg >= CONFIG_NR_CPUS) {
++			pr_err("Hart ID %d is out of range, increase CONFIG_NR_CPUS\n",
++			       reg);
++			continue;
++		}
++
++		/* skip if hart is not available */
++		if (!(gd->arch.available_harts & (1 << reg)))
++			continue;
++
++		gd->arch.ipi[reg].addr = ipi->addr;
++		gd->arch.ipi[reg].arg0 = ipi->arg0;
++		gd->arch.ipi[reg].arg1 = ipi->arg1;
++
++		ret = riscv_send_ipi(reg);
++		if (ret) {
++			pr_err("Cannot send IPI to hart %d\n", reg);
++			return ret;
++		}
++	}
++
++	return 0;
++}
++
++void handle_ipi(ulong hart)
++{
++	int ret;
++	void (*smp_function)(ulong hart, ulong arg0, ulong arg1);
++
++	if (hart >= CONFIG_NR_CPUS)
++		return;
++
++	ret = riscv_clear_ipi(hart);
++	if (ret) {
++		pr_err("Cannot clear IPI of hart %ld\n", hart);
++		return;
++	}
++
++	__smp_mb();
++
++	smp_function = (void (*)(ulong, ulong, ulong))gd->arch.ipi[hart].addr;
++	invalidate_icache_all();
++
++	smp_function(hart, gd->arch.ipi[hart].arg0, gd->arch.ipi[hart].arg1);
++}
++
++int smp_call_function(ulong addr, ulong arg0, ulong arg1)
++{
++	int ret = 0;
++	struct ipi_data ipi;
++
++	ipi.addr = addr;
++	ipi.arg0 = arg0;
++	ipi.arg1 = arg1;
++
++	ret = send_ipi_many(&ipi);
++
++	return ret;
++}
+-- 
+2.21.0
+

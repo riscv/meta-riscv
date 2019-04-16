@@ -1,0 +1,62 @@
+From 2503ccc55ff2031ae2ff476fb06f666e6d1c7a64 Mon Sep 17 00:00:00 2001
+From: Lukas Auer <lukas.auer@aisec.fraunhofer.de>
+Date: Sun, 17 Mar 2019 19:28:35 +0100
+Subject: [PATCH 04/18] riscv: delay initialization of caches and debug UART
+
+Move the initialization of the caches and the debug UART until after
+board_init_f_init_reserve. This is in preparation for SMP support, where
+code prior to this point will be executed by all harts. This ensures
+that initialization will only be performed once on the main hart running
+U-Boot.
+
+Signed-off-by: Lukas Auer <lukas.auer@aisec.fraunhofer.de>
+Reviewed-by: Anup Patel <anup.patel@wdc.com>
+Reviewed-by: Bin Meng <bmeng.cn@gmail.com>
+---
+ arch/riscv/cpu/start.S | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/arch/riscv/cpu/start.S b/arch/riscv/cpu/start.S
+index 81ea52b170..a30f6f7194 100644
+--- a/arch/riscv/cpu/start.S
++++ b/arch/riscv/cpu/start.S
+@@ -45,10 +45,6 @@ _start:
+ 	/* mask all interrupts */
+ 	csrw	MODE_PREFIX(ie), zero
+ 
+-	/* Enable cache */
+-	jal	icache_enable
+-	jal	dcache_enable
+-
+ /*
+  * Set stackpointer in internal/ex RAM to call board_init_f
+  */
+@@ -57,10 +53,6 @@ call_board_init_f:
+ 	li	t1, CONFIG_SYS_INIT_SP_ADDR
+ 	and	sp, t1, t0		/* force 16 byte alignment */
+ 
+-#ifdef CONFIG_DEBUG_UART
+-	jal	debug_uart_init
+-#endif
+-
+ call_board_init_f_0:
+ 	mv	a0, sp
+ 	jal	board_init_f_alloc_reserve
+@@ -74,6 +66,14 @@ call_board_init_f_0:
+ 	/* save the boot hart id to global_data */
+ 	SREG	s0, GD_BOOT_HART(gp)
+ 
++	/* Enable cache */
++	jal	icache_enable
++	jal	dcache_enable
++
++#ifdef CONFIG_DEBUG_UART
++	jal	debug_uart_init
++#endif
++
+ 	mv	a0, zero		/* a0 <-- boot_flags = 0 */
+ 	la	t5, board_init_f
+ 	jr	t5			/* jump to board_init_f() */
+-- 
+2.21.0
+

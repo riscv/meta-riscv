@@ -1,0 +1,44 @@
+From 1446b26f7652124f0e3e98c348cdbc4fc55eb0cb Mon Sep 17 00:00:00 2001
+From: Lukas Auer <lukas.auer@aisec.fraunhofer.de>
+Date: Sun, 17 Mar 2019 19:28:36 +0100
+Subject: [PATCH 05/18] riscv: save hart ID in register tp instead of s0
+
+The hart ID passed by the previous boot stage is currently stored in
+register s0. If we divert the control flow inside a function, which is
+required as part of multi-hart support, the function epilog may not be
+called, clobbering register s0. Save the hart ID in the unallocatable
+register tp instead to protect the hart ID.
+
+Signed-off-by: Lukas Auer <lukas.auer@aisec.fraunhofer.de>
+Reviewed-by: Bin Meng <bmeng.cn@gmail.com>
+Reviewed-by: Rick Chen <rick@andestech.com>
+Reviewed-by: Anup Patel <anup.patel@wdc.com>
+---
+ arch/riscv/cpu/start.S | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/riscv/cpu/start.S b/arch/riscv/cpu/start.S
+index a30f6f7194..bcc0ff696d 100644
+--- a/arch/riscv/cpu/start.S
++++ b/arch/riscv/cpu/start.S
+@@ -36,7 +36,7 @@
+ .globl _start
+ _start:
+ 	/* save hart id and dtb pointer */
+-	mv	s0, a0
++	mv	tp, a0
+ 	mv	s1, a1
+ 
+ 	la	t0, trap_entry
+@@ -64,7 +64,7 @@ call_board_init_f_0:
+ 	jal	board_init_f_init_reserve
+ 
+ 	/* save the boot hart id to global_data */
+-	SREG	s0, GD_BOOT_HART(gp)
++	SREG	tp, GD_BOOT_HART(gp)
+ 
+ 	/* Enable cache */
+ 	jal	icache_enable
+-- 
+2.21.0
+
