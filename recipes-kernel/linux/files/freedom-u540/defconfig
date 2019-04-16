@@ -17,7 +17,7 @@ CONFIG_BPF_SYSCALL=y
 CONFIG_EMBEDDED=y
 CONFIG_SMP=y
 CONFIG_HZ_100=y
-CONFIG_CMDLINE="earlycon=sbi root=/dev/mmcblk0p2 rootwait"
+CONFIG_CMDLINE="earlycon=sbi root=/dev/mmcblk0p3 rootwait"
 CONFIG_MODULES=y
 CONFIG_MODULE_UNLOAD=y
 # CONFIG_BLK_DEV_BSG is not set
