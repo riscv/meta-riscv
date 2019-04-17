@@ -1,0 +1,2 @@
+tftpboot $kernel_addr_r uImage
+bootm $kernel_addr_r - $fdt_addr_r

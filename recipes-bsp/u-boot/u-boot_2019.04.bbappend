@@ -18,4 +18,29 @@ SRC_URI += "file://0001-riscv-add-infrastructure-for-calling-functions-on-ot.pat
             file://0016-riscv-dts-ae350-support-SMP.patch \
             file://0017-riscv-ae350-enable-SMP.patch \
             file://0018-riscv-dts-fix-CONFIG_DEFAULT_DEVICE_TREE-failure.patch \
+            file://0001-sifive-fu540-Set-default-arguments-to-help-booting.patch \
+            file://tftp-boot.txt \
            "
+
+DEPENDS += "u-boot-tools-native"
+
+UBOOT_ENTRYPOINT = "0x80200000"
+
+# Overwrite this for your server
+TFTP_SERVER_IP ?= "127.0.0.1"
+
+do_configure_prepend() {
+    sed -i -e 's,@SERVERIP@,${TFTP_SERVER_IP},g' ${S}/include/configs/sifive-fu540.h
+
+    mkimage -A arm -O linux -T script -C none -n "U-Boot boot script" \
+        -d ${WORKDIR}/${UBOOT_ENV}.txt ${WORKDIR}/boot.scr.uimg
+}
+
+do_deploy_append () {
+      install -d ${DEPLOY_DIR_IMAGE}
+      install -m 755 ${WORKDIR}/boot.scr.uimg ${DEPLOY_DIR_IMAGE}/
+}
+
+addtask deploy after do_install
+
+FILES_${PN} += "/boot/boot.scr.uimg"
