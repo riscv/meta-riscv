@@ -1,15 +1,11 @@
-require recipes-kernel/linux/linux-riscv-common.inc
-
-DESCRIPTION = "Mainline Linux Kernel"
+require recipes-kernel/linux/linux-mainline-common.inc
 
 LINUX_VERSION ?= "5.1"
-LINUX_VERSION_EXTENSION = ""
 
-# Update this to point to the stable release branches after the official release
-BRANCH = "master"
+BRANCH = "linux-5.1.y"
 SRCREV = "${AUTOREV}"
 SRC_URI = " \
-    git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git;branch=${BRANCH} \
+    git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git;branch=${BRANCH} \
 "
 
 # Out of tree patches required for HiFive Unleashed
@@ -26,14 +22,12 @@ SRC_URI_append_freedom-u540 = " \
     file://0010-HACK-radeon-Don-t-set-PCI-DMA-mask.patch \
 "
 
+# Fix a breakage with the current 32bit glibc fork
+SRC_URI_append_qemuriscv32 = " file://0001-Revert-riscv-Use-latest-system-call-ABI.patch"
+
 # qemu uses in-tree defconfig
 # freedom-u540 uses out-of-tree defconfig
 SRC_URI_append_freedom-u540 = " file://defconfig"
 
-# Fix a breakage with the current 32bit glibc fork
-SRC_URI_append_qemuriscv32 = " file://0001-Revert-riscv-Use-latest-system-call-ABI.patch"
-
 KBUILD_DEFCONFIG_qemuriscv32 = "rv32_defconfig"
 KBUILD_DEFCONFIG_qemuriscv64 = "defconfig"
-
-KERNEL_VERSION_SANITY_SKIP = "1"
