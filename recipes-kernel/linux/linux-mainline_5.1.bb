@@ -1,6 +1,7 @@
 require recipes-kernel/linux/linux-mainline-common.inc
 
-LINUX_VERSION ?= "5.1"
+LINUX_VERSION ?= "5.1.x"
+KERNEL_VERSION_SANITY_SKIP="1"
 
 BRANCH = "linux-5.1.y"
 SRCREV = "${AUTOREV}"
