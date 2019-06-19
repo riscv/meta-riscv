@@ -24,8 +24,6 @@ SRC_URI += "file://0001-riscv-add-infrastructure-for-calling-functions-on-ot.pat
 
 DEPENDS += "u-boot-tools-native"
 
-UBOOT_ENTRYPOINT = "0x80200000"
-
 # Overwrite this for your server
 TFTP_SERVER_IP ?= "127.0.0.1"
 
@@ -33,7 +31,7 @@ do_configure_prepend() {
     sed -i -e 's,@SERVERIP@,${TFTP_SERVER_IP},g' ${S}/include/configs/sifive-fu540.h
 
     if [ -f "${WORKDIR}/${UBOOT_ENV}.txt" ]; then
-        mkimage -A arm -O linux -T script -C none -n "U-Boot boot script" \
+        mkimage -O linux -T script -C none -n "U-Boot boot script" \
             -d ${WORKDIR}/${UBOOT_ENV}.txt ${WORKDIR}/boot.scr.uimg
     fi
 }
