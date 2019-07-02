@@ -1,0 +1,50 @@
+From 9d81a06f0812021d13f5ff1aed7b37f04ea36f1b Mon Sep 17 00:00:00 2001
+From: Anup Patel <anup.patel@wdc.com>
+Date: Thu, 27 Jun 2019 13:08:09 +0530
+Subject: [PATCH 18/21] mmc: skip select_mode_and_width for MMC SPI host
+
+The MMC mode and width are fixed for MMC SPI host hence we skip
+sd_select_mode_and_width() and mmc_select_mode_and_width() for
+MMC SPI host.
+
+Signed-off-by: Anup Patel <anup.patel@wdc.com>
+Upstream-Status: Submitted
+---
+ drivers/mmc/mmc.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/drivers/mmc/mmc.c b/drivers/mmc/mmc.c
+index 456c1b4cc9..95008c72c3 100644
+--- a/drivers/mmc/mmc.c
++++ b/drivers/mmc/mmc.c
+@@ -1672,6 +1672,13 @@ static int sd_select_mode_and_width(struct mmc *mmc, uint card_caps)
+ 	mmc_dump_capabilities("host", mmc->host_caps);
+ #endif
+ 
++	if (mmc_host_is_spi(mmc)) {
++		mmc_set_bus_width(mmc, 1);
++		mmc_select_mode(mmc, SD_LEGACY);
++		mmc_set_clock(mmc, mmc->tran_speed, MMC_CLK_ENABLE);
++		return 0;
++	}
++
+ 	/* Restrict card's capabilities by what the host can do */
+ 	caps = card_caps & mmc->host_caps;
+ 
+@@ -1934,6 +1941,13 @@ static int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps)
+ 	mmc_dump_capabilities("host", mmc->host_caps);
+ #endif
+ 
++	if (mmc_host_is_spi(mmc)) {
++		mmc_set_bus_width(mmc, 1);
++		mmc_select_mode(mmc, MMC_LEGACY);
++		mmc_set_clock(mmc, mmc->tran_speed, MMC_CLK_ENABLE);
++		return 0;
++	}
++
+ 	/* Restrict card's capabilities by what the host can do */
+ 	card_caps &= mmc->host_caps;
+ 
+-- 
+2.22.0
+

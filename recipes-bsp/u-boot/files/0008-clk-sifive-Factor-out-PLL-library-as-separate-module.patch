@@ -1,0 +1,135 @@
+From f1ec984fea3ce53fc0c6e9a98eb8ba3fa9d3b3ac Mon Sep 17 00:00:00 2001
+From: Anup Patel <anup.patel@wdc.com>
+Date: Tue, 18 Jun 2019 11:42:49 +0530
+Subject: [PATCH 08/21] clk: sifive: Factor-out PLL library as separate module
+
+To match SiFive clock driver with latest Linux, we factor-out PLL
+library as separate module under drivers/clk/analogbits.
+
+Signed-off-by: Anup Patel <anup.patel@wdc.com>
+Reviewed-by: Bin Meng <bmeng.cn@gmail.com>
+Upstream-Status: Submitted
+---
+ drivers/clk/Kconfig                                           | 1 +
+ drivers/clk/Makefile                                          | 1 +
+ drivers/clk/analogbits/Kconfig                                | 4 ++++
+ drivers/clk/analogbits/Makefile                               | 3 +++
+ drivers/clk/{sifive => analogbits}/wrpll-cln28hpc.c           | 3 +--
+ drivers/clk/sifive/Kconfig                                    | 3 ---
+ drivers/clk/sifive/Makefile                                   | 2 --
+ drivers/clk/sifive/fu540-prci.c                               | 3 +--
+ .../sifive => include/linux/clk}/analogbits-wrpll-cln28hpc.h  | 0
+ 9 files changed, 11 insertions(+), 9 deletions(-)
+ create mode 100644 drivers/clk/analogbits/Kconfig
+ create mode 100644 drivers/clk/analogbits/Makefile
+ rename drivers/clk/{sifive => analogbits}/wrpll-cln28hpc.c (99%)
+ rename {drivers/clk/sifive => include/linux/clk}/analogbits-wrpll-cln28hpc.h (100%)
+
+diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
+index 96969b9e30..7b81eacf50 100644
+--- a/drivers/clk/Kconfig
++++ b/drivers/clk/Kconfig
+@@ -98,6 +98,7 @@ config CLK_STM32MP1
+ 	  Enable the STM32 clock (RCC) driver. Enable support for
+ 	  manipulating STM32MP1's on-SoC clocks.
+ 
++source "drivers/clk/analogbits/Kconfig"
+ source "drivers/clk/at91/Kconfig"
+ source "drivers/clk/exynos/Kconfig"
+ source "drivers/clk/imx/Kconfig"
+diff --git a/drivers/clk/Makefile b/drivers/clk/Makefile
+index 719b9b8e02..f0ced49e5a 100644
+--- a/drivers/clk/Makefile
++++ b/drivers/clk/Makefile
+@@ -8,6 +8,7 @@ obj-$(CONFIG_$(SPL_TPL_)CLK) += clk-uclass.o
+ obj-$(CONFIG_$(SPL_TPL_)CLK) += clk_fixed_rate.o
+ obj-$(CONFIG_$(SPL_TPL_)CLK) += clk_fixed_factor.o
+ 
++obj-y += analogbits/
+ obj-y += imx/
+ obj-y += tegra/
+ obj-$(CONFIG_ARCH_ASPEED) += aspeed/
+diff --git a/drivers/clk/analogbits/Kconfig b/drivers/clk/analogbits/Kconfig
+new file mode 100644
+index 0000000000..1d25e6f124
+--- /dev/null
++++ b/drivers/clk/analogbits/Kconfig
+@@ -0,0 +1,4 @@
++# SPDX-License-Identifier: GPL-2.0
++
++config CLK_ANALOGBITS_WRPLL_CLN28HPC
++	bool
+diff --git a/drivers/clk/analogbits/Makefile b/drivers/clk/analogbits/Makefile
+new file mode 100644
+index 0000000000..ec1bb4092b
+--- /dev/null
++++ b/drivers/clk/analogbits/Makefile
+@@ -0,0 +1,3 @@
++# SPDX-License-Identifier: GPL-2.0+
++
++obj-$(CONFIG_CLK_ANALOGBITS_WRPLL_CLN28HPC)	+= wrpll-cln28hpc.o
+diff --git a/drivers/clk/sifive/wrpll-cln28hpc.c b/drivers/clk/analogbits/wrpll-cln28hpc.c
+similarity index 99%
+rename from drivers/clk/sifive/wrpll-cln28hpc.c
+rename to drivers/clk/analogbits/wrpll-cln28hpc.c
+index d377849693..68eb1148b9 100644
+--- a/drivers/clk/sifive/wrpll-cln28hpc.c
++++ b/drivers/clk/analogbits/wrpll-cln28hpc.c
+@@ -35,8 +35,7 @@
+ #include <linux/err.h>
+ #include <linux/log2.h>
+ #include <linux/math64.h>
+-
+-#include "analogbits-wrpll-cln28hpc.h"
++#include <linux/clk/analogbits-wrpll-cln28hpc.h>
+ 
+ /* MIN_INPUT_FREQ: minimum input clock frequency, in Hz (Fref_min) */
+ #define MIN_INPUT_FREQ			7000000
+diff --git a/drivers/clk/sifive/Kconfig b/drivers/clk/sifive/Kconfig
+index 644881b948..d90be1943f 100644
+--- a/drivers/clk/sifive/Kconfig
++++ b/drivers/clk/sifive/Kconfig
+@@ -1,8 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0
+ 
+-config CLK_ANALOGBITS_WRPLL_CLN28HPC
+-	bool
+-
+ config CLK_SIFIVE
+ 	bool "SiFive SoC driver support"
+ 	depends on CLK
+diff --git a/drivers/clk/sifive/Makefile b/drivers/clk/sifive/Makefile
+index f8263e79b7..0813360ca7 100644
+--- a/drivers/clk/sifive/Makefile
++++ b/drivers/clk/sifive/Makefile
+@@ -1,7 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0+
+ 
+-obj-$(CONFIG_CLK_ANALOGBITS_WRPLL_CLN28HPC)	+= wrpll-cln28hpc.o
+-
+ obj-$(CONFIG_CLK_SIFIVE_FU540_PRCI)		+= fu540-prci.o
+ 
+ obj-$(CONFIG_CLK_SIFIVE_GEMGXL_MGMT)		+= gemgxl-mgmt.o
+diff --git a/drivers/clk/sifive/fu540-prci.c b/drivers/clk/sifive/fu540-prci.c
+index 2d47ebc6b1..56084db2e6 100644
+--- a/drivers/clk/sifive/fu540-prci.c
++++ b/drivers/clk/sifive/fu540-prci.c
+@@ -37,10 +37,9 @@
+ #include <errno.h>
+ 
+ #include <linux/math64.h>
++#include <linux/clk/analogbits-wrpll-cln28hpc.h>
+ #include <dt-bindings/clk/sifive-fu540-prci.h>
+ 
+-#include "analogbits-wrpll-cln28hpc.h"
+-
+ /*
+  * EXPECTED_CLK_PARENT_COUNT: how many parent clocks this driver expects:
+  *     hfclk and rtcclk
+diff --git a/drivers/clk/sifive/analogbits-wrpll-cln28hpc.h b/include/linux/clk/analogbits-wrpll-cln28hpc.h
+similarity index 100%
+rename from drivers/clk/sifive/analogbits-wrpll-cln28hpc.h
+rename to include/linux/clk/analogbits-wrpll-cln28hpc.h
+-- 
+2.22.0
+
