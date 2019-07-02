@@ -13,6 +13,7 @@ and results with a partially working graphcis card. By not setting a DMA
 mask the messages aren't seen and the GPU works.
 
 Signed-off-by: Alistair Francis <alistair.francis@wdc.com>
+Upstream-Status: Denied
 ---
  drivers/gpu/drm/radeon/radeon_device.c | 11 +++++------
  1 file changed, 5 insertions(+), 6 deletions(-)

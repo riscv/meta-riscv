@@ -1,7 +1,7 @@
-From 9b3b6bc3456ac35aaf99a3182f8a40485abef67b Mon Sep 17 00:00:00 2001
+From 41fce8c7589f76b6cd09d56db0f4ddd971a6dbd6 Mon Sep 17 00:00:00 2001
 From: Alistair Francis <alistair.francis@wdc.com>
 Date: Thu, 21 Feb 2019 16:29:37 -0800
-Subject: [PATCH 09/10] HACK: Revert "of/device: Really only set bus DMA mask
+Subject: [PATCH 6/6] HACK: Revert "of/device: Really only set bus DMA mask
  when appropriate"
 
 This reverts commit 6778be4e520959659b27a441c06a84c9cb009085.
@@ -15,12 +15,13 @@ USB bus when attaching a USB to PCIe card to a RISC-V board:
     xhci_hcd 0000:03:00.0: remove, state 1
 
 Signed-off-by: Alistair Francis <alistair.francis@wdc.com>
+Upstream-Status: Denied
 ---
  drivers/of/device.c | 4 +---
  1 file changed, 1 insertion(+), 3 deletions(-)
 
 diff --git a/drivers/of/device.c b/drivers/of/device.c
-index 3717f2a20d0d..8299f8055da7 100644
+index da8158392010..e1fb703ff603 100644
 --- a/drivers/of/device.c
 +++ b/drivers/of/device.c
 @@ -149,11 +149,9 @@ int of_dma_configure(struct device *dev, struct device_node *np, bool force_dma)
@@ -37,5 +38,5 @@ index 3717f2a20d0d..8299f8055da7 100644
  	coherent = of_dma_is_coherent(np);
  	dev_dbg(dev, "device is%sdma coherent\n",
 -- 
-2.21.0
+2.22.0
 
