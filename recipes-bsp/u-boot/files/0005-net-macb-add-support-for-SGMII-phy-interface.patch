@@ -1,0 +1,36 @@
+From 641cab449fb58f7d66e434f9fd5a9a33b67d77e3 Mon Sep 17 00:00:00 2001
+From: Ramon Fried <rfried.dev@gmail.com>
+Date: Tue, 11 Jun 2019 18:19:28 +0300
+Subject: [PATCH 05/21] net: macb: add support for SGMII phy interface
+
+This patch adds support for the sgmii phy interface,
+available only to DM users, dictated by current driver
+design.
+
+Signed-off-by: Ramon Fried <rfried.dev@gmail.com>
+Upstream-Status: Submitted
+---
+ drivers/net/macb.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/drivers/net/macb.c b/drivers/net/macb.c
+index d957afe21a..ae8937bbb1 100644
+--- a/drivers/net/macb.c
++++ b/drivers/net/macb.c
+@@ -757,6 +757,13 @@ static int _macb_init(struct macb_device *macb, const char *name)
+ 			gem_writel(macb, USRIO, GEM_BIT(RGMII));
+ 		else
+ 			gem_writel(macb, USRIO, 0);
++
++		if (macb->phy_interface == PHY_INTERFACE_MODE_SGMII) {
++			unsigned int ncfgr = macb_readl(macb, NCFGR);
++
++			ncfgr |= GEM_BIT(SGMIIEN) | GEM_BIT(PCSSEL);
++			macb_writel(macb, NCFGR, ncfgr);
++		}
+ #else
+ #if defined(CONFIG_RGMII) || defined(CONFIG_RMII)
+ 		gem_writel(macb, UR, GEM_BIT(RGMII));
+-- 
+2.22.0
+
