@@ -10,6 +10,7 @@ so let's revert it. This revert can be reverted when the glibc
 submission is updated to work on the 5.1 kernel.
 
 Signed-off-by: Alistair Francis <alistair.francis@wdc.com>
+Upstream-Status: Inappropriate [enable feature]
 ---
  arch/riscv/Kconfig                   | 1 +
  arch/riscv/include/uapi/asm/unistd.h | 5 ++++-
