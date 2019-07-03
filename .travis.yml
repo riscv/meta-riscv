@@ -4,24 +4,26 @@ language: shell
 compiler:
 env:
 
+git:
+  depth: 3
+
 before_install:
 
 install:
-- sudo apt-get update -qq
-- sudo apt-get remove -y -qq oss4-dev
-- sudo apt-get install -y -qq gawk wget git-core diffstat unzip texinfo gcc-multilib build-essential chrpath socat cpio python python3 python3-pip python3-pexpect xz-utils debianutils iputils-ping python-git
+  - sudo apt-get install -y -qq diffstat texinfo chrpath
 script:
-- mkdir -p ~/bin
-- PATH=~/bin:$PATH
-- curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
-- chmod a+x ~/bin/repo
-- mkdir -p riscv-yocto
-- git config --global color.ui true
-- repo init -u git://github.com/riscv/meta-riscv  -b master -m tools/manifests/riscv-yocto.xml
-- repo sync
-- repo start work --all
-- . ./meta-riscv/setup.sh
-- bitbake core-image-minimal
+  - cd ../
+  - git clone --depth=3 git://git.openembedded.org/openembedded-core
+  - cd openembedded-core
+  - mv ../meta-riscv ./
+  - git clone --depth=3 git://git.openembedded.org/bitbake
+  - git clone --depth=3 git://git.openembedded.org/meta-openembedded
+  - source oe-init-build-env
+  - find ./conf/bblayers.conf -type f -exec sed -i "s|  \"|  $(pwd)/../meta-openembedded/meta-oe \\\ \\n  \"|g" {} +
+  - find ./conf/bblayers.conf -type f -exec sed -i "s|  \"|  $(pwd)/../meta-riscv \\\ \\n  \"|g" {} +
+  - MACHINE=qemuriscv64 timeout --foreground 55m bitbake core-image-minimal || if [ $? == 124 ]; then echo "Timeout"; else return 1; fi;
+  - MACHINE=qemuriscv32 timeout --foreground 55m bitbake core-image-minimal || if [ $? == 124 ]; then echo "Timeout"; else return 1; fi
+  - MACHINE=freedom-u540 timeout --foreground 55m bitbake core-image-minimal || if [ $? == 124 ]; then echo "Timeout"; else return 1; fi
 
 after_success:
 
