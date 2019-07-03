@@ -1,6 +1,6 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
-SRC_URI += "file://0001-sifive-fu540-Set-default-arguments-to-help-booting.patch \
+SRC_URI += "file://0001-sifive-fu540-config-Add-mmc0-as-a-boot-target-device.patch \
             file://0002-net-macb-sync-header-definitions-as-taken-from-Linux.patch \
             file://0003-net-macb-add-support-for-faster-clk-rates.patch \
             file://0004-net-macb-use-bit-access-macro-from-header-file.patch \
@@ -21,7 +21,7 @@ SRC_URI += "file://0001-sifive-fu540-Set-default-arguments-to-help-booting.patch
             file://0019-mmc-mmc_spi-Re-write-driver-using-DM-framework.patch \
             file://0020-riscv-sifive-fu540-Enable-SiFive-SPI-and-MMC-SPI-dri.patch \
             file://0021-doc-sifive-fu540-Update-README-for-SiFive-SPI-and-MM.patch \
-            file://tftp-boot.txt \
+            file://mmc-boot.txt \
            "
 
 DEPENDS += "u-boot-tools-native"
@@ -30,7 +30,7 @@ DEPENDS += "u-boot-tools-native"
 TFTP_SERVER_IP ?= "127.0.0.1"
 
 do_configure_prepend() {
-    sed -i -e 's,@SERVERIP@,${TFTP_SERVER_IP},g' ${S}/include/configs/sifive-fu540.h
+    sed -i -e 's,@SERVERIP@,${TFTP_SERVER_IP},g' ${WORKDIR}/mmc-boot.txt
 
     if [ -f "${WORKDIR}/${UBOOT_ENV}.txt" ]; then
         mkimage -O linux -T script -C none -n "U-Boot boot script" \

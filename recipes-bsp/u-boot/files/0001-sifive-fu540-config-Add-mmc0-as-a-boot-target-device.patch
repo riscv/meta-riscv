@@ -1,0 +1,28 @@
+From 9197591db555e852f816614a8bd92af81044396c Mon Sep 17 00:00:00 2001
+From: Alistair Francis <alistair.francis@wdc.com>
+Date: Wed, 3 Jul 2019 09:39:48 -0700
+Subject: [PATCH] sifive-fu540: config: Add mmc0 as a boot target device
+
+Add the mmc0 device as a BOOT_TARGET_DEVICES.
+
+Signed-off-by: Alistair Francis <alistair.francis@wdc.com>
+Upstream-Status: Pending
+---
+ include/configs/sifive-fu540.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/include/configs/sifive-fu540.h b/include/configs/sifive-fu540.h
+index 7007b5f6af..f28f0d7da1 100644
+--- a/include/configs/sifive-fu540.h
++++ b/include/configs/sifive-fu540.h
+@@ -26,6 +26,7 @@
+ #define CONFIG_ENV_SIZE			SZ_4K
+ 
+ #define BOOT_TARGET_DEVICES(func) \
++	func(MMC, mmc, 0) \
+ 	func(DHCP, dhcp, na)
+ 
+ #include <config_distro_bootcmd.h>
+-- 
+2.22.0
+
