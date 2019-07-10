@@ -53,7 +53,7 @@ if [ -e $CONFFILE ]; then
     rm -rf $CONFFILE
 fi
 cat <<EOF > $CONFFILE
-MACHINE = "${MACHINE}"
+MACHINE ?= "${MACHINE}"
 #IMAGE_FEATURES += "tools-debug"
 #IMAGE_FEATURES += "tools-tweaks"
 #IMAGE_FEATURES += "dbg-pkgs"
@@ -79,9 +79,16 @@ HOSTTOOLS_NONFATAL_append = " ssh"
 EOF
 
 echo "To build an image run"
-echo "-------------------------------"
-echo "bitbake core-image-full-cmdline"
-echo "-------------------------------"
+echo "---------------------------------------------------"
+echo "MACHINE=qemuriscv64 bitbake core-image-full-cmdline"
+echo "---------------------------------------------------"
+echo ""
+echo "Buildable machine info"
+echo "---------------------------------------------------"
+echo "* qemuriscv64: The 64-bit RISC-V machine"
+echo "* qemuriscv32: The 32-bit RISC-V machine"
+echo "* freedom-u540: The SiFive HiFive Unleased board"
+echo "---------------------------------------------------"
 
 # start build
 #echo "Starting build"
