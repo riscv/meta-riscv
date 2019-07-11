@@ -41,8 +41,8 @@ export BASH_SOURCE="openembedded-core/oe-init-build-env"
 # add the missing layers
 echo "Adding layers"
 bitbake-layers add-layer ../meta-openembedded/meta-oe
-bitbake-layers add-layer ../meta-openembedded/meta-multimedia
 bitbake-layers add-layer ../meta-openembedded/meta-python
+bitbake-layers add-layer ../meta-openembedded/meta-multimedia
 bitbake-layers add-layer ../meta-openembedded/meta-networking
 bitbake-layers add-layer ../meta-riscv
 
