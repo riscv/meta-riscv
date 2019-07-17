@@ -13,7 +13,6 @@ CONFIG_EXPERT=y
 CONFIG_BPF_SYSCALL=y
 CONFIG_SMP=y
 CONFIG_CMDLINE="earlycon=sbi earlycon=sbi root=/dev/mmcblk0p3 rootwait console=ttySIF0 console=tty0"
-CONFIG_CMDLINE_FORCE=y
 CONFIG_MODULES=y
 CONFIG_MODULE_UNLOAD=y
 CONFIG_BLK_DEV_ZONED=y
