@@ -1,6 +1,7 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
-SRC_URI += "file://0001-sifive-fu540-config-Add-mmc0-as-a-boot-target-device.patch \
+SRC_URI_append_freedom-u540 = " \
+            file://0001-sifive-fu540-config-Add-mmc0-as-a-boot-target-device.patch \
             file://0002-net-macb-sync-header-definitions-as-taken-from-Linux.patch \
             file://0003-net-macb-add-support-for-faster-clk-rates.patch \
             file://0004-net-macb-use-bit-access-macro-from-header-file.patch \
@@ -24,12 +25,12 @@ SRC_URI += "file://0001-sifive-fu540-config-Add-mmc0-as-a-boot-target-device.pat
             file://mmc-boot.txt \
            "
 
-DEPENDS += "u-boot-tools-native"
+DEPENDS_append_freedom-u540 = " u-boot-tools-native"
 
 # Overwrite this for your server
 TFTP_SERVER_IP ?= "127.0.0.1"
 
-do_configure_prepend() {
+do_configure_prepend_freedom-u540() {
     sed -i -e 's,@SERVERIP@,${TFTP_SERVER_IP},g' ${WORKDIR}/mmc-boot.txt
 
     if [ -f "${WORKDIR}/${UBOOT_ENV}.txt" ]; then
@@ -38,13 +39,11 @@ do_configure_prepend() {
     fi
 }
 
-do_deploy_append () {
+do_deploy_append_freedom-u540() {
     if [ -f "${WORKDIR}/boot.scr.uimg" ]; then
         install -d ${DEPLOY_DIR_IMAGE}
         install -m 755 ${WORKDIR}/boot.scr.uimg ${DEPLOY_DIR_IMAGE}
     fi
 }
 
-addtask deploy after do_install
-
-FILES_${PN} += "/boot/boot.scr.uimg"
+FILES_${PN}_append_freedom-u540 = " /boot/boot.scr.uimg"
