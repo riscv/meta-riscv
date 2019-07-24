@@ -1,0 +1,7 @@
+# short-description: Create SD card image based on OSTree/OTA+ for HiFive Unleashed development board
+
+part /boot --source bootimg-partition --ondisk mmcblk0 --fstype=vfat --label boot --active --size=100M --align 4096
+part opensbi --source rawcopy --sourceparams="file=fw_payload.bin" --ondisk mmcblk0 --size 32M --align 1 --part-type 2e54b353-1271-4842-806f-e436d6af6985
+part / --source otaimage --ondisk mmcblk0 --fstype=ext4 --align 4096
+
+bootloader --ptable gpt
