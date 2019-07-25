@@ -22,7 +22,7 @@ SRC_URI_append_freedom-u540 = " \
             file://0019-mmc-mmc_spi-Re-write-driver-using-DM-framework.patch \
             file://0020-riscv-sifive-fu540-Enable-SiFive-SPI-and-MMC-SPI-dri.patch \
             file://0021-doc-sifive-fu540-Update-README-for-SiFive-SPI-and-MM.patch \
-            file://mmc-boot.txt \
+            file://tftp-mmc-boot.txt \
            "
 
 DEPENDS_append_freedom-u540 = " u-boot-tools-native"
@@ -31,7 +31,7 @@ DEPENDS_append_freedom-u540 = " u-boot-tools-native"
 TFTP_SERVER_IP ?= "127.0.0.1"
 
 do_configure_prepend_freedom-u540() {
-    sed -i -e 's,@SERVERIP@,${TFTP_SERVER_IP},g' ${WORKDIR}/mmc-boot.txt
+    sed -i -e 's,@SERVERIP@,${TFTP_SERVER_IP},g' ${WORKDIR}/tftp-mmc-boot.txt
 
     if [ -f "${WORKDIR}/${UBOOT_ENV}.txt" ]; then
         mkimage -O linux -T script -C none -n "U-Boot boot script" \
