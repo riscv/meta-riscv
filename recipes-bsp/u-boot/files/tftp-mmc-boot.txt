@@ -14,6 +14,7 @@ dhcp
 # See if we have a TFTP uEnv.txt file
 if tftpboot ${scriptaddr} uEnv.txt; then
     env import -t ${scriptaddr} ${filesize}
+    run bootcmd
 fi;
 
 # Try to boot a fitImage from the TFTP server
@@ -24,6 +25,7 @@ fi;
 # See if we have a MMC uEnv.txt file
 if fatload ${devtype} ${devnum}:${distro_bootpart} ${scriptaddr} /uEnv.txt; then
     env import -t ${scriptaddr} ${filesize}
+    run bootcmd
 fi;
 
 # Try to boot a fitImage from the MMC
