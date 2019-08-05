@@ -1,7 +1,7 @@
-From b290b577a77f91233c0e68cab85436a8de2ebbd0 Mon Sep 17 00:00:00 2001
+From b1103ea299e49c03555f12f080a1607969fd7e66 Mon Sep 17 00:00:00 2001
 From: Atish Patra <atish.patra@wdc.com>
 Date: Fri, 21 Jun 2019 12:36:21 -0700
-Subject: [PATCH 5/6] Microsemi PCIe expansion board DT entry.
+Subject: [PATCH 2/4] Microsemi PCIe expansion board DT entry.
 
 Signed-off-by: Atish Patra <atish.patra@wdc.com>
 Signed-off-by: Alistair Francis <alistair.francis@wdc.com>
