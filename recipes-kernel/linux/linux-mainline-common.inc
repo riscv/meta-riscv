@@ -10,12 +10,7 @@ LINUX_VERSION_EXTENSION = ""
 
 PV = "${LINUX_VERSION}+git${SRCPV}"
 
-DEPENDS_append = " libgcc"
-
 KCONFIG_MODE="--alldefconfig"
-
-KERNEL_CC_append = " ${TOOLCHAIN_OPTIONS} ${SECURITY_NOPIE_CFLAGS}"
-KERNEL_LD_append = " -no-pie"
 
 COMPATIBLE_MACHINE = "(qemuriscv32|qemuriscv64|freedom-u540)"
 

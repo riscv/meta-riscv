@@ -1,7 +1,7 @@
-From 85fac9c69c09dd6d288b3a07960040e9aa4eb0ad Mon Sep 17 00:00:00 2001
+From 3e5cd0fb40635b75140d8cc3b38d66eaaefcf901 Mon Sep 17 00:00:00 2001
 From: Daire McNamara <daire.mcnamara@microchip.com>
 Date: Fri, 15 Feb 2019 16:24:24 +0000
-Subject: [PATCH 4/6] PCI: microsemi: Add host driver for Microsemi PCIe
+Subject: [PATCH 1/4] PCI: microsemi: Add host driver for Microsemi PCIe
  controller
 
 This patch adds support to the Microsemi/Microchip PolarFire
@@ -17,7 +17,7 @@ Upstream-Status: Inappropriate [not author]
  create mode 100644 drivers/pci/controller/pcie-microsemi.c
 
 diff --git a/drivers/pci/controller/Kconfig b/drivers/pci/controller/Kconfig
-index 011c57cae4b0..e22364792bca 100644
+index fe9f9f13ce11..800b0b61dedf 100644
 --- a/drivers/pci/controller/Kconfig
 +++ b/drivers/pci/controller/Kconfig
 @@ -281,5 +281,13 @@ config VMD
