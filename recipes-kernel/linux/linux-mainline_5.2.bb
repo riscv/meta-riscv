@@ -17,6 +17,7 @@ SRC_URI_append_freedom-u540 = " \
     file://0005-Microsemi-PCIe-expansion-board-DT-entry.patch \
     file://0006-HACK-Revert-of-device-Really-only-set-bus-DMA-mask-w.patch \
     file://0007-HACK-radeon-Don-t-set-PCI-DMA-mask.patch \
+    file://0008-spi-nor-5.2-patch \
 "
 
 # Fix a breakage with the current 32bit glibc fork
