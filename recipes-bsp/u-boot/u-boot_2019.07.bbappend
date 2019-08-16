@@ -22,6 +22,7 @@ SRC_URI_append_freedom-u540 = " \
             file://0019-mmc-mmc_spi-Re-write-driver-using-DM-framework.patch \
             file://0020-riscv-sifive-fu540-Enable-SiFive-SPI-and-MMC-SPI-dri.patch \
             file://0021-doc-sifive-fu540-Update-README-for-SiFive-SPI-and-MM.patch \
+            file://0022-net-macb-Extend-MACB-driver-for-SiFive-Unleashed-boa.patch \
             file://tftp-mmc-boot.txt \
            "
 

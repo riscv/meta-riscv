@@ -1,0 +1,49 @@
+From e20a88fa1dd90021a64943fef9cf2a15ce24b36e Mon Sep 17 00:00:00 2001
+From: Anup Patel <Anup.Patel@wdc.com>
+Date: Wed, 24 Jul 2019 04:09:32 +0000
+Subject: [PATCH] net: macb: Extend MACB driver for SiFive Unleashed board
+
+The SiFive MACB ethernet has a custom TX_CLK_SEL register to select
+different TX clock for 1000mbps vs 10/100mbps.
+
+This patch adds SiFive MACB compatible string and extends the MACB
+ethernet driver to change TX clock using TX_CLK_SEL register for
+SiFive MACB.
+
+Signed-off-by: Anup Patel <anup.patel@wdc.com>
+Reviewed-by: Bin Meng <bmeng.cn@gmail.com>
+Reviewed-by: Ramon Fried <rfried.dev@gmail.com>
+Acked-by: Joe Hershberger <joe.hershberger@ni.com>
+[ Changes by AF:
+ - Rebase on current 2017.07 + patches u-boot
+]
+Signed-off-by: Alistair Francis <alistair.francis@wdc.com>
+Upstream-Status: Backport [2019.10]
+---
+ drivers/net/macb.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/macb.c b/drivers/net/macb.c
+index a4015e9bd5..012b82b9c3 100644
+--- a/drivers/net/macb.c
++++ b/drivers/net/macb.c
+@@ -1202,6 +1202,7 @@ static int macb_enable_clk(struct udevice *dev)
+ 
+ static const struct macb_config default_gem_config = {
+ 	.dma_burst_length = 16,
++	.clk_init = NULL,
+ };
+ 
+ static int macb_eth_probe(struct udevice *dev)
+@@ -1306,6 +1313,8 @@ static const struct udevice_id macb_eth_ids[] = {
+ 	{ .compatible = "atmel,sama5d4-gem", .data = (ulong)&sama5d4_config },
+ 	{ .compatible = "cdns,zynq-gem" },
+ 	{ .compatible = "sifive,fu540-macb", .data = (ulong)&sifive_config },
++	{ .compatible = "sifive,fu540-c000-gem",
++	  .data = (ulong)&sifive_config },
+ 	{ }
+ };
+ 
+-- 
+2.22.0
+
