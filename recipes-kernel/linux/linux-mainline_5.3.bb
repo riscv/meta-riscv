@@ -10,6 +10,7 @@ SRC_URI = " \
 "
 
 SRC_URI_append_freedom-u540 = " \
+    file://extra.cfg \
     file://0001-PCI-microsemi-Add-host-driver-for-Microsemi-PCIe-con.patch \
     file://0002-Microsemi-PCIe-expansion-board-DT-entry.patch \
     file://0003-HACK-Revert-of-device-Really-only-set-bus-DMA-mask-w.patch \
@@ -21,9 +22,6 @@ SRC_URI_append_freedom-u540 = " \
 
 KERNEL_DEVICETREE_freedom-u540 = "sifive/${RISCV_SBI_FDT}"
 
-# freedom-u540 uses out-of-tree defconfig
-SRC_URI_append_freedom-u540 = " file://defconfig"
-
-# qemu uses in-tree defconfig
 KBUILD_DEFCONFIG_qemuriscv32 = "rv32_defconfig"
 KBUILD_DEFCONFIG_qemuriscv64 = "defconfig"
+KBUILD_DEFCONFIG_freedom-u540 = "defconfig"
