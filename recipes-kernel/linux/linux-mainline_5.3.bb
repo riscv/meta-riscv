@@ -19,9 +19,3 @@ SRC_URI_append_freedom-u540 = " \
     file://0006-drm-radeon-simplify-and-cleanup-setting-the-dma-mask.patch \
     file://0007-drm-amdgpu-simplify-and-cleanup-setting-the-dma-mask.patch \
 "
-
-KERNEL_DEVICETREE_freedom-u540 = "sifive/${RISCV_SBI_FDT}"
-
-KBUILD_DEFCONFIG_qemuriscv32 = "rv32_defconfig"
-KBUILD_DEFCONFIG_qemuriscv64 = "defconfig"
-KBUILD_DEFCONFIG_freedom-u540 = "defconfig"
