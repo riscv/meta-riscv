@@ -6,10 +6,6 @@ MACHINE="qemuriscv64"
 CONFFILE="conf/auto.conf"
 BITBAKEIMAGE="core-image-full-cmdline"
 
-# clean up the output dir
-echo "Cleaning build dir"
-rm -rf $DIR
-
 # make sure sstate is there
 #echo "Creating sstate directory"
 #mkdir -p ~/sstate/$MACHINE
