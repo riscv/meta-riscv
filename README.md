@@ -6,7 +6,7 @@ RISC-V Architecture Layer for OpenEmbedded/Yocto
 
 ## Description
 
-This is the general hardware specific BSP overlay for the RISC-V based devices.
+This is the general hardware-specific BSP overlay for the RISC-V based devices.
 
 More information can be found at: <https://riscv.org/> (Official Site)
 
@@ -43,7 +43,7 @@ repo start work --all
 ```
 ### Update existing workspace
 
-In order to bring all layers uptodate with upstream
+In order to bring all the layers up to date with upstream
 
 ```text
 cd riscv-yocto
@@ -56,13 +56,13 @@ repo rebase
 . ./meta-riscv/setup.sh
 ```
 
-## Avaliable Machines
+## Available Machines
 
 The three different machines you can build for are:
 
 * qemuriscv64: The 64-bit RISC-V machine
 * qemuriscv32: The 32-bit RISC-V machine
-* freedom-u540: The SiFive HiFive Unleased board
+* freedom-u540: The SiFive HiFive Unleashed board
 
 ## Build Images
 
@@ -79,13 +79,13 @@ a standalone (on device) SDK for the 32-bit QEMU machine
 MACHINE=qemuriscv32 bitbake core-image-lsb-sdk
 ```
 
-To build an image to run on the HiFive Unleased using Wayland run the following
+To build an image to run on the HiFive Unleashed using Wayland run the following
 
 ```text
 MACHINE=freedom-u540 bitbake core-image-wayland
 ```
 
-To build a full GUI equipped image running Plasma Mobile see the in [tree documentation here](https://github.com/riscv/meta-riscv/blob/master/docs/Plasma-Mobile-on-Unleashed.md).
+To build a full GUI equipped image running Plasma Mobile see the in-tree documentation [here](https://github.com/riscv/meta-riscv/blob/master/docs/Plasma-Mobile-on-Unleashed.md).
 
 ## Running in QEMU
 
