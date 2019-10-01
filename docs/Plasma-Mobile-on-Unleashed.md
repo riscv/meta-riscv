@@ -27,7 +27,7 @@ To build plasma mobile you will need (as well as meta-riscv):
   * branch: master
   * revision: HEAD
 
-You will also need the HiFive Unleased with the Microsemi expansion board. As well as that you need a PCIe GPU and PCIe to USB card (for inputs). This was tested using a AMD r600 series GPU. Your millage will vary depending on the GPU selected.
+You will also need the HiFive Unleashed with the Microsemi expansion board. As well as that you need a PCIe GPU and PCIe to USB card (for inputs). This was tested using an AMD r600 series GPU. Your millage will vary depending on the GPU selected.
 
 
 ## Setup Build Environment
@@ -52,14 +52,14 @@ RISCV_SBI_FDT_freedom-u540      = "HiFiveUnleashed-MicroSemi-Expansion.dtb"
 PACKAGECONFIG_append_pn-mesa    = " r600"
 ```
 
-You can then start the buld by running:
+You can then start the build by running:
 ```
 MACHINE=freedom-u540 bitbake core-image-plasma-mobile
 ```
 
 ## Deploying
 
-Follow the top level README to flash the image to an SD card (you will probably need an SD card with more then 10GB of storage). Once you boot the device Plasma Mobile should start.
+Follow the top-level README to flash the image to an SD card (you will probably need an SD card with more than 10GB of storage). Once you boot the device Plasma Mobile should start.
 
 ## Known issues
 
