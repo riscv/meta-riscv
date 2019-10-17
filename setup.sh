@@ -83,7 +83,7 @@ echo "Buildable machine info"
 echo "---------------------------------------------------"
 echo "* qemuriscv64: The 64-bit RISC-V machine"
 echo "* qemuriscv32: The 32-bit RISC-V machine"
-echo "* freedom-u540: The SiFive HiFive Unleased board"
+echo "* freedom-u540: The SiFive HiFive Unleashed board"
 echo "---------------------------------------------------"
 
 # start build
