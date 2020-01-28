@@ -18,7 +18,6 @@ SRC_URI_riscv64 = "\
     \
     file://0010-cmd-go-make-content-based-hash-generation-less-pedan.patch \
 "
-SRC_URI_append_riscv64_libc-musl = " file://0009-ld-replace-glibc-dynamic-linker-with-musl.patch"
 
 S_riscv64 = "${WORKDIR}/git"
 
