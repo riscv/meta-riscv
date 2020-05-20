@@ -11,4 +11,4 @@ SRC_URI = " \
 
 SRCREV_openocd = "4f9e2d7171f3cad8d1a99dff3eee5ec5e6d8ea2b"
 
-COMPATIBLE_HOST = "(riscv32|riscv64).*-linux"
+COMPATIBLE_HOST = "(x86_64.*|i.86.*|riscv32|riscv64).*-linux"
