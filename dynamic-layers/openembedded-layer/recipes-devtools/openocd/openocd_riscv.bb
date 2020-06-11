@@ -9,6 +9,6 @@ SRC_URI = " \
     git://repo.or.cz/r/libjaylink.git;protocol=http;destsuffix=git/src/jtag/drivers/libjaylink;name=libjaylink \
 "
 
-SRCREV_openocd = "4f9e2d7171f3cad8d1a99dff3eee5ec5e6d8ea2b"
+SRCREV_openocd = "03f943ae239f59727ef47e46fffc31dd405a642d"
 
 COMPATIBLE_HOST = "(x86_64.*|i.86.*|riscv32|riscv64).*-linux"
