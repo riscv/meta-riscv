@@ -82,7 +82,7 @@ MACHINE=qemuriscv32 bitbake core-image-lsb-sdk
 To build an image to run on the HiFive Unleashed using Wayland run the following
 
 ```text
-MACHINE=freedom-u540 bitbake core-image-wayland
+MACHINE=freedom-u540 bitbake core-image-weston
 ```
 
 To build a full GUI equipped image running Plasma Mobile see the in-tree documentation [here](https://github.com/riscv/meta-riscv/blob/master/docs/Plasma-Mobile-on-Unleashed.md).
