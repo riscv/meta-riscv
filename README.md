@@ -71,14 +71,6 @@ A console-only image for the 64-bit QEMU machine
 MACHINE=qemuriscv64 bitbake core-image-full-cmdline
 ```
 
-Basic image without X support suitable for Linux Standard Base (LSB) implementations.
-It includes the full meta-toolchain, plus development headers and libraries to form
-a standalone (on device) SDK for the 32-bit QEMU machine
-
-```text
-MACHINE=qemuriscv32 bitbake core-image-lsb-sdk
-```
-
 To build an image to run on the HiFive Unleashed using Wayland run the following
 
 ```text
