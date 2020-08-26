@@ -1,8 +1,8 @@
 # Upstream Glibc does not yet have RISC-V 32-bit support
 
 GLIBC_GIT_URI_qemuriscv32 = "git://github.com/alistair23/glibc.git"
-SRCBRANCH_qemuriscv32 = "alistair/rv32.2.32"
-SRCREV_glibc_qemuriscv32 = "b3ef7a831e6e80d44ea36a9712395b3eda076b82"
+SRCBRANCH_qemuriscv32 = "alistair/rv32.5"
+SRCREV_glibc_qemuriscv32 = "e9f32562dff35406fcf403a655144329bbf8eb0c"
 
 SRC_URI_remove_qemuriscv32 = " \
 	file://0016-Add-unused-attribute.patch \
