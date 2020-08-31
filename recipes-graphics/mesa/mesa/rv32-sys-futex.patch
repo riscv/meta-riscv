@@ -1,8 +1,20 @@
+From 45544e43f60418917dfd8ec57e99880ce38ced88 Mon Sep 17 00:00:00 2001
+From: Khem Raj <raj.khem@gmail.com>
+Date: Thu, 30 Jan 2020 16:57:50 -0800
+Subject: [PATCH] mesa,libxshmfence: Define __NR_futex for rv32
+
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
+---
+ src/util/futex.h | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/util/futex.h b/src/util/futex.h
+index 4d712e2..920818d 100644
 --- a/src/util/futex.h
 +++ b/src/util/futex.h
-@@ -26,6 +26,10 @@
- 
+@@ -27,6 +27,10 @@
  #if defined(HAVE_LINUX_FUTEX_H)
+ #define UTIL_FUTEX_SUPPORTED 1
  
 +#if !defined(__NR_futex) && defined(__riscv) && __riscv_xlen == 32
 +# define __NR_futex __NR_futex_time64
