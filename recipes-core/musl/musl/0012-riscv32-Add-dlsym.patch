@@ -1,0 +1,26 @@
+From 31fe4a4dc4435c7eb2d29902de20a1a78b17a418 Mon Sep 17 00:00:00 2001
+From: Stefan O'Rear <sorear@fastmail.com>
+Date: Thu, 3 Sep 2020 05:46:33 -0400
+Subject: [PATCH 12/15] riscv32: Add dlsym
+
+Identical to riscv64.
+---
+ src/ldso/riscv32/dlsym.s | 6 ++++++
+ 1 file changed, 6 insertions(+)
+ create mode 100644 src/ldso/riscv32/dlsym.s
+
+diff --git a/src/ldso/riscv32/dlsym.s b/src/ldso/riscv32/dlsym.s
+new file mode 100644
+index 00000000..2bafd72d
+--- /dev/null
++++ b/src/ldso/riscv32/dlsym.s
+@@ -0,0 +1,6 @@
++.global dlsym
++.hidden __dlsym
++.type dlsym, %function
++dlsym:
++	mv a2, ra
++	tail __dlsym
+-- 
+2.28.0
+

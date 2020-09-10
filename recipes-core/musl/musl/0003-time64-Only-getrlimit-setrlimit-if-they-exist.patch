@@ -1,0 +1,71 @@
+From b8b6f6ce49bac68e1e953dafde8421f8e33d656b Mon Sep 17 00:00:00 2001
+From: Stefan O'Rear <sorear@fastmail.com>
+Date: Thu, 3 Sep 2020 03:31:05 -0400
+Subject: [PATCH 03/15] time64: Only getrlimit/setrlimit if they exist
+
+riscv32 and future architectures only provide prlimit64.
+---
+ src/misc/getrlimit.c | 6 +++++-
+ src/misc/setrlimit.c | 6 +++++-
+ 2 files changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/src/misc/getrlimit.c b/src/misc/getrlimit.c
+index 2ab2f0f4..bf676307 100644
+--- a/src/misc/getrlimit.c
++++ b/src/misc/getrlimit.c
+@@ -6,12 +6,13 @@
+ 
+ int getrlimit(int resource, struct rlimit *rlim)
+ {
+-	unsigned long k_rlim[2];
+ 	int ret = syscall(SYS_prlimit64, 0, resource, 0, rlim);
+ 	if (!ret) {
+ 		FIX(rlim->rlim_cur);
+ 		FIX(rlim->rlim_max);
+ 	}
++#ifdef SYS_getrlimit
++	unsigned long k_rlim[2];
+ 	if (!ret || errno != ENOSYS)
+ 		return ret;
+ 	if (syscall(SYS_getrlimit, resource, k_rlim) < 0)
+@@ -21,6 +22,9 @@ int getrlimit(int resource, struct rlimit *rlim)
+ 	FIX(rlim->rlim_cur);
+ 	FIX(rlim->rlim_max);
+ 	return 0;
++#else
++	return ret;
++#endif
+ }
+ 
+ weak_alias(getrlimit, getrlimit64);
+diff --git a/src/misc/setrlimit.c b/src/misc/setrlimit.c
+index 7a66ab29..62eba5f3 100644
+--- a/src/misc/setrlimit.c
++++ b/src/misc/setrlimit.c
+@@ -8,7 +8,6 @@
+ 
+ static int __setrlimit(int resource, const struct rlimit *rlim)
+ {
+-	unsigned long k_rlim[2];
+ 	struct rlimit tmp;
+ 	if (SYSCALL_RLIM_INFINITY != RLIM_INFINITY) {
+ 		tmp = *rlim;
+@@ -17,10 +16,15 @@ static int __setrlimit(int resource, const struct rlimit *rlim)
+ 		rlim = &tmp;
+ 	}
+ 	int ret = __syscall(SYS_prlimit64, 0, resource, rlim, 0);
++#ifdef SYS_setrlimit
++	unsigned long k_rlim[2];
+ 	if (ret != -ENOSYS) return ret;
+ 	k_rlim[0] = MIN(rlim->rlim_cur, MIN(-1UL, SYSCALL_RLIM_INFINITY));
+ 	k_rlim[1] = MIN(rlim->rlim_max, MIN(-1UL, SYSCALL_RLIM_INFINITY));
+ 	return __syscall(SYS_setrlimit, resource, k_rlim);
++#else
++	return ret;
++#endif
+ }
+ 
+ struct ctx {
+-- 
+2.28.0
+

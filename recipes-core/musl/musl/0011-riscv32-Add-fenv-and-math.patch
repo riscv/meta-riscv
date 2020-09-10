@@ -1,0 +1,363 @@
+From 12a435f0616337afa55a61b5fbcb8d0c8b2acbea Mon Sep 17 00:00:00 2001
+From: Stefan O'Rear <sorear@fastmail.com>
+Date: Thu, 3 Sep 2020 05:45:44 -0400
+Subject: [PATCH 11/15] riscv32: Add fenv and math
+
+These are identical to riscv64.
+---
+ src/fenv/riscv32/fenv-sf.c   |  3 ++
+ src/fenv/riscv32/fenv.S      | 56 ++++++++++++++++++++++++++++++++++++
+ src/math/riscv32/copysign.c  | 15 ++++++++++
+ src/math/riscv32/copysignf.c | 15 ++++++++++
+ src/math/riscv32/fabs.c      | 15 ++++++++++
+ src/math/riscv32/fabsf.c     | 15 ++++++++++
+ src/math/riscv32/fma.c       | 15 ++++++++++
+ src/math/riscv32/fmaf.c      | 15 ++++++++++
+ src/math/riscv32/fmax.c      | 15 ++++++++++
+ src/math/riscv32/fmaxf.c     | 15 ++++++++++
+ src/math/riscv32/fmin.c      | 15 ++++++++++
+ src/math/riscv32/fminf.c     | 15 ++++++++++
+ src/math/riscv32/sqrt.c      | 15 ++++++++++
+ src/math/riscv32/sqrtf.c     | 15 ++++++++++
+ 14 files changed, 239 insertions(+)
+ create mode 100644 src/fenv/riscv32/fenv-sf.c
+ create mode 100644 src/fenv/riscv32/fenv.S
+ create mode 100644 src/math/riscv32/copysign.c
+ create mode 100644 src/math/riscv32/copysignf.c
+ create mode 100644 src/math/riscv32/fabs.c
+ create mode 100644 src/math/riscv32/fabsf.c
+ create mode 100644 src/math/riscv32/fma.c
+ create mode 100644 src/math/riscv32/fmaf.c
+ create mode 100644 src/math/riscv32/fmax.c
+ create mode 100644 src/math/riscv32/fmaxf.c
+ create mode 100644 src/math/riscv32/fmin.c
+ create mode 100644 src/math/riscv32/fminf.c
+ create mode 100644 src/math/riscv32/sqrt.c
+ create mode 100644 src/math/riscv32/sqrtf.c
+
+diff --git a/src/fenv/riscv32/fenv-sf.c b/src/fenv/riscv32/fenv-sf.c
+new file mode 100644
+index 00000000..ecd3cb5c
+--- /dev/null
++++ b/src/fenv/riscv32/fenv-sf.c
+@@ -0,0 +1,3 @@
++#ifndef __riscv_flen
++#include "../fenv.c"
++#endif
+diff --git a/src/fenv/riscv32/fenv.S b/src/fenv/riscv32/fenv.S
+new file mode 100644
+index 00000000..0ea78bf9
+--- /dev/null
++++ b/src/fenv/riscv32/fenv.S
+@@ -0,0 +1,56 @@
++#ifdef __riscv_flen
++
++.global feclearexcept
++.type feclearexcept, %function
++feclearexcept:
++	csrc fflags, a0
++	li a0, 0
++	ret
++
++.global feraiseexcept
++.type feraiseexcept, %function
++feraiseexcept:
++	csrs fflags, a0
++	li a0, 0
++	ret
++
++.global fetestexcept
++.type fetestexcept, %function
++fetestexcept:
++	frflags t0
++	and a0, t0, a0
++	ret
++
++.global fegetround
++.type fegetround, %function
++fegetround:
++	frrm a0
++	ret
++
++.global __fesetround
++.type __fesetround, %function
++__fesetround:
++	fsrm t0, a0
++	li a0, 0
++	ret
++
++.global fegetenv
++.type fegetenv, %function
++fegetenv:
++	frcsr t0
++	sw t0, 0(a0)
++	li a0, 0
++	ret
++
++.global fesetenv
++.type fesetenv, %function
++fesetenv:
++	li t2, -1
++	li t1, 0
++	beq a0, t2, 1f
++	lw t1, 0(a0)
++1:	fscsr t1
++	li a0, 0
++	ret
++
++#endif
+diff --git a/src/math/riscv32/copysign.c b/src/math/riscv32/copysign.c
+new file mode 100644
+index 00000000..c7854178
+--- /dev/null
++++ b/src/math/riscv32/copysign.c
+@@ -0,0 +1,15 @@
++#include <math.h>
++
++#if __riscv_flen >= 64
++
++double copysign(double x, double y)
++{
++	__asm__ ("fsgnj.d %0, %1, %2" : "=f"(x) : "f"(x), "f"(y));
++	return x;
++}
++
++#else
++
++#include "../copysign.c"
++
++#endif
+diff --git a/src/math/riscv32/copysignf.c b/src/math/riscv32/copysignf.c
+new file mode 100644
+index 00000000..a125611a
+--- /dev/null
++++ b/src/math/riscv32/copysignf.c
+@@ -0,0 +1,15 @@
++#include <math.h>
++
++#if __riscv_flen >= 32
++
++float copysignf(float x, float y)
++{
++	__asm__ ("fsgnj.s %0, %1, %2" : "=f"(x) : "f"(x), "f"(y));
++	return x;
++}
++
++#else
++
++#include "../copysignf.c"
++
++#endif
+diff --git a/src/math/riscv32/fabs.c b/src/math/riscv32/fabs.c
+new file mode 100644
+index 00000000..5290b6f0
+--- /dev/null
++++ b/src/math/riscv32/fabs.c
+@@ -0,0 +1,15 @@
++#include <math.h>
++
++#if __riscv_flen >= 64
++
++double fabs(double x)
++{
++	__asm__ ("fabs.d %0, %1" : "=f"(x) : "f"(x));
++	return x;
++}
++
++#else
++
++#include "../fabs.c"
++
++#endif
+diff --git a/src/math/riscv32/fabsf.c b/src/math/riscv32/fabsf.c
+new file mode 100644
+index 00000000..f5032e35
+--- /dev/null
++++ b/src/math/riscv32/fabsf.c
+@@ -0,0 +1,15 @@
++#include <math.h>
++
++#if __riscv_flen >= 32
++
++float fabsf(float x)
++{
++	__asm__ ("fabs.s %0, %1" : "=f"(x) : "f"(x));
++	return x;
++}
++
++#else
++
++#include "../fabsf.c"
++
++#endif
+diff --git a/src/math/riscv32/fma.c b/src/math/riscv32/fma.c
+new file mode 100644
+index 00000000..99b05713
+--- /dev/null
++++ b/src/math/riscv32/fma.c
+@@ -0,0 +1,15 @@
++#include <math.h>
++
++#if __riscv_flen >= 64
++
++double fma(double x, double y, double z)
++{
++	__asm__ ("fmadd.d %0, %1, %2, %3" : "=f"(x) : "f"(x), "f"(y), "f"(z));
++	return x;
++}
++
++#else
++
++#include "../fma.c"
++
++#endif
+diff --git a/src/math/riscv32/fmaf.c b/src/math/riscv32/fmaf.c
+new file mode 100644
+index 00000000..f9dc47ed
+--- /dev/null
++++ b/src/math/riscv32/fmaf.c
+@@ -0,0 +1,15 @@
++#include <math.h>
++
++#if __riscv_flen >= 32
++
++float fmaf(float x, float y, float z)
++{
++	__asm__ ("fmadd.s %0, %1, %2, %3" : "=f"(x) : "f"(x), "f"(y), "f"(z));
++	return x;
++}
++
++#else
++
++#include "../fmaf.c"
++
++#endif
+diff --git a/src/math/riscv32/fmax.c b/src/math/riscv32/fmax.c
+new file mode 100644
+index 00000000..023709cd
+--- /dev/null
++++ b/src/math/riscv32/fmax.c
+@@ -0,0 +1,15 @@
++#include <math.h>
++
++#if __riscv_flen >= 64
++
++double fmax(double x, double y)
++{
++	__asm__ ("fmax.d %0, %1, %2" : "=f"(x) : "f"(x), "f"(y));
++	return x;
++}
++
++#else
++
++#include "../fmax.c"
++
++#endif
+diff --git a/src/math/riscv32/fmaxf.c b/src/math/riscv32/fmaxf.c
+new file mode 100644
+index 00000000..863d2bd1
+--- /dev/null
++++ b/src/math/riscv32/fmaxf.c
+@@ -0,0 +1,15 @@
++#include <math.h>
++
++#if __riscv_flen >= 32
++
++float fmaxf(float x, float y)
++{
++	__asm__ ("fmax.s %0, %1, %2" : "=f"(x) : "f"(x), "f"(y));
++	return x;
++}
++
++#else
++
++#include "../fmaxf.c"
++
++#endif
+diff --git a/src/math/riscv32/fmin.c b/src/math/riscv32/fmin.c
+new file mode 100644
+index 00000000..a4e3b067
+--- /dev/null
++++ b/src/math/riscv32/fmin.c
+@@ -0,0 +1,15 @@
++#include <math.h>
++
++#if __riscv_flen >= 64
++
++double fmin(double x, double y)
++{
++	__asm__ ("fmin.d %0, %1, %2" : "=f"(x) : "f"(x), "f"(y));
++	return x;
++}
++
++#else
++
++#include "../fmin.c"
++
++#endif
+diff --git a/src/math/riscv32/fminf.c b/src/math/riscv32/fminf.c
+new file mode 100644
+index 00000000..32156e80
+--- /dev/null
++++ b/src/math/riscv32/fminf.c
+@@ -0,0 +1,15 @@
++#include <math.h>
++
++#if __riscv_flen >= 32
++
++float fminf(float x, float y)
++{
++	__asm__ ("fmin.s %0, %1, %2" : "=f"(x) : "f"(x), "f"(y));
++	return x;
++}
++
++#else
++
++#include "../fminf.c"
++
++#endif
+diff --git a/src/math/riscv32/sqrt.c b/src/math/riscv32/sqrt.c
+new file mode 100644
+index 00000000..867a504c
+--- /dev/null
++++ b/src/math/riscv32/sqrt.c
+@@ -0,0 +1,15 @@
++#include <math.h>
++
++#if __riscv_flen >= 64
++
++double sqrt(double x)
++{
++	__asm__ ("fsqrt.d %0, %1" : "=f"(x) : "f"(x));
++	return x;
++}
++
++#else
++
++#include "../sqrt.c"
++
++#endif
+diff --git a/src/math/riscv32/sqrtf.c b/src/math/riscv32/sqrtf.c
+new file mode 100644
+index 00000000..610c2cf8
+--- /dev/null
++++ b/src/math/riscv32/sqrtf.c
+@@ -0,0 +1,15 @@
++#include <math.h>
++
++#if __riscv_flen >= 32
++
++float sqrtf(float x)
++{
++	__asm__ ("fsqrt.s %0, %1" : "=f"(x) : "f"(x));
++	return x;
++}
++
++#else
++
++#include "../sqrtf.c"
++
++#endif
+-- 
+2.28.0
+
