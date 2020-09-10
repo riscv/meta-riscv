@@ -1,0 +1,849 @@
+From 8c8c8ca3517984d04d6463690418716702fe1bdb Mon Sep 17 00:00:00 2001
+From: Stefan O'Rear <sorear@fastmail.com>
+Date: Thu, 3 Sep 2020 05:40:29 -0400
+Subject: [PATCH 10/15] riscv32: add arch headers
+
+These are mostly copied from riscv64.  _Addr and _Reg had to become int
+to avoid errors in libstdc++ when size_t and std::size_t mismatch.
+There is no kernel stat struct; the userspace stat matches glibc in the
+sizes and offsets of all fields (including glibc's __dev_t __pad1).  The
+jump buffer is 12 words larger to account for 12 saved double-precision
+floats; additionally it should be 64-bit aligned to save doubles.
+
+The syscall list was significantly revised by deleting all time32 and
+pre-statx syscalls, and renaming several syscalls that have different
+names depending on __BITS_PER_LONG, notably mmap2 and _llseek.
+
+futex was added as an alias to futex_time64 since it is widely used by
+software which does not pass time arguments.
+---
+ arch/riscv32/atomic_arch.h      |  21 +++
+ arch/riscv32/bits/alltypes.h.in |  18 ++
+ arch/riscv32/bits/fcntl.h       |  38 +++++
+ arch/riscv32/bits/fenv.h        |  17 ++
+ arch/riscv32/bits/float.h       |  16 ++
+ arch/riscv32/bits/posix.h       |   2 +
+ arch/riscv32/bits/setjmp.h      |   1 +
+ arch/riscv32/bits/signal.h      | 118 +++++++++++++
+ arch/riscv32/bits/stat.h        |  18 ++
+ arch/riscv32/bits/stdint.h      |  20 +++
+ arch/riscv32/bits/syscall.h.in  | 286 ++++++++++++++++++++++++++++++++
+ arch/riscv32/bits/user.h        |   5 +
+ arch/riscv32/crt_arch.h         |  19 +++
+ arch/riscv32/kstat.h            |   0
+ arch/riscv32/pthread_arch.h     |  13 ++
+ arch/riscv32/reloc.h            |  22 +++
+ arch/riscv32/syscall_arch.h     |  78 +++++++++
+ 17 files changed, 692 insertions(+)
+ create mode 100644 arch/riscv32/atomic_arch.h
+ create mode 100644 arch/riscv32/bits/alltypes.h.in
+ create mode 100644 arch/riscv32/bits/fcntl.h
+ create mode 100644 arch/riscv32/bits/fenv.h
+ create mode 100644 arch/riscv32/bits/float.h
+ create mode 100644 arch/riscv32/bits/posix.h
+ create mode 100644 arch/riscv32/bits/setjmp.h
+ create mode 100644 arch/riscv32/bits/signal.h
+ create mode 100644 arch/riscv32/bits/stat.h
+ create mode 100644 arch/riscv32/bits/stdint.h
+ create mode 100644 arch/riscv32/bits/syscall.h.in
+ create mode 100644 arch/riscv32/bits/user.h
+ create mode 100644 arch/riscv32/crt_arch.h
+ create mode 100644 arch/riscv32/kstat.h
+ create mode 100644 arch/riscv32/pthread_arch.h
+ create mode 100644 arch/riscv32/reloc.h
+ create mode 100644 arch/riscv32/syscall_arch.h
+
+diff --git a/arch/riscv32/atomic_arch.h b/arch/riscv32/atomic_arch.h
+new file mode 100644
+index 00000000..4d418f63
+--- /dev/null
++++ b/arch/riscv32/atomic_arch.h
+@@ -0,0 +1,21 @@
++#define a_barrier a_barrier
++static inline void a_barrier()
++{
++	__asm__ __volatile__ ("fence rw,rw" : : : "memory");
++}
++
++#define a_cas a_cas
++static inline int a_cas(volatile int *p, int t, int s)
++{
++	int old, tmp;
++	__asm__ __volatile__ (
++		"\n1:	lr.w.aqrl %0, (%2)\n"
++		"	bne %0, %3, 1f\n"
++		"	sc.w.aqrl %1, %4, (%2)\n"
++		"	bnez %1, 1b\n"
++		"1:"
++		: "=&r"(old), "=&r"(tmp)
++		: "r"(p), "r"((long)t), "r"((long)s)
++		: "memory");
++	return old;
++}
+diff --git a/arch/riscv32/bits/alltypes.h.in b/arch/riscv32/bits/alltypes.h.in
+new file mode 100644
+index 00000000..e2b6129e
+--- /dev/null
++++ b/arch/riscv32/bits/alltypes.h.in
+@@ -0,0 +1,18 @@
++#define _Addr int
++#define _Int64 long long
++#define _Reg int
++
++#define __BYTE_ORDER 1234
++#define __LONG_MAX 0x7fffffffL
++
++#ifndef __cplusplus
++TYPEDEF int wchar_t;
++#endif
++
++TYPEDEF int blksize_t;
++TYPEDEF unsigned int nlink_t;
++
++TYPEDEF float float_t;
++TYPEDEF double double_t;
++
++TYPEDEF struct { long long __ll; long double __ld; } max_align_t;
+diff --git a/arch/riscv32/bits/fcntl.h b/arch/riscv32/bits/fcntl.h
+new file mode 100644
+index 00000000..ecb4d18f
+--- /dev/null
++++ b/arch/riscv32/bits/fcntl.h
+@@ -0,0 +1,38 @@
++#define O_CREAT        0100
++#define O_EXCL         0200
++#define O_NOCTTY       0400
++#define O_TRUNC       01000
++#define O_APPEND      02000
++#define O_NONBLOCK    04000
++#define O_DSYNC      010000
++#define O_SYNC     04010000
++#define O_RSYNC    04010000
++#define O_DIRECTORY 0200000
++#define O_NOFOLLOW  0400000
++#define O_CLOEXEC  02000000
++
++#define O_ASYNC      020000
++#define O_DIRECT     040000
++#define O_LARGEFILE 0100000
++#define O_NOATIME  01000000
++#define O_PATH    010000000
++#define O_TMPFILE 020200000
++#define O_NDELAY O_NONBLOCK
++
++#define F_DUPFD  0
++#define F_GETFD  1
++#define F_SETFD  2
++#define F_GETFL  3
++#define F_SETFL  4
++#define F_GETLK  5
++#define F_SETLK  6
++#define F_SETLKW 7
++#define F_SETOWN 8
++#define F_GETOWN 9
++#define F_SETSIG 10
++#define F_GETSIG 11
++
++#define F_SETOWN_EX 15
++#define F_GETOWN_EX 16
++
++#define F_GETOWNER_UIDS 17
+diff --git a/arch/riscv32/bits/fenv.h b/arch/riscv32/bits/fenv.h
+new file mode 100644
+index 00000000..806ec40f
+--- /dev/null
++++ b/arch/riscv32/bits/fenv.h
+@@ -0,0 +1,17 @@
++#define FE_INVALID      16
++#define FE_DIVBYZERO    8
++#define FE_OVERFLOW     4
++#define FE_UNDERFLOW    2
++#define FE_INEXACT      1
++
++#define FE_ALL_EXCEPT   31
++
++#define FE_TONEAREST    0
++#define FE_DOWNWARD     2
++#define FE_UPWARD       3
++#define FE_TOWARDZERO   1
++
++typedef unsigned int fexcept_t;
++typedef unsigned int fenv_t;
++
++#define FE_DFL_ENV      ((const fenv_t *) -1)
+diff --git a/arch/riscv32/bits/float.h b/arch/riscv32/bits/float.h
+new file mode 100644
+index 00000000..719c7908
+--- /dev/null
++++ b/arch/riscv32/bits/float.h
+@@ -0,0 +1,16 @@
++#define FLT_EVAL_METHOD 0
++
++#define LDBL_TRUE_MIN 6.47517511943802511092443895822764655e-4966L
++#define LDBL_MIN 3.36210314311209350626267781732175260e-4932L
++#define LDBL_MAX 1.18973149535723176508575932662800702e+4932L
++#define LDBL_EPSILON 1.92592994438723585305597794258492732e-34L
++
++#define LDBL_MANT_DIG 113
++#define LDBL_MIN_EXP (-16381)
++#define LDBL_MAX_EXP 16384
++
++#define LDBL_DIG 33
++#define LDBL_MIN_10_EXP (-4931)
++#define LDBL_MAX_10_EXP 4932
++
++#define DECIMAL_DIG 36
+diff --git a/arch/riscv32/bits/posix.h b/arch/riscv32/bits/posix.h
+new file mode 100644
+index 00000000..8897d37d
+--- /dev/null
++++ b/arch/riscv32/bits/posix.h
+@@ -0,0 +1,2 @@
++#define _POSIX_V6_ILP32_OFFBIG 1
++#define _POSIX_V7_ILP32_OFFBIG 1
+diff --git a/arch/riscv32/bits/setjmp.h b/arch/riscv32/bits/setjmp.h
+new file mode 100644
+index 00000000..51e96276
+--- /dev/null
++++ b/arch/riscv32/bits/setjmp.h
+@@ -0,0 +1 @@
++typedef unsigned long long __jmp_buf[19];
+diff --git a/arch/riscv32/bits/signal.h b/arch/riscv32/bits/signal.h
+new file mode 100644
+index 00000000..b006334f
+--- /dev/null
++++ b/arch/riscv32/bits/signal.h
+@@ -0,0 +1,118 @@
++#if defined(_POSIX_SOURCE) || defined(_POSIX_C_SOURCE) \
++ || defined(_XOPEN_SOURCE) || defined(_GNU_SOURCE) || defined(_BSD_SOURCE)
++
++#if defined(_XOPEN_SOURCE) || defined(_GNU_SOURCE) || defined(_BSD_SOURCE)
++# define MINSIGSTKSZ 2048
++# define SIGSTKSZ 8192
++#endif
++
++typedef unsigned long __riscv_mc_gp_state[32];
++
++struct __riscv_mc_f_ext_state {
++	unsigned int __f[32];
++	unsigned int __fcsr;
++};
++
++struct __riscv_mc_d_ext_state {
++	unsigned long long __f[32];
++	unsigned int __fcsr;
++};
++
++struct __riscv_mc_q_ext_state {
++	unsigned long long __f[64] __attribute__((aligned(16)));
++	unsigned int __fcsr;
++	unsigned int __reserved[3];
++};
++
++union __riscv_mc_fp_state {
++	struct __riscv_mc_f_ext_state __f;
++	struct __riscv_mc_d_ext_state __d;
++	struct __riscv_mc_q_ext_state __q;
++};
++
++typedef struct mcontext_t {
++	__riscv_mc_gp_state __gregs;
++	union __riscv_mc_fp_state __fpregs;
++} mcontext_t;
++
++#if defined(_GNU_SOURCE)
++#define REG_PC 0
++#define REG_RA 1
++#define REG_SP 2
++#define REG_TP 4
++#define REG_S0 8
++#define REG_A0 10
++#endif
++
++#if defined(_GNU_SOURCE) || defined(_BSD_SOURCE)
++typedef unsigned long greg_t;
++typedef unsigned long gregset_t[32];
++typedef union __riscv_mc_fp_state fpregset_t;
++struct sigcontext {
++	gregset_t gregs;
++	fpregset_t fpregs;
++};
++#endif
++
++struct sigaltstack {
++	void *ss_sp;
++	int ss_flags;
++	size_t ss_size;
++};
++
++typedef struct ucontext_t
++{
++	unsigned long uc_flags;
++	struct ucontext_t *uc_link;
++	stack_t uc_stack;
++	sigset_t uc_sigmask;
++	mcontext_t uc_mcontext;
++} ucontext_t;
++
++#define SA_NOCLDSTOP 1
++#define SA_NOCLDWAIT 2
++#define SA_SIGINFO   4
++#define SA_ONSTACK   0x08000000
++#define SA_RESTART   0x10000000
++#define SA_NODEFER   0x40000000
++#define SA_RESETHAND 0x80000000
++#define SA_RESTORER  0x04000000
++
++#endif
++
++#define SIGHUP     1
++#define SIGINT     2
++#define SIGQUIT    3
++#define SIGILL     4
++#define SIGTRAP    5
++#define SIGABRT    6
++#define SIGIOT     SIGABRT
++#define SIGBUS     7
++#define SIGFPE     8
++#define SIGKILL    9
++#define SIGUSR1   10
++#define SIGSEGV   11
++#define SIGUSR2   12
++#define SIGPIPE   13
++#define SIGALRM   14
++#define SIGTERM   15
++#define SIGSTKFLT 16
++#define SIGCHLD   17
++#define SIGCONT   18
++#define SIGSTOP   19
++#define SIGTSTP   20
++#define SIGTTIN   21
++#define SIGTTOU   22
++#define SIGURG    23
++#define SIGXCPU   24
++#define SIGXFSZ   25
++#define SIGVTALRM 26
++#define SIGPROF   27
++#define SIGWINCH  28
++#define SIGIO     29
++#define SIGPOLL   SIGIO
++#define SIGPWR    30
++#define SIGSYS    31
++#define SIGUNUSED SIGSYS
++
++#define _NSIG     65
+diff --git a/arch/riscv32/bits/stat.h b/arch/riscv32/bits/stat.h
+new file mode 100644
+index 00000000..f6d9e864
+--- /dev/null
++++ b/arch/riscv32/bits/stat.h
+@@ -0,0 +1,18 @@
++struct stat {
++	dev_t st_dev;
++	ino_t st_ino;
++	mode_t st_mode;
++	nlink_t st_nlink;
++	uid_t st_uid;
++	gid_t st_gid;
++	dev_t st_rdev;
++	unsigned long long __pad;
++	off_t st_size;
++	blksize_t st_blksize;
++	int __pad2;
++	blkcnt_t st_blocks;
++	struct timespec st_atim;
++	struct timespec st_mtim;
++	struct timespec st_ctim;
++	unsigned __unused[2];
++};
+diff --git a/arch/riscv32/bits/stdint.h b/arch/riscv32/bits/stdint.h
+new file mode 100644
+index 00000000..d1b27121
+--- /dev/null
++++ b/arch/riscv32/bits/stdint.h
+@@ -0,0 +1,20 @@
++typedef int32_t int_fast16_t;
++typedef int32_t int_fast32_t;
++typedef uint32_t uint_fast16_t;
++typedef uint32_t uint_fast32_t;
++
++#define INT_FAST16_MIN  INT32_MIN
++#define INT_FAST32_MIN  INT32_MIN
++
++#define INT_FAST16_MAX  INT32_MAX
++#define INT_FAST32_MAX  INT32_MAX
++
++#define UINT_FAST16_MAX UINT32_MAX
++#define UINT_FAST32_MAX UINT32_MAX
++
++#define INTPTR_MIN      INT32_MIN
++#define INTPTR_MAX      INT32_MAX
++#define UINTPTR_MAX     UINT32_MAX
++#define PTRDIFF_MIN     INT32_MIN
++#define PTRDIFF_MAX     INT32_MAX
++#define SIZE_MAX        UINT32_MAX
+diff --git a/arch/riscv32/bits/syscall.h.in b/arch/riscv32/bits/syscall.h.in
+new file mode 100644
+index 00000000..852d2aaa
+--- /dev/null
++++ b/arch/riscv32/bits/syscall.h.in
+@@ -0,0 +1,286 @@
++#define __NR_io_setup 0
++#define __NR_io_destroy 1
++#define __NR_io_submit 2
++#define __NR_io_cancel 3
++#define __NR_setxattr 5
++#define __NR_lsetxattr 6
++#define __NR_fsetxattr 7
++#define __NR_getxattr 8
++#define __NR_lgetxattr 9
++#define __NR_fgetxattr 10
++#define __NR_listxattr 11
++#define __NR_llistxattr 12
++#define __NR_flistxattr 13
++#define __NR_removexattr 14
++#define __NR_lremovexattr 15
++#define __NR_fremovexattr 16
++#define __NR_getcwd 17
++#define __NR_lookup_dcookie 18
++#define __NR_eventfd2 19
++#define __NR_epoll_create1 20
++#define __NR_epoll_ctl 21
++#define __NR_epoll_pwait 22
++#define __NR_dup 23
++#define __NR_dup3 24
++#define __NR_fcntl64 25
++#define __NR_inotify_init1 26
++#define __NR_inotify_add_watch 27
++#define __NR_inotify_rm_watch 28
++#define __NR_ioctl 29
++#define __NR_ioprio_set 30
++#define __NR_ioprio_get 31
++#define __NR_flock 32
++#define __NR_mknodat 33
++#define __NR_mkdirat 34
++#define __NR_unlinkat 35
++#define __NR_symlinkat 36
++#define __NR_linkat 37
++#define __NR_umount2 39
++#define __NR_mount 40
++#define __NR_pivot_root 41
++#define __NR_nfsservctl 42
++#define __NR_statfs64 43
++#define __NR_fstatfs64 44
++#define __NR_truncate64 45
++#define __NR_ftruncate64 46
++#define __NR_fallocate 47
++#define __NR_faccessat 48
++#define __NR_chdir 49
++#define __NR_fchdir 50
++#define __NR_chroot 51
++#define __NR_fchmod 52
++#define __NR_fchmodat 53
++#define __NR_fchownat 54
++#define __NR_fchown 55
++#define __NR_openat 56
++#define __NR_close 57
++#define __NR_vhangup 58
++#define __NR_pipe2 59
++#define __NR_quotactl 60
++#define __NR_getdents64 61
++#define __NR__llseek 62
++#define __NR_read 63
++#define __NR_write 64
++#define __NR_readv 65
++#define __NR_writev 66
++#define __NR_pread64 67
++#define __NR_pwrite64 68
++#define __NR_preadv 69
++#define __NR_pwritev 70
++#define __NR_sendfile64 71
++#define __NR_signalfd4 74
++#define __NR_vmsplice 75
++#define __NR_splice 76
++#define __NR_tee 77
++#define __NR_readlinkat 78
++#define __NR_sync 81
++#define __NR_fsync 82
++#define __NR_fdatasync 83
++#define __NR_sync_file_range 84
++#define __NR_timerfd_create 85
++#define __NR_acct 89
++#define __NR_capget 90
++#define __NR_capset 91
++#define __NR_personality 92
++#define __NR_exit 93
++#define __NR_exit_group 94
++#define __NR_waitid 95
++#define __NR_set_tid_address 96
++#define __NR_unshare 97
++#define __NR_set_robust_list 99
++#define __NR_get_robust_list 100
++#define __NR_nanosleep 101
++#define __NR_getitimer 102
++#define __NR_setitimer 103
++#define __NR_kexec_load 104
++#define __NR_init_module 105
++#define __NR_delete_module 106
++#define __NR_timer_create 107
++#define __NR_timer_getoverrun 109
++#define __NR_timer_delete 111
++#define __NR_syslog 116
++#define __NR_ptrace 117
++#define __NR_sched_setparam 118
++#define __NR_sched_setscheduler 119
++#define __NR_sched_getscheduler 120
++#define __NR_sched_getparam 121
++#define __NR_sched_setaffinity 122
++#define __NR_sched_getaffinity 123
++#define __NR_sched_yield 124
++#define __NR_sched_get_priority_max 125
++#define __NR_sched_get_priority_min 126
++#define __NR_restart_syscall 128
++#define __NR_kill 129
++#define __NR_tkill 130
++#define __NR_tgkill 131
++#define __NR_sigaltstack 132
++#define __NR_rt_sigsuspend 133
++#define __NR_rt_sigaction 134
++#define __NR_rt_sigprocmask 135
++#define __NR_rt_sigpending 136
++#define __NR_rt_sigqueueinfo 138
++#define __NR_rt_sigreturn 139
++#define __NR_setpriority 140
++#define __NR_getpriority 141
++#define __NR_reboot 142
++#define __NR_setregid 143
++#define __NR_setgid 144
++#define __NR_setreuid 145
++#define __NR_setuid 146
++#define __NR_setresuid 147
++#define __NR_getresuid 148
++#define __NR_setresgid 149
++#define __NR_getresgid 150
++#define __NR_setfsuid 151
++#define __NR_setfsgid 152
++#define __NR_times 153
++#define __NR_setpgid 154
++#define __NR_getpgid 155
++#define __NR_getsid 156
++#define __NR_setsid 157
++#define __NR_getgroups 158
++#define __NR_setgroups 159
++#define __NR_uname 160
++#define __NR_sethostname 161
++#define __NR_setdomainname 162
++#define __NR_getrusage 165
++#define __NR_umask 166
++#define __NR_prctl 167
++#define __NR_getcpu 168
++#define __NR_getpid 172
++#define __NR_getppid 173
++#define __NR_getuid 174
++#define __NR_geteuid 175
++#define __NR_getgid 176
++#define __NR_getegid 177
++#define __NR_gettid 178
++#define __NR_sysinfo 179
++#define __NR_mq_open 180
++#define __NR_mq_unlink 181
++#define __NR_mq_notify 184
++#define __NR_mq_getsetattr 185
++#define __NR_msgget 186
++#define __NR_msgctl 187
++#define __NR_msgrcv 188
++#define __NR_msgsnd 189
++#define __NR_semget 190
++#define __NR_semctl 191
++#define __NR_semop 193
++#define __NR_shmget 194
++#define __NR_shmctl 195
++#define __NR_shmat 196
++#define __NR_shmdt 197
++#define __NR_socket 198
++#define __NR_socketpair 199
++#define __NR_bind 200
++#define __NR_listen 201
++#define __NR_accept 202
++#define __NR_connect 203
++#define __NR_getsockname 204
++#define __NR_getpeername 205
++#define __NR_sendto 206
++#define __NR_recvfrom 207
++#define __NR_setsockopt 208
++#define __NR_getsockopt 209
++#define __NR_shutdown 210
++#define __NR_sendmsg 211
++#define __NR_recvmsg 212
++#define __NR_readahead 213
++#define __NR_brk 214
++#define __NR_munmap 215
++#define __NR_mremap 216
++#define __NR_add_key 217
++#define __NR_request_key 218
++#define __NR_keyctl 219
++#define __NR_clone 220
++#define __NR_execve 221
++#define __NR_mmap2 222
++#define __NR_fadvise64_64 223
++#define __NR_swapon 224
++#define __NR_swapoff 225
++#define __NR_mprotect 226
++#define __NR_msync 227
++#define __NR_mlock 228
++#define __NR_munlock 229
++#define __NR_mlockall 230
++#define __NR_munlockall 231
++#define __NR_mincore 232
++#define __NR_madvise 233
++#define __NR_remap_file_pages 234
++#define __NR_mbind 235
++#define __NR_get_mempolicy 236
++#define __NR_set_mempolicy 237
++#define __NR_migrate_pages 238
++#define __NR_move_pages 239
++#define __NR_rt_tgsigqueueinfo 240
++#define __NR_perf_event_open 241
++#define __NR_accept4 242
++#define __NR_arch_specific_syscall 244
++#define __NR_prlimit64 261
++#define __NR_fanotify_init 262
++#define __NR_fanotify_mark 263
++#define __NR_name_to_handle_at 264
++#define __NR_open_by_handle_at 265
++#define __NR_syncfs 267
++#define __NR_setns 268
++#define __NR_sendmmsg 269
++#define __NR_process_vm_readv 270
++#define __NR_process_vm_writev 271
++#define __NR_kcmp 272
++#define __NR_finit_module 273
++#define __NR_sched_setattr 274
++#define __NR_sched_getattr 275
++#define __NR_renameat2 276
++#define __NR_seccomp 277
++#define __NR_getrandom 278
++#define __NR_memfd_create 279
++#define __NR_bpf 280
++#define __NR_execveat 281
++#define __NR_userfaultfd 282
++#define __NR_membarrier 283
++#define __NR_mlock2 284
++#define __NR_copy_file_range 285
++#define __NR_preadv2 286
++#define __NR_pwritev2 287
++#define __NR_pkey_mprotect 288
++#define __NR_pkey_alloc 289
++#define __NR_pkey_free 290
++#define __NR_statx 291
++#define __NR_rseq 293
++#define __NR_kexec_file_load 294
++#define __NR_clock_gettime64		403
++#define __NR_clock_settime64		404
++#define __NR_clock_adjtime64		405
++#define __NR_clock_getres_time64	406
++#define __NR_clock_nanosleep_time64	407
++#define __NR_timer_gettime64		408
++#define __NR_timer_settime64		409
++#define __NR_timerfd_gettime64		410
++#define __NR_timerfd_settime64		411
++#define __NR_utimensat_time64		412
++#define __NR_pselect6_time64		413
++#define __NR_ppoll_time64		414
++#define __NR_io_pgetevents_time64	416
++#define __NR_recvmmsg_time64		417
++#define __NR_mq_timedsend_time64	418
++#define __NR_mq_timedreceive_time64	419
++#define __NR_semtimedop_time64		420
++#define __NR_rt_sigtimedwait_time64	421
++#define __NR_futex_time64		422
++#define __NR_sched_rr_get_interval_time64 423
++#define __NR_pidfd_send_signal 424
++#define __NR_io_uring_setup 425
++#define __NR_io_uring_enter 426
++#define __NR_io_uring_register 427
++#define __NR_open_tree		428
++#define __NR_move_mount		429
++#define __NR_fsopen		430
++#define __NR_fsconfig		431
++#define __NR_fsmount		432
++#define __NR_fspick		433
++#define __NR_pidfd_open		434
++
++#define __NR_futex __NR_futex_time64
++
++#define __NR_sysriscv __NR_arch_specific_syscall
++#define __NR_riscv_flush_icache (__NR_sysriscv + 15)
+diff --git a/arch/riscv32/bits/user.h b/arch/riscv32/bits/user.h
+new file mode 100644
+index 00000000..2da743ea
+--- /dev/null
++++ b/arch/riscv32/bits/user.h
+@@ -0,0 +1,5 @@
++#include <signal.h>
++
++#define ELF_NGREG 32
++typedef unsigned long elf_greg_t, elf_gregset_t[ELF_NGREG];
++typedef union __riscv_mc_fp_state elf_fpregset_t;
+diff --git a/arch/riscv32/crt_arch.h b/arch/riscv32/crt_arch.h
+new file mode 100644
+index 00000000..6b93fcfd
+--- /dev/null
++++ b/arch/riscv32/crt_arch.h
+@@ -0,0 +1,19 @@
++__asm__(
++".section .sdata,\"aw\"\n"
++".text\n"
++".global " START "\n"
++".type " START ",%function\n"
++START ":\n"
++".weak __global_pointer$\n"
++".hidden __global_pointer$\n"
++".option push\n"
++".option norelax\n\t"
++"lla gp, __global_pointer$\n"
++".option pop\n\t"
++"mv a0, sp\n"
++".weak _DYNAMIC\n"
++".hidden _DYNAMIC\n\t"
++"lla a1, _DYNAMIC\n\t"
++"andi sp, sp, -16\n\t"
++"tail " START "_c"
++);
+diff --git a/arch/riscv32/kstat.h b/arch/riscv32/kstat.h
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/arch/riscv32/pthread_arch.h b/arch/riscv32/pthread_arch.h
+new file mode 100644
+index 00000000..a20d7fba
+--- /dev/null
++++ b/arch/riscv32/pthread_arch.h
+@@ -0,0 +1,13 @@
++static inline uintptr_t __get_tp()
++{
++	uintptr_t tp;
++	__asm__ __volatile__("mv %0, tp" : "=r"(tp));
++	return tp;
++}
++
++#define TLS_ABOVE_TP
++#define GAP_ABOVE_TP 0
++
++#define DTP_OFFSET 0x800
++
++#define MC_PC __gregs[0]
+diff --git a/arch/riscv32/reloc.h b/arch/riscv32/reloc.h
+new file mode 100644
+index 00000000..59d15f17
+--- /dev/null
++++ b/arch/riscv32/reloc.h
+@@ -0,0 +1,22 @@
++#if defined __riscv_float_abi_soft
++#define RISCV_FP_SUFFIX "-sf"
++#elif defined __riscv_float_abi_single
++#define RISCV_FP_SUFFIX "-sp"
++#elif defined __riscv_float_abi_double
++#define RISCV_FP_SUFFIX ""
++#endif
++
++#define LDSO_ARCH "riscv32" RISCV_FP_SUFFIX
++
++#define TPOFF_K 0
++
++#define REL_SYMBOLIC    R_RISCV_32
++#define REL_PLT         R_RISCV_JUMP_SLOT
++#define REL_RELATIVE    R_RISCV_RELATIVE
++#define REL_COPY        R_RISCV_COPY
++#define REL_DTPMOD      R_RISCV_TLS_DTPMOD32
++#define REL_DTPOFF      R_RISCV_TLS_DTPREL32
++#define REL_TPOFF       R_RISCV_TLS_TPREL32
++
++#define CRTJMP(pc,sp) __asm__ __volatile__( \
++	"mv sp, %1 ; jr %0" : : "r"(pc), "r"(sp) : "memory" )
+diff --git a/arch/riscv32/syscall_arch.h b/arch/riscv32/syscall_arch.h
+new file mode 100644
+index 00000000..9e916c76
+--- /dev/null
++++ b/arch/riscv32/syscall_arch.h
+@@ -0,0 +1,78 @@
++#define __SYSCALL_LL_E(x) \
++((union { long long ll; long l[2]; }){ .ll = x }).l[0], \
++((union { long long ll; long l[2]; }){ .ll = x }).l[1]
++#define __SYSCALL_LL_O(x) __SYSCALL_LL_E((x))
++
++#define __asm_syscall(...) \
++	__asm__ __volatile__ ("ecall\n\t" \
++	: "=r"(a0) : __VA_ARGS__ : "memory"); \
++	return a0; \
++
++static inline long __syscall0(long n)
++{
++	register long a7 __asm__("a7") = n;
++	register long a0 __asm__("a0");
++	__asm_syscall("r"(a7))
++}
++
++static inline long __syscall1(long n, long a)
++{
++	register long a7 __asm__("a7") = n;
++	register long a0 __asm__("a0") = a;
++	__asm_syscall("r"(a7), "0"(a0))
++}
++
++static inline long __syscall2(long n, long a, long b)
++{
++	register long a7 __asm__("a7") = n;
++	register long a0 __asm__("a0") = a;
++	register long a1 __asm__("a1") = b;
++	__asm_syscall("r"(a7), "0"(a0), "r"(a1))
++}
++
++static inline long __syscall3(long n, long a, long b, long c)
++{
++	register long a7 __asm__("a7") = n;
++	register long a0 __asm__("a0") = a;
++	register long a1 __asm__("a1") = b;
++	register long a2 __asm__("a2") = c;
++	__asm_syscall("r"(a7), "0"(a0), "r"(a1), "r"(a2))
++}
++
++static inline long __syscall4(long n, long a, long b, long c, long d)
++{
++	register long a7 __asm__("a7") = n;
++	register long a0 __asm__("a0") = a;
++	register long a1 __asm__("a1") = b;
++	register long a2 __asm__("a2") = c;
++	register long a3 __asm__("a3") = d;
++	__asm_syscall("r"(a7), "0"(a0), "r"(a1), "r"(a2), "r"(a3))
++}
++
++static inline long __syscall5(long n, long a, long b, long c, long d, long e)
++{
++	register long a7 __asm__("a7") = n;
++	register long a0 __asm__("a0") = a;
++	register long a1 __asm__("a1") = b;
++	register long a2 __asm__("a2") = c;
++	register long a3 __asm__("a3") = d;
++	register long a4 __asm__("a4") = e;
++	__asm_syscall("r"(a7), "0"(a0), "r"(a1), "r"(a2), "r"(a3), "r"(a4))
++}
++
++static inline long __syscall6(long n, long a, long b, long c, long d, long e, long f)
++{
++	register long a7 __asm__("a7") = n;
++	register long a0 __asm__("a0") = a;
++	register long a1 __asm__("a1") = b;
++	register long a2 __asm__("a2") = c;
++	register long a3 __asm__("a3") = d;
++	register long a4 __asm__("a4") = e;
++	register long a5 __asm__("a5") = f;
++	__asm_syscall("r"(a7), "0"(a0), "r"(a1), "r"(a2), "r"(a3), "r"(a4), "r"(a5))
++}
++
++#define VDSO_USEFUL
++/* We don't have a clock_gettime function.
++#define VDSO_CGT_SYM "__vdso_clock_gettime"
++#define VDSO_CGT_VER "LINUX_2.6" */
+-- 
+2.28.0
+
