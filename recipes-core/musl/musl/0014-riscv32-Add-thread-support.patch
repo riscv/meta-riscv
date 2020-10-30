@@ -1,7 +1,7 @@
-From 3a1861e54d4e891229a3ff94d00ba4da7030d81c Mon Sep 17 00:00:00 2001
+From 09cfd9ee37e253d5ec1afc7ff7df652529e766c6 Mon Sep 17 00:00:00 2001
 From: Stefan O'Rear <sorear@fastmail.com>
 Date: Thu, 3 Sep 2020 05:56:46 -0400
-Subject: [PATCH 14/15] riscv32: Add thread support
+Subject: [PATCH 14/16] riscv32: Add thread support
 
 Identical to riscv64 except for stack offsets in clone.
 ---
@@ -116,5 +116,5 @@ index 00000000..079d1ba0
 +__cp_cancel:
 +	tail __cancel
 -- 
-2.28.0
+2.29.2
 

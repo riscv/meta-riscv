@@ -1,7 +1,7 @@
-From 314a0b81fc9bb69ac53f9bc1b367e08c772a2d23 Mon Sep 17 00:00:00 2001
+From 0b4555370e3b615453ce002a375809870fe8d8ed Mon Sep 17 00:00:00 2001
 From: Stefan O'Rear <sorear@fastmail.com>
 Date: Thu, 3 Sep 2020 05:54:44 -0400
-Subject: [PATCH 13/15] riscv32: Add jmp_buf and sigreturn
+Subject: [PATCH 13/16] riscv32: Add jmp_buf and sigreturn
 
 Largely copied from riscv64 but required recalculation of offsets.
 ---
@@ -154,5 +154,5 @@ index 00000000..c1caeab1
 +.hidden __sigsetjmp_tail
 +	tail __sigsetjmp_tail
 -- 
-2.28.0
+2.29.2
 

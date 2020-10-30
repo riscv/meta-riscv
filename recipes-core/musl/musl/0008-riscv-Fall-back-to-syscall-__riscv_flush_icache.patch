@@ -1,7 +1,7 @@
-From ce443fcf9332f9bda0eeed4cf50174bae3732417 Mon Sep 17 00:00:00 2001
+From d7bc65df3f6f3026da2094143342e58cd6bdd321 Mon Sep 17 00:00:00 2001
 From: Stefan O'Rear <sorear@fastmail.com>
 Date: Thu, 3 Sep 2020 05:23:40 -0400
-Subject: [PATCH 08/15] riscv: Fall back to syscall __riscv_flush_icache
+Subject: [PATCH 08/16] riscv: Fall back to syscall __riscv_flush_icache
 
 Matches glibc behavior and fixes a case where we could fall off the
 function without returning a value.
@@ -22,5 +22,5 @@ index 0eb051c2..9cacac2b 100644
  weak_alias(__riscv_flush_icache, riscv_flush_icache);
  #endif
 -- 
-2.28.0
+2.29.2
 

@@ -1,7 +1,7 @@
-From 0922e3b87460a5601fb957f3c06fcd18db9f71d2 Mon Sep 17 00:00:00 2001
+From 798f6231faa7f684962b6ff72d22aa9e268840ed Mon Sep 17 00:00:00 2001
 From: Stefan O'Rear <sorear@fastmail.com>
 Date: Thu, 3 Sep 2020 05:26:50 -0400
-Subject: [PATCH 09/15] riscv32: Target and subtarget detection
+Subject: [PATCH 09/16] riscv32: Target and subtarget detection
 
 ---
  configure | 3 ++-
@@ -29,5 +29,5 @@ index acbfa8f2..2e217c7e 100755
  trycppif __riscv_float_abi_single "$t" && SUBARCH=${SUBARCH}-sp
  fi
 -- 
-2.28.0
+2.29.2
 

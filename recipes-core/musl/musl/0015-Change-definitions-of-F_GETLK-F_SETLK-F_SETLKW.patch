@@ -1,7 +1,7 @@
-From b833e050dc341733fbf26a8f8074d90cd1eb587b Mon Sep 17 00:00:00 2001
+From fb2d200423299843818884801e2598dd643ec834 Mon Sep 17 00:00:00 2001
 From: Stefan O'Rear <sorear@fastmail.com>
 Date: Wed, 9 Sep 2020 11:57:54 -0700
-Subject: [PATCH 15/15] Change definitions of F_GETLK, F_SETLK, F_SETLKW
+Subject: [PATCH 15/16] Change definitions of F_GETLK, F_SETLK, F_SETLKW
 
 * gdb HEAD wants ELF_NFPREG, so I set it in bits/user.h to the value
   gdb needs.  (glibc does #define ELF_NFPREG NFPREG and expects gdb
@@ -197,5 +197,5 @@ index e5ff27ca..9de4073f 100644
 +	return __syscall_ret(__wait4(pid, status, options, 0, 1));
  }
 -- 
-2.28.0
+2.29.2
 

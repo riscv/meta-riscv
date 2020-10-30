@@ -1,7 +1,7 @@
-From 03d068679c7eff4fadc83fada190671f8f62fa19 Mon Sep 17 00:00:00 2001
+From 9fcf025503dfe3478c77cd07a3e29bd2598b42dd Mon Sep 17 00:00:00 2001
 From: Stefan O'Rear <sorear@fastmail.com>
 Date: Thu, 3 Sep 2020 03:27:03 -0400
-Subject: [PATCH 02/15] time64: Don't make aliases to nonexistent syscalls
+Subject: [PATCH 02/16] time64: Don't make aliases to nonexistent syscalls
 
 riscv32 and future architectures lack the _time32 variants entirely, so
 don't try to use their numbers.
@@ -68,5 +68,5 @@ index d5f294d4..4f41e1dc 100644
  #endif
  
 -- 
-2.28.0
+2.29.2
 

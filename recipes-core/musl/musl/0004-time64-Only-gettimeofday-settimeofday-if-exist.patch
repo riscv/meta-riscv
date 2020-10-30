@@ -1,7 +1,7 @@
-From bfab18e41795a322f9b05e7f85e909ac8e591baf Mon Sep 17 00:00:00 2001
+From 8519be9a302dae238d137775d13142716af04581 Mon Sep 17 00:00:00 2001
 From: Stefan O'Rear <sorear@fastmail.com>
 Date: Thu, 3 Sep 2020 03:33:10 -0400
-Subject: [PATCH 04/15] time64: Only gettimeofday/settimeofday if exist
+Subject: [PATCH 04/16] time64: Only gettimeofday/settimeofday if exist
 
 riscv64 and future architectures only provide the clock_ functions.
 ---
@@ -42,5 +42,5 @@ index 3e1d0975..c7e66a51 100644
  #endif
  }
 -- 
-2.28.0
+2.29.2
 
