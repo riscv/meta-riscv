@@ -1,7 +1,7 @@
-From 31fe4a4dc4435c7eb2d29902de20a1a78b17a418 Mon Sep 17 00:00:00 2001
+From 0bb97d2cf32b62aa276414c68b90d6fa319cf16c Mon Sep 17 00:00:00 2001
 From: Stefan O'Rear <sorear@fastmail.com>
 Date: Thu, 3 Sep 2020 05:46:33 -0400
-Subject: [PATCH 12/15] riscv32: Add dlsym
+Subject: [PATCH 12/16] riscv32: Add dlsym
 
 Identical to riscv64.
 ---
@@ -22,5 +22,5 @@ index 00000000..2bafd72d
 +	mv a2, ra
 +	tail __dlsym
 -- 
-2.28.0
+2.29.2
 

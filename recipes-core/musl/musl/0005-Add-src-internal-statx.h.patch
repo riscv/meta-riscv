@@ -1,7 +1,7 @@
-From 8269f8eb73a17a882260dd60c30429f1eb0a27d8 Mon Sep 17 00:00:00 2001
+From eca94dccba29fb2862884472ae8d30672480f8f4 Mon Sep 17 00:00:00 2001
 From: Stefan O'Rear <sorear@fastmail.com>
 Date: Thu, 3 Sep 2020 03:45:08 -0400
-Subject: [PATCH 05/15] Add src/internal/statx.h
+Subject: [PATCH 05/16] Add src/internal/statx.h
 
 We need to make internal syscalls to SYS_statx when SYS_fstatat is not
 available without changing the musl API.
@@ -90,5 +90,5 @@ index de165b5c..230a83fc 100644
  
  	*st = (struct stat){
 -- 
-2.28.0
+2.29.2
 

@@ -16,4 +16,5 @@ SRC_URI_append_riscv32 = "\
     file://0013-riscv32-Add-jmp_buf-and-sigreturn.patch \
     file://0014-riscv32-Add-thread-support.patch \
     file://0015-Change-definitions-of-F_GETLK-F_SETLK-F_SETLKW.patch \
+    file://0016-riscv32-Wire-new-syscalls.patch \
 "

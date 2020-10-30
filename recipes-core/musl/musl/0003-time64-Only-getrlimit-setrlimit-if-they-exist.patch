@@ -1,13 +1,13 @@
-From b8b6f6ce49bac68e1e953dafde8421f8e33d656b Mon Sep 17 00:00:00 2001
+From 73f38d909e6a8573b33f7c0e0827a5b14e416533 Mon Sep 17 00:00:00 2001
 From: Stefan O'Rear <sorear@fastmail.com>
 Date: Thu, 3 Sep 2020 03:31:05 -0400
-Subject: [PATCH 03/15] time64: Only getrlimit/setrlimit if they exist
+Subject: [PATCH 03/16] time64: Only getrlimit/setrlimit if they exist
 
 riscv32 and future architectures only provide prlimit64.
 ---
  src/misc/getrlimit.c | 6 +++++-
- src/misc/setrlimit.c | 6 +++++-
- 2 files changed, 10 insertions(+), 2 deletions(-)
+ src/misc/setrlimit.c | 2 ++
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
 diff --git a/src/misc/getrlimit.c b/src/misc/getrlimit.c
 index 2ab2f0f4..bf676307 100644
@@ -39,33 +39,19 @@ index 2ab2f0f4..bf676307 100644
  
  weak_alias(getrlimit, getrlimit64);
 diff --git a/src/misc/setrlimit.c b/src/misc/setrlimit.c
-index 7a66ab29..62eba5f3 100644
+index 8340aee0..4cf2c607 100644
 --- a/src/misc/setrlimit.c
 +++ b/src/misc/setrlimit.c
-@@ -8,7 +8,6 @@
- 
- static int __setrlimit(int resource, const struct rlimit *rlim)
+@@ -16,7 +16,9 @@ static void do_setrlimit(void *p)
  {
--	unsigned long k_rlim[2];
- 	struct rlimit tmp;
- 	if (SYSCALL_RLIM_INFINITY != RLIM_INFINITY) {
- 		tmp = *rlim;
-@@ -17,10 +16,15 @@ static int __setrlimit(int resource, const struct rlimit *rlim)
- 		rlim = &tmp;
- 	}
- 	int ret = __syscall(SYS_prlimit64, 0, resource, rlim, 0);
+ 	struct ctx *c = p;
+ 	if (c->err>0) return;
 +#ifdef SYS_setrlimit
-+	unsigned long k_rlim[2];
- 	if (ret != -ENOSYS) return ret;
- 	k_rlim[0] = MIN(rlim->rlim_cur, MIN(-1UL, SYSCALL_RLIM_INFINITY));
- 	k_rlim[1] = MIN(rlim->rlim_max, MIN(-1UL, SYSCALL_RLIM_INFINITY));
- 	return __syscall(SYS_setrlimit, resource, k_rlim);
-+#else
-+	return ret;
+ 	c->err = -__syscall(SYS_setrlimit, c->res, c->lim);
 +#endif
  }
  
- struct ctx {
+ int setrlimit(int resource, const struct rlimit *rlim)
 -- 
-2.28.0
+2.29.2
 

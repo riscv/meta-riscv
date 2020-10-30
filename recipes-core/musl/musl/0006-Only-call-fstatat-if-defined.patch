@@ -1,7 +1,7 @@
-From 018b1b207e771304ea6bd6346c87d1f4115a172f Mon Sep 17 00:00:00 2001
+From e7711de591aed7e3a182880c3c8f5b527c0c67e8 Mon Sep 17 00:00:00 2001
 From: Stefan O'Rear <sorear@fastmail.com>
 Date: Thu, 3 Sep 2020 03:59:59 -0400
-Subject: [PATCH 06/15] Only call fstatat if defined
+Subject: [PATCH 06/16] Only call fstatat if defined
 
 riscv32 and future architectures lack it.
 ---
@@ -205,5 +205,5 @@ index d3cefa82..542c8ce4 100644
  	__syscall(SYS_close, fd);
  	return map == MAP_FAILED ? 0 : map;
 -- 
-2.28.0
+2.29.2
 

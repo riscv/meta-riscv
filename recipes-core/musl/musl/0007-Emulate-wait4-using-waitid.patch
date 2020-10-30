@@ -1,7 +1,7 @@
-From 121eae5570d791c8c704905f4df2575654faba0b Mon Sep 17 00:00:00 2001
+From 1a8f65f2b8d33dc09f6ccb6a7bd6ca85760cf720 Mon Sep 17 00:00:00 2001
 From: Stefan O'Rear <sorear@fastmail.com>
 Date: Thu, 3 Sep 2020 05:20:45 -0400
-Subject: [PATCH 07/15] Emulate wait4 using waitid
+Subject: [PATCH 07/16] Emulate wait4 using waitid
 
 riscv32 and future architectures lack wait4.
 
@@ -154,10 +154,10 @@ index 080a4262..b60d8f2c 100644
  	return status;
  }
 diff --git a/src/unistd/faccessat.c b/src/unistd/faccessat.c
-index 76bbd4c7..8bf34995 100644
+index 557503eb..8e8689c1 100644
 --- a/src/unistd/faccessat.c
 +++ b/src/unistd/faccessat.c
-@@ -34,7 +34,6 @@ int faccessat(int fd, const char *filename, int amode, int flag)
+@@ -39,7 +39,6 @@ int faccessat(int fd, const char *filename, int amode, int flag)
  	char stack[1024];
  	sigset_t set;
  	pid_t pid;
@@ -165,7 +165,7 @@ index 76bbd4c7..8bf34995 100644
  	int ret, p[2];
  
  	if (pipe2(p, O_CLOEXEC)) return __syscall_ret(-EBUSY);
-@@ -48,7 +47,12 @@ int faccessat(int fd, const char *filename, int amode, int flag)
+@@ -53,7 +52,12 @@ int faccessat(int fd, const char *filename, int amode, int flag)
  	if (pid<0 || __syscall(SYS_read, p[0], &ret, sizeof ret) != sizeof(ret))
  		ret = -EBUSY;
  	__syscall(SYS_close, p[0]);
@@ -179,5 +179,5 @@ index 76bbd4c7..8bf34995 100644
  	__restore_sigs(&set);
  
 -- 
-2.28.0
+2.29.2
 
