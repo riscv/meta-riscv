@@ -14,7 +14,7 @@ The core BSP part of meta-riscv should work with different
 OpenEmbedded/Yocto distributions and layer stacks, such as:
 
 * Distro-less (only with OE-Core).
-* Angstrom.
+* Yoe Distro.
 * Yocto/Poky.
 
 ## Dependencies
