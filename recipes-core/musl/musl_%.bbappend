@@ -17,4 +17,5 @@ SRC_URI_append_riscv32 = "\
     file://0014-riscv32-Add-thread-support.patch \
     file://0015-Change-definitions-of-F_GETLK-F_SETLK-F_SETLKW.patch \
     file://0016-riscv32-Wire-new-syscalls.patch \
+    file://0017-Add-bits-reg.h-for-riscv32.patch \
 "
