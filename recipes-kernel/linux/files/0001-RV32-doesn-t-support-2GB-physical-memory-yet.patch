@@ -1,0 +1,38 @@
+From 9708d1e40d57b53487d7cffb8083f092db84fc44 Mon Sep 17 00:00:00 2001
+From: Khem Raj <raj.khem@gmail.com>
+Date: Fri, 5 Feb 2021 00:20:52 -0800
+Subject: [PATCH] RV32 doesn't support 2GB physical memory yet.
+
+There are compilation errors e.g.
+
+arch/riscv/include/asm/page.h:34:46: error: 'UL' undeclared (first use in this function)
+ #define PAGE_OFFSET  _AC(CONFIG_PAGE_OFFSET, UL)
+
+can be fixed by not allowing MAXPHYSMEM_2GB for RV32 and
+MAXPHYSMEM_1GB for RV64.
+
+Source: https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg2458683.html
+
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
+---
+ arch/riscv/Kconfig | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 234a21d26f67..3474286e59db 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -252,8 +252,10 @@ choice
+ 	default MAXPHYSMEM_128GB if 64BIT && CMODEL_MEDANY
+ 
+ 	config MAXPHYSMEM_1GB
++		depends on 32BIT
+ 		bool "1GiB"
+ 	config MAXPHYSMEM_2GB
++		depends on 64BIT && CMODEL_MEDLOW
+ 		bool "2GiB"
+ 	config MAXPHYSMEM_128GB
+ 		depends on 64BIT && CMODEL_MEDANY
+-- 
+2.30.0
+
