@@ -58,11 +58,12 @@ repo rebase
 
 ## Available Machines
 
-The three different machines you can build for are:
+The different machines you can build for are:
 
-* qemuriscv64: The 64-bit RISC-V machine
-* qemuriscv32: The 32-bit RISC-V machine
 * freedom-u540: The SiFive HiFive Unleashed board
+
+Note that this layer also provides improvements and features for the
+upstream qemuriscv32 and qemuriscv64 machines.
 
 ## Build Images
 

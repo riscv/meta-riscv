@@ -7,8 +7,6 @@ SRC_URI_append_freedom-u540_sota = " file://uEnv.txt"
 
 DEPENDS_append_freedom-u540 = " u-boot-tools-native"
 
-SRC_URI_append_qemuriscv32 = " file://0001-riscv32-Use-double-float-ABI-for-rv32.patch"
-
 # Overwrite this for your server
 TFTP_SERVER_IP ?= "127.0.0.1"
 
