@@ -11,4 +11,6 @@ SRC_URI = " \
 
 SRCREV_openocd = "50a5971be27ff11061776afc8014bbff22870b7c"
 
+EXTRA_OECONF = "--enable-ftdi --disable-doxygen-html --disable-werror --enable-jtag_vpi"
+
 COMPATIBLE_HOST = "(x86_64.*|i.86.*|riscv32|riscv64).*-linux"
