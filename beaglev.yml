@@ -1,0 +1,47 @@
+header:
+  version: 8
+
+distro: poky
+
+machine: beaglev-starlight-jh7100
+
+target:
+  - core-image-minimal
+
+repos:
+  meta-riscv:
+
+  poky:
+    url: https://git.yoctoproject.org/git/poky
+    refspec: aa8618b6245d4910a323f198652983e39e3984fe
+    layers:
+      meta:
+      meta-poky:
+      meta-yocto-bsp:
+
+  meta-openembedded:
+    url: https://git.openembedded.org/meta-openembedded
+    refspec: 71b546ed8595b14d29efc1e8b951f8c845ad10c4
+    layers:
+      meta-oe:
+
+bblayers_conf_header:
+  standard: |
+    POKY_BBLAYERS_CONF_VERSION = "2"
+    BBPATH = "${TOPDIR}"
+    BBFILES ?= ""
+local_conf_header:
+  standard: |
+    CONF_VERSION = "1"
+    PACKAGE_CLASSES = "package_rpm"
+    SDKMACHINE = "x86_64"
+  diskmon: |
+    BB_DISKMON_DIRS = "\
+        STOPTASKS,${TMPDIR},1G,100K \
+        STOPTASKS,${DL_DIR},1G,100K \
+        STOPTASKS,${SSTATE_DIR},1G,100K \
+        STOPTASKS,/tmp,100M,100K \
+        ABORT,${TMPDIR},100M,1K \
+        ABORT,${DL_DIR},100M,1K \
+        ABORT,${SSTATE_DIR},100M,1K \
+        ABORT,/tmp,10M,1K"
