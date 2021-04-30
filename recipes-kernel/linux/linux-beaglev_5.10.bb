@@ -13,7 +13,7 @@ LINUX_VERSION_EXTENSION_append = "-beaglev"
 
 SRCREV = "710cf052d6abda73584481d920b4b6befc7240ea"
 
-LIC_FILES_CHKSUM ?= "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
+LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 
 PV = "${LINUX_VERSION}+git${SRCPV}"
 
