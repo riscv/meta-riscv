@@ -10,7 +10,6 @@ inherit autotools-brokensep deploy
 
 SRCREV = "2524b0ecd8684b42bc7a4c69794f40f11cbbe2a5"
 SRC_URI = "git://github.com/starfive-tech/opensbi.git;branch=Fedora \
-           file://0001-Makefile-Don-t-specify-mabi-or-march.patch \
           "
 
 S = "${WORKDIR}/git"
@@ -32,15 +31,16 @@ do_install_append() {
 
 do_deploy () {
 	install -m 755 ${D}/share/opensbi/*/${RISCV_SBI_PLAT}/firmware/fw_payload.* ${DEPLOYDIR}/
-	install -m 755 ${D}/share/opensbi/*/${RISCV_SBI_PLAT}/firmware/fw_jump.* ${DEPLOYDIR}/
-	install -m 755 ${D}/share/opensbi/*/${RISCV_SBI_PLAT}/firmware/fw_dynamic.* ${DEPLOYDIR}/
+	# there are only fw_payload.* files generated for the vic7100 target
+	# install -m 755 ${D}/share/opensbi/*/${RISCV_SBI_PLAT}/firmware/fw_jump.* ${DEPLOYDIR}/
+	# install -m 755 ${D}/share/opensbi/*/${RISCV_SBI_PLAT}/firmware/fw_dynamic.* ${DEPLOYDIR}/
 }
 
 addtask deploy before do_build after do_install
 
-FILES_${PN} += "/share/opensbi/*/${RISCV_SBI_PLAT}/firmware/fw_jump.*"
+# FILES_${PN} += "/share/opensbi/*/${RISCV_SBI_PLAT}/firmware/fw_jump.*"
 FILES_${PN} += "/share/opensbi/*/${RISCV_SBI_PLAT}/firmware/fw_payload.*"
-FILES_${PN} += "/share/opensbi/*/${RISCV_SBI_PLAT}/firmware/fw_dynamic.*"
+# FILES_${PN} += "/share/opensbi/*/${RISCV_SBI_PLAT}/firmware/fw_dynamic.*"
 
 COMPATIBLE_HOST = "(riscv64|riscv32).*"
 INHIBIT_PACKAGE_STRIP = "1"
