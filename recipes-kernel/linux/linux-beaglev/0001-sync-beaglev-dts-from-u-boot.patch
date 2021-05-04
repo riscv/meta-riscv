@@ -3,6 +3,11 @@ From: Maciej Pijanowski <maciej.pijanowski@3mdeb.com>
 Date: Fri, 30 Apr 2021 23:53:33 +0200
 Subject: [PATCH] sync beaglev dts from u-boot
 
+The current linux tree does not (yet?) provide the dts files for BeagleV. Only
+the U-Boot tree does. In Yocto, we expect to have a dtb as one of the output
+file from a kernel recipe. Sync the dts files from U-Boot for know to make the
+build pass.
+
 Signed-off-by: Maciej Pijanowski <maciej.pijanowski@3mdeb.com>
 ---
  arch/riscv/boot/dts/sifive/Makefile           |   1 +
