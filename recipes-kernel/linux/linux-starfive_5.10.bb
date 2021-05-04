@@ -9,7 +9,7 @@ SRC_URI = "git://github.com/starfive-tech/linux.git;protocol=git;branch=Fedora"
 SRC_URI += "file://0001-sync-beaglev-dts-from-u-boot.patch"
 
 LINUX_VERSION ?= "5.10.6"
-LINUX_VERSION_EXTENSION_append = "-beaglev"
+LINUX_VERSION_EXTENSION_append = "-starfive"
 
 SRCREV = "710cf052d6abda73584481d920b4b6befc7240ea"
 
