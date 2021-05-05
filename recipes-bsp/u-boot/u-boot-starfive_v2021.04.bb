@@ -4,7 +4,6 @@ require recipes-bsp/u-boot/u-boot.inc
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
 SRC_URI = "git://github.com/starfive-tech/u-boot.git;protocol=git;branch=Fedora \
-	       file://0001-include-configs-starfive-vic7100-adjust-fdt_addr_r.patch \
 	       file://tftp-mmc-boot.txt \
           "
 
