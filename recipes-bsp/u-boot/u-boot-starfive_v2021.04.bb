@@ -37,3 +37,5 @@ do_deploy_append() {
 }
 
 FILES_${PN}_append = " /boot/boot.scr.uimg"
+
+TOOLCHAIN = "gcc"
