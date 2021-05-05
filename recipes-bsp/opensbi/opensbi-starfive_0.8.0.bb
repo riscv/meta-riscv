@@ -42,7 +42,7 @@ addtask deploy before do_build after do_install
 FILES_${PN} += "/share/opensbi/*/${RISCV_SBI_PLAT}/firmware/fw_payload.*"
 # FILES_${PN} += "/share/opensbi/*/${RISCV_SBI_PLAT}/firmware/fw_dynamic.*"
 
-COMPATIBLE_HOST = "(riscv64|riscv32).*"
+COMPATIBLE_MACHINE = "(beaglev-starlight-jh7100)"
 INHIBIT_PACKAGE_STRIP = "1"
 
 SECURITY_CFLAGS = ""
