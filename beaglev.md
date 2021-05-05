@@ -32,7 +32,7 @@ Flashing
 * Flash `core-image-minimal-beaglev-starlight-jh7100.wic.gz` onto uSD card:
 
 ```
-$ sudo bmaptol copy --bmap core-image-minimal-beaglev-starlight-jh7100.wic.bmap core-image-minimal-beaglev-starlight-jh7100.wic.gz /dev/sdx
+$ sudo bmaptool copy --bmap core-image-minimal-beaglev-starlight-jh7100.wic.bmap core-image-minimal-beaglev-starlight-jh7100.wic.gz /dev/sdx
 ```
 
 * Flash U-Boot:
@@ -44,8 +44,6 @@ $ cat fw_payload.bin >> fw_payload.bin.out
 
 * Interrupt the boot process and send the `fw_payload.bin.out`. Details can be
   found [here](https://github.com/tpetazzoni/buildroot/blob/beaglev/board/beaglev/readme.txt#L60)
-
-* Alter the content of the first (`boot`) partition:
 
 ```
 
