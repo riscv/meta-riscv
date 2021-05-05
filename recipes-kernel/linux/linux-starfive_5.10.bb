@@ -3,7 +3,9 @@ SUMMARY = "An example kernel recipe that uses the linux-yocto and oe-core"
 inherit kernel
 require recipes-kernel/linux/linux-yocto.inc
 
-SRC_URI = "git://github.com/starfive-tech/linux.git;protocol=git;branch=Fedora"
+SRC_URI = "git://github.com/starfive-tech/linux.git;protocol=git;branch=Fedora \
+           file://extra.cfg \
+          "
 
 # The dts files are only in U-Boot repo currently
 SRC_URI += "file://0001-sync-beaglev-dts-from-u-boot.patch"
