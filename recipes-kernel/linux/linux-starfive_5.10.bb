@@ -4,6 +4,7 @@ inherit kernel
 require recipes-kernel/linux/linux-yocto.inc
 
 SRC_URI = "git://github.com/starfive-tech/linux.git;protocol=git;branch=Fedora \
+           file://0001-drivers-net-wireless-broadcom-fix-out-of-tree-build.patch \
            file://extra.cfg \
           "
 
@@ -20,6 +21,6 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 PV = "${LINUX_VERSION}+git${SRCPV}"
 
 KCONFIG_MODE = "--alldefconfig"
-KBUILD_DEFCONFIG_beaglev-starlight-jh7100 = "starfive_vic7100_evb_sd_net_defconfig"
+KBUILD_DEFCONFIG_beaglev-starlight-jh7100 = "starfive_vic7100_evb_sd_net_fedora_defconfig"
 
 COMPATIBLE_MACHINE = "(beaglev-starlight-jh7100)"
