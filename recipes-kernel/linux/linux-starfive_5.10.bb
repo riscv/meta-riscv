@@ -4,7 +4,6 @@ inherit kernel
 require recipes-kernel/linux/linux-yocto.inc
 
 SRC_URI = "git://github.com/starfive-tech/linux.git;protocol=git;branch=Fedora \
-           file://0001-drivers-net-wireless-broadcom-fix-out-of-tree-build.patch \
            file://extra.cfg \
            file://wifi.cfg \
           "
@@ -15,7 +14,7 @@ SRC_URI += "file://0001-sync-beaglev-dts-from-u-boot.patch"
 LINUX_VERSION ?= "5.10.6"
 LINUX_VERSION_EXTENSION_append = "-starfive"
 
-SRCREV = "710cf052d6abda73584481d920b4b6befc7240ea"
+SRCREV = "fc3f9b5caf0e15352378a522c1cfbcc0e9a156c6"
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 
