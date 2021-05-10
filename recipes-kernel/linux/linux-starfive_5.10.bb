@@ -21,6 +21,6 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 PV = "${LINUX_VERSION}+git${SRCPV}"
 
 KCONFIG_MODE = "--alldefconfig"
-KBUILD_DEFCONFIG_beaglev-starlight-jh7100 = "starfive_vic7100_evb_sd_net_fedora_defconfig"
+KBUILD_DEFCONFIG_beaglev-starlight-jh7100 = "starfive_vic7100_evb_sd_net_defconfig"
 
 COMPATIBLE_MACHINE = "(beaglev-starlight-jh7100)"
