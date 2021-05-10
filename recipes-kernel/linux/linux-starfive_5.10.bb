@@ -6,6 +6,7 @@ require recipes-kernel/linux/linux-yocto.inc
 SRC_URI = "git://github.com/starfive-tech/linux.git;protocol=git;branch=Fedora \
            file://0001-drivers-net-wireless-broadcom-fix-out-of-tree-build.patch \
            file://extra.cfg \
+           file://wifi.cfg \
           "
 
 # The dts files are only in U-Boot repo currently
