@@ -4,6 +4,9 @@ inherit kernel
 require recipes-kernel/linux/linux-yocto.inc
 
 SRC_URI = "git://github.com/starfive-tech/linux.git;protocol=git;branch=esmil_starlight \
+           file://0001-riscv-Use-mno-relax-when-using-lld-linker.patch \
+           file://extra.cfg \
+           file://modules.cfg \
           "
 
 LINUX_VERSION ?= "5.12.3"

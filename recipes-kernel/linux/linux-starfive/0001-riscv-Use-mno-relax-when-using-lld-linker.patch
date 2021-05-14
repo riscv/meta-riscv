@@ -1,0 +1,51 @@
+From b49fbbed96b6e5d898377020d6b717a21aad6282 Mon Sep 17 00:00:00 2001
+From: Khem Raj <raj.khem@gmail.com>
+Date: Fri, 14 May 2021 00:23:05 -0700
+Subject: [PATCH v2] riscv: Use -mno-relax when using lld linker
+
+lld does not implement the RISCV relaxation optimizations like GNU ld
+therefore disable it when building with lld, Also pass it to
+assembler when using external GNU assembler ( LLVM_IAS != 1 ), this
+ensures that relevant assembler option is also enabled along. if these
+options are not used then we see following relocations in objects
+
+0000000000000000 R_RISCV_ALIGN     *ABS*+0x0000000000000002
+
+These are then rejected by lld
+ld.lld: error: capability.c:(.fixup+0x0): relocation R_RISCV_ALIGN requires unimplemented linker relaxation; recompile with -mno-relax but the .o is already compiled with -mno-relax
+
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Albert Ou <aou@eecs.berkeley.edu>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+---
+v2: Use CONFIG_LD_IS_LLD instead of LLVM check
+
+ arch/riscv/Makefile | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
+index 3eb9590a0775..4be020695428 100644
+--- a/arch/riscv/Makefile
++++ b/arch/riscv/Makefile
+@@ -38,6 +38,15 @@ else
+ 	KBUILD_LDFLAGS += -melf32lriscv
+ endif
+ 
++ifeq ($(CONFIG_LD_IS_LLD),y)
++	KBUILD_CFLAGS += -mno-relax
++	KBUILD_AFLAGS += -mno-relax
++ifneq ($(LLVM_IAS),1)
++	KBUILD_CFLAGS += -Wa,-mno-relax
++	KBUILD_AFLAGS += -Wa,-mno-relax
++endif
++endif
++
+ # ISA string setting
+ riscv-march-$(CONFIG_ARCH_RV32I)	:= rv32ima
+ riscv-march-$(CONFIG_ARCH_RV64I)	:= rv64ima
+-- 
+2.31.1
+
