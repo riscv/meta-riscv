@@ -9,7 +9,7 @@ require recipes-bsp/opensbi/opensbi-payloads.inc
 inherit autotools-brokensep deploy
 
 SRCREV = "2524b0ecd8684b42bc7a4c69794f40f11cbbe2a5"
-SRC_URI = "git://github.com/starfive-tech/opensbi.git;branch=Fedora \
+SRC_URI = "git://github.com/starfive-tech/opensbi.git;branch=StarFive_VIC_7100 \
           "
 
 S = "${WORKDIR}/git"
