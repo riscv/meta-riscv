@@ -3,11 +3,11 @@ require recipes-bsp/u-boot/u-boot.inc
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
-SRC_URI = "git://github.com/starfive-tech/u-boot.git;protocol=git;branch=Fedora \
+SRC_URI = "git://github.com/starfive-tech/u-boot.git;protocol=git;branch=Fedora_VIC_7100_2021.04 \
 	       file://tftp-mmc-boot.txt \
           "
 
-SRCREV = "3f3ac01a29ad1cd5fa519d86f81daead2447f1d4"
+SRCREV = "7b70e1d44ba9702a519ca936cabf19070309123a"
 
 DEPENDS_append = " u-boot-tools-native"
 
