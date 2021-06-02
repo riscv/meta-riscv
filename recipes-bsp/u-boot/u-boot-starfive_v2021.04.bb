@@ -3,7 +3,7 @@ require recipes-bsp/u-boot/u-boot.inc
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
-SRC_URI = "git://github.com/atishp04/u-boot.git;protocol=git;branch=beagleV/Fedora_VIC_7100_2021.04 \
+SRC_URI = "git://github.com/starfive-tech/u-boot.git;protocol=git;branch=Fedora_VIC_7100_2021.04 \
 	       file://tftp-mmc-boot.txt \
           "
 
