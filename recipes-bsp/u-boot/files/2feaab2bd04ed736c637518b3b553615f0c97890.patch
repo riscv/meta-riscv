@@ -1,0 +1,47 @@
+From 2feaab2bd04ed736c637518b3b553615f0c97890 Mon Sep 17 00:00:00 2001
+From: Bin Meng <bmeng.cn@gmail.com>
+Date: Wed, 2 Jun 2021 16:30:37 +0800
+Subject: [PATCH] starfive: beaglev: Disable SIFIVE_CLINT and enable
+ RISCV_TIMER
+
+As we are running in S-mode, RISCV_TIMER has to be used.
+Adjust the config file accordingly.
+
+Signed-off-by: Bin Meng <bmeng.cn@gmail.com>
+---
+ board/starfive/vic7100/Kconfig                    | 1 -
+ configs/starfive_vic7100_beagle_v_smode_defconfig | 3 +--
+ 2 files changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/board/starfive/vic7100/Kconfig b/board/starfive/vic7100/Kconfig
+index af6c09d4a0..c49faa954b 100644
+--- a/board/starfive/vic7100/Kconfig
++++ b/board/starfive/vic7100/Kconfig
+@@ -63,6 +63,5 @@ config BOARD_SPECIFIC_OPTIONS # dummy
+ 	imply SYSRESET
+ 	imply SYSRESET_GPIO
+ 	imply CMD_DHCP
+-	imply SIFIVE_CLINT
+ 
+ endif
+diff --git a/configs/starfive_vic7100_beagle_v_smode_defconfig b/configs/starfive_vic7100_beagle_v_smode_defconfig
+index 9ba0867f9c..a792a45f31 100644
+--- a/configs/starfive_vic7100_beagle_v_smode_defconfig
++++ b/configs/starfive_vic7100_beagle_v_smode_defconfig
+@@ -84,7 +84,6 @@ CONFIG_CMODEL_MEDLOW=y
+ CONFIG_RISCV_SMODE=y
+ CONFIG_RISCV_ISA_C=y
+ CONFIG_RISCV_ISA_A=y
+-CONFIG_SIFIVE_CLINT=y
+ CONFIG_SBI=y
+ # CONFIG_SBI_V01 is not set
+ CONFIG_SBI_V02=y
+@@ -1121,7 +1120,7 @@ CONFIG_TIMER=y
+ # CONFIG_RENESAS_OSTM_TIMER is not set
+ # CONFIG_NOMADIK_MTU_TIMER is not set
+ # CONFIG_OMAP_TIMER is not set
+-# CONFIG_RISCV_TIMER is not set
++CONFIG_RISCV_TIMER=y
+ # CONFIG_ROCKCHIP_TIMER is not set
+ # CONFIG_STI_TIMER is not set
+ # CONFIG_STM32_TIMER is not set

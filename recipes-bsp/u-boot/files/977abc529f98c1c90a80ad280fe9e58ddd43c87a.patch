@@ -1,0 +1,29 @@
+From 977abc529f98c1c90a80ad280fe9e58ddd43c87a Mon Sep 17 00:00:00 2001
+From: Bin Meng <bmeng.cn@gmail.com>
+Date: Wed, 2 Jun 2021 16:26:27 +0800
+Subject: [PATCH] Revert "riscv: Enable the SiFive CLINT block driver in
+ S-Mode(VIC7100 ONLY)"
+
+This reverts commit 1b3668284b76569c3add4db14524fa5ad60cbc4e.
+
+The SiFive CLINT driver is supposed to work in M-mode only.
+
+Signed-off-by: Bin Meng <bmeng.cn@gmail.com>
+---
+ arch/riscv/Kconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index c26f1316bd..13af5ddfc5 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -175,7 +175,8 @@ config DMA_ADDR_T_64BIT
+ 	default y if 64BIT
+ 
+ config SIFIVE_CLINT
+-	bool "Enable the SiFive CLINT block driver"
++	bool
++	depends on RISCV_MMODE || SPL_RISCV_MMODE
+ 	help
+ 	  The SiFive CLINT block holds memory-mapped control and status registers
+ 	  associated with software and timer interrupts.
