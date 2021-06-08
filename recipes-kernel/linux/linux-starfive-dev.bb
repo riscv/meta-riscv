@@ -6,8 +6,9 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 KERNEL_VERSION_SANITY_SKIP = "1"
 
 SRCREV = "${AUTOREV}"
-BRANCH = "starlight"
-SRC_URI = "git://github.com/esmil/linux.git;protocol=git;branch=${BRANCH} \
+FORK ?= "starfive-tech"
+BRANCH ?= "esmil_starlight"
+SRC_URI = "git://github.com/${FORK}/linux.git;protocol=git;branch=${BRANCH} \
            file://0001-riscv-Use-mno-relax-when-using-lld-linker.patch \
            file://extra.cfg \
            file://modules.cfg \
