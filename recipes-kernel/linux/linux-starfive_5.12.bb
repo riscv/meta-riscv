@@ -3,16 +3,16 @@ SUMMARY = "An example kernel recipe that uses the linux-yocto and oe-core"
 inherit kernel
 require recipes-kernel/linux/linux-yocto.inc
 
-SRC_URI = "git://github.com/starfive-tech/linux.git;protocol=git;branch=esmil_starlight \
+SRC_URI = "git://github.com/esmil/linux.git;protocol=git;branch=starlight-5.12.y \
            file://0001-riscv-Use-mno-relax-when-using-lld-linker.patch \
            file://extra.cfg \
            file://modules.cfg \
           "
 
-LINUX_VERSION ?= "5.12.3"
+LINUX_VERSION ?= "5.12.10"
 LINUX_VERSION_EXTENSION_append = "-starfive"
 
-SRCREV = "96d371a61bf39024a6b11b5610fee602dc797f05"
+SRCREV = "52317e6702508987fc67914c9d4270b8777f2a9b"
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 
