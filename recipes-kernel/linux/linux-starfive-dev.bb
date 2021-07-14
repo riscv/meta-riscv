@@ -14,7 +14,7 @@ SRC_URI = "git://github.com/${FORK}/linux.git;protocol=git;branch=${BRANCH} \
            file://modules.cfg \
           "
 
-LINUX_VERSION ?= "5.13.0"
+LINUX_VERSION ?= "5.14.0"
 LINUX_VERSION_EXTENSION_append = "-starlight"
 
 KBUILD_DEFCONFIG_beaglev-starlight-jh7100 = "beaglev_defconfig"
