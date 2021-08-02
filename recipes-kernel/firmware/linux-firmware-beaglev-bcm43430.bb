@@ -7,7 +7,7 @@ LICENSE = "\
     Firmware-broadcom_bcm43xx \
 "
 
-LICENSE_${PN} = "Firmware-broadcom_bcm43xx"
+LICENSE:${PN} = "Firmware-broadcom_bcm43xx"
 LIC_FILES_CHKSUM = "\
     file://LICENCE.broadcom_bcm43xx;md5=3160c14df7228891b868060e1951dfbc \
 "
@@ -46,6 +46,6 @@ do_install () {
     ln -s brcmfmac43430-sdio.AP6212.txt ${D}${nonarch_base_libdir}/firmware/brcm/brcmfmac43430-sdio.beagle,beaglev-starlight-jh7100.txt
 }
 
-FILES_${PN} = "${nonarch_base_libdir}/firmware/brcm/"
+FILES:${PN} = "${nonarch_base_libdir}/firmware/brcm/"
 
 INSANE_SKIP = "arch"

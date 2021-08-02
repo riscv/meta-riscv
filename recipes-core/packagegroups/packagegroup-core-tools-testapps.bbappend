@@ -1,4 +1,4 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-KEXECTOOLS_riscv32 = ""
-GSTEXAMPLES_riscv32 = ""
+KEXECTOOLS:riscv32 = ""
+GSTEXAMPLES:riscv32 = ""

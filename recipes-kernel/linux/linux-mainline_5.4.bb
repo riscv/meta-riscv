@@ -9,7 +9,7 @@ SRC_URI = " \
     git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git;branch=${BRANCH} \
 "
 
-SRC_URI_append_freedom-u540 = " \
+SRC_URI:append_freedom-u540 = " \
     file://extra.cfg \
     file://0001-PCI-microsemi-Add-host-driver-for-Microsemi-PCIe-con.patch \
     file://0002-Microsemi-PCIe-expansion-board-DT-entry.patch \

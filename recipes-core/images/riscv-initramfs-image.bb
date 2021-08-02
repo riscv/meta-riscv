@@ -19,4 +19,4 @@ BAD_RECOMMENDATIONS += "busybox-syslog"
 
 # WIC is not compatible with an initramfs image, also enabling WIC would cause
 # an circular dependency.
-IMAGE_FSTYPES_remove = " wic wic.gz"
+IMAGE_FSTYPES:remove = " wic wic.gz"

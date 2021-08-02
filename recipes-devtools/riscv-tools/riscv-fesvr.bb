@@ -14,14 +14,14 @@ BBCLASSEXTEND = "native nativesdk"
 
 S = "${WORKDIR}/git"
 
-do_configure_prepend () {
+do_configure:prepend () {
         if [ ! -e ${S}/acinclude.m4 ]; then
                 cp ${S}/aclocal.m4 ${S}/acinclude.m4
         fi
 }
 
-do_install_append () {
+do_install:append () {
         # Make install doesn't properly install these
         oe_libinstall -so libfesvr ${D}${libdir}
 }
-COMPATIBLE_HOST_class-target = "(riscv64|riscv32).*-linux"
+COMPATIBLE_HOST:class-target = "(riscv64|riscv32).*-linux"

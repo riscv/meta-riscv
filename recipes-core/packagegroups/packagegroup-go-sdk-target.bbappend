@@ -1,2 +1,2 @@
-COMPATIBLE_HOST_riscv64 = "riscv64*"
-COMPATIBLE_HOST_riscv32 = "null"
+COMPATIBLE_HOST:riscv64 = "riscv64*"
+COMPATIBLE_HOST:riscv32 = "null"

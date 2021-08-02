@@ -10,7 +10,7 @@ SRC_URI = "git://github.com/esmil/linux.git;protocol=git;branch=starlight-5.12.y
           "
 
 LINUX_VERSION ?= "5.12.10"
-LINUX_VERSION_EXTENSION_append = "-starfive"
+LINUX_VERSION_EXTENSION:append = "-starfive"
 
 SRCREV = "52317e6702508987fc67914c9d4270b8777f2a9b"
 

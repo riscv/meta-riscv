@@ -1,4 +1,4 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-SYSTEMTAP_riscv32 = ""
-VALGRIND_riscv32 = ""
+SYSTEMTAP:riscv32 = ""
+VALGRIND:riscv32 = ""

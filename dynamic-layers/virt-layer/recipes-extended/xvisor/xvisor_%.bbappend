@@ -51,39 +51,39 @@ xvisor_image_compile() {
   mcopy -i ${B}/vmm-disk-linux.img ${B}/build/tests/${XVISOR_PLAT}/linux/${XVISOR_PLAT_BASE}.dtb ::images/${XVISOR_PLAT}/${XVISOR_PLAT_BASE}.dtb
 }
 
-do_compile_append_riscv32() {
+do_compile:append:riscv32() {
   xvisor_image_compile
 }
 
-do_compile_append_riscv64() {
+do_compile:append:riscv64() {
   xvisor_image_compile
 }
 
-do_install_append_riscv32() {
+do_install:append:riscv32() {
   install -d ${D}
   install -m 755 ${B}/vmm-disk-basic.img ${D}/
   install -m 755 ${B}/vmm-disk-linux.img ${D}/
 }
 
-do_install_append_riscv64() {
+do_install:append:riscv64() {
   install -d ${D}
   install -m 755 ${B}/vmm-disk-basic.img ${D}/
   install -m 755 ${B}/vmm-disk-linux.img ${D}/
 }
 
-do_deploy_append_riscv32() {
+do_deploy:append:riscv32() {
   install -m 755 ${D}/vmm-disk-basic.img ${DEPLOY_DIR_IMAGE}
   install -m 755 ${D}/vmm-disk-linux.img ${DEPLOY_DIR_IMAGE}
 }
 
-do_deploy_append_riscv64() {
+do_deploy:append:riscv64() {
   install -m 755 ${D}/vmm-disk-basic.img ${DEPLOY_DIR_IMAGE}
   install -m 755 ${D}/vmm-disk-linux.img ${DEPLOY_DIR_IMAGE}
 }
 
-FILES_${PN}_riscv32 += "/vmm.*"
-FILES_${PN}_riscv32 += "/vmm-disk-basic.img"
-FILES_${PN}_riscv32 += "/vmm-disk-linux.img"
-FILES_${PN}_riscv64 += "/vmm.*"
-FILES_${PN}_riscv64 += "/vmm-disk-basic.img"
-FILES_${PN}_riscv64 += "/vmm-disk-linux.img"
+FILES:${PN}:riscv32 += "/vmm.*"
+FILES:${PN}:riscv32 += "/vmm-disk-basic.img"
+FILES:${PN}:riscv32 += "/vmm-disk-linux.img"
+FILES:${PN}:riscv64 += "/vmm.*"
+FILES:${PN}:riscv64 += "/vmm-disk-basic.img"
+FILES:${PN}:riscv64 += "/vmm-disk-linux.img"

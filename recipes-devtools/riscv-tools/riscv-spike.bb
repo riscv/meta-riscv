@@ -9,17 +9,17 @@ SRC_URI = "git://github.com/riscv/riscv-isa-sim.git \
            file://spike-makefile.patch"
 
 DEPENDS = "riscv-fesvr dtc-native"
-RDEPENDS_nativesdk-riscv-spike = "nativesdk-riscv-fesvr"
+RDEPENDS:nativesdk-riscv-spike = "nativesdk-riscv-fesvr"
 
 inherit autotools cross-canadian
 
 S = "${WORKDIR}/git"
 
-do_configure_prepend () {
+do_configure:prepend () {
 	touch ${S}/softfloat/softfloat.ac
         if [ ! -e ${S}/acinclude.m4 ]; then
                 cp ${S}/aclocal.m4 ${S}/acinclude.m4
         fi
 }
 BBCLASSEXTEND = "native nativesdk"
-COMPATIBLE_HOST_class-target = "(riscv64|riscv32).*-linux"
+COMPATIBLE_HOST:class-target = "(riscv64|riscv32).*-linux"
