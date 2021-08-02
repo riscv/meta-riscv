@@ -49,7 +49,7 @@ EXTRA_USERS_PARAMS = "useradd kde; \
 RISCV_SBI_FDT_freedom-u540      = "HiFiveUnleashed-MicroSemi-Expansion.dtb"
 
 ## Install GPU driver for the GPU being used, in this example it's a Radeon R5 230
-PACKAGECONFIG_append_pn-mesa    = " r600"
+PACKAGECONFIG:append:pn-mesa    = " r600"
 ```
 
 You can then start the build by running:

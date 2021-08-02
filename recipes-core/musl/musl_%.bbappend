@@ -1,6 +1,6 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-SRC_URI_append_riscv32 = "\
+SRC_URI:append:riscv32 = "\
     file://0001-Remove-ARMSUBARCH-relic-from-configure.patch \
     file://0002-time64-Don-t-make-aliases-to-nonexistent-syscalls.patch \
     file://0003-time64-Only-getrlimit-setrlimit-if-they-exist.patch \

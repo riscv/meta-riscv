@@ -1,3 +1,3 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-RDEPENDS_packagegroup-self-hosted-debug_remove_riscv32 = "strace tcf-agent"
+RDEPENDS:packagegroup-self-hosted-debug:remove:riscv32 = "strace tcf-agent"
