@@ -46,7 +46,7 @@ EXTRA_USERS_PARAMS = "useradd kde; \
                       usermod -P kde kde;"
 
 ## Use the Microsemi Expansion board DT in OpenSBI (passed to the kernel)
-RISCV_SBI_FDT_freedom-u540      = "HiFiveUnleashed-MicroSemi-Expansion.dtb"
+RISCV_SBI_FDT:freedom-u540      = "HiFiveUnleashed-MicroSemi-Expansion.dtb"
 
 ## Install GPU driver for the GPU being used, in this example it's a Radeon R5 230
 PACKAGECONFIG:append:pn-mesa    = " r600"

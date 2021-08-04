@@ -117,7 +117,7 @@ TFTP_SERVER_IP = "127.0.0.1"
 To use the Microsemi expansion board with your HiFive Unleased add the following line to your local.conf. This tells the Unleashed to use a device tree with the PCIe device described:
 
 ```text
-RISCV_SBI_FDT_freedom-u540 = "hifive-unleashed-a00-microsemi.dtb"
+RISCV_SBI_FDT:freedom-u540 = "hifive-unleashed-a00-microsemi.dtb"
 ```
 
 ### Sparse Image Creation
