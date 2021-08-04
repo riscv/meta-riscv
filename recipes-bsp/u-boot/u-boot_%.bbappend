@@ -1,16 +1,16 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
-SRC_URI:append_freedom-u540 = " \
+SRC_URI:append:freedom-u540 = " \
             file://tftp-mmc-boot.txt \
            "
-SRC_URI:append_freedom-u540_sota = " file://uEnv.txt"
+SRC_URI:append:freedom-u540_sota = " file://uEnv.txt"
 
-DEPENDS:append_freedom-u540 = " u-boot-tools-native"
+DEPENDS:append:freedom-u540 = " u-boot-tools-native"
 
 # Overwrite this for your server
 TFTP_SERVER_IP ?= "127.0.0.1"
 
-do_configure:prepend_freedom-u540() {
+do_configure:prepend:freedom-u540() {
     sed -i -e 's,@SERVERIP@,${TFTP_SERVER_IP},g' ${WORKDIR}/tftp-mmc-boot.txt
 
     if [ -f "${WORKDIR}/${UBOOT_ENV}.txt" ]; then
@@ -19,7 +19,7 @@ do_configure:prepend_freedom-u540() {
     fi
 }
 
-do_deploy:append_freedom-u540() {
+do_deploy:append:freedom-u540() {
     if [ -f "${WORKDIR}/boot.scr.uimg" ]; then
         install -d ${DEPLOY_DIR_IMAGE}
         install -m 755 ${WORKDIR}/boot.scr.uimg ${DEPLOY_DIR_IMAGE}
@@ -31,4 +31,4 @@ do_deploy:append_freedom-u540() {
     fi
 }
 
-FILES:${PN}:append_freedom-u540 = " /boot/boot.scr.uimg"
+FILES:${PN}:append:freedom-u540 = " /boot/boot.scr.uimg"
