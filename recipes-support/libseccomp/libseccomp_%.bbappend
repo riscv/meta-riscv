@@ -8,3 +8,7 @@ SRC_URI:riscv32 = "\
 "
 
 SRCREV:riscv32 = "063724705f6715f9339fd8cbe2eb751f28b3b70d"
+
+do_configure:prepend:riscv32() {
+    sed -i -e "s|\[0.0.0\]|\['${PV}'\]|g" ${S}/configure.ac
+}
