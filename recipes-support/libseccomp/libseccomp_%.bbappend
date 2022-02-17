@@ -4,6 +4,7 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
 SRC_URI:riscv32 = "\
     git://github.com/kraj/libseccomp.git;branch=riscv32;protocol=https \
+    file://adjtime.patch \
     file://run-ptest \
 "
 
