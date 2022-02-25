@@ -15,11 +15,10 @@ LIC_FILES_CHKSUM = "\
 # These are not common licenses, set NO_GENERIC_LICENSE for them
 # so that the license files will be copied from fetched source
 NO_GENERIC_LICENSE[Firmware-broadcom_bcm43xx] = "LICENCE.broadcom_bcm43xx"
-
-SRC_URI = "https://github.com/esmil/linux/raw/beaglev/firmware/brcm/brcmfmac43430-sdio.bin;name=brcmfmac43430 \
-           https://github.com/esmil/linux/raw/beaglev/firmware/brcm/brcmfmac43430-sdio.clm_blob;name=brcmfmac43430-clm \
-           https://raw.githubusercontent.com/esmil/linux/starlight/firmware/brcm/nvram_ap6236.txt;name=nvram \
-           https://raw.githubusercontent.com/esmil/linux/starlight/firmware/brcm/brcmfmac43430-sdio.AP6212.txt;name=AP6212 \
+SRC_URI = "https://github.com/esmil/linux/raw/visionfive/firmware/brcm/brcmfmac43430-sdio.bin;name=brcmfmac43430 \
+           https://github.com/esmil/linux/raw/visionfive/firmware/brcm/brcmfmac43430-sdio.clm_blob;name=brcmfmac43430-clm \
+           https://github.com/esmil/linux/raw/visionfive/firmware/brcm/nvram_ap6236.txt;name=nvram \
+           https://github.com/esmil/linux/raw/visionfive/firmware/brcm/brcmfmac43430-sdio.AP6212.txt;name=AP6212 \
            https://raw.githubusercontent.com/RPi-Distro/firmware-nonfree/master/LICENCE.broadcom_bcm43xx;name=license \
           "
 SRC_URI[brcmfmac43430.sha256sum] = "ffbb2dbf135a4c22fdb00716088c556ff6b43fcff1503a59c3f2097992b18b96"
