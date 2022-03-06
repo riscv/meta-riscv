@@ -1,6 +1,6 @@
 DESCRIPTION = "Mainline Linux Kernel"
 SECTION = "kernel"
-LICENSE = "GPLv2"
+LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://${S}/COPYING;md5=bbea815ee2795b2f4230826c0c6b8814"
 
 inherit kernel
