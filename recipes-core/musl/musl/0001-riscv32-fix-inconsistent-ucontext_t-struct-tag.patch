@@ -1,0 +1,34 @@
+From d6cdbadb028f6b5bba46b2b223519ab372b42b42 Mon Sep 17 00:00:00 2001
+From: Khem Raj <raj.khem@gmail.com>
+Date: Wed, 16 Mar 2022 10:57:18 -0700
+Subject: [PATCH] riscv32: fix inconsistent ucontext_t struct tag
+
+ucontext.h depends on the internal struct tag name for namespacing
+reasons, and the intent was always for it to be consistent across
+archs anyway.
+
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
+---
+ arch/riscv32/bits/signal.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/riscv32/bits/signal.h b/arch/riscv32/bits/signal.h
+index b006334f..287367db 100644
+--- a/arch/riscv32/bits/signal.h
++++ b/arch/riscv32/bits/signal.h
+@@ -60,10 +60,10 @@ struct sigaltstack {
+ 	size_t ss_size;
+ };
+ 
+-typedef struct ucontext_t
++typedef struct __ucontext
+ {
+ 	unsigned long uc_flags;
+-	struct ucontext_t *uc_link;
++	struct __ucontext *uc_link;
+ 	stack_t uc_stack;
+ 	sigset_t uc_sigmask;
+ 	mcontext_t uc_mcontext;
+-- 
+2.35.1
+

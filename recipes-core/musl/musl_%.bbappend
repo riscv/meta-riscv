@@ -18,4 +18,5 @@ SRC_URI:append:riscv32 = "\
     file://0015-Change-definitions-of-F_GETLK-F_SETLK-F_SETLKW.patch \
     file://0016-riscv32-Wire-new-syscalls.patch \
     file://0017-Add-bits-reg.h-for-riscv32.patch \
+    file://0001-riscv32-fix-inconsistent-ucontext_t-struct-tag.patch \
 "
