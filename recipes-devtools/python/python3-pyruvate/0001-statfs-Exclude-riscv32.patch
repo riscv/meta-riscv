@@ -1,0 +1,167 @@
+From ccdc974dc10c83e29d551492fb2d17a2ff8c2b84 Mon Sep 17 00:00:00 2001
+From: Khem Raj <raj.khem@gmail.com>
+Date: Sat, 5 Mar 2022 22:30:15 -0800
+Subject: [PATCH] statfs: Exclude riscv32
+
+Upstream-Status: Submitted [https://github.com/nix-rust/nix/pull/1669]
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
+---
+ src/sys/statfs.rs | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
+
+--- a/src/sys/statfs.rs
++++ b/src/sys/statfs.rs
+@@ -27,8 +27,10 @@ type fs_type_t = u32;
+ type fs_type_t = libc::c_ulong;
+ #[cfg(all(target_os = "linux", target_arch = "s390x"))]
+ type fs_type_t = libc::c_uint;
+-#[cfg(all(target_os = "linux", target_env = "musl"))]
++#[cfg(all(target_os = "linux", target_env = "musl", not(target_arch = "riscv32")))]
+ type fs_type_t = libc::c_ulong;
++#[cfg(all(target_os = "linux", target_env = "musl", target_arch = "riscv32"))]
++type fs_type_t = libc::c_long;
+ #[cfg(all(target_os = "linux", not(any(target_arch = "s390x", target_env = "musl"))))]
+ type fs_type_t = libc::__fsword_t;
+ 
+@@ -174,13 +176,19 @@ impl Statfs {
+     /// Optimal transfer block size
+     #[cfg(any(
+         target_os = "android",
+-        all(target_os = "linux", target_env = "musl")
++        all(target_os = "linux", target_env = "musl", not(target_arch = "riscv32"))
+     ))]
+     pub fn optimal_transfer_size(&self) -> libc::c_ulong {
+         self.0.f_bsize
+     }
+ 
+     /// Optimal transfer block size
++    #[cfg(any(all(target_os = "linux", target_env = "musl", target_arch = "riscv32")))]
++    pub fn optimal_transfer_size(&self) -> libc::c_long {
++        self.0.f_bsize
++    }
++
++    /// Optimal transfer block size
+     #[cfg(all(target_os = "linux", not(any(target_arch = "s390x", target_env = "musl"))))]
+     pub fn optimal_transfer_size(&self) -> libc::__fsword_t {
+         self.0.f_bsize
+@@ -213,13 +221,20 @@ impl Statfs {
+ 
+     /// Size of a block
+     // f_bsize on linux: https://github.com/torvalds/linux/blob/master/fs/nfs/super.c#L471
+-    #[cfg(all(target_os = "linux", target_env = "musl"))]
++    #[cfg(all(target_os = "linux", target_env = "musl", not(target_arch = "riscv32")))]
+     pub fn block_size(&self) -> libc::c_ulong {
+         self.0.f_bsize
+     }
+ 
+     /// Size of a block
+     // f_bsize on linux: https://github.com/torvalds/linux/blob/master/fs/nfs/super.c#L471
++    #[cfg(all(target_os = "linux", target_env = "musl", target_arch = "riscv32"))]
++    pub fn block_size(&self) -> libc::c_long {
++        self.0.f_bsize
++    }
++
++    /// Size of a block
++    // f_bsize on linux: https://github.com/torvalds/linux/blob/master/fs/nfs/super.c#L471
+     #[cfg(all(target_os = "linux", not(any(target_arch = "s390x", target_env = "musl"))))]
+     pub fn block_size(&self) -> libc::__fsword_t {
+         self.0.f_bsize
+@@ -256,7 +271,7 @@ impl Statfs {
+     }
+ 
+     /// Maximum length of filenames
+-    #[cfg(all(target_os = "linux", target_env = "musl"))]
++    #[cfg(all(target_os = "linux", target_env = "musl", not(target_arch = "riscv32")))]
+     pub fn maximum_name_length(&self) -> libc::c_ulong {
+         self.0.f_namelen
+     }
+@@ -292,7 +307,7 @@ impl Statfs {
+     }
+ 
+     /// Total data blocks in filesystem
+-    #[cfg(all(target_os = "linux", any(target_env = "musl", all(target_arch = "x86_64", target_pointer_width = "32"))))]
++    #[cfg(all(target_os = "linux", any(target_env = "musl", target_arch = "riscv32", all(target_arch = "x86_64", target_pointer_width = "32"))))]
+     pub fn blocks(&self) -> u64 {
+         self.0.f_blocks
+     }
+@@ -305,7 +320,7 @@ impl Statfs {
+         target_os = "freebsd",
+         target_os = "openbsd",
+         target_os = "dragonfly",
+-        all(target_os = "linux", any(target_env = "musl", all(target_arch = "x86_64", target_pointer_width = "32")))
++        all(target_os = "linux", any(target_env = "musl", target_arch = "riscv32", all(target_arch = "x86_64", target_pointer_width = "32")))
+     )))]
+     pub fn blocks(&self) -> libc::c_ulong {
+         self.0.f_blocks
+@@ -330,7 +345,7 @@ impl Statfs {
+     }
+ 
+     /// Free blocks in filesystem
+-    #[cfg(all(target_os = "linux", any(target_env = "musl", all(target_arch = "x86_64", target_pointer_width = "32"))))]
++    #[cfg(all(target_os = "linux", any(target_env = "musl", target_arch = "riscv32", all(target_arch = "x86_64", target_pointer_width = "32"))))]
+     pub fn blocks_free(&self) -> u64 {
+         self.0.f_bfree
+     }
+@@ -343,7 +358,7 @@ impl Statfs {
+         target_os = "freebsd",
+         target_os = "openbsd",
+         target_os = "dragonfly",
+-        all(target_os = "linux", any(target_env = "musl", all(target_arch = "x86_64", target_pointer_width = "32")))
++        all(target_os = "linux", any(target_env = "musl", target_arch = "riscv32", all(target_arch = "x86_64", target_pointer_width = "32")))
+     )))]
+     pub fn blocks_free(&self) -> libc::c_ulong {
+         self.0.f_bfree
+@@ -368,7 +383,7 @@ impl Statfs {
+     }
+ 
+     /// Free blocks available to unprivileged user
+-    #[cfg(all(target_os = "linux", any(target_env = "musl", all(target_arch = "x86_64", target_pointer_width = "32"))))]
++    #[cfg(all(target_os = "linux", any(target_env = "musl", target_arch = "riscv32", all(target_arch = "x86_64", target_pointer_width = "32"))))]
+     pub fn blocks_available(&self) -> u64 {
+         self.0.f_bavail
+     }
+@@ -381,7 +396,7 @@ impl Statfs {
+         target_os = "freebsd",
+         target_os = "openbsd",
+         target_os = "dragonfly",
+-        all(target_os = "linux", any(target_env = "musl", all(target_arch = "x86_64", target_pointer_width = "32")))
++        all(target_os = "linux", any(target_env = "musl", target_arch = "riscv32", all(target_arch = "x86_64", target_pointer_width = "32")))
+     )))]
+     pub fn blocks_available(&self) -> libc::c_ulong {
+         self.0.f_bavail
+@@ -406,7 +421,7 @@ impl Statfs {
+     }
+ 
+     /// Total file nodes in filesystem
+-    #[cfg(all(target_os = "linux", any(target_env = "musl", all(target_arch = "x86_64", target_pointer_width = "32"))))]
++    #[cfg(all(target_os = "linux", any(target_env = "musl", target_arch = "riscv32", all(target_arch = "x86_64", target_pointer_width = "32"))))]
+     pub fn files(&self) -> libc::fsfilcnt_t {
+         self.0.f_files
+     }
+@@ -419,7 +434,7 @@ impl Statfs {
+         target_os = "freebsd",
+         target_os = "openbsd",
+         target_os = "dragonfly",
+-        all(target_os = "linux", any(target_env = "musl", all(target_arch = "x86_64", target_pointer_width = "32")))
++        all(target_os = "linux", any(target_env = "musl", target_arch = "riscv32", all(target_arch = "x86_64", target_pointer_width = "32")))
+     )))]
+     pub fn files(&self) -> libc::c_ulong {
+         self.0.f_files
+@@ -449,7 +464,7 @@ impl Statfs {
+     }
+ 
+     /// Free file nodes in filesystem
+-    #[cfg(all(target_os = "linux", any(target_env = "musl", all(target_arch = "x86_64", target_pointer_width = "32"))))]
++    #[cfg(all(target_os = "linux", any(target_env = "musl", target_arch = "riscv32", all(target_arch = "x86_64", target_pointer_width = "32"))))]
+     pub fn files_free(&self) -> libc::fsfilcnt_t {
+         self.0.f_ffree
+     }
+@@ -462,7 +477,7 @@ impl Statfs {
+         target_os = "freebsd",
+         target_os = "openbsd",
+         target_os = "dragonfly",
+-        all(target_os = "linux", any(target_env = "musl", all(target_arch = "x86_64", target_pointer_width = "32")))
++        all(target_os = "linux", any(target_env = "musl", target_arch = "riscv32", all(target_arch = "x86_64", target_pointer_width = "32")))
+     )))]
+     pub fn files_free(&self) -> libc::c_ulong {
+         self.0.f_ffree
