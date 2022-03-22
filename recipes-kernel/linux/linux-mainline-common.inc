@@ -1,7 +1,7 @@
 DESCRIPTION = "Mainline Linux Kernel"
 SECTION = "kernel"
 LICENSE = "GPL-2.0-only"
-LIC_FILES_CHKSUM = "file://${S}/COPYING;md5=bbea815ee2795b2f4230826c0c6b8814"
+LIC_FILES_CHKSUM = "file://${S}/COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 
 inherit kernel
 require recipes-kernel/linux/linux-yocto.inc
