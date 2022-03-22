@@ -1,0 +1,39 @@
+From ab1b69ebe46cb0fa8ce9cc491c68dfd2aee40cfe Mon Sep 17 00:00:00 2001
+From: Cezary Sobczak <cezary.sobczak@3mdeb.com>
+Date: Tue, 12 Oct 2021 23:50:07 +0200
+Subject: [PATCH] config.mk: provide path to linux headers
+
+Signed-off-by: Cezary Sobczak <cezary.sobczak@3mdeb.com>
+---
+ mk/config.mk | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/mk/config.mk b/mk/config.mk
+index 9561351cf057..fbd004f6b52c 100644
+--- a/mk/config.mk
++++ b/mk/config.mk
+@@ -28,7 +28,9 @@ SPLINCLUDE    := \
+ 		-I$(SRCTREE)/include/arch/riscv/ \
+ 		-I$(SRCTREE)/include/configs/ \
+ 		-I$(SRCTREE)/include/arch/$(PLATFORM)/ \
+-		-I$(SRCTREE)/include/openssl/
++		-I$(SRCTREE)/include/openssl/ \
++		-I$(SRCTREE)/include/linux/ \
++		-I$(STAGING_INCDIR)
+
+  COMM_FLAGS := -nostdinc  $(COMPILEINC) \
+ 	-g  -Os   -fno-common \
+@@ -60,7 +62,9 @@ SPLINCLUDE    := \
+ 		-I$(SRCTREE)/include/arch/arm/ \
+ 		-I$(SRCTREE)/include/configs/ \
+ 		-I$(SRCTREE)/include/arch/$(PLATFORM)/ \
+-		-I$(SRCTREE)/include/openssl/
++		-I$(SRCTREE)/include/openssl/ \
++		-I$(SRCTREE)/include/linux/ \
++		-I$(STAGING_INCDIR)
+
+  COMM_FLAGS := -nostdinc  $(COMPILEINC) \
+ 	-g  -Os   -fno-common -mfpu=neon  $(FLOAT_FLAGS) \
+--
+2.25.1
+
