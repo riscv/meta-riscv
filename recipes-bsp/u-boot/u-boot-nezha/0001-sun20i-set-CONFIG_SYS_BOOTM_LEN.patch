@@ -1,0 +1,28 @@
+From 1af97b277b52f41968fed161f88551c1fd85e1d4 Mon Sep 17 00:00:00 2001
+From: Cezary Sobczak <cezary.sobczak@3mdeb.com>
+Date: Sun, 14 Nov 2021 00:04:45 +0100
+Subject: [PATCH] sun20i: set CONFIG_SYS_BOOTM_LEN
+
+Signed-off-by: Cezary Sobczak <cezary.sobczak@3mdeb.com>
+---
+ include/configs/sun20i.h | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/include/configs/sun20i.h b/include/configs/sun20i.h
+index f463d289bd16..d9a33bfb8b62 100644
+--- a/include/configs/sun20i.h
++++ b/include/configs/sun20i.h
+@@ -2,6 +2,10 @@
+ 
+ #define CONFIG_SYS_CACHELINE_SIZE	64
+ 
++#ifdef CONFIG_RISCV
++#define CONFIG_SYS_BOOTM_LEN		(32 << 20)
++#endif
++
+ /* FIXME: Need a real clock driver! */
+ #define CONFIG_SYS_NS16550_CLK		24000000
+ #define CONFIG_SYS_TCLK			24000000
+-- 
+2.25.1
+
