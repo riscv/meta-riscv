@@ -60,7 +60,7 @@ EXTRA_IMAGE_FEATURES:append = " ssh-server-dropbear"
 EXTRA_IMAGE_FEATURES:append = " package-management"
 PACKAGECONFIG:append:pn-qemu-native = " sdl"
 PACKAGECONFIG:append:pn-nativesdk-qemu = " sdl"
-USER_CLASSES ?= "buildstats buildhistory buildstats-summary image-prelink"
+USER_CLASSES ?= "buildstats buildhistory buildstats-summary"
 
 require conf/distro/include/no-static-libs.inc
 require conf/distro/include/yocto-uninative.inc
