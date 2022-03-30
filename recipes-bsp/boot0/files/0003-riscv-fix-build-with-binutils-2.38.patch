@@ -1,0 +1,51 @@
+From 7ab3906f6b986923bb0d94434284163014861d70 Mon Sep 17 00:00:00 2001
+From: Cezary Sobczak <cezary.sobczak@3mdeb.com>
+Date: Tue, 29 Mar 2022 21:57:54 +0200
+Subject: [PATCH 4/4] riscv: fix build with binutils 2.38
+
+From version 2.38, binutils default to ISA spec version 20191213. This
+means that the csr read/write (csrr*/csrw*) instructions and fence.i
+instruction has separated from the `I` extension, become two standalone
+extensions: Zicsr and Zifencei.
+
+The fix is to specify those extensions explicitely in -march. However as
+older binutils version do not support this, we first need to detect
+that.
+
+Fixes:
+	mmu.c: Assembler messages:
+	mmu.c:85: Error: unrecognized opcode `fence.i'
+
+Signed-off-by: Cezary Sobczak <cezary.sobczak@3mdeb.com>
+---
+ mk/config.mk | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/mk/config.mk b/mk/config.mk
+index 72ecbf58abab..4bd54b254814 100644
+--- a/mk/config.mk
++++ b/mk/config.mk
+@@ -85,10 +85,18 @@ SPLINCLUDE    := \
+  COMM_FLAGS += -mno-unaligned-access
+ endif
+ 
++# Newer binutils versions default to ISA spec version 20191213 which moves some
++# instructions from the I extension to the Zicsr and Zifencei extensions.
++toolchain-need-zicsr-zifencei := $(call cc-option-yn, -march=$(MARCH)_zicsr_zifencei)
++zicsr_zifencei-$(toolchain-need-zicsr-zifencei) := _zicsr_zifencei
++RISCV_MARCH := $(MARCH)_zicsr_zifencei
++
++ARCH_FLAGS = -march=$(RISCV_MARCH) -mabi=$(MABI)
++
+ SPLINCLUDE += -I$(SRCTREE)/libfdt
+ 
+-C_FLAGS += $(SPLINCLUDE)   $(COMM_FLAGS)
+-S_FLAGS += $(SPLINCLUDE)   -D__ASSEMBLY__  $(COMM_FLAGS)
++C_FLAGS += $(SPLINCLUDE)   $(COMM_FLAGS) $(ARCH_FLAGS)
++S_FLAGS += $(SPLINCLUDE)   -D__ASSEMBLY__  $(COMM_FLAGS) $(ARCH_FLAGS)
+ LDFLAGS_GC += --gc-sections
+ #LDFLAGS += --gap-fill=0xff
+ export LDFLAGS_GC
+-- 
+2.25.1
+
