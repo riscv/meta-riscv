@@ -1,0 +1,31 @@
+From b25fe9956031b5e5ff901d7853e05fe35f1b8b5b Mon Sep 17 00:00:00 2001
+From: Cezary Sobczak <cezary.sobczak@3mdeb.com>
+Date: Tue, 29 Mar 2022 21:56:00 +0200
+Subject: [PATCH 2/4] config.mk: Remove -nostdinc
+
+This helps building on different kind of toolchains e.g. OE/Yocto where
+the standard install paths may vary and this is better to avoid to have
+to poke into system to find headers etc.
+
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
+Signed-off-by: Cezary Sobczak <cezary.sobczak@3mdeb.com>
+---
+ mk/config.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/mk/config.mk b/mk/config.mk
+index 3b8a1b1de9c6..75098cf32ea6 100644
+--- a/mk/config.mk
++++ b/mk/config.mk
+@@ -30,7 +30,7 @@ SPLINCLUDE    := \
+ 		-I$(SRCTREE)/include/arch/$(PLATFORM)/ \
+ 		-I$(SRCTREE)/include/openssl/
+ 
+- COMM_FLAGS := -nostdinc  $(COMPILEINC) \
++ COMM_FLAGS := $(COMPILEINC) \
+ 	-g  -Os   -fno-common \
+ 	-ffunction-sections \
+ 	-fno-builtin -ffreestanding \
+-- 
+2.25.1
+

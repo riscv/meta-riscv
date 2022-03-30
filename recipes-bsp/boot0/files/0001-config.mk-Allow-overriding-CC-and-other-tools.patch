@@ -1,0 +1,49 @@
+From cef8a54a2199385b424a6d3a17d081dd4bf3c8ba Mon Sep 17 00:00:00 2001
+From: Cezary Sobczak <cezary.sobczak@3mdeb.com>
+Date: Tue, 29 Mar 2022 21:54:10 +0200
+Subject: [PATCH 1/4] config.mk: Allow overriding CC and other tools
+
+It helps build systems defaults to be used e.g. OE's default CC has
+additional bits which are needed for regular functioning of the cross
+compiler.
+
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
+Signed-off-by: Cezary Sobczak <cezary.sobczak@3mdeb.com>
+---
+ mk/config.mk | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/mk/config.mk b/mk/config.mk
+index 98abfd1fe2f5..3b8a1b1de9c6 100644
+--- a/mk/config.mk
++++ b/mk/config.mk
+@@ -6,16 +6,16 @@ ifneq ($(SKIP_AUTO_CONF),yes)
+ sinclude $(TOPDIR)/autoconf.mk
+ endif
+ 
+-AS		= $(CROSS_COMPILE)as
+-LD		= $(CROSS_COMPILE)ld
+-CC		= $(CROSS_COMPILE)gcc
+-CPP		= $(CC) -E
+-AR		= $(CROSS_COMPILE)ar
+-NM		= $(CROSS_COMPILE)nm
+-LDR		= $(CROSS_COMPILE)ldr
+-STRIP		= $(CROSS_COMPILE)strip
+-OBJCOPY		= $(CROSS_COMPILE)objcopy
+-OBJDUMP		= $(CROSS_COMPILE)objdump
++AS		?= $(CROSS_COMPILE)as
++LD		?= $(CROSS_COMPILE)ld
++CC		?= $(CROSS_COMPILE)gcc
++CPP		?= $(CC) -E
++AR		?= $(CROSS_COMPILE)ar
++NM		?= $(CROSS_COMPILE)nm
++LDR		?= $(CROSS_COMPILE)ldr
++STRIP		?= $(CROSS_COMPILE)strip
++OBJCOPY		?= $(CROSS_COMPILE)objcopy
++OBJDUMP		?= $(CROSS_COMPILE)objdump
+ 
+ ##########################################################
+ ifeq (x$(CPU), xriscv64)
+-- 
+2.25.1
+
