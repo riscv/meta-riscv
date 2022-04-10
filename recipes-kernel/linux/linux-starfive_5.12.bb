@@ -3,7 +3,7 @@ SUMMARY = "An example kernel recipe that uses the linux-yocto and oe-core"
 inherit kernel
 require recipes-kernel/linux/linux-yocto.inc
 
-SRC_URI = "git://github.com/esmil/linux.git;protocol=git;branch=starlight-5.12.y \
+SRC_URI = "git://github.com/esmil/linux.git;protocol=https;branch=starlight-5.12.y \
            file://0001-riscv-Use-mno-relax-when-using-lld-linker.patch \
            file://extra.cfg \
            file://modules.cfg \
