@@ -8,22 +8,22 @@ Written by: Alistair Francis <alistair.francis@wdc.com>
 
 To build plasma mobile you will need (as well as meta-riscv):
 
-* URI: git://github.com/openembedded/openembedded-core
+* URI: https://github.com/openembedded/openembedded-core
   * branch: master
   * revision: HEAD
-* URI: git://github.com/openembedded/bitbake
+* URI: https://github.com/openembedded/bitbake
   * branch: master
   * revision: HEAD
-* URI: git://git.yoctoproject.org/meta-java
+* URI: https://git.yoctoproject.org/meta-java
   * branch: master
   * revision: HEAD
-* URI: git://github.com/meta-qt5/meta-qt5.git
+* URI: https://github.com/meta-qt5/meta-qt5.git
   * branch: master
   * revision: HEAD
-* URI: git://github.com/KDE/yocto-meta-kf5.git
+* URI: https://github.com/KDE/yocto-meta-kf5.git
   * branch: master
   * revision: HEAD
-* URI: git://github.com/KDE/yocto-meta-kde.git
+* URI: https://github.com/KDE/yocto-meta-kde.git
   * branch: master
   * revision: HEAD
 
