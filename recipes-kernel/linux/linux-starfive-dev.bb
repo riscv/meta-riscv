@@ -8,7 +8,7 @@ KERNEL_VERSION_SANITY_SKIP = "1"
 SRCREV = "${AUTOREV}"
 FORK ?= "starfive-tech"
 BRANCH ?= "esmil_starlight"
-SRC_URI = "git://github.com/${FORK}/linux.git;protocol=git;branch=${BRANCH} \
+SRC_URI = "git://github.com/${FORK}/linux.git;protocol=https;branch=${BRANCH} \
            file://0001-riscv-Use-mno-relax-when-using-lld-linker.patch \
            file://extra.cfg \
            file://modules.cfg \
