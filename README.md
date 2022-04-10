@@ -21,10 +21,10 @@ OpenEmbedded/Yocto distributions and layer stacks, such as:
 
 This layer depends on:
 
-* URI: git://github.com/openembedded/openembedded-core
+* URI: https://github.com/openembedded/openembedded-core
   * branch: master
   * revision: HEAD
-* URI: git://github.com/openembedded/bitbake
+* URI: https://github.com/openembedded/bitbake
   * branch: master
   * revision: HEAD
 
@@ -37,7 +37,7 @@ Make sure to [install the `repo` command by Google](https://source.android.com/s
 ### Create workspace
 ```text
 mkdir riscv-yocto && cd riscv-yocto
-repo init -u git://github.com/riscv/meta-riscv  -b master -m tools/manifests/riscv-yocto.xml
+repo init -u https://github.com/riscv/meta-riscv  -b master -m tools/manifests/riscv-yocto.xml
 repo sync
 repo start work --all
 ```
