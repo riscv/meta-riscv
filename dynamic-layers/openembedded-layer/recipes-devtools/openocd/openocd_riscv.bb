@@ -4,9 +4,9 @@ PV = "riscv"
 
 SRC_URI = " \
     git://github.com/riscv/riscv-openocd.git;protocol=https;branch=riscv;name=openocd \
-    git://repo.or.cz/r/git2cl.git;protocol=http;destsuffix=tools/git2cl;name=git2cl \
-    git://repo.or.cz/r/jimtcl.git;protocol=http;destsuffix=git/jimtcl;name=jimtcl \
-    git://repo.or.cz/r/libjaylink.git;protocol=http;destsuffix=git/src/jtag/drivers/libjaylink;name=libjaylink \
+    git://repo.or.cz/r/git2cl.git;protocol=http;branch=master;destsuffix=tools/git2cl;name=git2cl \
+    git://repo.or.cz/r/jimtcl.git;protocol=http;branch=master;destsuffix=git/jimtcl;name=jimtcl \
+    git://repo.or.cz/r/libjaylink.git;protocol=http;branch=master;destsuffix=git/src/jtag/drivers/libjaylink;name=libjaylink \
 "
 
 SRCREV_openocd = "50a5971be27ff11061776afc8014bbff22870b7c"
