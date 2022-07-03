@@ -1,0 +1,19 @@
+u-boot for visionfive won't build with recent versions of the toolchain
+and ISA without using this specific architecture flag.
+
+Upstream-Status: Pending
+Signed-off-by: Richard Purdie <richard.purdie@linuxfoundation.org>
+
+Index: riscv/Makefile
+===================================================================
+--- riscv.orig/arch/riscv/Makefile
++++ riscv/arch/riscv/Makefile
+@@ -15,7 +15,7 @@ ifeq ($(CONFIG_RISCV_ISA_A),y)
+ 	ARCH_A = a
+ endif
+ ifeq ($(CONFIG_RISCV_ISA_C),y)
+-	ARCH_C = c
++	ARCH_C = c_zicsr_zifencei
+ endif
+ ifeq ($(CONFIG_CMODEL_MEDLOW),y)
+ 	CMODEL = medlow
