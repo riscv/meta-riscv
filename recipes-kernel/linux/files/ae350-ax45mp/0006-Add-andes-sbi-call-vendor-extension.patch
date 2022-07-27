@@ -1,0 +1,232 @@
+From db42173008372c0efed486f66582b739aec6e77d Mon Sep 17 00:00:00 2001
+From: Yu Chien Peter Lin <peterlin@andestech.com>
+Date: Mon, 24 Jan 2022 20:34:40 +0800
+Subject: [PATCH 06/15] Add andes sbi call vendor extension
+
+Signed-off-by: Yu Chien Peter Lin <peterlin@andestech.com>
+---
+ arch/riscv/andesv5/sbi.c     | 111 +++++++++++++++++++++++++++++++++++
+ arch/riscv/include/asm/sbi.h |  59 ++++++++++++++++++-
+ 2 files changed, 168 insertions(+), 2 deletions(-)
+ create mode 100755 arch/riscv/andesv5/sbi.c
+
+diff --git a/arch/riscv/andesv5/sbi.c b/arch/riscv/andesv5/sbi.c
+new file mode 100755
+index 000000000..c5d2afd83
+--- /dev/null
++++ b/arch/riscv/andesv5/sbi.c
+@@ -0,0 +1,111 @@
++/*
++ *  Copyright (C) 2020 Andes Technology Corporation
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include <asm/andesv5/csr.h>
++#include <asm/andesv5/proc.h>
++#include <asm/sbi.h>
++
++void sbi_suspend_prepare(char main_core, char enable)
++{
++	sbi_ecall(SBI_EXT_ANDES, SBI_EXT_ANDES_SUSPEND_PREPARE, main_core, enable, 0, 0, 0, 0);
++}
++EXPORT_SYMBOL(sbi_suspend_prepare);
++
++void sbi_suspend_mem(void)
++{
++	sbi_ecall(SBI_EXT_ANDES, SBI_EXT_ANDES_SUSPEND_MEM, 0, 0, 0, 0, 0, 0);
++}
++EXPORT_SYMBOL(sbi_suspend_mem);
++
++void sbi_restart(int cpu_num)
++{
++	sbi_ecall(SBI_EXT_ANDES, SBI_EXT_ANDES_RESTART, cpu_num, 0, 0, 0, 0, 0);
++}
++EXPORT_SYMBOL(sbi_restart);
++
++void sbi_write_powerbrake(int val)
++{
++  sbi_ecall(SBI_EXT_ANDES, SBI_EXT_ANDES_WRITE_POWERBRAKE, val, 0, 0, 0, 0, 0);
++}
++EXPORT_SYMBOL(sbi_write_powerbrake);
++
++int sbi_read_powerbrake(void)
++{
++  struct sbiret ret;
++  ret = sbi_ecall(SBI_EXT_ANDES, SBI_EXT_ANDES_READ_POWERBRAKE, 0, 0, 0, 0, 0, 0);
++  return ret.value;
++}
++EXPORT_SYMBOL(sbi_read_powerbrake);
++
++void sbi_set_suspend_mode(int suspend_mode)
++{
++	sbi_ecall(SBI_EXT_ANDES, SBI_EXT_ANDES_SET_SUSPEND_MODE, suspend_mode, 0, 0, 0, 0, 0);
++}
++EXPORT_SYMBOL(sbi_set_suspend_mode);
++
++void sbi_set_reset_vec(int val)
++{
++	sbi_ecall(SBI_EXT_ANDES, SBI_EXT_ANDES_SET_RESET_VEC, val, 0, 0, 0, 0, 0);
++}
++EXPORT_SYMBOL(sbi_set_reset_vec);
++
++void sbi_set_pma(void *arg)
++{
++	phys_addr_t offset = ((struct pma_arg_t*)arg)->offset;
++	unsigned long vaddr = ((struct pma_arg_t*)arg)->vaddr;
++	size_t size = ((struct pma_arg_t*)arg)->size;
++	size_t entry_id = ((struct pma_arg_t*)arg)->entry_id;
++	sbi_ecall(SBI_EXT_ANDES, SBI_EXT_ANDES_SET_PMA, offset, vaddr, size, entry_id, 0, 0);
++}
++EXPORT_SYMBOL(sbi_set_pma);
++
++void sbi_free_pma(unsigned long entry_id)
++{
++	sbi_ecall(SBI_EXT_ANDES, SBI_EXT_ANDES_FREE_PMA, entry_id, 0, 0, 0, 0, 0);
++}
++EXPORT_SYMBOL(sbi_free_pma);
++
++long sbi_probe_pma(void)
++{
++	struct sbiret ret;
++	ret = sbi_ecall(SBI_EXT_ANDES, SBI_EXT_ANDES_PROBE_PMA, 0, 0, 0, 0, 0, 0);
++	return ret.value;
++}
++EXPORT_SYMBOL(sbi_probe_pma);
++
++void sbi_set_trigger(unsigned int type, uintptr_t data, int enable)
++{
++	sbi_ecall(SBI_EXT_ANDES, SBI_EXT_ANDES_TRIGGER, type, data, enable, 0, 0, 0);
++}
++EXPORT_SYMBOL(sbi_set_trigger);
++
++long sbi_get_marchid(void)
++{
++	struct sbiret ret;
++	ret = sbi_ecall(SBI_EXT_BASE, SBI_EXT_BASE_GET_MARCHID, 0, 0, 0, 0, 0, 0);
++	return ret.value;
++}
++EXPORT_SYMBOL(sbi_get_marchid);
++
++long sbi_get_micm_cfg(void)
++{
++	struct sbiret ret;
++	ret = sbi_ecall(SBI_EXT_ANDES, SBI_EXT_ANDES_GET_MICM_CFG,
++			0, 0, 0, 0, 0, 0);
++	return ret.value;
++}
++EXPORT_SYMBOL(sbi_get_micm_cfg);
++
++long sbi_get_mdcm_cfg(void)
++{
++	struct sbiret ret;
++	ret = sbi_ecall(SBI_EXT_ANDES, SBI_EXT_ANDES_GET_MDCM_CFG,
++			0, 0, 0, 0, 0, 0);
++	return ret.value;
++}
++EXPORT_SYMBOL(sbi_get_mdcm_cfg);
+diff --git a/arch/riscv/include/asm/sbi.h b/arch/riscv/include/asm/sbi.h
+index c0fdb05ff..d3b2d3413 100644
+--- a/arch/riscv/include/asm/sbi.h
++++ b/arch/riscv/include/asm/sbi.h
+@@ -10,6 +10,14 @@
+ #include <linux/types.h>
+ 
+ #ifdef CONFIG_RISCV_SBI
++
++struct pma_arg_t {
++	phys_addr_t offset;
++	unsigned long vaddr;
++	size_t size;
++	size_t entry_id;
++};
++
+ enum sbi_ext_id {
+ #ifdef CONFIG_RISCV_SBI_V01
+ 	SBI_EXT_0_1_SET_TIMER = 0x0,
+@@ -27,6 +35,7 @@ enum sbi_ext_id {
+ 	SBI_EXT_IPI = 0x735049,
+ 	SBI_EXT_RFENCE = 0x52464E43,
+ 	SBI_EXT_HSM = 0x48534D,
++	SBI_EXT_ANDES = 0x0900031E,
+ };
+ 
+ enum sbi_ext_base_fid {
+@@ -51,10 +60,10 @@ enum sbi_ext_rfence_fid {
+ 	SBI_EXT_RFENCE_REMOTE_FENCE_I = 0,
+ 	SBI_EXT_RFENCE_REMOTE_SFENCE_VMA,
+ 	SBI_EXT_RFENCE_REMOTE_SFENCE_VMA_ASID,
+-	SBI_EXT_RFENCE_REMOTE_HFENCE_GVMA_VMID,
+ 	SBI_EXT_RFENCE_REMOTE_HFENCE_GVMA,
+-	SBI_EXT_RFENCE_REMOTE_HFENCE_VVMA_ASID,
++	SBI_EXT_RFENCE_REMOTE_HFENCE_GVMA_VMID,
+ 	SBI_EXT_RFENCE_REMOTE_HFENCE_VVMA,
++	SBI_EXT_RFENCE_REMOTE_HFENCE_VVMA_ASID,
+ };
+ 
+ enum sbi_ext_hsm_fid {
+@@ -63,6 +72,35 @@ enum sbi_ext_hsm_fid {
+ 	SBI_EXT_HSM_HART_STATUS,
+ };
+ 
++enum sbi_ext_andes_fid {
++	SBI_EXT_ANDES_GET_MCACHE_CTL_STATUS = 0,
++	SBI_EXT_ANDES_GET_MMISC_CTL_STATUS,
++	SBI_EXT_ANDES_SET_MCACHE_CTL,
++	SBI_EXT_ANDES_SET_MMISC_CTL,
++	SBI_EXT_ANDES_ICACHE_OP,
++	SBI_EXT_ANDES_DCACHE_OP,
++	SBI_EXT_ANDES_L1CACHE_I_PREFETCH,
++	SBI_EXT_ANDES_L1CACHE_D_PREFETCH,
++	SBI_EXT_ANDES_NON_BLOCKING_LOAD_STORE,
++	SBI_EXT_ANDES_WRITE_AROUND,
++	SBI_EXT_ANDES_TRIGGER,
++	SBI_EXT_ANDES_SET_PFM,
++	SBI_EXT_ANDES_READ_POWERBRAKE,
++	SBI_EXT_ANDES_WRITE_POWERBRAKE,
++	SBI_EXT_ANDES_SUSPEND_PREPARE,
++	SBI_EXT_ANDES_SUSPEND_MEM,
++	SBI_EXT_ANDES_SET_SUSPEND_MODE,
++	SBI_EXT_ANDES_ENTER_SUSPEND_MODE,
++	SBI_EXT_ANDES_RESTART,
++	SBI_EXT_ANDES_SET_RESET_VEC,
++	SBI_EXT_ANDES_SET_PMA,
++	SBI_EXT_ANDES_FREE_PMA,
++	SBI_EXT_ANDES_PROBE_PMA,
++	SBI_EXT_ANDES_DCACHE_WBINVAL_ALL,
++	SBI_EXT_ANDES_GET_MICM_CFG,
++	SBI_EXT_ANDES_GET_MDCM_CFG,
++};
++
+ enum sbi_hsm_hart_status {
+ 	SBI_HSM_HART_STATUS_STARTED = 0,
+ 	SBI_HSM_HART_STATUS_STOPPED,
+@@ -146,6 +184,23 @@ static inline unsigned long sbi_minor_version(void)
+ }
+ 
+ int sbi_err_map_linux_errno(int err);
++
++void sbi_suspend_prepare(char main_core, char enable);
++void sbi_suspend_mem(void);
++void sbi_restart(int cpu_num);
++void sbi_write_powerbrake(int val);
++int sbi_read_powerbrake(void);
++void sbi_set_suspend_mode(int suspend_mode);
++void sbi_set_reset_vec(int val);
++void sbi_set_pma(void *arg);
++void sbi_free_pma(unsigned long entry_id);
++long sbi_probe_pma(void);
++void sbi_set_trigger(unsigned int type, uintptr_t data, int enable);
++long sbi_get_marchid(void);
++int get_custom_csr_cacheinfo(const char *propname, u32 *out_value);
++long sbi_get_micm_cfg(void);
++long sbi_get_mdcm_cfg(void);
++
+ #else /* CONFIG_RISCV_SBI */
+ /* stubs for code that is only reachable under IS_ENABLED(CONFIG_RISCV_SBI): */
+ void sbi_set_timer(uint64_t stime_value);
+-- 
+2.34.1
+

@@ -1,0 +1,274 @@
+From 2452e4645da3abdbac0945598bdfd59ca3ea2462 Mon Sep 17 00:00:00 2001
+From: Dylan Chung <dylan@andestech.com>
+Date: Tue, 9 Jun 2020 17:51:34 +0800
+Subject: [PATCH 14/15] driver/net/ethernet/faraday: Add ftmac100_debug
+ control.
+
+  ~#  echo [0/1] > /proc/ftmac100_debug/debug
+
+      0: Disable ftmac100.c debug message
+      1: Enable ftmac100.c debug message
+
+  ~#  echo [0/1/2/4] > /proc/ftmac100_debug/incr
+
+      0: DISABLED
+      1: INCR4
+      2: INCR8
+      3: INCR16
+
+      * Note: Need to restart eth[x] to apply the change.
+         ~# ifconfig eth0 down
+         ~# udhcpc
+
+Signed-off-by: Dylan Jhong <dylan@andestech.com>
+Co-authored-by: Eric Lin <tesheng@andestech.com>
+---
+ drivers/net/ethernet/faraday/Makefile         |   2 +-
+ drivers/net/ethernet/faraday/ftmac100.c       |  10 +-
+ drivers/net/ethernet/faraday/ftmac100_debug.c | 189 ++++++++++++++++++
+ 3 files changed, 197 insertions(+), 4 deletions(-)
+ create mode 100755 drivers/net/ethernet/faraday/ftmac100_debug.c
+
+diff --git a/drivers/net/ethernet/faraday/Makefile b/drivers/net/ethernet/faraday/Makefile
+index f16f58467..950f34d5e 100644
+--- a/drivers/net/ethernet/faraday/Makefile
++++ b/drivers/net/ethernet/faraday/Makefile
+@@ -4,4 +4,4 @@
+ #
+ 
+ obj-$(CONFIG_FTGMAC100) += ftgmac100.o
+-obj-$(CONFIG_FTMAC100) += ftmac100.o
++obj-$(CONFIG_FTMAC100) += ftmac100.o ftmac100_debug.o
+diff --git a/drivers/net/ethernet/faraday/ftmac100.c b/drivers/net/ethernet/faraday/ftmac100.c
+index b373f1724..01033a70c 100644
+--- a/drivers/net/ethernet/faraday/ftmac100.c
++++ b/drivers/net/ethernet/faraday/ftmac100.c
+@@ -63,6 +63,10 @@
+ #define FTMAC100_CURRENT_TX_DESC_INDEX(priv) (priv->tx_pointer);
+ #define FTMAC100_CURRENT_CLEAN_TX_DESC_INDEX(priv) (priv->tx_clean_pointer);
+ 
++/* ftmac100_debug parameters */
++extern unsigned int FTMAC100_DEBUG;
++extern unsigned int FTMAC100_INCR;
++
+ /******************************************************************************
+  * private data
+  *****************************************************************************/
+@@ -203,8 +207,8 @@ static int ftmac100_start_hw(struct ftmac100 *priv)
+ 	iowrite32(FTMAC100_APTC_RXPOLL_CNT(1), priv->base + FTMAC100_OFFSET_APTC);
+ 
+ 	// Enable DMA Burst & RXFIFO threshold
+-	iowrite32(FTMAC100_DBLAC_RX_THR_EN 	|  /* Enable fifo threshold arb */
+-			  FTMAC100_DBLAC_INCR16_EN 	|  /* Enable INCR[4/8/16] DMA Burst, this option solve RX RPKT_LOST issue*/
++	iowrite32(FTMAC100_DBLAC_RX_THR_EN      |  /* Enable fifo threshold arb */
++		  FTMAC100_INCR                 |  /* Enable INCR[4/8/16] DMA Burst, this option solve RX RPKT_LOST issue*/
+ 		  FTMAC100_DBLAC_RXFIFO_HTHR(6) |  /* 6/8 of FIFO high threshold */
+ 		  FTMAC100_DBLAC_RXFIFO_LTHR(2),   /* 2/8 of FIFO low threshold */
+ 		  priv->base + FTMAC100_OFFSET_DBLAC);
+@@ -947,7 +951,7 @@ static int ftmac100_poll(struct napi_struct *napi, int budget)
+ 
+ 	if (status & (FTMAC100_INT_NORXBUF | FTMAC100_INT_RPKT_LOST |
+ 		      FTMAC100_INT_AHB_ERR | FTMAC100_INT_PHYSTS_CHG)) {
+-		if (net_ratelimit())
++		if (net_ratelimit() && FTMAC100_DEBUG)
+ 			netdev_info(netdev, "[ISR] = 0x%x: %s%s%s%s\n", status,
+ 				    status & FTMAC100_INT_NORXBUF ? "NORXBUF " : "",
+ 				    status & FTMAC100_INT_RPKT_LOST ? "RPKT_LOST " : "",
+diff --git a/drivers/net/ethernet/faraday/ftmac100_debug.c b/drivers/net/ethernet/faraday/ftmac100_debug.c
+new file mode 100755
+index 000000000..c8c355dcf
+--- /dev/null
++++ b/drivers/net/ethernet/faraday/ftmac100_debug.c
+@@ -0,0 +1,189 @@
++/*
++ *  Copyright (C) 2009 Andes Technology Corporation
++ *  Copyright (C) 2019 Andes Technology Corporation
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include <linux/module.h>
++#include <linux/blkdev.h>
++#include <linux/proc_fs.h>
++#include <asm/andesv5/csr.h>
++
++#define INPUTLEN 32
++
++/*************************************************************************************/
++
++// 0: DISABLE
++// 1: ENABLE
++unsigned int FTMAC100_DEBUG = 0;
++
++// 0: DISABLE
++// 1: INCR4
++// 2: INCR8
++// 4: INCR16
++unsigned int FTMAC100_INCR = 4;
++
++/*************************************************************************************/
++
++struct entry_struct{
++	char *name;
++	int perm;
++	struct proc_ops *fops;
++};
++
++static struct proc_dir_entry *proc_ftmac100_debug;
++
++#define DEBUG( enable, tagged, ...)				\
++	do{							\
++		if(enable){					\
++			if(tagged)				\
++			printk( "[ %30s() ] ", __func__);	\
++			printk( __VA_ARGS__);			\
++		}						\
++	} while( 0)
++
++static int debug = 0;
++module_param(debug, int, 0);
++
++static ssize_t ftmac100_proc_read(struct file *file, char __user *userbuf,
++				  size_t count, loff_t *ppos)
++{
++	int ret=0;
++	char buf[128]={0};
++	if (!strncmp(file->f_path.dentry->d_name.name, "debug", 5)){
++		ret = sprintf(buf, "FTMAC100 debug info: %s\n", (FTMAC100_DEBUG) ? "Enabled" : "Disabled");
++	}else if (!strncmp(file->f_path.dentry->d_name.name, "incr", 4)){
++		switch(FTMAC100_INCR){
++		case 0:
++			ret = sprintf(buf, "FTMAC100 INCR: %s\n", "Disabled");
++			break;
++		case 1:
++			ret = sprintf(buf, "FTMAC100 INCR: %d (INCR4)\n",FTMAC100_INCR);
++			break;
++		case 2:
++			ret = sprintf(buf, "FTMAC100 INCR: %d (INCR8)\n",FTMAC100_INCR);
++			break;
++		case 4:
++			ret = sprintf(buf, "FTMAC100 INCR: %d (INCR16)\n",FTMAC100_INCR);
++			break;
++		}
++	}else
++		return -EFAULT;
++
++	return simple_read_from_buffer(userbuf, count, ppos, buf, ret);
++}
++
++static ssize_t ftmac100_proc_write(struct file *file,
++				   const char __user *buffer, size_t count, loff_t *ppos)
++{
++
++	unsigned long en;
++	char inbuf[INPUTLEN];
++
++	if (count > INPUTLEN - 1)
++		count = INPUTLEN - 1;
++
++	if (copy_from_user(inbuf, buffer, count))
++		return -EFAULT;
++
++	inbuf[count] = '\0';
++
++	if (!sscanf(inbuf, "%lu", &en))
++		return -EFAULT;
++
++	if(!strncmp(file->f_path.dentry->d_name.name, "debug", 5)) {
++		FTMAC100_DEBUG = en;
++	} else if(!strncmp(file->f_path.dentry->d_name.name, "incr", 4)) {
++		switch(en){
++		case 0:
++		case 1:
++		case 2:
++		case 4:
++			FTMAC100_INCR = en;
++			printk("Please restart eth0 interface to apply INCR\n");
++			printk("    ~# ifconfig eth0 down\n");
++			printk("    ~# udhcpc\n");
++			break;
++		default:
++			printk("INCR value must be [0/1/2/4]\n");
++			printk("    0: INCR disabled\n");
++			printk("    1: INCR4\n");
++			printk("    2: INCR8\n");
++			printk("    4: INCR16\n");
++		}
++	} else {
++		return -EFAULT;
++	}
++
++	return count;
++}
++
++static struct proc_ops en_fops = {
++	.proc_open = simple_open,
++	.proc_read = ftmac100_proc_read,
++	.proc_write = ftmac100_proc_write,
++};
++
++static void create_seq_entry(struct entry_struct *e, mode_t mode,
++			     struct proc_dir_entry *parent)
++{
++
++	struct proc_dir_entry *entry = proc_create(e->name, mode, parent, e->fops);
++
++	if (!entry)
++		printk(KERN_ERR "invalid %s register.\n", e->name);
++}
++
++static void install_proc_table(struct entry_struct *table)
++{
++	while (table->name) {
++
++		create_seq_entry(table, table->perm, proc_ftmac100_debug);
++		table++;
++	}
++}
++
++static void remove_proc_table(struct entry_struct *table)
++{
++
++	while (table->name) {
++		remove_proc_entry(table->name, proc_ftmac100_debug);
++		table++;
++	}
++}
++
++struct entry_struct proc_table_ftmac100_debug[] = {
++
++	{"debug", 0644, &en_fops},
++	{"incr", 0644, &en_fops},
++};
++static int __init init_ftmac100_debug(void)
++{
++
++	DEBUG(debug, 1, "ftmac100_debug module registered\n");
++
++	if(!(proc_ftmac100_debug = proc_mkdir("ftmac100_debug", NULL)))
++		return -ENOMEM;
++
++	install_proc_table(proc_table_ftmac100_debug);
++
++	return 0;
++}
++
++static void __exit cleanup_ftmac100_debug(void)
++{
++
++	remove_proc_table(proc_table_ftmac100_debug);
++	remove_proc_entry("ftmac100_debug", NULL);
++
++	DEBUG(debug, 1, "ftmac100_debug module unregistered\n");
++}
++
++module_init(init_ftmac100_debug);
++module_exit(cleanup_ftmac100_debug);
++
++MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("ftmac100_debug Module");
+-- 
+2.34.1
+

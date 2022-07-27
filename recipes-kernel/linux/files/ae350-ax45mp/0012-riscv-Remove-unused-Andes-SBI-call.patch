@@ -1,0 +1,148 @@
+From 591f3f73757ab80b46e7e1e10067ce3c82ff83a9 Mon Sep 17 00:00:00 2001
+From: Yu Chien Peter Lin <peterlin@andestech.com>
+Date: Mon, 24 Jan 2022 20:59:23 +0800
+Subject: [PATCH 12/15] riscv: Remove unused Andes SBI call
+
+Signed-off-by: Yu Chien Peter Lin <peterlin@andestech.com>
+---
+ arch/riscv/andesv5/sbi.c     | 92 ------------------------------------
+ arch/riscv/include/asm/sbi.h | 16 -------
+ 2 files changed, 108 deletions(-)
+
+diff --git a/arch/riscv/andesv5/sbi.c b/arch/riscv/andesv5/sbi.c
+index c5d2afd83..647587b81 100755
+--- a/arch/riscv/andesv5/sbi.c
++++ b/arch/riscv/andesv5/sbi.c
+@@ -10,80 +10,6 @@
+ #include <asm/andesv5/proc.h>
+ #include <asm/sbi.h>
+ 
+-void sbi_suspend_prepare(char main_core, char enable)
+-{
+-	sbi_ecall(SBI_EXT_ANDES, SBI_EXT_ANDES_SUSPEND_PREPARE, main_core, enable, 0, 0, 0, 0);
+-}
+-EXPORT_SYMBOL(sbi_suspend_prepare);
+-
+-void sbi_suspend_mem(void)
+-{
+-	sbi_ecall(SBI_EXT_ANDES, SBI_EXT_ANDES_SUSPEND_MEM, 0, 0, 0, 0, 0, 0);
+-}
+-EXPORT_SYMBOL(sbi_suspend_mem);
+-
+-void sbi_restart(int cpu_num)
+-{
+-	sbi_ecall(SBI_EXT_ANDES, SBI_EXT_ANDES_RESTART, cpu_num, 0, 0, 0, 0, 0);
+-}
+-EXPORT_SYMBOL(sbi_restart);
+-
+-void sbi_write_powerbrake(int val)
+-{
+-  sbi_ecall(SBI_EXT_ANDES, SBI_EXT_ANDES_WRITE_POWERBRAKE, val, 0, 0, 0, 0, 0);
+-}
+-EXPORT_SYMBOL(sbi_write_powerbrake);
+-
+-int sbi_read_powerbrake(void)
+-{
+-  struct sbiret ret;
+-  ret = sbi_ecall(SBI_EXT_ANDES, SBI_EXT_ANDES_READ_POWERBRAKE, 0, 0, 0, 0, 0, 0);
+-  return ret.value;
+-}
+-EXPORT_SYMBOL(sbi_read_powerbrake);
+-
+-void sbi_set_suspend_mode(int suspend_mode)
+-{
+-	sbi_ecall(SBI_EXT_ANDES, SBI_EXT_ANDES_SET_SUSPEND_MODE, suspend_mode, 0, 0, 0, 0, 0);
+-}
+-EXPORT_SYMBOL(sbi_set_suspend_mode);
+-
+-void sbi_set_reset_vec(int val)
+-{
+-	sbi_ecall(SBI_EXT_ANDES, SBI_EXT_ANDES_SET_RESET_VEC, val, 0, 0, 0, 0, 0);
+-}
+-EXPORT_SYMBOL(sbi_set_reset_vec);
+-
+-void sbi_set_pma(void *arg)
+-{
+-	phys_addr_t offset = ((struct pma_arg_t*)arg)->offset;
+-	unsigned long vaddr = ((struct pma_arg_t*)arg)->vaddr;
+-	size_t size = ((struct pma_arg_t*)arg)->size;
+-	size_t entry_id = ((struct pma_arg_t*)arg)->entry_id;
+-	sbi_ecall(SBI_EXT_ANDES, SBI_EXT_ANDES_SET_PMA, offset, vaddr, size, entry_id, 0, 0);
+-}
+-EXPORT_SYMBOL(sbi_set_pma);
+-
+-void sbi_free_pma(unsigned long entry_id)
+-{
+-	sbi_ecall(SBI_EXT_ANDES, SBI_EXT_ANDES_FREE_PMA, entry_id, 0, 0, 0, 0, 0);
+-}
+-EXPORT_SYMBOL(sbi_free_pma);
+-
+-long sbi_probe_pma(void)
+-{
+-	struct sbiret ret;
+-	ret = sbi_ecall(SBI_EXT_ANDES, SBI_EXT_ANDES_PROBE_PMA, 0, 0, 0, 0, 0, 0);
+-	return ret.value;
+-}
+-EXPORT_SYMBOL(sbi_probe_pma);
+-
+-void sbi_set_trigger(unsigned int type, uintptr_t data, int enable)
+-{
+-	sbi_ecall(SBI_EXT_ANDES, SBI_EXT_ANDES_TRIGGER, type, data, enable, 0, 0, 0);
+-}
+-EXPORT_SYMBOL(sbi_set_trigger);
+-
+ long sbi_get_marchid(void)
+ {
+ 	struct sbiret ret;
+@@ -91,21 +17,3 @@ long sbi_get_marchid(void)
+ 	return ret.value;
+ }
+ EXPORT_SYMBOL(sbi_get_marchid);
+-
+-long sbi_get_micm_cfg(void)
+-{
+-	struct sbiret ret;
+-	ret = sbi_ecall(SBI_EXT_ANDES, SBI_EXT_ANDES_GET_MICM_CFG,
+-			0, 0, 0, 0, 0, 0);
+-	return ret.value;
+-}
+-EXPORT_SYMBOL(sbi_get_micm_cfg);
+-
+-long sbi_get_mdcm_cfg(void)
+-{
+-	struct sbiret ret;
+-	ret = sbi_ecall(SBI_EXT_ANDES, SBI_EXT_ANDES_GET_MDCM_CFG,
+-			0, 0, 0, 0, 0, 0);
+-	return ret.value;
+-}
+-EXPORT_SYMBOL(sbi_get_mdcm_cfg);
+diff --git a/arch/riscv/include/asm/sbi.h b/arch/riscv/include/asm/sbi.h
+index d3b2d3413..40dc3a54a 100644
+--- a/arch/riscv/include/asm/sbi.h
++++ b/arch/riscv/include/asm/sbi.h
+@@ -83,22 +83,6 @@ enum sbi_ext_andes_fid {
+ 	SBI_EXT_ANDES_L1CACHE_D_PREFETCH,
+ 	SBI_EXT_ANDES_NON_BLOCKING_LOAD_STORE,
+ 	SBI_EXT_ANDES_WRITE_AROUND,
+-	SBI_EXT_ANDES_TRIGGER,
+-	SBI_EXT_ANDES_SET_PFM,
+-	SBI_EXT_ANDES_READ_POWERBRAKE,
+-	SBI_EXT_ANDES_WRITE_POWERBRAKE,
+-	SBI_EXT_ANDES_SUSPEND_PREPARE,
+-	SBI_EXT_ANDES_SUSPEND_MEM,
+-	SBI_EXT_ANDES_SET_SUSPEND_MODE,
+-	SBI_EXT_ANDES_ENTER_SUSPEND_MODE,
+-	SBI_EXT_ANDES_RESTART,
+-	SBI_EXT_ANDES_SET_RESET_VEC,
+-	SBI_EXT_ANDES_SET_PMA,
+-	SBI_EXT_ANDES_FREE_PMA,
+-	SBI_EXT_ANDES_PROBE_PMA,
+-	SBI_EXT_ANDES_DCACHE_WBINVAL_ALL,
+-	SBI_EXT_ANDES_GET_MICM_CFG,
+-	SBI_EXT_ANDES_GET_MDCM_CFG,
+ };
+ 
+ enum sbi_hsm_hart_status {
+-- 
+2.34.1
+

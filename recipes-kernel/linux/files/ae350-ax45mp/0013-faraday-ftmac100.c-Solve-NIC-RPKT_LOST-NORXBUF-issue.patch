@@ -1,0 +1,59 @@
+From ba7635c31a216b5ff6360bdd835cf4776c7c7317 Mon Sep 17 00:00:00 2001
+From: Dylan Chung <dylan@andestech.com>
+Date: Wed, 10 Jun 2020 15:01:17 +0800
+Subject: [PATCH 13/15] faraday/ftmac100.c: Solve NIC RPKT_LOST & NORXBUF
+ issue.
+
+Enable NIC DMA burst (INCR16) to speedup packets transfering from FIFO to RX ring buffer.
+
+Set ip fragmentation parameters by sysctl.
+
+    sysctl -w net.ipv4.ipfrag_time=5
+    sysctl -w net.ipv4.ipfrag_high_thresh=8388608
+
+Signed-off-by: Dylan Jhong <dylan@andestech.com>
+---
+ drivers/net/ethernet/faraday/ftmac100.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+
+diff --git a/drivers/net/ethernet/faraday/ftmac100.c b/drivers/net/ethernet/faraday/ftmac100.c
+index 49a9d4ea5..b373f1724 100644
+--- a/drivers/net/ethernet/faraday/ftmac100.c
++++ b/drivers/net/ethernet/faraday/ftmac100.c
+@@ -202,6 +202,18 @@ static int ftmac100_start_hw(struct ftmac100 *priv)
+ 
+ 	iowrite32(FTMAC100_APTC_RXPOLL_CNT(1), priv->base + FTMAC100_OFFSET_APTC);
+ 
++	// Enable DMA Burst & RXFIFO threshold
++	iowrite32(FTMAC100_DBLAC_RX_THR_EN 	|  /* Enable fifo threshold arb */
++			  FTMAC100_DBLAC_INCR16_EN 	|  /* Enable INCR[4/8/16] DMA Burst, this option solve RX RPKT_LOST issue*/
++		  FTMAC100_DBLAC_RXFIFO_HTHR(6) |  /* 6/8 of FIFO high threshold */
++		  FTMAC100_DBLAC_RXFIFO_LTHR(2),   /* 2/8 of FIFO low threshold */
++		  priv->base + FTMAC100_OFFSET_DBLAC);
++
++	// Pending interrupt until receive packets reach threshold
++	iowrite32(FTMAC100_ITC_RXINT_THR(1) |
++		  FTMAC100_ITC_TXINT_THR(1),
++		  priv->base + FTMAC100_OFFSET_ITC);
++
+ 	ftmac100_set_mac(priv, netdev->dev_addr);
+ 
+ 	iowrite32(MACCR_ENABLE_ALL, priv->base + FTMAC100_OFFSET_MACCR);
+@@ -987,6 +999,14 @@ static int ftmac100_open(struct net_device *netdev)
+ 		goto err_irq;
+ 	}
+ 
++	// set sysctl ip fragmentation parameters.
++	// sysctl -w net.ipv4.ipfrag_time
++	// sysctl -w net.ipv4.ipfrag_high_thresh
++	struct net *net;
++	net = dev_net(netdev);
++	net->ipv4.fqdir->timeout= (5* HZ);         		/* Decrease fragment timeout, 30 -> 5 */
++	net->ipv4.fqdir->high_thresh= 8 * 1024 * 1024;  /* Increase fragment buffer size, 4M -> 8M */
++
+ 	priv->rx_pointer = 0;
+ 	priv->tx_clean_pointer = 0;
+ 	priv->tx_pointer = 0;
+-- 
+2.34.1
+

@@ -1,0 +1,1133 @@
+From 650471d7c6d89de2c9e6c85c583a823d42f2e31a Mon Sep 17 00:00:00 2001
+From: Yu Chien Peter Lin <peterlin@andestech.com>
+Date: Mon, 24 Jan 2022 20:31:18 +0800
+Subject: [PATCH 05/15] Non-cacheability and Cache support
+
+Signed-off-by: Yu Chien Peter Lin <peterlin@andestech.com>
+---
+ arch/riscv/andesv5/Makefile           |   4 +
+ arch/riscv/andesv5/cache.c            | 414 ++++++++++++++++++++++++++
+ arch/riscv/andesv5/cctl.c             | 260 ++++++++++++++++
+ arch/riscv/andesv5/noncache_dma.c     | 113 +++++++
+ arch/riscv/include/asm/andesv5/csr.h  | 160 ++++++++++
+ arch/riscv/include/asm/andesv5/proc.h |  36 +++
+ arch/riscv/include/asm/andesv5/smu.h  |  78 +++++
+ 7 files changed, 1065 insertions(+)
+ create mode 100644 arch/riscv/andesv5/Makefile
+ create mode 100644 arch/riscv/andesv5/cache.c
+ create mode 100644 arch/riscv/andesv5/cctl.c
+ create mode 100644 arch/riscv/andesv5/noncache_dma.c
+ create mode 100644 arch/riscv/include/asm/andesv5/csr.h
+ create mode 100644 arch/riscv/include/asm/andesv5/proc.h
+ create mode 100644 arch/riscv/include/asm/andesv5/smu.h
+
+diff --git a/arch/riscv/andesv5/Makefile b/arch/riscv/andesv5/Makefile
+new file mode 100644
+index 000000000..6188956ae
+--- /dev/null
++++ b/arch/riscv/andesv5/Makefile
+@@ -0,0 +1,4 @@
++obj-y += cctl.o
++obj-y += cache.o
++obj-y += noncache_dma.o
++obj-y += sbi.o
+diff --git a/arch/riscv/andesv5/cache.c b/arch/riscv/andesv5/cache.c
+new file mode 100644
+index 000000000..3d4e82f35
+--- /dev/null
++++ b/arch/riscv/andesv5/cache.c
+@@ -0,0 +1,414 @@
++#include <linux/irqflags.h>
++#include <linux/module.h>
++#include <linux/cpu.h>
++#include <linux/of.h>
++#include <linux/of_address.h>
++#include <linux/of_device.h>
++#include <linux/cacheinfo.h>
++#include <linux/sizes.h>
++#include <linux/smp.h>
++#include <asm/csr.h>
++#include <asm/sbi.h>
++#include <asm/io.h>
++#include <asm/andesv5/proc.h>
++#include <asm/andesv5/csr.h>
++#ifdef CONFIG_PERF_EVENTS
++#include <asm/perf_event.h>
++#endif
++
++#define MAX_CACHE_LINE_SIZE 256
++#define EVSEL_MASK	0xff
++#define SEL_PER_CTL	8
++#define SEL_OFF(id)	(8 * (id % 8))
++
++static void __iomem *l2c_base;
++
++DEFINE_PER_CPU(struct andesv5_cache_info, cpu_cache_info) = {
++	.init_done = 0,
++	.dcache_line_size = SZ_32
++};
++static void fill_cpu_cache_info(struct andesv5_cache_info *cpu_ci)
++{
++	struct cpu_cacheinfo *this_cpu_ci =
++		get_cpu_cacheinfo(smp_processor_id());
++	struct cacheinfo *this_leaf = this_cpu_ci->info_list;
++	unsigned int i = 0;
++
++	for(; i< this_cpu_ci->num_leaves ; i++, this_leaf++)
++		if(this_leaf->type == CACHE_TYPE_DATA) {
++			cpu_ci->dcache_line_size = this_leaf->coherency_line_size;
++		}
++	cpu_ci->init_done = true;
++}
++
++
++inline int get_cache_line_size(void)
++{
++	struct andesv5_cache_info *cpu_ci =
++		&per_cpu(cpu_cache_info, smp_processor_id());
++
++	if(unlikely(cpu_ci->init_done == false))
++		fill_cpu_cache_info(cpu_ci);
++	return cpu_ci->dcache_line_size;
++}
++
++static uint32_t cpu_l2c_get_cctl_status(void)
++{
++	return readl((void*)(l2c_base + L2C_REG_STATUS_OFFSET));
++}
++
++void cpu_dcache_wb_range(unsigned long start, unsigned long end, int line_size)
++{
++	int mhartid = smp_processor_id();
++	unsigned long pa;
++	while (end > start) {
++		custom_csr_write(CCTL_REG_UCCTLBEGINADDR_NUM, start);
++		custom_csr_write(CCTL_REG_UCCTLCOMMAND_NUM, CCTL_L1D_VA_WB);
++
++		if (l2c_base) {
++			pa = virt_to_phys((void*)start);
++			writel(pa, (void*)(l2c_base + L2C_REG_CN_ACC_OFFSET(mhartid)));
++			writel(CCTL_L2_PA_WB, (void*)(l2c_base + L2C_REG_CN_CMD_OFFSET(mhartid)));
++			while ((cpu_l2c_get_cctl_status() & CCTL_L2_STATUS_CN_MASK(mhartid))
++					!= CCTL_L2_STATUS_IDLE);
++		}
++
++		start += line_size;
++	}
++}
++
++void cpu_dcache_inval_range(unsigned long start, unsigned long end, int line_size)
++{
++	int mhartid = smp_processor_id();
++	unsigned long pa;
++	while (end > start) {
++		custom_csr_write(CCTL_REG_UCCTLBEGINADDR_NUM, start);
++		custom_csr_write(CCTL_REG_UCCTLCOMMAND_NUM, CCTL_L1D_VA_INVAL);
++
++		if (l2c_base) {
++			pa = virt_to_phys((void*)start);
++			writel(pa, (void*)(l2c_base + L2C_REG_CN_ACC_OFFSET(mhartid)));
++			writel(CCTL_L2_PA_INVAL, (void*)(l2c_base + L2C_REG_CN_CMD_OFFSET(mhartid)));
++			while ((cpu_l2c_get_cctl_status() & CCTL_L2_STATUS_CN_MASK(mhartid))
++					!= CCTL_L2_STATUS_IDLE);
++		}
++
++		start += line_size;
++	}
++}
++void cpu_dma_inval_range(unsigned long start, unsigned long end)
++{
++	unsigned long flags;
++	unsigned long line_size = get_cache_line_size();
++	unsigned long old_start = start;
++	unsigned long old_end = end;
++	char cache_buf[2][MAX_CACHE_LINE_SIZE]={0};
++
++	if (unlikely(start == end))
++		return;
++
++	start = start & (~(line_size - 1));
++	end = ((end + line_size - 1) & (~(line_size - 1)));
++
++	local_irq_save(flags);
++	if (unlikely(start != old_start)) {
++		memcpy(&cache_buf[0][0], (void *)start, line_size);
++	}
++	if (unlikely(end != old_end)) {
++		memcpy(&cache_buf[1][0], (void *)(old_end & (~(line_size - 1))), line_size);
++	}
++	cpu_dcache_inval_range(start, end, line_size);
++	if (unlikely(start != old_start)) {
++		memcpy((void *)start, &cache_buf[0][0], (old_start & (line_size - 1)));
++	}
++	if (unlikely(end != old_end)) {
++		memcpy((void *)(old_end + 1), &cache_buf[1][(old_end & (line_size - 1)) + 1], end - old_end - 1);
++	}
++	local_irq_restore(flags);
++
++}
++EXPORT_SYMBOL(cpu_dma_inval_range);
++
++void cpu_dma_wb_range(unsigned long start, unsigned long end)
++{
++	unsigned long flags;
++	unsigned long line_size = get_cache_line_size();
++
++	local_irq_save(flags);
++	start = start & (~(line_size - 1));
++	cpu_dcache_wb_range(start, end, line_size);
++	local_irq_restore(flags);
++}
++EXPORT_SYMBOL(cpu_dma_wb_range);
++
++/* L1 Cache */
++int cpu_l1c_status(void)
++{
++	/* TODO */
++	// return SBI_CALL_0(SBI_L1CACHE_STATUS);
++	return 0;
++}
++
++void cpu_icache_enable(void *info)
++{
++	/* TODO */
++	// SBI_CALL_1(SBI_ICACHE_OP, 1);
++}
++
++void cpu_icache_disable(void *info)
++{
++	/* TODO */
++	// unsigned long flags;
++
++	// local_irq_save(flags);
++	// SBI_CALL_1(SBI_ICACHE_OP, 0);
++	// local_irq_restore(flags);
++}
++
++void cpu_dcache_enable(void *info)
++{
++	/* TODO */
++	// SBI_CALL_1(SBI_DCACHE_OP, 1);
++}
++
++void cpu_dcache_disable(void *info)
++{
++	/* TODO */
++	// unsigned long flags;
++
++	// local_irq_save(flags);
++	// SBI_CALL_1(SBI_DCACHE_OP, 0);
++	// local_irq_restore(flags);
++}
++
++/* L2 Cache */
++uint32_t cpu_l2c_ctl_status(void)
++{
++	return readl((void*)(l2c_base + L2C_REG_CTL_OFFSET));
++}
++
++void cpu_l2c_enable(void)
++{
++#ifdef CONFIG_SMP
++	int mhartid = smp_processor_id();
++#else
++	int mhartid = 0;
++#endif
++	unsigned int val;
++
++	/* No l2 cache */
++	if(!l2c_base)
++		return;
++
++	/* l2 cache has enabled */
++	if(cpu_l2c_ctl_status() & L2_CACHE_CTL_mskCEN)
++		return;
++
++	/* Enable l2 cache*/
++	val = readl((void*)(l2c_base + L2C_REG_CTL_OFFSET));
++	val |= L2_CACHE_CTL_mskCEN;
++
++	writel(val, (void*)(l2c_base + L2C_REG_CTL_OFFSET));
++	while ((cpu_l2c_get_cctl_status() & CCTL_L2_STATUS_CN_MASK(mhartid))
++			!= CCTL_L2_STATUS_IDLE);
++}
++
++void cpu_l2c_disable(void)
++{
++#ifdef CONFIG_SMP
++	int mhartid = smp_processor_id();
++#else
++	int mhartid = 0;
++#endif
++	unsigned int val;
++
++	/*No l2 cache */
++	if(!l2c_base)
++		return;
++
++	/*l2 cache has disabled*/
++	if(!(cpu_l2c_ctl_status() & L2_CACHE_CTL_mskCEN))
++		return;
++
++	/*L2 write-back and invalidate all*/
++	writel(CCTL_L2_WBINVAL_ALL, (void*)(l2c_base + L2C_REG_CN_CMD_OFFSET(mhartid)));
++	while ((cpu_l2c_get_cctl_status() & CCTL_L2_STATUS_CN_MASK(mhartid))
++			!= CCTL_L2_STATUS_IDLE);
++
++	/*Disable L2 cache*/
++	val = readl((void*)(l2c_base + L2C_REG_CTL_OFFSET));
++	val &= (~L2_CACHE_CTL_mskCEN);
++
++	writel(val, (void*)(l2c_base + L2C_REG_CTL_OFFSET));
++	while ((cpu_l2c_get_cctl_status() & CCTL_L2_STATUS_CN_MASK(mhartid))
++			!= CCTL_L2_STATUS_IDLE);
++}
++
++#ifndef CONFIG_SMP
++void cpu_l2c_inval_range(unsigned long pa, unsigned long size)
++{
++	unsigned long line_size = get_cache_line_size();
++	unsigned long start = pa, end = pa + size;
++	unsigned long align_start, align_end;
++
++	align_start = start & ~(line_size - 1);
++	align_end  = (end + line_size - 1) & ~(line_size - 1);
++
++	while(align_end > align_start){
++		writel(align_start, (void*)(l2c_base + L2C_REG_C0_ACC_OFFSET));
++		writel(CCTL_L2_PA_INVAL, (void*)(l2c_base + L2C_REG_C0_CMD_OFFSET));
++		while ((cpu_l2c_get_cctl_status() & CCTL_L2_STATUS_C0_MASK)
++				!= CCTL_L2_STATUS_IDLE);
++		align_start += line_size;
++	}
++}
++EXPORT_SYMBOL(cpu_l2c_inval_range);
++
++void cpu_l2c_wb_range(unsigned long pa, unsigned long size)
++{
++	unsigned long line_size = get_cache_line_size();
++	unsigned long start = pa, end = pa + size;
++	unsigned long align_start, align_end;
++
++	align_start = start & ~(line_size - 1);
++	align_end  = (end + line_size - 1) & ~(line_size - 1);
++
++	while(align_end > align_start){
++		writel(align_start, (void*)(l2c_base + L2C_REG_C0_ACC_OFFSET));
++		writel(CCTL_L2_PA_WB, (void*)(l2c_base + L2C_REG_C0_CMD_OFFSET));
++		while ((cpu_l2c_get_cctl_status() & CCTL_L2_STATUS_C0_MASK)
++				!= CCTL_L2_STATUS_IDLE);
++		align_start += line_size;
++	}
++}
++EXPORT_SYMBOL(cpu_l2c_wb_range);
++#else
++void cpu_l2c_inval_range(unsigned long pa, unsigned long size)
++{
++	int mhartid = smp_processor_id();
++	unsigned long line_size = get_cache_line_size();
++	unsigned long start = pa, end = pa + size;
++	unsigned long align_start, align_end;
++
++	align_start = start & ~(line_size - 1);
++	align_end  = (end + line_size - 1) & ~(line_size - 1);
++
++	while(align_end > align_start){
++		writel(align_start, (void*)(l2c_base + L2C_REG_CN_ACC_OFFSET(mhartid)));
++		writel(CCTL_L2_PA_INVAL, (void*)(l2c_base + L2C_REG_CN_CMD_OFFSET(mhartid)));
++		while ((cpu_l2c_get_cctl_status() & CCTL_L2_STATUS_CN_MASK(mhartid))
++				!= CCTL_L2_STATUS_IDLE);
++		align_start += line_size;
++	}
++}
++EXPORT_SYMBOL(cpu_l2c_inval_range);
++
++void cpu_l2c_wb_range(unsigned long pa, unsigned long size)
++{
++	int mhartid = smp_processor_id();
++	unsigned long line_size = get_cache_line_size();
++	unsigned long start = pa, end = pa + size;
++	unsigned long align_start, align_end;
++
++	align_start = start & ~(line_size - 1);
++	align_end  = (end + line_size - 1) & ~(line_size - 1);
++
++	while(align_end > align_start){
++		writel(align_start, (void*)(l2c_base + L2C_REG_CN_ACC_OFFSET(mhartid)));
++		writel(CCTL_L2_PA_WB, (void*)(l2c_base + L2C_REG_CN_CMD_OFFSET(mhartid)));
++		while ((cpu_l2c_get_cctl_status() & CCTL_L2_STATUS_CN_MASK(mhartid))
++				!= CCTL_L2_STATUS_IDLE);
++		align_start += line_size;
++	}
++}
++EXPORT_SYMBOL(cpu_l2c_wb_range);
++#endif
++
++#ifdef CONFIG_PERF_EVENTS
++int cpu_l2c_get_counter_idx(struct l2c_hw_events *l2c)
++{
++	int idx;
++
++	idx = find_next_zero_bit(l2c->used_mask, L2C_MAX_COUNTERS - 1, 0);
++	return idx;
++}
++
++void l2c_write_counter(int idx, u64 value)
++{
++	u32 vall = value;
++	u32 valh = value >> 32;
++
++	writel(vall, (void*)(l2c_base + L2C_REG_CN_HPM_OFFSET(idx)));
++	writel(valh, (void*)(l2c_base + L2C_REG_CN_HPM_OFFSET(idx) + 0x4));
++}
++
++u64 l2c_read_counter(int idx)
++{
++	u32 vall = readl((void*)(l2c_base + L2C_REG_CN_HPM_OFFSET(idx)));
++	u32 valh = readl((void*)(l2c_base + L2C_REG_CN_HPM_OFFSET(idx) + 0x4));
++	u64 val = ((u64)valh << 32) | vall;
++
++	return val;
++}
++
++void l2c_pmu_disable_counter(int idx)
++{
++	int n = idx / SEL_PER_CTL;
++	u32 vall = readl((void*)(l2c_base + L2C_HPM_CN_CTL_OFFSET(n)));
++	u32 valh = readl((void*)(l2c_base + L2C_HPM_CN_CTL_OFFSET(n) + 0x4));
++	u64 val = ((u64)valh << 32) | vall;
++
++	val |= (EVSEL_MASK << SEL_OFF(idx));
++	vall = val;
++	valh = val >> 32;
++	writel(vall, (void*)(l2c_base + L2C_HPM_CN_CTL_OFFSET(n)));
++	writel(valh, (void*)(l2c_base + L2C_HPM_CN_CTL_OFFSET(n) + 0x4));
++}
++
++#ifndef CONFIG_SMP
++void l2c_pmu_event_enable(u64 config, int idx)
++{
++	int n = idx / SEL_PER_CTL;
++	u32 vall = readl((void*)(l2c_base + L2C_HPM_CN_CTL_OFFSET(n)));
++	u32 valh = readl((void*)(l2c_base + L2C_HPM_CN_CTL_OFFSET(n) + 0x4));
++	u64 val = ((u64)valh << 32) | vall;
++
++	val = val & ~(EVSEL_MASK << SEL_OFF(idx));
++	val = val | (config << SEL_OFF(idx));
++	vall = val;
++	valh = val >> 32;
++	writel(vall, (void*)(l2c_base + L2C_HPM_CN_CTL_OFFSET(n)));
++	writel(valh, (void*)(l2c_base + L2C_HPM_CN_CTL_OFFSET(n) + 0x4));
++}
++#else
++void l2c_pmu_event_enable(u64 config, int idx)
++{
++	int n = idx / SEL_PER_CTL;
++	int mhartid = smp_processor_id();
++	u32 vall = readl((void*)(l2c_base + L2C_HPM_CN_CTL_OFFSET(n)));
++	u32 valh = readl((void*)(l2c_base + L2C_HPM_CN_CTL_OFFSET(n) + 0x4));
++	u64 val = ((u64)valh << 32) | vall;
++
++	if (config <= (CN_RECV_SNOOP_DATA(NR_CPUS - 1) & EVSEL_MASK))
++		config = config + mhartid * L2C_REG_PER_CORE_OFFSET;
++
++	val = val & ~(EVSEL_MASK << SEL_OFF(idx));
++	val = val | (config << SEL_OFF(idx));
++	vall = val;
++	valh = val >> 32;
++	writel(vall, (void*)(l2c_base + L2C_HPM_CN_CTL_OFFSET(n)));
++	writel(valh, (void*)(l2c_base + L2C_HPM_CN_CTL_OFFSET(n) + 0x4));
++}
++#endif
++#endif
++
++int __init l2c_init(void)
++{
++	struct device_node *node ;
++
++	node = of_find_compatible_node(NULL, NULL, "cache");
++	l2c_base = of_iomap(node, 0);
++
++	return 0;
++}
++arch_initcall(l2c_init)
+diff --git a/arch/riscv/andesv5/cctl.c b/arch/riscv/andesv5/cctl.c
+new file mode 100644
+index 000000000..f3f61db29
+--- /dev/null
++++ b/arch/riscv/andesv5/cctl.c
+@@ -0,0 +1,260 @@
++/*
++ *  Copyright (C) 2009 Andes Technology Corporation
++ *  Copyright (C) 2019 Andes Technology Corporation
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include <linux/module.h>
++#include <linux/blkdev.h>
++#include <linux/proc_fs.h>
++#include <asm/andesv5/csr.h>
++#include <asm/andesv5/proc.h>
++
++#define INPUTLEN 32
++
++struct entry_struct{
++
++	char *name;
++	int perm;
++	const struct proc_ops *fops;
++};
++
++static struct proc_dir_entry *proc_cctl;
++
++#define DEBUG( enable, tagged, ...)				\
++	do{							\
++		if(enable){					\
++			if(tagged)				\
++			printk( "[ %30s() ] ", __func__);	\
++			printk( __VA_ARGS__);			\
++		}						\
++	} while( 0)
++
++static int debug = 0;
++module_param(debug, int, 0);
++
++void cpu_icache_smp_enable(void)
++{
++    int cpu_num = num_online_cpus();
++    int id = smp_processor_id();
++    int i, ret;
++
++    for(i = 0; i < cpu_num; i++){
++		if(i == id)
++			continue;
++        ret = smp_call_function_single(i, cpu_icache_enable,
++                                        NULL, true);
++        if(ret)
++            pr_err("Core %d enable I-cache Fail\n"
++                    "Error Code:%d \n", i, ret);
++    }
++    cpu_icache_enable(NULL);
++}
++
++void cpu_icache_smp_disable(void)
++{
++    int cpu_num = num_online_cpus();
++    int id = smp_processor_id();
++    int i, ret;
++
++    for(i = 0; i < cpu_num; i++){
++        if(i == id)
++            continue;
++        ret = smp_call_function_single(i, cpu_icache_disable,
++                                        NULL, true);
++        if(ret)
++            pr_err("Core %d disable I-cache Fail \n"
++                    "Error Code:%d \n", i, ret);
++    }
++    cpu_icache_disable(NULL);
++}
++
++void cpu_dcache_smp_enable(void)
++{
++    int cpu_num = num_online_cpus();
++    int id = smp_processor_id();
++    int i, ret;
++
++    for(i = 0; i < cpu_num; i++){
++        if(i == id)
++            continue;
++        ret = smp_call_function_single(i, cpu_dcache_enable,
++                                        NULL, true);
++        if(ret)
++            pr_err("Core %d disable D-cache Fail \n"
++                    "Error Code:%d \n", i, ret);
++    }
++    cpu_dcache_enable(NULL);
++}
++
++void cpu_dcache_smp_disable(void)
++{
++    int cpu_num = num_online_cpus();
++    int id = smp_processor_id();
++    int i, ret;
++
++    for(i = 0; i < cpu_num; i++){
++        if(i == id)
++            continue;
++        ret = smp_call_function_single(i, cpu_dcache_disable,
++                                        NULL, true);
++        if(ret)
++            pr_err("Core %d disable D-cache Fail \n"
++                    "Error Code:%d \n", i, ret);
++    }
++    cpu_dcache_disable(NULL);
++}
++
++static ssize_t proc_read_cache_en(struct file *file, char __user *userbuf,
++						size_t count, loff_t *ppos)
++{
++    int ret;
++    char buf[18];
++    if (!strncmp(file->f_path.dentry->d_name.name, "ic_en", 7))
++        ret = sprintf(buf, "I-cache: %s\n", (cpu_l1c_status() & CACHE_CTL_mskIC_EN) ? "Enabled" : "Disabled");
++    else if(!strncmp(file->f_path.dentry->d_name.name, "dc_en", 7))
++        ret = sprintf(buf, "D-cache: %s\n", (cpu_l1c_status() & CACHE_CTL_mskDC_EN) ? "Enabled" : "Disabled");
++	else if(!strncmp(file->f_path.dentry->d_name.name, "l2c_en", 7))
++        ret = sprintf(buf, "L2-cache: %s\n", (cpu_l2c_ctl_status() & L2_CACHE_CTL_mskCEN) ? "Enabled" : "Disabled");
++	else
++		return -EFAULT;
++
++    return simple_read_from_buffer(userbuf, count, ppos, buf, ret);
++}
++
++static ssize_t proc_write_cache_en(struct file *file,
++			const char __user *buffer, size_t count, loff_t *ppos)
++{
++
++	unsigned long en;
++	char inbuf[INPUTLEN];
++
++	if (count > INPUTLEN - 1)
++		count = INPUTLEN - 1;
++
++	if (copy_from_user(inbuf, buffer, count))
++		return -EFAULT;
++
++	inbuf[count] = '\0';
++
++	if (!sscanf(inbuf, "%lu", &en) || en > 1)
++		return -EFAULT;
++
++	if (!strncmp(file->f_path.dentry->d_name.name, "ic_en", 7)) {
++		if (en && !(cpu_l1c_status() & CACHE_CTL_mskIC_EN)) {
++#ifdef CONFIG_SMP
++			cpu_icache_smp_enable();
++#else
++			cpu_icache_enable(NULL);
++#endif
++			DEBUG(debug, 1, "I-cache: Enabled\n");
++		} else if (!en && (cpu_l1c_status() & CACHE_CTL_mskIC_EN)) {
++#ifdef CONFIG_SMP
++			cpu_icache_smp_disable();
++#else
++			cpu_icache_disable(NULL);
++#endif
++			DEBUG(debug, 1, "I-cache: Disabled\n");
++		}
++	} else if(!strncmp(file->f_path.dentry->d_name.name, "dc_en", 7)) {
++		if (en && !(cpu_l1c_status() & CACHE_CTL_mskDC_EN)) {
++#ifdef CONFIG_SMP
++			cpu_dcache_smp_enable();
++#else
++			cpu_dcache_enable(NULL);
++#endif
++			DEBUG(debug, 1, "D-cache: Enabled\n");
++		} else if (!en && (cpu_l1c_status() & CACHE_CTL_mskDC_EN)) {
++#ifdef CONFIG_SMP
++			cpu_dcache_smp_disable();
++#else
++			cpu_dcache_disable(NULL);
++#endif
++			DEBUG(debug, 1, "D-cache: Disabled\n");
++		}
++	}else if(!strncmp(file->f_path.dentry->d_name.name, "l2c_en", 7)){
++		if (en && !(cpu_l2c_ctl_status() & L2_CACHE_CTL_mskCEN)) {
++			cpu_l2c_enable();
++			DEBUG(debug, 1, "L2-cache: Enabled\n");
++		} else if (!en && (cpu_l2c_ctl_status() & L2_CACHE_CTL_mskCEN)) {
++			cpu_l2c_disable();
++			DEBUG(debug, 1, "L2-cache: Disabled\n");
++		}
++	}else{
++		return -EFAULT;
++	}
++
++	return count;
++}
++
++static const struct proc_ops en_fops = {
++	.proc_open = simple_open,
++	.proc_read = proc_read_cache_en,
++	.proc_write = proc_write_cache_en,
++};
++
++static void create_seq_entry(struct entry_struct *e, mode_t mode,
++			     struct proc_dir_entry *parent)
++{
++
++	struct proc_dir_entry *entry = proc_create(e->name, mode, parent, e->fops);
++
++	if (!entry)
++		printk(KERN_ERR "invalid %s register.\n", e->name);
++}
++
++static void install_proc_table(struct entry_struct *table)
++{
++	while (table->name) {
++
++		create_seq_entry(table, table->perm, proc_cctl);
++		table++;
++	}
++}
++
++static void remove_proc_table(struct entry_struct *table)
++{
++
++	while (table->name) {
++		remove_proc_entry(table->name, proc_cctl);
++		table++;
++	}
++}
++
++struct entry_struct proc_table_cache[] = {
++
++	{"ic_en", 0644, &en_fops},
++	{"dc_en", 0644, &en_fops},
++	{"l2c_en", 0644, &en_fops},
++	{NULL, 0, 0}
++};
++static int __init init_cctl(void)
++{
++
++	DEBUG(debug, 0, "CCTL module registered\n");
++
++	if(!(proc_cctl = proc_mkdir("cctl", NULL)))
++		return -ENOMEM;
++
++	install_proc_table(proc_table_cache);
++
++	return 0;
++}
++
++static void __exit cleanup_cctl(void)
++{
++
++	remove_proc_table(proc_table_cache);
++	remove_proc_entry("cctl", NULL);
++
++	DEBUG(debug, 1, "CCTL module unregistered\n");
++}
++
++module_init(init_cctl);
++module_exit(cleanup_cctl);
++
++MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("Userspace Cache Control Module");
+diff --git a/arch/riscv/andesv5/noncache_dma.c b/arch/riscv/andesv5/noncache_dma.c
+new file mode 100644
+index 000000000..fa83cebad
+--- /dev/null
++++ b/arch/riscv/andesv5/noncache_dma.c
+@@ -0,0 +1,113 @@
++/*
++ * Copyright (C) 2017 SiFive
++ *   Wesley Terpstra <wesley@sifive.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, see the file COPYING, or write
++ * to the Free Software Foundation, Inc.,
++ */
++
++#include <linux/gfp.h>
++#include <linux/mm.h>
++#include <linux/dma-mapping.h>
++#include <linux/dma-direct.h>
++#include <linux/scatterlist.h>
++#include <asm/andesv5/proc.h>
++
++static void dma_flush_page(struct page *page, size_t size)
++{
++	unsigned long k_d_vaddr;
++	/*
++	 * Invalidate any data that might be lurking in the
++	 * kernel direct-mapped region for device DMA.
++	 */
++	k_d_vaddr = (unsigned long)page_address(page);
++	memset((void *)k_d_vaddr, 0, size);
++	cpu_dma_wb_range(k_d_vaddr, k_d_vaddr + size);
++	cpu_dma_inval_range(k_d_vaddr, k_d_vaddr + size);
++
++}
++
++
++static inline void cache_op(phys_addr_t paddr, size_t size,
++		void (*fn)(unsigned long start, unsigned long end))
++{
++	unsigned long start;
++
++	start = (unsigned long)phys_to_virt(paddr);
++	fn(start, start + size);
++}
++
++void arch_sync_dma_for_device(phys_addr_t paddr,
++		size_t size, enum dma_data_direction dir)
++{
++	switch (dir) {
++	case DMA_FROM_DEVICE:
++		cache_op(paddr, size, cpu_dma_inval_range);
++		break;
++	case DMA_TO_DEVICE:
++	case DMA_BIDIRECTIONAL:
++		cache_op(paddr, size, cpu_dma_wb_range);
++		break;
++	default:
++		BUG();
++	}
++}
++
++void arch_sync_dma_for_cpu(phys_addr_t paddr,
++		size_t size, enum dma_data_direction dir)
++{
++	switch (dir) {
++	case DMA_TO_DEVICE:
++		break;
++	case DMA_FROM_DEVICE:
++	case DMA_BIDIRECTIONAL:
++		cache_op(paddr, size, cpu_dma_inval_range);
++		break;
++	default:
++		BUG();
++	}
++}
++
++void *arch_dma_alloc(struct device *dev, size_t size, dma_addr_t *handle,
++               gfp_t gfp, unsigned long attrs)
++{
++	void* kvaddr, *coherent_kvaddr;
++	size = PAGE_ALIGN(size);
++
++	kvaddr = dma_direct_alloc_pages(dev, size, handle, gfp, attrs);
++	if (!kvaddr)
++		goto no_mem;
++	coherent_kvaddr = ioremap_nocache(dma_to_phys(dev, *handle), size);
++	if (!coherent_kvaddr)
++		goto no_map;
++
++	dma_flush_page(virt_to_page(kvaddr),size);
++	return coherent_kvaddr;
++no_map:
++	dma_direct_free_pages(dev, size, kvaddr, *handle, attrs);
++no_mem:
++	return NULL;
++}
++
++void arch_dma_free(struct device *dev, size_t size, void *vaddr,
++			   dma_addr_t handle, unsigned long attrs)
++{
++	void *kvaddr = phys_to_virt(dma_to_phys(dev, handle));
++
++	size = PAGE_ALIGN(size);
++	iounmap(vaddr);
++	dma_direct_free_pages(dev, size, kvaddr, handle, attrs);
++
++	return;
++}
+diff --git a/arch/riscv/include/asm/andesv5/csr.h b/arch/riscv/include/asm/andesv5/csr.h
+new file mode 100644
+index 000000000..43936e1fb
+--- /dev/null
++++ b/arch/riscv/include/asm/andesv5/csr.h
+@@ -0,0 +1,160 @@
++/* micm_cfg: Instruction Cache/Memory Configuration Register */
++#define MICM_CFG 0xfc0
++
++#define MICM_CFG_ISET_OFFSET		0
++#define MICM_CFG_IWAY_OFFSET		3
++#define MICM_CFG_ISZ_OFFSET		6
++#define MICM_CFG_ILCK_OFFSET		9
++#define MICM_CFG_IC_ECC_OFFSET		10
++#define MICM_CFG_ILMB_OFFSET		12
++#define MICM_CFG_ILMSZ_OFFSET		15
++#define MICM_CFG_ULM_2BANK_OFFSET	20
++#define MICM_CFG_ILM_ECC_OFFSET		21
++
++
++#define MICM_CFG_ISET_MASK	(0x7  << MICM_CFG_ISET_OFFSET)
++#define MICM_CFG_IWAY_MASK	(0x7  << MICM_CFG_IWAY_OFFSET)
++#define MICM_CFG_ISZ_MASK	(0x7  << MICM_CFG_ISZ_OFFSET)
++#define MICM_CFG_ILCK_MASK	(0x1  << MICM_CFG_ILCK_OFFSET)
++#define MICM_CFG_IC_ECC_MASK	(0x3  << MICM_CFG_IC_ECC_OFFSET)
++#define MICM_CFG_ILMB_MASK	(0x7  << MICM_CFG_ILMB_OFFSET)
++#define MICM_CFG_ILMSZ_MASK	(0x1f << MICM_CFG_ILMSZ_OFFSET)
++#define MICM_CFG_ULM_2BANK_MASK	(0x1  << MICM_CFG_ULM_2BANK_OFFSET)
++#define MICM_CFG_ILM_ECC_MASK	(0x3  << MICM_CFG_ILM_ECC_OFFSET)
++
++/* mdcm_cfg: Data Cache/Memory Configuration Register */
++#define MDCM_CFG 0xfc1
++
++#define MDCM_CFG_DSET_OFFSET		0
++#define MDCM_CFG_DWAY_OFFSET		3
++#define MDCM_CFG_DSZ_OFFSET		6
++#define MDCM_CFG_DLCK_OFFSET		9
++#define MDCM_CFG_DC_ECC_OFFSET		10
++#define MDCM_CFG_DLMB_OFFSET		12
++#define MDCM_CFG_DLMSZ_OFFSET		15
++#define MDCM_CFG_ULM_2BANK_OFFSET	20
++#define MDCM_CFG_DLM_ECC_OFFSET		21
++
++
++#define MDCM_CFG_DSET_MASK	(0x7  << MDCM_CFG_DSET_OFFSET)
++#define MDCM_CFG_DWAY_MASK	(0x7  << MDCM_CFG_DWAY_OFFSET)
++#define MDCM_CFG_DSZ_MASK	(0x7  << MDCM_CFG_DSZ_OFFSET)
++#define MDCM_CFG_DLCK_MASK	(0x1  << MDCM_CFG_DLCK_OFFSET)
++#define MDCM_CFG_DC_ECC_MASK	(0x3  << MDCM_CFG_DC_ECC_OFFSET)
++#define MDCM_CFG_DLMB_MASK	(0x7  << MDCM_CFG_DLMB_OFFSET)
++#define MDCM_CFG_DLMSZ_MASK	(0x1f << MDCM_CFG_DLMSZ_OFFSET)
++#define MDCM_CFG_ULM_2BANK_MASK	(0x1  << MDCM_CFG_ULM_2BANK_OFFSET)
++#define MDCM_CFG_DLM_ECC_MASK	(0x3  << MDCM_CFG_DLM_ECC_OFFSET)
++
++/* User mode control registers */
++#define CSR_UITB					   0x800
++#define CSR_UCODE					   0x801
++#define CSR_UDCAUSE					   0x809
++#define CCTL_REG_UCCTLBEGINADDR_NUM    0x80b
++#define CCTL_REG_UCCTLCOMMAND_NUM      0x80c
++#define CSR_WFE						   0x810
++#define CSR_SLEEPVALUE				   0x811
++#define CSR_TXEVT					   0x812
++
++#define custom_csr_write(csr_num,val) csr_write(csr_num,val)
++/* ucctlcommand */
++/* D-cache operation */
++#define CCTL_L1D_VA_INVAL	0
++#define CCTL_L1D_VA_WB		1
++#define CCTL_L1D_VA_WBINVAL	2
++
++/* non-blocking & write around */
++#define MMISC_CTL_NON_BLOCKING_ENABLE  (0x1  << MMISC_CTL_NON_BLOCKING_OFFSET)
++#define MMISC_CTL_NON_BLOCKING_OFFSET  0x8
++
++#define MCACHE_CTL_L1I_PREFETCH_OFFSET  9
++#define MCACHE_CTL_L1D_PREFETCH_OFFSET  10
++#define MCACHE_CTL_DC_WAROUND_OFFSET_1  13
++#define MCACHE_CTL_DC_WAROUND_OFFSET_2  14
++#define MCACHE_CTL_L1I_PREFETCH_EN  (0x1  << MCACHE_CTL_L1I_PREFETCH_OFFSET)
++#define MCACHE_CTL_L1D_PREFETCH_EN  (0x1  << MCACHE_CTL_L1D_PREFETCH_OFFSET)
++#define MCACHE_CTL_DC_WAROUND_1_EN  (0x1  << MCACHE_CTL_DC_WAROUND_OFFSET_1)
++#define MCACHE_CTL_DC_WAROUND_2_EN  (0x1  << MCACHE_CTL_DC_WAROUND_OFFSET_2)
++#define WRITE_AROUND_ENABLE  (MCACHE_CTL_L1I_PREFETCH_EN | MCACHE_CTL_L1D_PREFETCH_EN | MCACHE_CTL_DC_WAROUND_1_EN)
++
++/* L1 I-cache , D-cache */
++#define CACHE_CTL_offIC_EN  0   /* Enable I-cache */
++#define CACHE_CTL_offDC_EN  1   /* Enable D-cache */
++#define CACHE_CTL_mskIC_EN  ( 0x1  << CACHE_CTL_offIC_EN )
++#define CACHE_CTL_mskDC_EN  ( 0x1  << CACHE_CTL_offDC_EN )
++
++
++/* L2 cache */
++#define L2_CACHE_CTL_mskCEN 1
++/* L2 cache registers */
++#define L2C_REG_CFG_OFFSET	0
++#define L2C_REG_CTL_OFFSET	0x8
++#define L2C_HPM_C0_CTL_OFFSET	0x10
++#define L2C_HPM_C1_CTL_OFFSET	0x18
++#define L2C_HPM_C2_CTL_OFFSET	0x20
++#define L2C_HPM_C3_CTL_OFFSET	0x28
++#define L2C_REG_C0_CMD_OFFSET	0x40
++#define L2C_REG_C0_ACC_OFFSET	0x48
++#define L2C_REG_C1_CMD_OFFSET	0x50
++#define L2C_REG_C1_ACC_OFFSET	0x58
++#define L2C_REG_C2_CMD_OFFSET	0x60
++#define L2C_REG_C2_ACC_OFFSET	0x68
++#define L2C_REG_C3_CMD_OFFSET	0x70
++#define L2C_REG_C3_ACC_OFFSET	0x78
++#define L2C_REG_STATUS_OFFSET	0x80
++#define L2C_REG_C0_HPM_OFFSET	0x200
++
++/* L2 CCTL status */
++#define CCTL_L2_STATUS_IDLE	0
++#define CCTL_L2_STATUS_PROCESS	1
++#define CCTL_L2_STATUS_ILLEGAL	2
++/* L2 CCTL status cores mask */
++#define CCTL_L2_STATUS_C0_MASK	0xF
++#define CCTL_L2_STATUS_C1_MASK	0xF0
++#define CCTL_L2_STATUS_C2_MASK	0xF00
++#define CCTL_L2_STATUS_C3_MASK	0xF000
++
++/* L2 cache operation */
++#define CCTL_L2_PA_INVAL	0x8
++#define CCTL_L2_PA_WB		0x9
++#define CCTL_L2_PA_WBINVAL	0xA
++#define CCTL_L2_WBINVAL_ALL	0x12
++
++#define L2C_HPM_PER_CORE_OFFSET		0x8
++#define L2C_REG_PER_CORE_OFFSET		0x10
++#define CCTL_L2_STATUS_PER_CORE_OFFSET	4
++#define L2C_REG_CN_CMD_OFFSET(n)	\
++	L2C_REG_C0_CMD_OFFSET + (n * L2C_REG_PER_CORE_OFFSET)
++#define L2C_REG_CN_ACC_OFFSET(n)	\
++	L2C_REG_C0_ACC_OFFSET + (n * L2C_REG_PER_CORE_OFFSET)
++#define CCTL_L2_STATUS_CN_MASK(n)	\
++	CCTL_L2_STATUS_C0_MASK << (n * CCTL_L2_STATUS_PER_CORE_OFFSET)
++#define L2C_HPM_CN_CTL_OFFSET(n)	\
++	L2C_HPM_C0_CTL_OFFSET + (n * L2C_HPM_PER_CORE_OFFSET)
++#define L2C_REG_CN_HPM_OFFSET(n)	\
++	L2C_REG_C0_HPM_OFFSET + (n * L2C_HPM_PER_CORE_OFFSET)
++
++
++/* Debug/Trace Registers (shared with Debug Mode) */
++#define CSR_SCONTEXT            0x7aa
++
++/* Supervisor trap registers */
++#define CSR_SLIE				0x9c4
++#define CSR_SLIP				0x9c5
++#define CSR_SDCAUSE				0x9c9
++
++/* Supervisor counter registers */
++#define CSR_SCOUNTERINTEN		0x9cf
++#define CSR_SCOUNTERMASK_M		0x9d1
++#define CSR_SCOUNTERMASK_S		0x9d2
++#define CSR_SCOUNTERMASK_U		0x9d3
++#define CSR_SCOUNTEROVF			0x9d4
++#define CSR_SCOUNTINHIBIT		0x9e0
++#define CSR_SHPMEVENT3			0x9e3
++#define CSR_SHPMEVENT4			0x9e4
++#define CSR_SHPMEVENT5			0x9e5
++#define CSR_SHPMEVENT6			0x9e6
++
++/* Supervisor control registers */
++#define CSR_SCCTLDATA			0x9cd
++#define CSR_SMISC_CTL			0x9d0
+diff --git a/arch/riscv/include/asm/andesv5/proc.h b/arch/riscv/include/asm/andesv5/proc.h
+new file mode 100644
+index 000000000..d06fbff65
+--- /dev/null
++++ b/arch/riscv/include/asm/andesv5/proc.h
+@@ -0,0 +1,36 @@
++#include <asm/io.h>
++#include <asm/page.h>
++
++int cpu_l1c_status(void);
++void cpu_icache_enable(void *info);
++void cpu_icache_disable(void *info);
++void cpu_dcache_enable(void *info);
++void cpu_dcache_disable(void *info);
++uint32_t cpu_l2c_ctl_status(void);
++void cpu_l2c_enable(void);
++void cpu_l2c_disable(void);
++
++void cpu_dma_inval_range(unsigned long start, unsigned long end);
++void cpu_dma_wb_range(unsigned long start, unsigned long end);
++void cpu_l2c_inval_range(unsigned long pa, unsigned long size);
++void cpu_l2c_wb_range(unsigned long pa, unsigned long size);
++
++extern phys_addr_t pa_msb;;
++
++#define dma_remap(pa, size) ioremap((pa|(pa_msb << PAGE_SHIFT)), size)
++
++#define dma_unmap(vaddr) iounmap((void __force __iomem *)vaddr)
++
++
++/*
++ * struct andesv5_cache_info
++ * The member of this struct is dupilcated to some content of struct cacheinfo
++ * to reduce the latence of searching dcache inforamtion in andesv5/cache.c.
++ * At current only dcache-line-size is needed. when the content of
++ * andesv5_cache_info has been initilized by function fill_cpu_cache_info(),
++ * member init_done is set as true
++ */
++struct andesv5_cache_info {
++	bool init_done;
++	int dcache_line_size;
++};
+diff --git a/arch/riscv/include/asm/andesv5/smu.h b/arch/riscv/include/asm/andesv5/smu.h
+new file mode 100644
+index 000000000..14813492c
+--- /dev/null
++++ b/arch/riscv/include/asm/andesv5/smu.h
+@@ -0,0 +1,78 @@
++#ifndef _ASM_RISCV_SMU_H
++#define _ASM_RISCV_SMU_H
++
++#include <asm/sbi.h>
++#define MAX_PCS_SLOT    7
++
++#define PCS0_WE_OFF     0x90
++#define PCS0_CTL_OFF    0x94
++#define PCS0_STATUS_OFF 0x98
++
++/*
++ * PCS0 --> Always on power domain, includes the JTAG tap and DMI_AHB bus in
++ *  ncejdtm200.
++ * PCS1 --> Power domain for debug subsystem
++ * PCS2 --> Main power domain, includes the system bus and AHB, APB peripheral
++ *  IPs.
++ * PCS3 --> Power domain for Core0 and L2C.
++ * PCSN --> Power domain for Core (N-3)
++ */
++
++#define PCSN_WE_OFF(n)          n * 0x20 + PCS0_WE_OFF
++#define CN_PCS_WE_OFF(n)        (n + 3) * 0x20 + PCS0_WE_OFF
++#define CN_PCS_STATUS_OFF(n)    (n + 3) * 0x20 + PCS0_STATUS_OFF
++#define CN_PCS_CTL_OFF(n)       (n + 3) * 0x20 + PCS0_CTL_OFF
++
++
++#define PD_TYPE_MASK    0x7
++#define PD_STATUS_MASK  0xf8
++#define GET_PD_TYPE(val)        val & PD_TYPE_MASK
++#define GET_PD_STATUS(val)      (val & PD_STATUS_MASK) >> 3
++
++// PD_type
++#define ACTIVE  0
++#define RESET   1
++#define SLEEP   2
++#define TIMEOUT 7
++
++// PD_status for sleep type
++#define LightSleep_STATUS       0
++#define DeepSleep_STATUS        16
++
++// param of PCS_CTL for sleep cmd
++#define LightSleep_CTL          0
++#define DeepSleep_CTL           1
++
++// PCS_CTL
++#define PCS_CTL_PARAM_OFF       3
++#define SLEEP_CMD       3
++
++// wakeup events source offset
++#define PCS_WAKE_DBG_OFF	28
++#define PCS_WAKE_MSIP_OFF	29
++
++#define L2_CTL_OFF              0x8
++#define L2_COMMAND_OFF(cpu)     0x40 + 0x10 * cpu
++#define L2_STATUS_REG           0x80
++#define L2_WBINVAL_COMMAND      0x12
++
++extern unsigned int *wake_mask;
++extern void __iomem *l2c_base;
++
++void set_wakeup_enable(int cpu, unsigned int events);
++void set_sleep(int cpu, unsigned char sleep);
++void andes_suspend2standby(void);
++void andes_suspend2ram(void);
++
++static inline void sbi_suspend_prepare(char main_core, char enable)
++{
++	/* TODO */
++	// SBI_CALL_2(SBI_SUSPEND_PREPARE, main_core, enable);
++}
++
++static inline void sbi_suspend_mem(void)
++{
++	/* TODO */
++	// SBI_CALL_0(SBI_SUSPEND_MEM);
++}
++#endif
+-- 
+2.34.1
+

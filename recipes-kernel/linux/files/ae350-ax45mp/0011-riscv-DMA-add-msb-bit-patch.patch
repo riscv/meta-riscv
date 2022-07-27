@@ -1,0 +1,388 @@
+From 4522d4448a588abe43a52c7e218d76a6baa4a0cd Mon Sep 17 00:00:00 2001
+From: Yu Chien Peter Lin <peterlin@andestech.com>
+Date: Mon, 24 Jan 2022 20:57:06 +0800
+Subject: [PATCH 11/15] riscv: DMA add msb bit patch
+
+Reformed from the commit:
+c32ef675cffe7a609d7afe2eb1ae92981a503144
+
+Signed-off-by: Yu Chien Peter Lin <peterlin@andestech.com>
+---
+ arch/riscv/Kconfig                    |  5 ++
+ arch/riscv/Makefile                   |  2 +-
+ arch/riscv/include/asm/device.h       | 11 ++++
+ arch/riscv/include/asm/dmad.h         |  3 +
+ arch/riscv/include/asm/io.h           | 14 ++++
+ arch/riscv/include/asm/irq.h          | 14 ++++
+ arch/riscv/include/asm/perf_event.h   |  7 +-
+ arch/riscv/include/asm/pgtable-bits.h |  6 ++
+ arch/riscv/kernel/head.S              |  1 +
+ arch/riscv/kernel/setup.c             |  7 ++
+ arch/riscv/mm/Makefile                |  5 +-
+ arch/riscv/mm/ioremap_nocache.c       | 16 +++++
+ arch/riscv/platforms/dmad_intc.c      | 93 +++++++++++++++++++++++----
+ 13 files changed, 169 insertions(+), 15 deletions(-)
+ create mode 100755 arch/riscv/include/asm/device.h
+ create mode 100644 arch/riscv/mm/ioremap_nocache.c
+
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 1b894c327..84a83f3a1 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -14,6 +14,7 @@ config RISCV
+ 	def_bool y
+ 	select ARCH_CLOCKSOURCE_INIT
+ 	select ARCH_SUPPORTS_ATOMIC_RMW
++	select PHYS_ADDR_T_64BIT
+ 	select ARCH_HAS_BINFMT_FLAT
+ 	select ARCH_HAS_DEBUG_VM_PGTABLE
+ 	select ARCH_HAS_DEBUG_VIRTUAL if MMU
+@@ -88,6 +89,9 @@ config RISCV
+ 	select SYSCTL_EXCEPTION_TRACE
+ 	select THREAD_INFO_IN_TASK
+ 	select UACCESS_MEMCPY if !MMU
++	select ARCH_HAS_SETUP_DMA_OPS
++	select ARCH_HAS_SYNC_DMA_FOR_CPU
++	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
+ 
+ config ARCH_MMAP_RND_BITS_MIN
+ 	default 18 if 64BIT
+@@ -204,6 +208,7 @@ source "arch/riscv/Kconfig.socs"
+ 
+ menu "Platform type"
+ 
++source "arch/riscv/platforms/Kconfig"
+ choice
+ 	prompt "Base ISA"
+ 	default ARCH_RV64I
+diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
+index 226c36607..2d539750c 100644
+--- a/arch/riscv/Makefile
++++ b/arch/riscv/Makefile
+@@ -83,7 +83,7 @@ KBUILD_IMAGE	:= $(boot)/Image.gz
+ 
+ head-y := arch/riscv/kernel/head.o
+ 
+-core-y += arch/riscv/
++core-y += arch/riscv/kernel/ arch/riscv/mm/ arch/riscv/net/ arch/riscv/platforms/ arch/riscv/andesv5/
+ 
+ libs-y += arch/riscv/lib/
+ libs-$(CONFIG_EFI_STUB) += $(objtree)/drivers/firmware/efi/libstub/lib.a
+diff --git a/arch/riscv/include/asm/device.h b/arch/riscv/include/asm/device.h
+new file mode 100755
+index 000000000..122a483f7
+--- /dev/null
++++ b/arch/riscv/include/asm/device.h
+@@ -0,0 +1,11 @@
++#ifndef __ASM_DEVICE_H
++#define __ASM_DEVICE_H
++
++struct dev_archdata {
++	bool dma_coherent;
++};
++
++struct pdev_archdata {
++};
++
++#endif
+\ No newline at end of file
+diff --git a/arch/riscv/include/asm/dmad.h b/arch/riscv/include/asm/dmad.h
+index 44c87b49e..54b47c410 100644
+--- a/arch/riscv/include/asm/dmad.h
++++ b/arch/riscv/include/asm/dmad.h
+@@ -68,4 +68,7 @@ struct at_dma_platform_data {
+ 	void __iomem	*apb_regs;
+ };
+ 
++int ftdmac020_find_irq(int hwirq);
++int ftdmac020_init(struct device_node *node, int irq);
++
+ #endif  /* __NDS_DMAD_INC__ */
+diff --git a/arch/riscv/include/asm/io.h b/arch/riscv/include/asm/io.h
+index c025a746a..328afc17b 100644
+--- a/arch/riscv/include/asm/io.h
++++ b/arch/riscv/include/asm/io.h
+@@ -16,6 +16,20 @@
+ #include <asm/mmiowb.h>
+ #include <asm/early_ioremap.h>
+ 
++/*
++ * The RISC-V ISA doesn't yet specify how to query or modify PMAs, so we can't
++ * change the properties of memory regions.  This should be fixed by the
++ * upcoming platform spec.
++ */
++/*
++ * That being said, before PMA is ready, Andes augmented PA with an MSB bit
++ * to indicate the non-cacheability.
++ */
++#define ioremap_nocache ioremap_nocache
++extern void __iomem *ioremap_nocache(phys_addr_t offset, size_t size);
++#define ioremap_wc(addr, size) ioremap_nocache((addr), (size))
++#define ioremap_wt(addr, size) ioremap_nocache((addr), (size))
++
+ /*
+  * MMIO access functions are separated out to break dependency cycles
+  * when using {read,write}* fns in low-level headers
+diff --git a/arch/riscv/include/asm/irq.h b/arch/riscv/include/asm/irq.h
+index 9807ad164..65e5d0514 100644
+--- a/arch/riscv/include/asm/irq.h
++++ b/arch/riscv/include/asm/irq.h
+@@ -10,6 +10,20 @@
+ #include <linux/interrupt.h>
+ #include <linux/linkage.h>
+ 
++#define NR_IRQS         72
++
++/*
++ * Use this value to indicate lack of interrupt
++ * capability
++ */
++#ifndef NO_IRQ
++#define NO_IRQ  ((unsigned int)(-1))
++#endif
++
++#define INTERRUPT_CAUSE_PMU        274
++
++void riscv_software_interrupt(void);
++
+ #include <asm-generic/irq.h>
+ 
+ #endif /* _ASM_RISCV_IRQ_H */
+diff --git a/arch/riscv/include/asm/perf_event.h b/arch/riscv/include/asm/perf_event.h
+index 062efd3a1..216462b75 100644
+--- a/arch/riscv/include/asm/perf_event.h
++++ b/arch/riscv/include/asm/perf_event.h
+@@ -18,8 +18,13 @@
+ /*
+  * The RISCV_MAX_COUNTERS parameter should be specified.
+  */
+-
++#ifdef CONFIG_ANDES_PMU
++#define RISCV_MAX_COUNTERS	7
++#define L2C_MAX_COUNTERS	32
++#define BASE_COUNTERS		3
++#else
+ #define RISCV_MAX_COUNTERS	2
++#endif	/* CONFIG_ANDES_PMU */
+ 
+ /*
+  * These are the indexes of bits in counteren register *minus* 1,
+diff --git a/arch/riscv/include/asm/pgtable-bits.h b/arch/riscv/include/asm/pgtable-bits.h
+index bbaeb5d35..5a0431704 100644
+--- a/arch/riscv/include/asm/pgtable-bits.h
++++ b/arch/riscv/include/asm/pgtable-bits.h
+@@ -24,6 +24,12 @@
+ #define _PAGE_DIRTY     (1 << 7)    /* Set by hardware on any write */
+ #define _PAGE_SOFT      (1 << 8)    /* Reserved for software */
+ 
++#ifdef CONFIG_ANDES_QEMU_SUPPORT
++#define _PAGE_NONCACHEABLE      0
++#else
++#define _PAGE_NONCACHEABLE      (1 << 31)
++#endif
++
+ #define _PAGE_SPECIAL   _PAGE_SOFT
+ #define _PAGE_TABLE     _PAGE_PRESENT
+ 
+diff --git a/arch/riscv/kernel/head.S b/arch/riscv/kernel/head.S
+index 1a819c18b..dd0e3280c 100644
+--- a/arch/riscv/kernel/head.S
++++ b/arch/riscv/kernel/head.S
+@@ -263,6 +263,7 @@ clear_bss_done:
+ 	/* Initialize page tables and relocate to virtual addresses */
+ 	la sp, init_thread_union + THREAD_SIZE
+ 	mv a0, s1
++	call setup_maxpa
+ 	call setup_vm
+ #ifdef CONFIG_MMU
+ 	la a0, early_pg_dir
+diff --git a/arch/riscv/kernel/setup.c b/arch/riscv/kernel/setup.c
+index 117f3212a..115a5c91b 100644
+--- a/arch/riscv/kernel/setup.c
++++ b/arch/riscv/kernel/setup.c
+@@ -48,6 +48,13 @@ struct screen_info screen_info __section(".data") = {
+  * BSS.
+  */
+ atomic_t hart_lottery __section(".sdata");
++phys_addr_t pa_msb;
++asmlinkage void __init setup_maxpa(void)
++{
++    csr_write(satp, SATP_PPN);
++    pa_msb = (csr_read(satp) + 1) >>1;
++}
++
+ unsigned long boot_cpu_hartid;
+ static DEFINE_PER_CPU(struct cpu, cpu_devices);
+ 
+diff --git a/arch/riscv/mm/Makefile b/arch/riscv/mm/Makefile
+index 7ebaef10e..2c154ae85 100644
+--- a/arch/riscv/mm/Makefile
++++ b/arch/riscv/mm/Makefile
+@@ -2,8 +2,7 @@
+ 
+ CFLAGS_init.o := -mcmodel=medany
+ ifdef CONFIG_FTRACE
+-CFLAGS_REMOVE_init.o = $(CC_FLAGS_FTRACE)
+-CFLAGS_REMOVE_cacheflush.o = $(CC_FLAGS_FTRACE)
++CFLAGS_REMOVE_init.o = -pg
+ endif
+ 
+ KCOV_INSTRUMENT_init.o := n
+@@ -12,7 +11,9 @@ obj-y += init.o
+ obj-y += extable.o
+ obj-$(CONFIG_MMU) += fault.o pageattr.o
+ obj-y += cacheflush.o
++obj-y += dma-mapping.o
+ obj-y += context.o
++obj-y += ioremap_nocache.o
+ 
+ ifeq ($(CONFIG_MMU),y)
+ obj-$(CONFIG_SMP) += tlbflush.o
+diff --git a/arch/riscv/mm/ioremap_nocache.c b/arch/riscv/mm/ioremap_nocache.c
+new file mode 100644
+index 000000000..c7422219d
+--- /dev/null
++++ b/arch/riscv/mm/ioremap_nocache.c
+@@ -0,0 +1,16 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * (C) Copyright 1995 1996 Linus Torvalds
++ * (C) Copyright 2012 Regents of the University of California
++ */
++#include <linux/io.h>
++
++#include <asm/pgtable.h>
++void __iomem *ioremap_nocache(phys_addr_t offset, size_t size)
++{
++	void __iomem *ret;
++	pgprot_t pgprot = pgprot_noncached(PAGE_KERNEL);
++	ret = ioremap_prot(offset, size, pgprot.pgprot);
++	return ret;
++}
++EXPORT_SYMBOL(ioremap_nocache);
+diff --git a/arch/riscv/platforms/dmad_intc.c b/arch/riscv/platforms/dmad_intc.c
+index 5f831add7..e270e31e9 100644
+--- a/arch/riscv/platforms/dmad_intc.c
++++ b/arch/riscv/platforms/dmad_intc.c
+@@ -5,6 +5,9 @@
+  */
+ 
+ #include <linux/irq.h>
++#include <linux/irqchip.h>
++#include <linux/irqchip/chained_irq.h>
++#include <linux/irqdomain.h>
+ #include <linux/interrupt.h>
+ #include <linux/ioport.h>
+ #include <asm/io.h>
+@@ -12,7 +15,49 @@
+ 
+ #ifdef CONFIG_PLATFORM_AHBDMA
+ extern int dmad_probe_irq_source_ahb(void);
+-void AHBDMA_irq_rounter(struct irq_desc *desc)
++
++/*
++ * Generic dummy implementation which can be used for
++ * real dumb interrupt sources
++ */
++struct irq_chip atcdmac_irq_chip = {
++	.name		= "Andes DMAC",
++};
++
++struct ftdmac020_info {
++	int			parent_irq;
++	struct irq_domain	*irq_domain;
++};
++
++struct ftdmac020_info *ftdmac020;
++
++static int ftdmac020_irq_map(struct irq_domain *domain, unsigned int virq,
++			       irq_hw_number_t hwirq)
++{
++	irq_set_chip_and_handler(virq, &atcdmac_irq_chip, handle_simple_irq);
++	irq_set_chip_data(virq, domain->host_data);
++
++	return 0;
++}
++
++static void ftdmac020_irq_unmap(struct irq_domain *d, unsigned int virq)
++{
++	irq_set_chip_and_handler(virq, NULL, NULL);
++	irq_set_chip_data(virq, NULL);
++}
++
++static const struct irq_domain_ops ftdmac020_irq_ops = {
++	.map    = ftdmac020_irq_map,
++	.unmap  = ftdmac020_irq_unmap,
++};
++
++
++/*
++ * The atcdmac300 provides a single hardware interrupt for all of the dmad
++ * channel, so we use a self-defined interrupt chip to translate this single interrupt
++ * into multiple interrupts, each associated with a single dma channel.
++ */
++static void AHBDMA_irq_rounter(struct irq_desc *desc)
+ {
+ 	int ahb_irq;
+ 	struct irq_desc *ahb_desc;
+@@ -29,21 +74,47 @@ void AHBDMA_irq_rounter(struct irq_desc *desc)
+ 		raw_spin_lock(&desc->lock);
+ 	}
+ 	desc->irq_data.chip->irq_unmask(&desc->irq_data);
++	desc->irq_data.chip->irq_eoi(&desc->irq_data);
+ 	raw_spin_unlock(&desc->lock);
+ }
+ 
+-int intc_ftdmac020_init_irq(int irq)
++int ftdmac020_find_irq(int hwirq){
++	int virq;
++
++	virq = irq_find_mapping(ftdmac020->irq_domain, hwirq);
++	printk("[ftdmac020_irq_mapping]: virq=%d, hwirq=%d,\n",virq,hwirq);
++	if (!virq)
++		return -EINVAL;
++
++	return virq;
++}
++
++int ftdmac020_init(struct device_node *node, int irq)
+ {
+-	int i;
+-	int ret;
+-	/* Register all IRQ */
+-	for (i = DMA_IRQ0;
+-	     i < DMA_IRQ0 + DMA_IRQ_COUNT; i++) {
+-		// level trigger
+-		ret = irq_set_chip(i, &dummy_irq_chip);
+-		irq_set_handler(i, handle_simple_irq);
++	int ret=0;
++
++	ftdmac020 = kzalloc(sizeof(struct ftdmac020_info), GFP_KERNEL);
++
++	ftdmac020->parent_irq=irq;
++
++	ftdmac020->irq_domain = __irq_domain_add(of_node_to_fwnode(node), DMA_IRQ_COUNT, DMA_IRQ0+DMA_IRQ_COUNT,
++					 ~0, &ftdmac020_irq_ops, ftdmac020);
++	if (!ftdmac020->irq_domain) {
++		printk("ftdmac020: Failed to create irqdomain\n");
++		return -EINVAL;
++	}
++
++	ret = irq_create_strict_mappings(ftdmac020->irq_domain, DMA_IRQ0, DMA_IRQ0, DMA_IRQ_COUNT);
++	if(unlikely(ret < 0)){
++		printk("ftdmac020: Failed to create irq_create_strict_mappings()\n");
++		return -EINVAL;
+ 	}
+-	irq_set_chained_handler(irq, AHBDMA_irq_rounter);
++
++	ftdmac020->irq_domain->name = "ftdmac020-domain";
++	irq_set_chained_handler_and_data(ftdmac020->parent_irq,
++					 AHBDMA_irq_rounter, ftdmac020);
++
+ 	return 0;
+ }
++
+ #endif /* CONFIG_PLATFORM_AHBDMA */
+-- 
+2.34.1
+
