@@ -1,0 +1,4 @@
+# short-description: Create SD card image for AE350 Platform (AX45MP) with U-Boot SPL and OpenSBI (FW_DYNAMIC)
+
+part /boot --source bootimg-partition --ondisk mmcblk0 --fstype=vfat --label boot --active --fixed-size 64M --align 4096
+part / --source rootfs --ondisk mmcblk0 --fstype=ext4 --label root --align 4096 --size 64M
