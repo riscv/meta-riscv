@@ -1,0 +1,4 @@
+bootargs=earlycon=sbi console=ttyS0,38400 loglevel=8 root=/dev/mmcblk0p2 rootwait init=/sbin/init
+bootcmd_load_f=load ${devtype} ${devnum}:${distro_bootpart} ${ramdisk_addr_r} fitImage
+bootcmd_run=bootm ${ramdisk_addr_r} - ${fdtcontroladdr}
+bootcmd=run bootcmd_load_f; run bootcmd_run

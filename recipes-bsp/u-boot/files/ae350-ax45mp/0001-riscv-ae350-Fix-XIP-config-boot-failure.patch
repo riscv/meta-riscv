@@ -1,0 +1,79 @@
+From 04a7e1acebdd4bb348866e8aca6beddfb4b38b0c Mon Sep 17 00:00:00 2001
+From: Leo Yu-Chi Liang <ycliang@andestech.com>
+Date: Wed, 1 Jun 2022 10:01:49 +0800
+Subject: [PATCH] riscv: ae350: Fix XIP config boot failure
+
+The booting flow is SPL -> OpenSBI -> U-Boot.
+The boot hart may change after OpenSBI and may not always be hart0,
+so wrap the related branch instruction with M-MODE.
+
+Current DTB setup for XIP is not valid.
+There is no chance for CONFIG_SYS_FDT_BASE, the DTB address used
+in XIP mode, to be returned. Fix this.
+
+Fixes: 2e8d2f88439d ("riscv: Remove OF_PRIOR_STAGE from RISC-V boards")
+Signed-off-by: Rick Chen <rick@andestech.com>
+Signed-off-by: Leo Yu-Chi Liang <ycliang@andestech.com>
+
+The patch was imported from the U-boot git server
+(git://git.denx.de/u-boot.git) as of commit id
+f4512618caa0182344aa55c5e15b2a14e28227cd.
+
+Signed-off-by: Yu Chien Peter Lin <peterlin@andestech.com>
+---
+ arch/riscv/cpu/start.S                  |  3 ++-
+ board/AndesTech/ax25-ae350/ax25-ae350.c | 17 +++++++++++------
+ 2 files changed, 13 insertions(+), 7 deletions(-)
+
+diff --git a/arch/riscv/cpu/start.S b/arch/riscv/cpu/start.S
+index 76850ec9be..41c6f0858e 100644
+--- a/arch/riscv/cpu/start.S
++++ b/arch/riscv/cpu/start.S
+@@ -139,9 +139,10 @@ call_harts_early_init:
+ 	 * accesses gd).
+ 	 */
+ 	mv	gp, s0
++#if CONFIG_IS_ENABLED(RISCV_MMODE)
+ 	bnez	tp, secondary_hart_loop
+ #endif
+-
++#endif
+ 	jal	board_init_f_init_reserve
+ 
+ 	SREG	s1, GD_FIRMWARE_FDT_ADDR(gp)
+diff --git a/board/AndesTech/ax25-ae350/ax25-ae350.c b/board/AndesTech/ax25-ae350/ax25-ae350.c
+index d6a4291379..36f0dd4b0f 100644
+--- a/board/AndesTech/ax25-ae350/ax25-ae350.c
++++ b/board/AndesTech/ax25-ae350/ax25-ae350.c
+@@ -54,17 +54,22 @@ ulong board_flash_get_legacy(ulong base, int banknum, flash_info_t *info)
+ 	return 0;
+ }
+ 
++#define ANDES_HW_DTB_ADDRESS	0xF2000000
+ void *board_fdt_blob_setup(int *err)
+ {
+ 	*err = 0;
+-#if defined(CONFIG_OF_BOARD)
+-	return (void *)(ulong)gd->arch.firmware_fdt_addr;
+-#elif defined(CONFIG_OF_SEPARATE)
+-	return (void *)CONFIG_SYS_FDT_BASE;
+-#else
++
++	if (IS_ENABLED(CONFIG_OF_SEPARATE) || IS_ENABLED(CONFIG_OF_BOARD)) {
++		if (gd->arch.firmware_fdt_addr)
++			return (void *)(ulong)gd->arch.firmware_fdt_addr;
++	}
++
++	if (fdt_magic(CONFIG_SYS_FDT_BASE) == FDT_MAGIC)
++		return (void *)CONFIG_SYS_FDT_BASE;
++	return (void *)ANDES_HW_DTB_ADDRESS;
++
+ 	*err = -EINVAL;
+ 	return NULL;
+-#endif
+ }
+ 
+ int smc_init(void)
+-- 
+2.34.1
+
