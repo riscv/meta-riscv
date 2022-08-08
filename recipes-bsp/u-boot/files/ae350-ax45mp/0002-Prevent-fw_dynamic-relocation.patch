@@ -1,0 +1,29 @@
+From 8e9620fc6b594520cd049f50ab5af438e051ecab Mon Sep 17 00:00:00 2001
+From: Yu Chien Peter Lin <peterlin@andestech.com>
+Date: Fri, 5 Aug 2022 15:53:59 +0800
+Subject: [PATCH] Prevent fw_dynamic relocation
+
+This patch makes u-boot to load fw_dynamic to link address, it is
+intended to skip firmware relocation.
+
+Signed-off-by: Yu Chien Peter Lin <peterlin@andestech.com>
+---
+ board/AndesTech/ax25-ae350/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/board/AndesTech/ax25-ae350/Kconfig b/board/AndesTech/ax25-ae350/Kconfig
+index 91eec35f47..72e1b7e626 100644
+--- a/board/AndesTech/ax25-ae350/Kconfig
++++ b/board/AndesTech/ax25-ae350/Kconfig
+@@ -25,7 +25,7 @@ config SPL_TEXT_BASE
+ 	default 0x800000
+ 
+ config SPL_OPENSBI_LOAD_ADDR
+-	default 0x01000000
++	default 0x0
+ 
+ config BOARD_SPECIFIC_OPTIONS # dummy
+ 	def_bool y
+-- 
+2.34.1
+

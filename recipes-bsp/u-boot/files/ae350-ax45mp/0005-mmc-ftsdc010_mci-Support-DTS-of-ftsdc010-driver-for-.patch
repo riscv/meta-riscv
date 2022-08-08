@@ -1,0 +1,36 @@
+From b8a9cd5dd2b593455691fa490cc76d92ef1b36e3 Mon Sep 17 00:00:00 2001
+From: Rick Chen <rick@andestech.com>
+Date: Tue, 29 Mar 2022 13:41:10 +0800
+Subject: [PATCH] mmc: ftsdc010_mci: Support DTS of ftsdc010 driver for generic
+ dma
+
+The ftsdc010 driver has been implemented for generic dma in Linux
+kernel. And its compatible is andestech,atfsdc010g to distinguish
+the legacy andestech,atfsdc010 which is not for generic dma.
+
+Althought the ftsdc010_mci driver in U-Boot does not use dma, but
+it still can work well with the mmc node for generic dma. So add
+the compatible string to support it.
+
+Signed-off-by: Rick Chen <rick@andestech.com>
+---
+ drivers/mmc/ftsdc010_mci.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/mmc/ftsdc010_mci.c b/drivers/mmc/ftsdc010_mci.c
+index 3b1e0aa097..659a192fcd 100644
+--- a/drivers/mmc/ftsdc010_mci.c
++++ b/drivers/mmc/ftsdc010_mci.c
+@@ -455,7 +455,8 @@ int ftsdc010_mmc_bind(struct udevice *dev)
+ }
+ 
+ static const struct udevice_id ftsdc010_mmc_ids[] = {
+-	{ .compatible = "andestech,atfsdc010" },
++	{ .compatible = "andestech,atfsdc010"},
++	{ .compatible = "andestech,atfsdc010g" },
+ 	{ }
+ };
+ 
+-- 
+2.34.1
+

@@ -1,0 +1,28 @@
+From 9981c0a2dfe2956e50a307b5e43da52da67c62cd Mon Sep 17 00:00:00 2001
+From: Yu Chien Peter Lin <peterlin@andestech.com>
+Date: Fri, 5 Aug 2022 15:58:06 +0800
+Subject: [PATCH] spl_opensbi.c: enable printing OpenSBI boot log
+
+To reveal OpenSBI boot log during booting, the
+SBI_SCRATCH_NO_BOOT_PRINTS is removed from firmware option.
+
+Signed-off-by: Yu Chien Peter Lin <peterlin@andestech.com>
+---
+ common/spl/spl_opensbi.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/common/spl/spl_opensbi.c b/common/spl/spl_opensbi.c
+index 1c0abf8553..d5ce9f70f0 100644
+--- a/common/spl/spl_opensbi.c
++++ b/common/spl/spl_opensbi.c
+@@ -71,7 +71,6 @@ void spl_invoke_opensbi(struct spl_image_info *spl_image)
+ 	opensbi_info.version = FW_DYNAMIC_INFO_VERSION;
+ 	opensbi_info.next_addr = uboot_entry;
+ 	opensbi_info.next_mode = FW_DYNAMIC_INFO_NEXT_MODE_S;
+-	opensbi_info.options = SBI_SCRATCH_NO_BOOT_PRINTS;
+ 	opensbi_info.boot_hart = gd->arch.boot_hart;
+ 
+ 	opensbi_entry = (void (*)(ulong, ulong, ulong))spl_image->entry_point;
+-- 
+2.34.1
+
