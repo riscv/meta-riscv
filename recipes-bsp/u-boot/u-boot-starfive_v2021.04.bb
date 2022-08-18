@@ -6,7 +6,7 @@ LIC_FILES_CHKSUM = "file://Licenses/README;md5=5a7450c57ffe5ae63fd732446b988025"
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 BRANCH:visionfive = "JH7100_VisionFive_OH_dev"
-BRANCH:beaglev-starlight-jh7100 = "Fedora_VIC_7100_2021.04"
+BRANCH:beaglev-starlight-jh7100 = "Fedora_JH7100_2021.04"
 
 SRC_URI = "git://github.com/starfive-tech/u-boot.git;protocol=https;branch=${BRANCH} \
            file://tftp-mmc-boot.txt \
