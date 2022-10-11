@@ -9,12 +9,11 @@ SRCREV = "${AUTOREV}"
 BRANCH = "visionfive"
 FORK ?= "starfive-tech"
 SRC_URI = "git://github.com/${FORK}/linux.git;protocol=https;branch=${BRANCH} \
-           file://0001-riscv-Use-mno-relax-when-using-lld-linker.patch \
            file://extra.cfg \
            file://modules.cfg \
           "
 
-LINUX_VERSION ?= "5.19.0"
+LINUX_VERSION ?= "6.0.0"
 LINUX_VERSION_EXTENSION:append:beaglev-starlight-jh7100 = "-starlight"
 
 KBUILD_DEFCONFIG:beaglev-starlight-jh7100 = "starfive_jh7100_fedora_defconfig"
