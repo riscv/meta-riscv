@@ -43,3 +43,7 @@ do_deploy:append:visionfive() {
 COMPATIBLE_MACHINE = "(beaglev-starlight-jh7100|visionfive)"
 
 TOOLCHAIN = "gcc"
+
+# U-boot sets O=... which needs it to build outside of S
+B = "${WORKDIR}/build"
+
