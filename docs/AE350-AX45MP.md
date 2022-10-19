@@ -9,7 +9,7 @@ design.
 
 The `ae350-ax45mp` machine configuration helps developers build
 a disk image based on mainline Linux kernel 5.18 with MMC, DMA,
-Ethernet and RTC drivers support, hosted on Andestech Github.
+Ethernet, WDT and RTC drivers support, hosted on Andestech Github.
 
 How to build
 =============
