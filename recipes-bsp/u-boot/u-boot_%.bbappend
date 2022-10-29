@@ -9,9 +9,7 @@ SRC_URI:append:freedom-u540_sota = " file://uEnv.txt"
 DEPENDS:append = " u-boot-tools-native"
 
 SRC_URI:append:ae350-ax45mp = " \
-            file://0001-riscv-ae350-Fix-XIP-config-boot-failure.patch \
-            file://0002-mmc-ftsdc010_mci-Support-DTS-of-ftsdc010-driver-for-.patch \
-            file://0003-spl-opensbi-convert-scratch-options-to-config.patch \
+            file://0001-mmc-ftsdc010_mci-Support-DTS-of-ftsdc010-driver-for-.patch \
             file://mmc-support.cfg \
             file://opensbi-options.cfg \
             file://tftp-mmc-boot.txt \
