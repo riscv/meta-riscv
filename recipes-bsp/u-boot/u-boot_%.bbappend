@@ -12,6 +12,7 @@ SRC_URI:append:ae350-ax45mp = " \
             file://0001-mmc-ftsdc010_mci-Support-DTS-of-ftsdc010-driver-for-.patch \
             file://mmc-support.cfg \
             file://opensbi-options.cfg \
+            file://display-info.cfg \
             file://tftp-mmc-boot.txt \
             file://uEnv-ae350.txt \
             "
