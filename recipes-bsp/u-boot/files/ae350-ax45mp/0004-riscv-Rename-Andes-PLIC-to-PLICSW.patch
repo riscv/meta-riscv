@@ -1,0 +1,270 @@
+From a5dfa3b8a0f7ad555495bad1386613d2de4ba619 Mon Sep 17 00:00:00 2001
+From: Yu Chien Peter Lin <peterlin@andestech.com>
+Date: Tue, 25 Oct 2022 23:03:50 +0800
+Subject: [PATCH] riscv: Rename Andes PLIC to PLICSW
+
+As PLICSW is used to trigger the software interrupt, we should rename
+Andes PLIC configuration and file name to reflect the usage. This patch
+also updates PLMT and PLICSW compatible strings to be consistent with
+OpenSBI fdt driver.
+
+Signed-off-by: Yu Chien Peter Lin <peterlin@andestech.com>
+Reviewed-by: Rick Chen <rick@andestech.com>
+
+The patch was imported from the U-boot git server
+(https://source.denx.de/u-boot/u-boot.git) as of commit id
+a5dfa3b8a0f7ad555495bad1386613d2de4ba619.
+
+Signed-off-by: Yu Chien Peter Lin <peterlin@andestech.com>
+---
+ arch/riscv/Kconfig                            |  6 ++---
+ arch/riscv/cpu/ax25/Kconfig                   |  2 +-
+ arch/riscv/dts/ae350-u-boot.dtsi              |  2 +-
+ arch/riscv/dts/ae350_32.dts                   |  6 ++---
+ arch/riscv/dts/ae350_64.dts                   |  6 ++---
+ arch/riscv/include/asm/global_data.h          |  4 +--
+ arch/riscv/include/asm/syscon.h               |  2 +-
+ arch/riscv/lib/Makefile                       |  2 +-
+ .../lib/{andes_plic.c => andes_plicsw.c}      | 26 +++++++++----------
+ drivers/timer/andes_plmt_timer.c              |  2 +-
+ 10 files changed, 29 insertions(+), 29 deletions(-)
+ rename arch/riscv/lib/{andes_plic.c => andes_plicsw.c} (76%)
+
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 8f9578171d..4d64e9be3f 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -199,7 +199,7 @@ config SIFIVE_CACHE
+ 	help
+ 	  This enables the operations to configure SiFive cache
+ 
+-config ANDES_PLIC
++config ANDES_PLICSW
+ 	bool
+ 	depends on RISCV_MMODE || SPL_RISCV_MMODE
+ 	select REGMAP
+@@ -207,8 +207,8 @@ config ANDES_PLIC
+ 	select SPL_REGMAP if SPL
+ 	select SPL_SYSCON if SPL
+ 	help
+-	  The Andes PLIC block holds memory-mapped claim and pending registers
+-	  associated with software interrupt.
++	  The Andes PLICSW block holds memory-mapped claim and pending
++	  registers associated with software interrupt.
+ 
+ config SMP
+ 	bool "Symmetric Multi-Processing"
+diff --git a/arch/riscv/cpu/ax25/Kconfig b/arch/riscv/cpu/ax25/Kconfig
+index 941d963ece..4a7295d30c 100644
+--- a/arch/riscv/cpu/ax25/Kconfig
++++ b/arch/riscv/cpu/ax25/Kconfig
+@@ -4,7 +4,7 @@ config RISCV_NDS
+ 	imply CPU
+ 	imply CPU_RISCV
+ 	imply RISCV_TIMER if (RISCV_SMODE || SPL_RISCV_SMODE)
+-	imply ANDES_PLIC if (RISCV_MMODE || SPL_RISCV_MMODE)
++	imply ANDES_PLICSW if (RISCV_MMODE || SPL_RISCV_MMODE)
+ 	imply ANDES_PLMT_TIMER if (RISCV_MMODE || SPL_RISCV_MMODE)
+ 	imply SPL_CPU
+ 	imply SPL_OPENSBI
+diff --git a/arch/riscv/dts/ae350-u-boot.dtsi b/arch/riscv/dts/ae350-u-boot.dtsi
+index 0d4201cfae..7011f59831 100644
+--- a/arch/riscv/dts/ae350-u-boot.dtsi
++++ b/arch/riscv/dts/ae350-u-boot.dtsi
+@@ -36,7 +36,7 @@
+ 	soc {
+ 		u-boot,dm-spl;
+ 
+-		plic1: interrupt-controller@e6400000 {
++		plicsw: interrupt-controller@e6400000 {
+ 			u-boot,dm-spl;
+ 		};
+ 
+diff --git a/arch/riscv/dts/ae350_32.dts b/arch/riscv/dts/ae350_32.dts
+index 083f676333..96ef8bd8dd 100644
+--- a/arch/riscv/dts/ae350_32.dts
++++ b/arch/riscv/dts/ae350_32.dts
+@@ -146,8 +146,8 @@
+ 				&CPU3_intc 11 &CPU3_intc 9>;
+ 		};
+ 
+-		plic1: interrupt-controller@e6400000 {
+-			compatible = "riscv,plic1";
++		plicsw: interrupt-controller@e6400000 {
++			compatible = "andestech,plicsw";
+ 			#interrupt-cells = <1>;
+ 			interrupt-controller;
+ 			reg = <0xe6400000 0x400000>;
+@@ -159,7 +159,7 @@
+ 		};
+ 
+ 		plmt0@e6000000 {
+-			compatible = "riscv,plmt0";
++			compatible = "andestech,plmt0";
+ 			interrupts-extended = <&CPU0_intc 7
+ 				&CPU1_intc 7
+ 				&CPU2_intc 7
+diff --git a/arch/riscv/dts/ae350_64.dts b/arch/riscv/dts/ae350_64.dts
+index 74cff9122d..cddbaec98a 100644
+--- a/arch/riscv/dts/ae350_64.dts
++++ b/arch/riscv/dts/ae350_64.dts
+@@ -146,8 +146,8 @@
+ 				&CPU3_intc 11 &CPU3_intc 9>;
+ 		};
+ 
+-		plic1: interrupt-controller@e6400000 {
+-			compatible = "riscv,plic1";
++		plicsw: interrupt-controller@e6400000 {
++			compatible = "andestech,plicsw";
+ 			#interrupt-cells = <2>;
+ 			interrupt-controller;
+ 			reg = <0x0 0xe6400000 0x0 0x400000>;
+@@ -159,7 +159,7 @@
+ 		};
+ 
+ 		plmt0@e6000000 {
+-			compatible = "riscv,plmt0";
++			compatible = "andestech,plmt0";
+ 			interrupts-extended = <&CPU0_intc 7
+ 				&CPU1_intc 7
+ 				&CPU2_intc 7
+diff --git a/arch/riscv/include/asm/global_data.h b/arch/riscv/include/asm/global_data.h
+index 858594a191..6fdc86dd8b 100644
+--- a/arch/riscv/include/asm/global_data.h
++++ b/arch/riscv/include/asm/global_data.h
+@@ -21,8 +21,8 @@ struct arch_global_data {
+ #if CONFIG_IS_ENABLED(SIFIVE_CLINT)
+ 	void __iomem *clint;	/* clint base address */
+ #endif
+-#ifdef CONFIG_ANDES_PLIC
+-	void __iomem *plic;	/* plic base address */
++#ifdef CONFIG_ANDES_PLICSW
++	void __iomem *plicsw;	/* plic base address */
+ #endif
+ #if CONFIG_IS_ENABLED(SMP)
+ 	struct ipi_data ipi[CONFIG_NR_CPUS];
+diff --git a/arch/riscv/include/asm/syscon.h b/arch/riscv/include/asm/syscon.h
+index c3629e4b53..f2b37975f3 100644
+--- a/arch/riscv/include/asm/syscon.h
++++ b/arch/riscv/include/asm/syscon.h
+@@ -13,7 +13,7 @@
+ enum {
+ 	RISCV_NONE,
+ 	RISCV_SYSCON_CLINT,	/* Core Local Interruptor (CLINT) */
+-	RISCV_SYSCON_PLIC,	/* Platform Level Interrupt Controller (PLIC) */
++	RISCV_SYSCON_PLICSW,	/* Andes PLICSW */
+ };
+ 
+ #endif /* _ASM_SYSCON_H */
+diff --git a/arch/riscv/lib/Makefile b/arch/riscv/lib/Makefile
+index 06020fcc2a..d6a8ae9728 100644
+--- a/arch/riscv/lib/Makefile
++++ b/arch/riscv/lib/Makefile
+@@ -13,7 +13,7 @@ obj-y	+= cache.o
+ obj-$(CONFIG_SIFIVE_CACHE) += sifive_cache.o
+ ifeq ($(CONFIG_$(SPL_)RISCV_MMODE),y)
+ obj-$(CONFIG_$(SPL_)SIFIVE_CLINT) += sifive_clint.o
+-obj-$(CONFIG_ANDES_PLIC) += andes_plic.o
++obj-$(CONFIG_ANDES_PLICSW) += andes_plicsw.o
+ else
+ obj-$(CONFIG_SBI) += sbi.o
+ obj-$(CONFIG_SBI_IPI) += sbi_ipi.o
+diff --git a/arch/riscv/lib/andes_plic.c b/arch/riscv/lib/andes_plicsw.c
+similarity index 76%
+rename from arch/riscv/lib/andes_plic.c
+rename to arch/riscv/lib/andes_plicsw.c
+index 1eabcacd09..324eb445aa 100644
+--- a/arch/riscv/lib/andes_plic.c
++++ b/arch/riscv/lib/andes_plicsw.c
+@@ -37,8 +37,8 @@ static int enable_ipi(int hart)
+ 	unsigned int en;
+ 
+ 	en = ENABLE_HART_IPI << hart;
+-	writel(en, (void __iomem *)ENABLE_REG(gd->arch.plic, hart));
+-	writel(en, (void __iomem *)ENABLE_REG(gd->arch.plic + 0x4, hart));
++	writel(en, (void __iomem *)ENABLE_REG(gd->arch.plicsw, hart));
++	writel(en, (void __iomem *)ENABLE_REG(gd->arch.plicsw + 0x4, hart));
+ 
+ 	return 0;
+ }
+@@ -46,14 +46,14 @@ static int enable_ipi(int hart)
+ int riscv_init_ipi(void)
+ {
+ 	int ret;
+-	long *base = syscon_get_first_range(RISCV_SYSCON_PLIC);
++	long *base = syscon_get_first_range(RISCV_SYSCON_PLICSW);
+ 	ofnode node;
+ 	struct udevice *dev;
+ 	u32 reg;
+ 
+ 	if (IS_ERR(base))
+ 		return PTR_ERR(base);
+-	gd->arch.plic = base;
++	gd->arch.plicsw = base;
+ 
+ 	ret = uclass_find_first_device(UCLASS_CPU, &dev);
+ 	if (ret)
+@@ -88,7 +88,7 @@ int riscv_send_ipi(int hart)
+ {
+ 	unsigned int ipi = (SEND_IPI_TO_HART(hart) << (8 * gd->arch.boot_hart));
+ 
+-	writel(ipi, (void __iomem *)PENDING_REG(gd->arch.plic,
++	writel(ipi, (void __iomem *)PENDING_REG(gd->arch.plicsw,
+ 				gd->arch.boot_hart));
+ 
+ 	return 0;
+@@ -98,8 +98,8 @@ int riscv_clear_ipi(int hart)
+ {
+ 	u32 source_id;
+ 
+-	source_id = readl((void __iomem *)CLAIM_REG(gd->arch.plic, hart));
+-	writel(source_id, (void __iomem *)CLAIM_REG(gd->arch.plic, hart));
++	source_id = readl((void __iomem *)CLAIM_REG(gd->arch.plicsw, hart));
++	writel(source_id, (void __iomem *)CLAIM_REG(gd->arch.plicsw, hart));
+ 
+ 	return 0;
+ }
+@@ -108,21 +108,21 @@ int riscv_get_ipi(int hart, int *pending)
+ {
+ 	unsigned int ipi = (SEND_IPI_TO_HART(hart) << (8 * gd->arch.boot_hart));
+ 
+-	*pending = readl((void __iomem *)PENDING_REG(gd->arch.plic,
++	*pending = readl((void __iomem *)PENDING_REG(gd->arch.plicsw,
+ 						     gd->arch.boot_hart));
+ 	*pending = !!(*pending & ipi);
+ 
+ 	return 0;
+ }
+ 
+-static const struct udevice_id andes_plic_ids[] = {
+-	{ .compatible = "riscv,plic1", .data = RISCV_SYSCON_PLIC },
++static const struct udevice_id andes_plicsw_ids[] = {
++	{ .compatible = "andestech,plicsw", .data = RISCV_SYSCON_PLICSW },
+ 	{ }
+ };
+ 
+-U_BOOT_DRIVER(andes_plic) = {
+-	.name		= "andes_plic",
++U_BOOT_DRIVER(andes_plicsw) = {
++	.name		= "andes_plicsw",
+ 	.id		= UCLASS_SYSCON,
+-	.of_match	= andes_plic_ids,
++	.of_match	= andes_plicsw_ids,
+ 	.flags		= DM_FLAG_PRE_RELOC,
+ };
+diff --git a/drivers/timer/andes_plmt_timer.c b/drivers/timer/andes_plmt_timer.c
+index a3797b22c7..42dd4b6231 100644
+--- a/drivers/timer/andes_plmt_timer.c
++++ b/drivers/timer/andes_plmt_timer.c
+@@ -56,7 +56,7 @@ static int andes_plmt_probe(struct udevice *dev)
+ }
+ 
+ static const struct udevice_id andes_plmt_ids[] = {
+-	{ .compatible = "riscv,plmt0" },
++	{ .compatible = "andestech,plmt0" },
+ 	{ }
+ };
+ 
+-- 
+2.34.1
+
