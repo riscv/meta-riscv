@@ -10,6 +10,7 @@ DEPENDS:append = " u-boot-tools-native"
 
 SRC_URI:append:ae350-ax45mp = " \
             file://0001-mmc-ftsdc010_mci-Support-DTS-of-ftsdc010-driver-for-.patch \
+            file://0002-spl-Align-device-tree-blob-address-at-8-byte-boundar.patch \
             file://mmc-support.cfg \
             file://opensbi-options.cfg \
             file://display-info.cfg \
