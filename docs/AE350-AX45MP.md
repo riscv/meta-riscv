@@ -8,7 +8,7 @@ AHB/APB bus IP components pre-integrated together as a system
 design.
 
 The `ae350-ax45mp` machine configuration helps developers build
-a disk image based on mainline Linux kernel 5.18 with MMC, DMA,
+a disk image based on mainline Linux kernel 6.0 with MMC, DMA,
 Ethernet, WDT and RTC drivers support, hosted on Andestech Github.
 
 How to build
