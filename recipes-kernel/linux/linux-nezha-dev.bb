@@ -2,10 +2,10 @@ require recipes-kernel/linux/linux-mainline-common.inc
 FILESEXTRAPATHS:prepend = "${FILE_DIRNAME}/linux-nezha:"
 SUMMARY = "Nezha dev kernel recipe"
 
-SRCREV_meta ?= "ea948a0983d7b7820814e5bce4eda3079201bd95"
-SRCREV_machine ?= "af3f4a1caec12845b809fba959e6334ab3b52a40"
-FORK ?= "tekkamanninja"
-BRANCH ?= "allwinner_nezha_d1_devel"
+SRCREV_meta ?= "b7fc5d5cecaad5d97164bac8db5b5ee72f563bb0"
+SRCREV_machine ?= "b466df90d48fb7ef03f331e0c73c8012ac03a12e"
+FORK ?= "smaeul"
+BRANCH ?= "d1/all"
 KMETA = "kernel-meta"
 
 # It is necessary to add to SRC_URI link to the 'yocto-kernel-cache' due to
@@ -14,16 +14,19 @@ KMETA = "kernel-meta"
 # directories that may be missing"
 SRC_URI = " \
         git://github.com/${FORK}/linux.git;name=machine;protocol=https;branch=${BRANCH} \
-        git://git.yoctoproject.org/yocto-kernel-cache;type=kmeta;name=meta;branch=yocto-5.15;destsuffix=${KMETA} \
-        file://0001-riscv-fix-build-with-binutils-2.38.patch \
+        git://git.yoctoproject.org/yocto-kernel-cache;type=kmeta;name=meta;branch=master;destsuffix=${KMETA} \
+        file://defconfig \
     "
 
-LINUX_VERSION ?= "5.16.0"
+LINUX_VERSION ?= "6.1.0"
 LINUX_VERSION_EXTENSION:append = "-nezha"
 
 KERNEL_FEATURES += "features/cgroups/cgroups.cfg"
 KERNEL_FEATURES += "ktypes/standard/standard.cfg"
 
-KBUILD_DEFCONFIG = "nezha_defconfig"
+# using out-of-tree
+#KBUILD_DEFCONFIG = "nezha_defconfig"
 
 COMPATIBLE_MACHINE = "(nezha-allwinner-d1)"
+
+KERNEL_VERSION_SANITY_SKIP="1"
