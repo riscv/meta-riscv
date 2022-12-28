@@ -9,20 +9,17 @@ Signed-off-by: Cezary Sobczak <cezary.sobczak@3mdeb.com>
  1 file changed, 4 insertions(+)
 
 diff --git a/include/configs/sun20i.h b/include/configs/sun20i.h
-index f463d289bd16..d9a33bfb8b62 100644
+index e8ef1b6c4a..4f71d4be1e 100644
 --- a/include/configs/sun20i.h
 +++ b/include/configs/sun20i.h
-@@ -2,6 +2,10 @@
- 
- #define CONFIG_SYS_CACHELINE_SIZE	64
- 
+@@ -8,4 +8,8 @@
+
+ #include <configs/sunxi-common.h>
+
 +#ifdef CONFIG_RISCV
-+#define CONFIG_SYS_BOOTM_LEN		(32 << 20)
++#define CONFIG_SYS_BOOTM_LEN           (32 << 20)
 +#endif
 +
- /* FIXME: Need a real clock driver! */
- #define CONFIG_SYS_NS16550_CLK		24000000
- #define CONFIG_SYS_TCLK			24000000
--- 
-2.25.1
-
+ #endif /* __CONFIG_H */
+--
+2.37.2
