@@ -1,0 +1,55 @@
+From 46602fe7729b285a823a1bab49d5f77e643be021 Mon Sep 17 00:00:00 2001
+From: Cezary Sobczak <cezary.sobczak@3mdeb.com>
+Date: Wed, 23 Mar 2022 23:34:37 +0100
+Subject: [PATCH] riscv: fix build with binutils 2.38
+
+Original source of this patch:
+- https://lore.kernel.org/lkml/YgVRu9Z0BDyJdjR5@kroah.com/T/
+
+From version 2.38, binutils default to ISA spec version 20191213. This
+means that the csr read/write (csrr*/csrw*) instructions and fence.i
+instruction has separated from the `I` extension, become two standalone
+extensions: Zicsr and Zifencei. As the kernel uses those instruction,
+this causes the following build failure:
+
+  CC      arch/riscv/kernel/vdso/vgettimeofday.o
+  <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h: Assembler messages:
+  <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
+  <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
+  <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
+  <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
+
+The fix is to specify those extensions explicitely in -march. However as
+older binutils version do not support this, we first need to detect
+that.
+
+Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
+Tested-by: Alexandre Ghiti <alexandre.ghiti@canonical.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Cezary Sobczak <cezary.sobczak@3mdeb.com>
+---
+ arch/riscv/Makefile | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
+index 8a107ed18b0d..7d81102cffd4 100644
+--- a/arch/riscv/Makefile
++++ b/arch/riscv/Makefile
+@@ -50,6 +50,12 @@ riscv-march-$(CONFIG_ARCH_RV32I)	:= rv32ima
+ riscv-march-$(CONFIG_ARCH_RV64I)	:= rv64ima
+ riscv-march-$(CONFIG_FPU)		:= $(riscv-march-y)fd
+ riscv-march-$(CONFIG_RISCV_ISA_C)	:= $(riscv-march-y)c
++
++# Newer binutils versions default to ISA spec version 20191213 which moves some
++# instructions from the I extension to the Zicsr and Zifencei extensions.
++toolchain-need-zicsr-zifencei := $(call cc-option-yn, -march=$(riscv-march-y)_zicsr_zifencei)
++riscv-march-$(toolchain-need-zicsr-zifencei) := $(riscv-march-y)_zicsr_zifencei
++
+ KBUILD_CFLAGS += -march=$(subst fd,,$(riscv-march-y))
+ KBUILD_AFLAGS += -march=$(riscv-march-y)
+ 
+-- 
+2.25.1
+
