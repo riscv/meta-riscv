@@ -1,0 +1,46 @@
+From 796732e49c919d74cab4978e517f02219daba9c4 Mon Sep 17 00:00:00 2001
+From: Andreas Cord-Landwehr <cordlandwehr@kde.org>
+Date: Sat, 7 Jan 2023 10:58:48 +0100
+Subject: [PATCH] riscv: fix build with binutils 2.38
+
+Original patch:
+https://lore.kernel.org/all/YhCvlHomlT2js3uO@ubuntu01/T/
+
+From version 2.38, binutils default to ISA spec version 20191213. This
+means that the csr read/write (csrr*/csrw*) instructions and fence.i
+instruction has separated from the `I` extension, become two standalone
+extensions: Zicsr and Zifencei.
+
+The fix is to specify those extensions explicitely in -march. However as
+older binutils version do not support this, we first need to detect
+that.
+
+Signed-off-by: Andreas Cord-Landwehr <cordlandwehr@kde.org>
+---
+ arch/riscv/Makefile | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
+index 0b80eb8d86..cd1bc49e7c 100644
+--- a/arch/riscv/Makefile
++++ b/arch/riscv/Makefile
+@@ -26,6 +26,16 @@ endif
+ 
+ ARCH_FLAGS = -march=$(ARCH_BASE)$(ARCH_A)$(ARCH_C) -mabi=$(ABI) \
+ 	     -mcmodel=$(CMODEL)
++RISCV_MARCH = $(ARCH_BASE)$(ARCH_A)$(ARCH_C)
++
++# Newer binutils versions default to ISA spec version 20191213 which moves some
++# instructions from the I extension to the Zicsr and Zifencei extensions.
++toolchain-need-zicsr-zifencei := $(call cc-option-yn, -mabi=$(ABI) -march=$(RISCV_MARCH)_zicsr_zifencei)
++ifeq ($(toolchain-need-zicsr-zifencei),y)
++	RISCV_MARCH := $(RISCV_MARCH)_zicsr_zifencei
++endif
++
++ARCH_FLAGS = -march=$(RISCV_MARCH) -mabi=$(ABI) -mcmodel=$(CMODEL)
+ 
+ PLATFORM_CPPFLAGS	+= $(ARCH_FLAGS)
+ CFLAGS_EFI		+= $(ARCH_FLAGS)
+-- 
+2.37.2
+

@@ -1,0 +1,14 @@
+fdt_high=0xffffffffffffffff
+initrd_high=0xffffffffffffffff
+kernel_addr_r=0x44000000
+kernel_comp_addr_r=0x90000000
+kernel_comp_size=0x10000000
+fdt_addr_r=0x48000000
+ramdisk_addr_r=0x48100000
+# Move distro to first boot to speed up booting
+boot_targets=distro mmc0 dhcp
+# Fix wrong fdtfile name
+fdtfile=starfive/jh7110-visionfive-v2.dtb
+# Fix missing bootcmd
+bootcmd=run bootcmd_distro
+bootargs=root=/dev/mmcblk1p2 rw console=tty0 console=ttyS0,115200 earlycon rootwait stmmaceth=chain_mode:1 selinux=0
