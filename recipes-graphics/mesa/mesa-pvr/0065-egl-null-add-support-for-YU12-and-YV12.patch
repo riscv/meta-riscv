@@ -1,0 +1,58 @@
+From 89f34a04c15c8657cb77bbbc94fb9b9d0ac76980 Mon Sep 17 00:00:00 2001
+From: Luigi Santivetti <luigi.santivetti@imgtec.com>
+Date: Mon, 23 Aug 2021 09:18:37 +0100
+Subject: [PATCH 65/67] egl/null: add support for YU12 and YV12
+
+---
+ src/egl/drivers/dri2/platform_null.c | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
+
+diff --git a/src/egl/drivers/dri2/platform_null.c b/src/egl/drivers/dri2/platform_null.c
+index 529cc7a2a2f..2e86d6533de 100644
+--- a/src/egl/drivers/dri2/platform_null.c
++++ b/src/egl/drivers/dri2/platform_null.c
+@@ -106,6 +106,20 @@ static const struct dri2_null_yuv_attrib {
+       .num_planes = 2,
+       .plane_bpp = __DRI_ATTRIB_YUV_PLANE_BPP_8_BIT,
+    },
++   {
++      /* __DRI_IMAGE_FORMAT_YU12 */
++      .order = __DRI_ATTRIB_YUV_ORDER_YUV_BIT,
++      .subsample = __DRI_ATTRIB_YUV_SUBSAMPLE_4_2_0_BIT,
++      .num_planes = 3,
++      .plane_bpp = __DRI_ATTRIB_YUV_PLANE_BPP_8_BIT,
++   },
++   {
++      /* __DRI_IMAGE_FORMAT_YV12 */
++      .order = __DRI_ATTRIB_YUV_ORDER_YVU_BIT,
++      .subsample = __DRI_ATTRIB_YUV_SUBSAMPLE_4_2_0_BIT,
++      .num_planes = 3,
++      .plane_bpp = __DRI_ATTRIB_YUV_PLANE_BPP_8_BIT,
++   },
+ };
+ 
+ /*
+@@ -161,6 +175,20 @@ static const struct dri2_null_format {
+       .rgba_sizes = { 0, 0, 0, 0 },
+       .yuv = &dri2_null_yuv_attribs[2],
+    },
++   {
++      .drm_format = DRM_FORMAT_YUV420,
++      .dri_image_format = __DRI_IMAGE_FORMAT_YU12,
++      .rgba_shifts = { -1, -1, -1, -1 },
++      .rgba_sizes = { 0, 0, 0, 0 },
++      .yuv = &dri2_null_yuv_attribs[3],
++   },
++   {
++      .drm_format = DRM_FORMAT_YVU420,
++      .dri_image_format = __DRI_IMAGE_FORMAT_YV12,
++      .rgba_shifts = { -1, -1, -1, -1 },
++      .rgba_sizes = { 0, 0, 0, 0 },
++      .yuv = &dri2_null_yuv_attribs[4],
++   },
+ };
+ 
+ 
+-- 
+2.25.1
+
