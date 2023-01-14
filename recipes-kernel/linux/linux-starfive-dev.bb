@@ -26,6 +26,7 @@ SRC_URI:append:visionfive = " \
 
 SRC_URI:append:visionfive2 = " \
           file://0004-riscv-fix-build-with-binutils-2.38.patch \
+          file://visionfive2-graphics.cfg \
           "
 
 LINUX_VERSION ?= "6.2.0"
