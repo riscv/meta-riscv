@@ -3,10 +3,7 @@ LICENSE="CLOSED"
 PROVIDES = "virtual/libgles2"
 COMPATIBLE_MACHINE = "visionfive2"
 
-SRC_URI = " \
-    git://github.com/starfive-tech/soft_3rdpart.git;protocol=https;lfs=1;branch=JH7110_VisionFive2_devel;rev=13975a3826bb98bd9a201780131262b6dd373452 \
-"
-
+require recipes-bsp/common/visionfive2-firmware.inc
 inherit update-rc.d
 
 S = "${WORKDIR}/git"
@@ -28,6 +25,10 @@ do_install () {
     cp -r ${D}/${IMG_GPU_POWERVR_VERSION}/staging/usr/include/GLES3/ ${D}/usr/include/
     install -d ${D}/usr/lib/pkgconfig/
     cp -r ${D}/${IMG_GPU_POWERVR_VERSION}/staging/usr/lib/pkgconfig/* ${D}/usr/lib/pkgconfig/
+
+    # provided via separate arch-independent firmware package
+    rm -rf ${D}/lib/firmware
+    rmdir ${D}/lib
 
     # cleanup unused
     rm -rf ${D}/${IMG_GPU_POWERVR_VERSION}
@@ -51,7 +52,7 @@ FILES:${PN}-firmware = " \
 RDEPENDS:${PN} += " \
     bash \
     libdrm \
-    ${PN}-firmware \
+    linux-firmware-visionfive2-imggpu \
 "
 
 RDEPENDS:${PN}-tools += " \
