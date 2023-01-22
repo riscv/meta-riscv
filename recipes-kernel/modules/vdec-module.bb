@@ -19,3 +19,4 @@ SRC_URI += " \
 S = "${WORKDIR}/${WAVE511_MODULE_SRC}"
 
 RPROVIDES:${PN} += "kernel-module-vdec"
+RDEPENDS:${PN} += "linux-firmware-visionfive2-wave511"
