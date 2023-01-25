@@ -1,0 +1,55 @@
+From 9aaac1de1bdb8881d281f539105d61b2271c589a Mon Sep 17 00:00:00 2001
+From: Andreas Cord-Landwehr <cordlandwehr@kde.org>
+Date: Thu, 26 Jan 2023 19:52:37 +0100
+Subject: [PATCH] Adapt Makefile for usage in Yocto
+
+---
+ Makefile | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 150c4d5..6f9dd86 100644
+--- a/Makefile
++++ b/Makefile
+@@ -10,11 +10,11 @@ BUILD_CONFIGURATION := EmbeddedRiscvLinux
+ PRODUCT := OMX_IL
+ 
+ ifeq ("$(BUILD_CONFIGURATION)", "EmbeddedRiscvLinux")
+-    CROSS_CC_PREFIX = riscv64-buildroot-linux-gnu-
++    CROSS_CC_PREFIX = riscv64-poky-linux-
+     PLATFORM        = riscvlinux
+ endif
+-CC  = $(CROSS_CC_PREFIX)gcc
+-CXX = $(CROSS_CC_PREFIX)g++
++#CC  = $(CROSS_CC_PREFIX)gcc
++#CXX = $(CROSS_CC_PREFIX)g++
+ LINKER=$(CC)
+ AR  = $(CROSS_CC_PREFIX)ar
+ 
+@@ -33,7 +33,7 @@ INCLUDES += -I./component/image/common
+ CFLAGS  += -g -I. $(INCLUDES) $(DEFINES) $(PLATFORM_FLAGS)
+ CFLAGS  += -fpic
+ ARFLAGS += cru
+-LDFLAGS = -ldl -lpthread -Wl,--fatal-warning
++#LDFLAGS = -ldl -lpthread -Wl,--fatal-warning
+ LDFLAGS_FFMPEG = -lavformat -lavcodec -lavutil -lswresample
+ 
+ OBJDIR=obj
+@@ -81,7 +81,7 @@ OBJECTPATHS_MJPEG_DEC_TEST=$(addprefix $(OBJDIR)/,$(notdir $(OBJECTNAMES_MJPEG_D
+ all: omx-il
+
+ omx-il: CREATE_DIR $(OBJECTPATHS_COMMON)
+-	$(CC) -g -fPIC -shared -o libsf-omx-il.so $(OBJECTPATHS_COMMON)
++	$(CC) -g -fPIC -shared -o libsf-omx-il.so $(LDFLAGS) $(OBJECTPATHS_COMMON)
+
+ test: video-dec-test video-enc-test mjpeg-dec-test
+
+@@ -100,4 +100,4 @@ CREATE_DIR:
+ 	-mkdir -p $(OBJDIR)
+ 
+ obj/%.o: %.c $(MAKEFILE)
+-	$(CC) $(CFLAGS) -Wall -Werror -c $< -o $@ -MD -MF $(@:.o=.dep)
++	$(CC) $(CFLAGS) -Wall -c $< -o $@ -MD -MF $(@:.o=.dep)
+-- 
+2.37.2
+
