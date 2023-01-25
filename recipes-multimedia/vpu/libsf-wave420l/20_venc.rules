@@ -1,0 +1,1 @@
+SUBSYSTEM=="venc", MODE="0666"
