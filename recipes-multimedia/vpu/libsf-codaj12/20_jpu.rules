@@ -1,0 +1,1 @@
+SUBSYSTEM=="jpu", MODE="0666"
