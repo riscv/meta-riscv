@@ -1,0 +1,38 @@
+--- a/omx/gstomxh264utils.c
++++ b/omx/gstomxh264utils.c
+@@ -54,6 +54,19 @@
+ #endif
+ };
+ 
++#ifdef USE_OMX_TARGET_STARFIVE
++static const H264ProfileMapping h264_ext_profiles[] = {
++  {"progressive-high",
++      (OMX_VIDEO_AVCPROFILETYPE) OMX_VIDEO_AVCProfileHigh},
++  {"constrained-high",
++      (OMX_VIDEO_AVCPROFILETYPE) OMX_VIDEO_AVCProfileHigh},
++  {"high-10-intra",
++      (OMX_VIDEO_AVCPROFILETYPE) OMX_VIDEO_AVCProfileHigh10},
++  {"high-4:2:2-intra",
++      (OMX_VIDEO_AVCPROFILETYPE) OMX_VIDEO_AVCProfileHigh422},
++};
++#endif
++
+ OMX_VIDEO_AVCPROFILETYPE
+ gst_omx_h264_utils_get_profile_from_str (const gchar * profile)
+ {
+@@ -63,6 +76,15 @@
+     if (g_str_equal (profile, h264_profiles[i].profile))
+       return h264_profiles[i].e;
+   }
++
++#ifdef USE_OMX_TARGET_STARFIVE
++  for (i = 0; i < G_N_ELEMENTS (h264_ext_profiles); i++) {
++    if (g_str_equal (profile, h264_ext_profiles[i].profile)) {
++      GST_INFO("extra profile: %s ==> avc profie type: %d", profile, h264_ext_profiles[i].e);
++      return h264_ext_profiles[i].e;
++    }
++  }
++#endif
+ 
+   return OMX_VIDEO_AVCProfileMax;
+ }

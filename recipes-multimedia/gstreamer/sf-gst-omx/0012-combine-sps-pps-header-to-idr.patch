@@ -1,0 +1,67 @@
+Combine SPS/PPS header to IDR frame.
+
+Signed-off-by: Windsome Zeng <windsome.zeng@starfivetech.com>
+
+diff -purN a/meson.build b/meson.build
+--- a/meson.build	2022-05-13 11:31:02.725614796 +0800
++++ b/meson.build	2022-05-13 11:32:26.213975419 +0800
+@@ -218,6 +218,7 @@ elif omx_target == 'tizonia'
+   omx_inc = []
+ elif omx_target == 'stf'
+   cdata.set('USE_OMX_TARGET_STARFIVE', 1)
++  gst_omx_args += ['-DCOMBINE_SPS_PPS_HEADERS']
+   warning('stf selected')
+ else
+   error ('Unsupported omx target specified. Use the -Dtarget option')
+diff -purN a/omx/gstomx.c b/omx/gstomx.c
+--- a/omx/gstomx.c	2022-05-13 11:31:02.725614796 +0800
++++ b/omx/gstomx.c	2022-05-13 11:33:15.461950978 +0800
+@@ -70,6 +70,11 @@ static GHashTable *core_handles;
+ G_LOCK_DEFINE_STATIC (buffer_flags_str);
+ static GHashTable *buffer_flags_str;
+ 
++#ifdef COMBINE_SPS_PPS_HEADERS
++static OMX_U8 *sps_pps_header = NULL;
++static OMX_U32 sps_pps_header_size = 0;
++#endif
++
+ GstOMXCore *
+ gst_omx_core_acquire (const gchar * filename)
+ {
+@@ -903,6 +908,36 @@ FillBufferDone (OMX_HANDLETYPE hComponen
+ 
+   g_assert (buf->omx_buf == pBuffer);
+ 
++#ifdef COMBINE_SPS_PPS_HEADERS
++  if (pBuffer->nFlags == 0x80) {
++    g_assert (sps_pps_header == NULL);
++    if (sps_pps_header)
++      g_free (sps_pps_header);
++
++    sps_pps_header = g_new (OMX_U8, pBuffer->nFilledLen);
++    if (sps_pps_header) {
++      sps_pps_header_size = pBuffer->nFilledLen;
++      memcpy(sps_pps_header, pBuffer->pBuffer + pBuffer->nOffset, pBuffer->nFilledLen);
++    }
++    return OMX_ErrorNone;
++  }
++  
++  if (sps_pps_header) {
++    g_assert (sps_pps_header_size + pBuffer->nFilledLen <= pBuffer->nAllocLen);
++    if (sps_pps_header_size + pBuffer->nFilledLen <= pBuffer->nAllocLen) {
++      OMX_U8 *buf;
++      buf = pBuffer->pBuffer + pBuffer->nOffset;
++      memmove (buf + sps_pps_header_size, buf, pBuffer->nFilledLen);
++      memcpy (buf, sps_pps_header, sps_pps_header_size);
++      pBuffer->nFilledLen += sps_pps_header_size;
++
++      g_free (sps_pps_header);
++      sps_pps_header = NULL;
++      sps_pps_header_size = 0;
++    }
++  }
++#endif /* COMBINE_SPS_PPS_HEADERS */
++
+   if (buf->port->tunneled) {
+     GST_ERROR ("FillBufferDone on tunneled port");
+     return OMX_ErrorBadParameter;

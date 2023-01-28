@@ -1,0 +1,16 @@
+--- a/config/stf/gstomx.conf
++++ b/config/stf/gstomx.conf
+@@ -33,3 +33,12 @@
+ out-port-index=1
+ rank=1
+ hacks=pass-profile-to-decoder;pass-color-format-to-decoder;ensure-buffer-count-actual;video-framerate-integer
++
++[omxmjpegdec]
++type-name=GstOMXMJPEGDec
++core-name=/usr/lib/libsf-omx-il.so
++component-name=sf.dec.decoder.mjpeg
++in-port-index=0
++out-port-index=1
++rank=1
++hacks=pass-profile-to-decoder;pass-color-format-to-decoder;ensure-buffer-count-actual
+

@@ -1,0 +1,19 @@
+diff -Naur a/config/stf/gstomx.conf b/config/stf/gstomx.conf
+--- a/config/stf/gstomx.conf	2021-08-23 16:04:48.928905742 +0800
++++ b/config/stf/gstomx.conf	2021-08-23 16:03:38.590578856 +0800
+@@ -4,7 +4,7 @@
+ component-name=sf.dec.decoder.h265
+ in-port-index=0
+ out-port-index=1
+-rank=0
++rank=257
+ hacks=pass-profile-to-decoder;pass-color-format-to-decoder;ensure-buffer-count-actual
+ 
+ [omxh264dec]
+@@ -13,5 +13,5 @@
+ component-name=sf.dec.decoder.h264
+ in-port-index=0
+ out-port-index=1
+-rank=1
++rank=257
+ hacks=pass-profile-to-decoder;pass-color-format-to-decoder;ensure-buffer-count-actual

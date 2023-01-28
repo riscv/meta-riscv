@@ -1,0 +1,50 @@
+--- a/omx/gstomxvideodec.c	2020-10-26 19:17:03.000000000 +0800
++++ b/omx/gstomxvideodec.c	2021-08-16 16:23:08.082113380 +0800
+@@ -2185,6 +2185,7 @@
+ gst_omx_video_dec_negotiate (GstOMXVideoDec * self)
+ {
+   OMX_VIDEO_PARAM_PORTFORMATTYPE param;
++  OMX_PARAM_PORTDEFINITIONTYPE port_def;
+   OMX_ERRORTYPE err;
+   GstCaps *comp_supported_caps;
+   GList *negotiation_map = NULL, *l;
+@@ -2192,6 +2193,7 @@
+   GstVideoFormat format;
+   GstStructure *s;
+   const gchar *format_str;
++  gint width, height;
+ 
+   GST_DEBUG_OBJECT (self, "Trying to negotiate a video format with downstream");
+ 
+@@ -2281,6 +2283,31 @@
+         gst_omx_error_to_string (err), err);
+   }
+ 
++  if (gst_structure_get_int(s, "width", &width) && gst_structure_get_int(s, "height", &height))
++  {
++    GST_OMX_INIT_STRUCT (&port_def);
++    port_def.nPortIndex = self->dec_out_port->index;
++    err = gst_omx_component_get_parameter (self->dec,
++        OMX_IndexParamPortDefinition, &port_def);
++    if (err != OMX_ErrorNone) {
++      GST_ERROR_OBJECT (self, "Failed to get video port definition: %s (0x%08x)",
++          gst_omx_error_to_string (err), err);
++      return FALSE;
++    }
++
++    port_def.format.video.nFrameHeight = height;
++    port_def.format.video.nFrameWidth = width;
++
++    err =
++      gst_omx_component_set_parameter (self->dec,
++      OMX_IndexParamPortDefinition, &port_def);
++    if (err != OMX_ErrorNone) {
++      GST_ERROR_OBJECT (self, "Failed to set video port definition: %s (0x%08x)",
++          gst_omx_error_to_string (err), err);
++      return FALSE;
++    }
++  }
++
+   gst_caps_unref (intersection);
+   return (err == OMX_ErrorNone);
+ }

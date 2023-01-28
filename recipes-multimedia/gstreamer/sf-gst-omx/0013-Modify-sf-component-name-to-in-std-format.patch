@@ -1,0 +1,62 @@
+From f207f1287cf8732459e928940dd6e762fb546bff Mon Sep 17 00:00:00 2001
+From: Som Qin <som.qin@starfivetech.com>
+Date: Mon, 25 Jul 2022 09:45:44 +0800
+Subject: [PATCH] Modify sf component name to adapt omx
+
+Signed-off-by: Som Qin <som.qin@starfivetech.com>
+---
+ config/stf/gstomx.conf | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/config/stf/gstomx.conf b/config/stf/gstomx.conf
+index 398a62c..4eae679 100644
+--- a/config/stf/gstomx.conf
++++ b/config/stf/gstomx.conf
+@@ -1,7 +1,7 @@
+ [omxh265dec]
+ type-name=GstOMXH265Dec
+ core-name=/usr/lib/libsf-omx-il.so
+-component-name=sf.dec.decoder.h265
++component-name=OMX.sf.video_decoder.hevc.internal
+ in-port-index=0
+ out-port-index=1
+ rank=257
+@@ -10,7 +10,7 @@ hacks=pass-profile-to-decoder;pass-color-format-to-decoder;ensure-buffer-count-a
+ [omxh264dec]
+ type-name=GstOMXH264Dec
+ core-name=/usr/lib/libsf-omx-il.so
+-component-name=sf.dec.decoder.h264
++component-name=OMX.sf.video_decoder.avc.internal
+ in-port-index=0
+ out-port-index=1
+ rank=257
+@@ -19,7 +19,7 @@ hacks=pass-profile-to-decoder;pass-color-format-to-decoder;ensure-buffer-count-a
+ [omxh265enc]
+ type-name=GstOMXH265Enc
+ core-name=/usr/lib/libsf-omx-il.so
+-component-name=sf.enc.encoder.h265
++component-name=OMX.sf.video_encoder.hevc
+ in-port-index=0
+ out-port-index=1
+ rank=1
+@@ -28,7 +28,7 @@ hacks=pass-profile-to-decoder;pass-color-format-to-decoder;ensure-buffer-count-a
+ [omxh264enc]
+ type-name=GstOMXH264Enc
+ core-name=/usr/lib/libsf-omx-il.so
+-component-name=sf.enc.encoder.h264
++component-name=OMX.sf.video_encoder.avc
+ in-port-index=0
+ out-port-index=1
+ rank=1
+@@ -37,7 +37,7 @@ hacks=pass-profile-to-decoder;pass-color-format-to-decoder;ensure-buffer-count-a
+ [omxmjpegdec]
+ type-name=GstOMXMJPEGDec
+ core-name=/usr/lib/libsf-omx-il.so
+-component-name=sf.dec.decoder.mjpeg
++component-name=OMX.sf.video_decoder.mjpeg.internal
+ in-port-index=0
+ out-port-index=1
+ rank=1
+-- 
+2.25.1
+

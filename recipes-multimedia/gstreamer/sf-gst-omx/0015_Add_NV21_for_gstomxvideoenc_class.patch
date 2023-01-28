@@ -1,0 +1,72 @@
+Add NV21 for omxvideoenc class
+
+Signed-off-by: Leo Lu <leo.lu@starfivetech.com>
+
+diff -purN a/omx/gstomxvideoenc.c b/omx/gstomxvideoenc.c
+--- a/omx/gstomxvideoenc.c	2022-08-26 18:07:10.171979169 +0800
++++ b/omx/gstomxvideoenc.c	2022-08-29 09:54:54.979229076 +0800
+@@ -1391,6 +1391,7 @@ get_chroma_info_from_input (GstOMXVideoE
+       break;
+     case GST_VIDEO_FORMAT_I420:
+     case GST_VIDEO_FORMAT_NV12:
++    case GST_VIDEO_FORMAT_NV21:
+       *chroma_format = "4:2:0";
+       *bit_depth_luma = *bit_depth_chroma = 8;
+       break;
+@@ -2045,6 +2046,7 @@ gst_omx_video_enc_configure_input_buffer
+ 
+     case OMX_COLOR_FormatYUV420PackedSemiPlanar:
+     case OMX_COLOR_FormatYUV420SemiPlanar:
++    case OMX_COLOR_FormatYVU420SemiPlanar:
+       port_def.nBufferSize =
+           (port_def.format.video.nStride * port_def.format.video.nFrameHeight) +
+           (port_def.format.video.nStride *
+@@ -2693,6 +2695,9 @@ gst_omx_video_enc_set_format (GstVideoEn
+       case GST_VIDEO_FORMAT_ARGB:
+         port_def.format.video.eColorFormat = OMX_COLOR_Format32bitBGRA8888;
+         break;
++      case GST_VIDEO_FORMAT_NV21:
++        port_def.format.video.eColorFormat = OMX_COLOR_FormatYVU420SemiPlanar;
++        break;
+       default:
+         GST_ERROR_OBJECT (self, "Unsupported format %s",
+             gst_video_format_to_string (info->finfo->format));
+@@ -3094,6 +3099,7 @@ gst_omx_video_enc_fill_buffer (GstOMXVid
+       break;
+     }
+     case GST_VIDEO_FORMAT_NV12:
++    case GST_VIDEO_FORMAT_NV21:
+     case GST_VIDEO_FORMAT_NV16:
+     case GST_VIDEO_FORMAT_NV12_10LE32:
+     case GST_VIDEO_FORMAT_NV16_10LE32:
+@@ -3728,6 +3734,7 @@ filter_supported_formats (GList * negoti
+       case GST_VIDEO_FORMAT_NV16:
+       case GST_VIDEO_FORMAT_NV16_10LE32:
+       case GST_VIDEO_FORMAT_GRAY8:
++      case GST_VIDEO_FORMAT_NV21:
+         cur = g_list_next (cur);
+         continue;
+       default:
+diff -purN a/omx/gstomxvideo.h b/omx/gstomxvideo.h
+--- a/omx/gstomxvideo.h	2022-08-26 18:07:10.219979290 +0800
++++ b/omx/gstomxvideo.h	2022-08-29 09:55:41.307514974 +0800
+@@ -39,7 +39,7 @@ G_BEGIN_DECLS
+   "NV16, YUY2, YVYU, UYVY, NV12, NV21, I420, RGB16, BGR16, ABGR, ARGB, GRAY8 }"
+ 
+ #define GST_OMX_VIDEO_ENC_SUPPORTED_FORMATS "{ NV16_10LE32, NV12_10LE32, " \
+-  "NV16, NV12, I420, GRAY8 }"
++  "NV16, NV12, NV21, I420, GRAY8 }"
+ 
+ typedef struct
+ {
+diff -purN a/omx/openmax/OMX_IVCommon.h b/omx/openmax/OMX_IVCommon.h
+--- a/omx/openmax/OMX_IVCommon.h	2021-09-09 03:05:28.046623200 +0800
++++ b/omx/openmax/OMX_IVCommon.h	2022-08-29 09:56:49.415927528 +0800
+@@ -130,6 +130,7 @@ typedef enum OMX_COLOR_FORMATTYPE {
+     OMX_COLOR_Format18BitBGR666,
+     OMX_COLOR_Format24BitARGB6666,
+     OMX_COLOR_Format24BitABGR6666,
++    OMX_COLOR_FormatYVU420SemiPlanar,   /*  NV21  */
+     OMX_COLOR_FormatKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */ 
+     OMX_COLOR_FormatVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
+     OMX_COLOR_FormatMax = 0x7FFFFFFF
