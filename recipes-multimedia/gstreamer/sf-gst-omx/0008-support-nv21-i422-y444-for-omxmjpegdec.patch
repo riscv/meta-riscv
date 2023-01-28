@@ -1,0 +1,100 @@
+--- a/config/stf/gstomx.conf
++++ b/config/stf/gstomx.conf
+@@ -42,3 +42,4 @@
+ out-port-index=1
+ rank=1
+ hacks=pass-profile-to-decoder;pass-color-format-to-decoder;ensure-buffer-count-actual
++src-template-caps=video/x-raw, format = (string) { NV16_10LE32, NV12_10LE32, NV16, YUY2, YVYU, UYVY, NV12, NV21, I420, RGB16, BGR16, ABGR, ARGB, GRAY8, Y42B, Y444 }, width = (int) [ 1, max ], height = (int) [ 1, max ], framerate = (fraction) [ 0, max ]
+--- a/omx/gstomxbufferpool.c
++++ b/omx/gstomxbufferpool.c
+@@ -370,9 +370,29 @@
+       case GST_VIDEO_FORMAT_NV12_10LE32:
+       case GST_VIDEO_FORMAT_NV16:
+       case GST_VIDEO_FORMAT_NV16_10LE32:
++#ifdef USE_OMX_TARGET_STARFIVE
++      case GST_VIDEO_FORMAT_NV21:
++#endif
+         stride[1] = nstride;
+         offset[1] = offset[0] + stride[0] * nslice;
+         break;
++#ifdef USE_OMX_TARGET_STARFIVE
++      case GST_VIDEO_FORMAT_Y42B:
++        stride[0] = GST_ROUND_UP_4 (nstride);
++        stride[1] = GST_ROUND_UP_8 (nstride) / 2;
++        stride[2] = stride[1];
++
++        offset[1] = stride[0] * nslice;
++        offset[2] = offset[1] + stride[1] * nslice;
++        break;
++
++      case GST_VIDEO_FORMAT_Y444:
++        stride[1] = nstride;
++        stride[2] = nstride;
++        offset[1] = offset[0] + stride[0] * nslice;
++        offset[2] = offset[1] + stride[1] * nslice;
++        break;
++#endif
+       default:
+         g_assert_not_reached ();
+         break;
+--- a/omx/gstomxvideo.c
++++ b/omx/gstomxvideo.c
+@@ -93,6 +93,17 @@
+       format = GST_VIDEO_FORMAT_NV16_10LE32;
+       break;
+ #pragma GCC diagnostic pop
++#endif
++#ifdef USE_OMX_TARGET_STARFIVE
++    case OMX_COLOR_FormatYUV422Planar:
++      format = GST_VIDEO_FORMAT_Y42B;
++      break;
++    case OMX_COLOR_FormatYUV444Interleaved:
++      format = GST_VIDEO_FORMAT_Y444;
++      break;
++    case OMX_COLOR_FormatYVU420SemiPlanar:
++      format = GST_VIDEO_FORMAT_NV21;
++      break;
+ #endif
+     default:
+       format = GST_VIDEO_FORMAT_UNKNOWN;
+--- a/omx/gstomxvideodec.c
++++ b/omx/gstomxvideodec.c
+@@ -592,6 +592,9 @@
+       case GST_VIDEO_FORMAT_YUY2:
+       case GST_VIDEO_FORMAT_UYVY:
+       case GST_VIDEO_FORMAT_YVYU:
++#ifdef USE_OMX_TARGET_STARFIVE
++      case GST_VIDEO_FORMAT_Y42B:
++#endif
+         dst_width[0] = GST_VIDEO_INFO_WIDTH (vinfo) * 2;
+         break;
+       case GST_VIDEO_FORMAT_GRAY8:
+@@ -609,6 +612,9 @@
+         dst_height[2] = GST_VIDEO_INFO_FIELD_HEIGHT (vinfo) / 2;
+         break;
+       case GST_VIDEO_FORMAT_NV12:
++#ifdef USE_OMX_TARGET_STARFIVE
++      case GST_VIDEO_FORMAT_NV21:
++#endif
+         dst_width[0] = GST_VIDEO_INFO_WIDTH (vinfo);
+         src_stride[1] = nstride;
+         src_size[1] = src_stride[1] * nslice / 2;
+@@ -638,6 +644,18 @@
+         src_size[1] = src_stride[1] * nslice;
+         dst_height[1] = GST_VIDEO_INFO_FIELD_HEIGHT (vinfo);
+         break;
++#ifdef USE_OMX_TARGET_STARFIVE
++      case GST_VIDEO_FORMAT_Y444:
++        dst_width[0] = GST_VIDEO_INFO_WIDTH (vinfo);
++        dst_width[1] = GST_VIDEO_INFO_WIDTH (vinfo);
++        dst_width[2] = GST_VIDEO_INFO_WIDTH (vinfo);
++        src_size[1] = src_size[0];
++        src_size[2] = src_size[0];
++        src_stride[1] = nstride;
++        dst_height[1] = dst_height[0];
++        dst_height[2] = dst_height[0];
++        break;
++#endif
+       default:
+         g_assert_not_reached ();
+         break;

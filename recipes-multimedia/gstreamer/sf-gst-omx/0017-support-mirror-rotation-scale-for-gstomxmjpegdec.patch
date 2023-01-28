@@ -1,0 +1,388 @@
+Support mirror rotation scale for omxmjpegdec
+
+Signed-off-by: Leo Lu <leo.lu@starfivetech.com>
+
+diff -purN a/omx/gstomxmjpegdec.c b/omx/gstomxmjpegdec.c
+--- a/omx/gstomxmjpegdec.c	2022-10-14 13:42:12.749600862 +0800
++++ b/omx/gstomxmjpegdec.c	2022-10-14 13:36:08.488195374 +0800
+@@ -30,8 +30,19 @@ GST_DEBUG_CATEGORY_STATIC (gst_omx_mjpeg
+ #define GST_CAT_DEFAULT gst_omx_mjpeg_dec_debug_category
+ #ifdef USE_OMX_TARGET_STARFIVE
+ #define DEFAULT_FRAMERATE                0
++#define DEFAULT_MIRROR                   0
++#define DEFAULT_ROTATION                 0
++#define DEFAULT_SCALEH                   0
++#define DEFAULT_SCALEV                   0
+ #endif
+ /* prototypes */
++
++static gboolean
++gst_omx_jpegdec_set_scale (GstOMXVideoDec * self);
++static gboolean
++gst_omx_jpegdec_set_rotation (GstOMXVideoDec * self);
++static gboolean
++gst_omx_jpegdec_set_mirror (GstOMXVideoDec * self);
+ static gboolean gst_omx_mjpeg_dec_is_format_change (GstOMXVideoDec * dec,
+     GstOMXPort * port, GstVideoCodecState * state);
+ static gboolean gst_omx_mjpeg_dec_set_format (GstOMXVideoDec * dec,
+@@ -46,10 +57,14 @@ enum
+ {
+ #ifdef USE_OMX_TARGET_STARFIVE
+   PROP_0,
+-  PROP_FRAMERATE
++  PROP_FRAMERATE,
+ #else
+-  PROP_0
++  PROP_0,
+ #endif
++  PROP_MIRROR,
++  PROP_SCALEH,
++  PROP_SCALEV,
++  PROP_ROTATION,
+ };
+ 
+ /* class initialization */
+@@ -61,6 +76,67 @@ enum
+ G_DEFINE_TYPE_WITH_CODE (GstOMXMJPEGDec, gst_omx_mjpeg_dec,
+     GST_TYPE_OMX_VIDEO_DEC, DEBUG_INIT);
+ 
++#define GST_OMX_MJPEG_DEC_MIRROR_MODE (gst_omx_mjpeg_dec_mirror_mode_get_type ())
++
++static GType
++gst_omx_mjpeg_dec_mirror_mode_get_type (void)
++{
++  static GType qtype = 0;
++  if (qtype == 0) {
++    static const GEnumValue values[] = {
++      { OMX_MirrorNone, "None", "none"},
++      { OMX_MirrorVertical, "Mirror Vertical", "V"},
++      { OMX_MirrorHorizontal, "Mirror Horizontal", "H"},
++      { OMX_MirrorBoth, "Mirror Both",  "VH"},
++      { 0, NULL, NULL}
++      };
++
++    qtype = g_enum_register_static("GstOMXMJPEGDecMirrorMode",values);
++  }
++  return qtype;
++}
++
++#define GST_OMX_MJPEG_DEC_ROTATION_MODE (gst_omx_mjpeg_dec_rotation_mode_get_type ())
++
++static GType
++gst_omx_mjpeg_dec_rotation_mode_get_type (void)
++{
++  static GType qtype = 0;
++  if (qtype == 0) {
++    static const GEnumValue values[] = {
++      { ROTATION_0, "None", "none"},
++      { ROTATION_90, "Rotate 90", "M1"},
++      { ROTATION_180, "Rotate 180", "M2"},
++      { ROTATION_270, "Rotate 270",  "M3"},
++      { 0, NULL, NULL}
++      };
++      
++    qtype = g_enum_register_static ("GstOMXMJPEGDecRotationMode", values);
++  }
++  return qtype;
++}
++
++#define GST_OMX_MJPEG_DEC_SCALE_MODE (gst_omx_mjpeg_dec_scale_mode_get_type ())
++
++static GType 
++gst_omx_mjpeg_dec_scale_mode_get_type (void)
++{
++  static GType qtype = 0;
++  if (qtype == 0) {
++    static const GEnumValue values[] = {
++      { SCALEMODE_0, "None", "none"},
++      { SCALEMODE1_2, "Scale half", "1/2"},
++      { SCALEMODE1_4, "Scale quarter", "1/4"},
++      { SCALEMODE1_8, "Scale eighth",  "1/8"},
++      { 0, NULL, NULL}
++      };
++      
++    qtype = g_enum_register_static ("GstOMXMJPEGDecScaleMode", values);
++  }
++  return qtype;
++}
++
++
+ static void
+ gst_omx_mjpeg_dec_class_init (GstOMXMJPEGDecClass * klass)
+ {
+@@ -94,12 +170,40 @@ gst_omx_mjpeg_dec_class_init (GstOMXMJPE
+          0, G_MAXINT,
+          DEFAULT_FRAMERATE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+ #endif
++  g_object_class_install_property (gobject_class, PROP_MIRROR,
++      g_param_spec_enum ("mirror", "MIRROR",
++        "Mirror 0(none), 1(V), 2(H), 3(VH).",
++        GST_OMX_MJPEG_DEC_MIRROR_MODE,
++        DEFAULT_MIRROR, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
++
++  g_object_class_install_property (gobject_class, PROP_ROTATION,
++      g_param_spec_enum ("rotation", "ROTATION",
++        "Rotation 0(none), 1(90), 2(180), 3(270).",
++        GST_OMX_MJPEG_DEC_ROTATION_MODE,
++        DEFAULT_ROTATION, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
++
++  g_object_class_install_property (gobject_class, PROP_SCALEH,
++      g_param_spec_enum ("scaleH", "ScaleH",
++        "Horizontal downscale: 0(none), 1(1/2), 2(1/4), 3(1/8).",
++        GST_OMX_MJPEG_DEC_SCALE_MODE, DEFAULT_SCALEH,
++        G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
++
++  g_object_class_install_property (gobject_class, PROP_SCALEV,
++      g_param_spec_enum ("scaleV", "ScaleV",
++        "Vertical downscale: 0(none), 1(1/2), 2(1/4), 3(1/8).",
++        GST_OMX_MJPEG_DEC_SCALE_MODE, DEFAULT_SCALEV,
++        G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
++  
+   gst_omx_set_default_role (&videodec_class->cdata, "video_decoder.mjpeg");
+ }
+ 
+ static void
+ gst_omx_mjpeg_dec_init (GstOMXMJPEGDec * self)
+ {
++  self->mirror = DEFAULT_MIRROR;
++  self->rotation = DEFAULT_ROTATION;
++  self->scaleH = DEFAULT_SCALEH;
++  self->scaleV = DEFAULT_SCALEV;
+ }
+ 
+ static gboolean
+@@ -128,6 +232,15 @@ gst_omx_mjpeg_dec_set_format (GstOMXVide
+     }
+   }
+ #endif
++  if (!gst_omx_jpegdec_set_mirror (dec))
++    return FALSE;
++    
++  if (!gst_omx_jpegdec_set_rotation (dec))
++    return FALSE;
++
++  if (!gst_omx_jpegdec_set_scale (dec))
++    return FALSE;
++
+   gst_omx_port_get_port_definition (port, &port_def);
+   port_def.format.video.eCompressionFormat = OMX_VIDEO_CodingMJPEG;
+   ret = gst_omx_port_update_port_definition (port, &port_def) == OMX_ErrorNone;
+@@ -144,6 +257,18 @@ gst_omx_mjpeg_dec_set_property (GObject
+     case PROP_FRAMERATE:
+       mjpeg_dec->framerate = g_value_get_int (value);
+       break;
++    case PROP_MIRROR:
++      mjpeg_dec->mirror = g_value_get_enum (value);
++      break;
++    case PROP_ROTATION:
++      mjpeg_dec->rotation = g_value_get_enum (value);
++      break;
++    case PROP_SCALEH:
++      mjpeg_dec->scaleH = g_value_get_enum (value);
++      break;
++    case PROP_SCALEV:
++      mjpeg_dec->scaleV = g_value_get_enum (value);
++      break;
+     default:
+       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+       break;
+@@ -159,9 +284,164 @@ gst_omx_mjpeg_dec_get_property (GObject
+     case PROP_FRAMERATE:
+       g_value_set_int (value, mjpeg_dec->framerate);
+       break;
++    case PROP_MIRROR:
++      g_value_set_enum (value, mjpeg_dec->mirror);
++      break;
++    case PROP_ROTATION:
++      g_value_set_enum (value, mjpeg_dec->rotation);
++      break;
++    case PROP_SCALEH:
++      g_value_set_enum (value, mjpeg_dec->scaleH);
++      break;
++    case PROP_SCALEV:
++      g_value_set_enum (value, mjpeg_dec->scaleV);
++      break;
+     default:
+       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+       break;
+   }
+ }
+ #endif
++
++static gboolean
++gst_omx_jpegdec_set_rotation (GstOMXVideoDec * self)
++{
++  OMX_ERRORTYPE err;
++  OMX_CONFIG_ROTATIONTYPE rotation_config;
++  gboolean result = TRUE;
++  GstOMXMJPEGDec * mjpeg_dec = GST_OMX_MJPEG_DEC (self);
++
++  GST_OBJECT_LOCK (self);
++
++  GST_OMX_INIT_STRUCT (&rotation_config);
++  rotation_config.nPortIndex = self->dec_out_port->index;
++
++  err = 
++      gst_omx_component_get_config (self->dec,
++      OMX_IndexConfigCommonRotate, &rotation_config);
++  
++  if (err == OMX_ErrorNone) {
++    if (mjpeg_dec->rotation >= 0 && mjpeg_dec->rotation <= 270) 
++      rotation_config.nRotation = mjpeg_dec->rotation;
++
++    err = 
++        gst_omx_component_set_config (self->dec,
++        OMX_IndexConfigCommonRotate, &rotation_config);
++    if (err == OMX_ErrorUnsupportedIndex) {
++       GST_WARNING_OBJECT (self,
++           "Setting a rotation not supported by the component");
++    } else if (err == OMX_ErrorUnsupportedSetting) {
++      GST_WARNING_OBJECT (self,
++          "Setting rotation settings %u not supported by the component",
++          mjpeg_dec->rotation);
++    } else if (err != OMX_ErrorNone) {
++      GST_ERROR_OBJECT (self,
++          "Failed to set rotation parameters: %s (0x%08x)",
++          gst_omx_error_to_string (err), err);
++      result = FALSE;
++    }
++  } else {
++    GST_ERROR_OBJECT (self, "Failed to get rotation parameters: %s (0x%08x)",
++        gst_omx_error_to_string (err), err);
++  }
++  
++  GST_OBJECT_UNLOCK (self);
++  return result;
++}
++
++
++
++static gboolean
++gst_omx_jpegdec_set_mirror (GstOMXVideoDec * self)
++{
++  OMX_ERRORTYPE err;
++  OMX_CONFIG_MIRRORTYPE mirror_config;
++  gboolean result = TRUE;
++  GstOMXMJPEGDec * mjpeg_dec = GST_OMX_MJPEG_DEC (self);
++
++  GST_OBJECT_LOCK (self);
++
++  GST_OMX_INIT_STRUCT (&mirror_config);
++  mirror_config.nPortIndex = self->dec_out_port->index;
++
++  err = 
++      gst_omx_component_get_config (self->dec,
++      OMX_IndexConfigCommonMirror, &mirror_config);
++  
++  if (err == OMX_ErrorNone) {
++    if (mjpeg_dec->mirror >= 0 && mjpeg_dec->mirror <= OMX_MirrorBoth)
++      mirror_config.eMirror = mjpeg_dec->mirror;
++    
++    err = 
++        gst_omx_component_set_config (self->dec,
++        OMX_IndexConfigCommonMirror, &mirror_config);
++    if (err == OMX_ErrorUnsupportedIndex) {
++      GST_WARNING_OBJECT (self,
++          "Setting a mirror not supported by the component");
++    } else if (err == OMX_ErrorUnsupportedSetting) {
++      GST_WARNING_OBJECT (self,
++          "Setting mirror settings %u not supported by the component",
++           mjpeg_dec->mirror);
++    } else if (err != OMX_ErrorNone) {
++      GST_ERROR_OBJECT (self,
++          "Failed to set mirror parameters: %s (0x%08x)",
++          gst_omx_error_to_string (err), err);
++      result = FALSE;
++    }
++  } else {
++    GST_ERROR_OBJECT (self, "Failed to get mirror parameters: %s (0x%08x)",
++        gst_omx_error_to_string (err), err);
++  }
++  
++  GST_OBJECT_UNLOCK (self);
++  return result;
++}
++
++static gboolean
++gst_omx_jpegdec_set_scale (GstOMXVideoDec * self)
++{
++  OMX_ERRORTYPE err;
++  OMX_CONFIG_SCALEFACTORTYPE scale_config;
++  gboolean result = TRUE;
++  GstOMXMJPEGDec * mjpeg_dec = GST_OMX_MJPEG_DEC (self);
++
++  GST_OBJECT_LOCK (self);
++
++  GST_OMX_INIT_STRUCT (&scale_config);
++  scale_config.nPortIndex = self->dec_out_port->index;
++
++  err = 
++      gst_omx_component_get_config (self->dec,
++      OMX_IndexConfigCommonScale, &scale_config);
++  
++  if (err == OMX_ErrorNone) {
++    if ((mjpeg_dec->scaleV >= 0 && mjpeg_dec->scaleV <= 3 ) ||
++        (mjpeg_dec->scaleH >= 0 && mjpeg_dec->scaleH <= 3)) {    
++      scale_config.xWidth = (1 << 16) >> (mjpeg_dec->scaleH & 0x3);
++      scale_config.xHeight = (1 << 16) >> (mjpeg_dec->scaleV & 0x3);
++    }
++
++    err = 
++        gst_omx_component_set_config (self->dec,
++        OMX_IndexConfigCommonScale, &scale_config);
++    if (err == OMX_ErrorUnsupportedIndex) {
++      GST_WARNING_OBJECT (self,
++          "Setting a scale not supported by the component");
++    } else if (err == OMX_ErrorUnsupportedSetting) {
++      GST_WARNING_OBJECT (self,
++          "Setting scale settings %u %u  not supported by the component",
++           mjpeg_dec->scaleV, mjpeg_dec->scaleH);
++    } else if (err != OMX_ErrorNone) {
++      GST_ERROR_OBJECT (self,
++          "Failed to set scale parameters: %s (0x%08x)",
++          gst_omx_error_to_string (err), err);
++      result = FALSE;
++    }
++  } else {
++    GST_ERROR_OBJECT (self, "Failed to get scale parameters: %s (0x%08x)",
++        gst_omx_error_to_string (err), err);
++  }
++  
++  GST_OBJECT_UNLOCK (self);
++  return result;
++}
+\ No newline at end of file
+diff -purN a/omx/gstomxmjpegdec.h b/omx/gstomxmjpegdec.h
+--- a/omx/gstomxmjpegdec.h	2022-10-14 13:42:12.749600862 +0800
++++ b/omx/gstomxmjpegdec.h	2022-10-14 13:29:24.849638506 +0800
+@@ -55,6 +55,10 @@ struct _GstOMXMJPEGDec
+   //   gst-launch-1.0 -v filesrc location=xxx.mjpeg ! jpegparse ! omxmjpegdec framerate=xxx ! kmssink driver-name=starfive force-modesetting=1
+   gint framerate;
+ #endif
++  guint32 mirror;
++  guint32 scaleH;
++  guint32 scaleV;
++  guint32 rotation;
+ };
+ 
+ struct _GstOMXMJPEGDecClass
+@@ -68,3 +72,19 @@ G_END_DECLS
+ 
+ #endif /* __GST_OMX_MJPEG_DEC_H__ */
+ 
++typedef enum ROTATIONTYPE 
++{
++  ROTATION_0 = 0,
++  ROTATION_90 = 90,
++  ROTATION_180 = 180,
++  ROTATION_270 = 270,   
++} ROTATIONTYPE;
++
++typedef enum SCALETYPE 
++{
++  SCALEMODE_0 = 0,
++  SCALEMODE1_2,
++  SCALEMODE1_4,
++  SCALEMODE1_8,   
++} SCALETYPE;
++

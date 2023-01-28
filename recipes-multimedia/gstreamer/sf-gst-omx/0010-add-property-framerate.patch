@@ -1,0 +1,144 @@
+--- a/omx/gstomxmjpegdec.h
++++ b/omx/gstomxmjpegdec.h
+@@ -45,6 +45,16 @@
+ struct _GstOMXMJPEGDec
+ {
+   GstOMXVideoDec parent;
++#ifdef USE_OMX_TARGET_STARFIVE
++  //If container shows fps as public api, it won't work
++  //as GstBuffer containing pts/dts/duration and it will calculate fps in upstream.
++  //i.e.
++  //not works:
++  //   gst-launch-1.0 -v filesrc location=xxx.mp4 ! qtdemux name=demux demux.video_0 ! jpegparse ! omxmjpegdec framerate=xxx ! kmssink driver-name=starfive force-modesetting=1
++  //works:
++  //   gst-launch-1.0 -v filesrc location=xxx.mjpeg ! jpegparse ! omxmjpegdec framerate=xxx ! kmssink driver-name=starfive force-modesetting=1
++  gint framerate;
++#endif
+ };
+
+ struct _GstOMXMJPEGDecClass
+
+--- a/omx/gstomxmjpegdec.c
++++ b/omx/gstomxmjpegdec.c
+@@ -28,16 +28,28 @@
+
+ GST_DEBUG_CATEGORY_STATIC (gst_omx_mjpeg_dec_debug_category);
+ #define GST_CAT_DEFAULT gst_omx_mjpeg_dec_debug_category
+-
++#ifdef USE_OMX_TARGET_STARFIVE
++#define DEFAULT_FRAMERATE                0
++#endif
+ /* prototypes */
+ static gboolean gst_omx_mjpeg_dec_is_format_change (GstOMXVideoDec * dec,
+     GstOMXPort * port, GstVideoCodecState * state);
+ static gboolean gst_omx_mjpeg_dec_set_format (GstOMXVideoDec * dec,
+     GstOMXPort * port, GstVideoCodecState * state);
+-
++#ifdef USE_OMX_TARGET_STARFIVE
++static void gst_omx_mjpeg_dec_set_property (GObject * object, guint prop_id,
++    const GValue * value, GParamSpec * pspec);
++static void gst_omx_mjpeg_dec_get_property (GObject * object, guint prop_id,
++    GValue * value, GParamSpec * pspec);
++#endif
+ enum
+ {
++#ifdef USE_OMX_TARGET_STARFIVE
++  PROP_0,
++  PROP_FRAMERATE
++#else
+   PROP_0
++#endif
+ };
+
+ /* class initialization */
+@@ -54,11 +66,16 @@
+ {
+   GstOMXVideoDecClass *videodec_class = GST_OMX_VIDEO_DEC_CLASS (klass);
+   GstElementClass *element_class = GST_ELEMENT_CLASS (klass);
+-
++#ifdef USE_OMX_TARGET_STARFIVE
++  GObjectClass *gobject_class = G_OBJECT_CLASS (videodec_class);
++#endif
+   videodec_class->is_format_change =
+       GST_DEBUG_FUNCPTR (gst_omx_mjpeg_dec_is_format_change);
+   videodec_class->set_format = GST_DEBUG_FUNCPTR (gst_omx_mjpeg_dec_set_format);
+-
++#ifdef USE_OMX_TARGET_STARFIVE
++  gobject_class->set_property = GST_DEBUG_FUNCPTR (gst_omx_mjpeg_dec_set_property);
++  gobject_class->get_property = GST_DEBUG_FUNCPTR (gst_omx_mjpeg_dec_get_property);
++#endif
+   videodec_class->cdata.default_sink_template_caps = "image/jpeg, "
+       "width=(int) [1,MAX], " "height=(int) [1,MAX]";
+
+@@ -67,7 +84,16 @@
+       "Codec/Decoder/Video/Hardware",
+       "Decode MJPEG video streams",
+       "Sebastian Dröge <sebastian.droege@collabora.co.uk>");
+-
++#ifdef USE_OMX_TARGET_STARFIVE
++  g_object_class_install_property (gobject_class, PROP_FRAMERATE,
++      g_param_spec_int ("framerate",
++        "Framerate",
++        "Frames per second in raw stream.\n                \
++         Only workable for the container not exposing fps.\n\
++                         '0' means disabled.",
++         0, G_MAXINT,
++         DEFAULT_FRAMERATE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
++#endif
+   gst_omx_set_default_role (&videodec_class->cdata, "video_decoder.mjpeg");
+ }
+
+@@ -89,10 +115,53 @@
+ {
+   gboolean ret;
+   OMX_PARAM_PORTDEFINITIONTYPE port_def;
++#ifdef USE_OMX_TARGET_STARFIVE
++  GstVideoInfo *info = &state->info;
++  GstOMXMJPEGDec * mjpeg_dec = GST_OMX_MJPEG_DEC (dec);
+
++  if (mjpeg_dec->framerate != DEFAULT_FRAMERATE) {
++    GST_DEBUG_OBJECT (dec, " change fps from %d/%d to %d/1" GST_PTR_FORMAT, info->fps_n, info->fps_d, mjpeg_dec->framerate);
++    info->fps_n = mjpeg_dec->framerate;
++    info->fps_d = 1;
++    if (state->caps) {
++      gst_caps_set_simple (state->caps, "framerate", GST_TYPE_FRACTION, info->fps_n, info->fps_d, NULL);
++    }
++  }
++#endif
+   gst_omx_port_get_port_definition (port, &port_def);
+   port_def.format.video.eCompressionFormat = OMX_VIDEO_CodingMJPEG;
+   ret = gst_omx_port_update_port_definition (port, &port_def) == OMX_ErrorNone;
+
+   return ret;
+ }
++#ifdef USE_OMX_TARGET_STARFIVE
++static void
++gst_omx_mjpeg_dec_set_property (GObject * object, guint prop_id,
++    const GValue * value, GParamSpec * pspec)
++{
++  GstOMXMJPEGDec * mjpeg_dec = GST_OMX_MJPEG_DEC (object);
++  switch (prop_id) {
++    case PROP_FRAMERATE:
++      mjpeg_dec->framerate = g_value_get_int (value);
++      break;
++    default:
++      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
++      break;
++  }
++}
++
++static void
++gst_omx_mjpeg_dec_get_property (GObject * object, guint prop_id, GValue * value,
++    GParamSpec * pspec)
++{
++  GstOMXMJPEGDec * mjpeg_dec = GST_OMX_MJPEG_DEC (object);
++  switch (prop_id) {
++    case PROP_FRAMERATE:
++      g_value_set_int (value, mjpeg_dec->framerate);
++      break;
++    default:
++      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
++      break;
++  }
++}
++#endif

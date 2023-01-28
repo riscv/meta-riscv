@@ -1,0 +1,66 @@
+Add Interlaced-mode judgment for gstomxvideodec class 
+Fix compiler warnings
+
+Signed-off-by: Leo Lu <leo.lu@starfivetech.com>
+
+diff -purN a/omx/gstomxvideodec.c b/omx/gstomxvideodec.c
+--- a/omx/gstomxvideodec.c	2022-11-03 17:02:54.601333539 +0800
++++ b/omx/gstomxvideodec.c	2022-11-03 16:06:20.435534119 +0800
+@@ -740,7 +740,7 @@ gst_omx_try_importing_buffer (GstOMXVide
+ #ifdef USE_OMX_TARGET_STARFIVE
+   if ( !gst_is_dmabuf_memory (mem)) {
+     GST_INFO_OBJECT (self,
+-        " %d-th buffer doesn't contain dmabuf, go to out. port->port_def.nBufferSize: %lu",
++        " %d-th buffer doesn't contain dmabuf, go to out. port->port_def.nBufferSize: %u",
+         i, port->port_def.nBufferSize);
+     goto out;
+   } 
+@@ -2795,7 +2795,7 @@ gst_omx_video_dec_set_format (GstVideoDe
+   gboolean needs_disable = FALSE;
+   OMX_PARAM_PORTDEFINITIONTYPE port_def;
+   OMX_U32 framerate_q16 = gst_omx_video_calculate_framerate_q16 (info);
+-
++  static gboolean interlaced_print_flag = FALSE;
+   self = GST_OMX_VIDEO_DEC (decoder);
+   klass = GST_OMX_VIDEO_DEC_GET_CLASS (decoder);
+ 
+@@ -2857,9 +2857,17 @@ gst_omx_video_dec_set_format (GstVideoDe
+   /*We cannot use GST_VIDEO_INFO_FIELD_HEIGHT() as encoded content may use either
+    * interlace-mode=interleaved or alternate. In both case we'll output alternate
+    * so the OMX frame height needs to be halfed. */
+-  if (GST_VIDEO_INFO_IS_INTERLACED (info))
++  if (GST_VIDEO_INFO_IS_INTERLACED (info)) {
+     port_def.format.video.nFrameHeight =
+         GST_ROUND_UP_2 (port_def.format.video.nFrameHeight / 2);
++    if (!interlaced_print_flag) {
++      g_print("Current stream mode is %s, but just support PROGRESSIVE type. \n",
++          gst_video_interlace_mode_to_string (info->interlace_mode));
++      GST_ERROR_OBJECT (self, "Just support PROGRESSIVE type ");
++      interlaced_print_flag = TRUE;
++    }
++    return FALSE;
++  }
+   port_def.format.video.xFramerate = framerate_q16;
+ 
+   if (klass->cdata.hacks & GST_OMX_HACK_PASS_COLOR_FORMAT_TO_DECODER) {
+diff -purN a/omx/gstomxvideoenc.c b/omx/gstomxvideoenc.c
+--- a/omx/gstomxvideoenc.c	2022-11-03 17:02:54.593333485 +0800
++++ b/omx/gstomxvideoenc.c	2022-11-03 13:46:10.137177818 +0800
+@@ -2136,7 +2136,7 @@ gst_omx_try_importing_buffer (GstOMXVide
+ 
+   if ( !gst_is_dmabuf_memory (mem)) {
+     GST_INFO_OBJECT (self,
+-        " %d-th buffer doesn't contain dmabuf, go to out. port->port_def.nBufferSize: %lu",
++        " %d-th buffer doesn't contain dmabuf, go to out. port->port_def.nBufferSize: %u",
+         i, port->port_def.nBufferSize);
+     goto out;
+   }
+@@ -2187,7 +2187,7 @@ gst_omx_video_enc_use_buffers (GstOMXVid
+   GList *frames = NULL;
+   OMX_ERRORTYPE err = OMX_ErrorNone;
+   gboolean is_mapped = FALSE ;
+-  GST_DEBUG(" nBufferCountActual=%d, nBufferCountMin= %lu", n, port->port_def.nBufferCountMin);
++  GST_DEBUG(" nBufferCountActual=%d, nBufferCountMin= %u", n, port->port_def.nBufferCountMin);
+ 
+   if ( pool != NULL ) {
+     guint i;

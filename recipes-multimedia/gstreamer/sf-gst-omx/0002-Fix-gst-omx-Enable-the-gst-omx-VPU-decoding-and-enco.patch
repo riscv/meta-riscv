@@ -1,0 +1,70 @@
+From 810800c303965e5cb0cf135210667c003f050ee0 Mon Sep 17 00:00:00 2001
+From: "andy.hu" <andy.hu@starfive.com>
+Date: Tue, 10 Aug 2021 19:18:00 +0800
+Subject: [PATCH] Fix(gst-omx): Enable the gst-omx VPU decoding and encoding
+ support h264 High L5.2
+
+---
+
+diff --git a/meson.build b/meson.build
+index aeda56a..48121ab 100644
+--- a/meson.build
++++ b/meson.build
+@@ -217,6 +217,7 @@ elif omx_target == 'tizonia'
+   gst_omx_args += ['-I' + tizil_includedir + '/tizonia']
+   omx_inc = []
+ elif omx_target == 'stf'
++  cdata.set('USE_OMX_TARGET_STARFIVE', 1)
+   warning('stf selected')
+ else
+   error ('Unsupported omx target specified. Use the -Dtarget option')
+diff --git a/omx/gstomxh264enc.c b/omx/gstomxh264enc.c
+index 51d84a8..875f974 100644
+--- a/omx/gstomxh264enc.c
++++ b/omx/gstomxh264enc.c
+@@ -824,6 +824,11 @@ gst_omx_h264_enc_get_caps (GstOMXVideoEnc * enc, GstOMXPort * port,
+       case OMX_VIDEO_AVCLevel51:
+         level = "5.1";
+         break;
++#ifdef USE_OMX_TARGET_STARFIVE
++      case OMX_VIDEO_AVCLevel52:
++        level = "5.2";
++        break;
++#else
+ #ifdef USE_OMX_TARGET_ZYNQ_USCALE_PLUS
+       case OMX_ALG_VIDEO_AVCLevel52:
+         level = "5.2";
+@@ -837,6 +842,7 @@ gst_omx_h264_enc_get_caps (GstOMXVideoEnc * enc, GstOMXPort * port,
+       case OMX_ALG_VIDEO_AVCLevel62:
+         level = "6.2";
+         break;
++#endif
+ #endif
+       default:
+         g_assert_not_reached ();
+diff --git a/omx/gstomxh264utils.c b/omx/gstomxh264utils.c
+index ba29211..a6e95e3 100644
+--- a/omx/gstomxh264utils.c
++++ b/omx/gstomxh264utils.c
+@@ -115,6 +115,10 @@ gst_omx_h264_utils_get_level_from_str (const gchar * level)
+     return OMX_VIDEO_AVCLevel5;
+   } else if (g_str_equal (level, "5.1")) {
+     return OMX_VIDEO_AVCLevel51;
++#ifdef USE_OMX_TARGET_STARFIVE
++  } else if (g_str_equal (level, "5.2")) {
++    return OMX_VIDEO_AVCLevel52;
++#else
+ #ifdef USE_OMX_TARGET_ZYNQ_USCALE_PLUS
+   } else if (g_str_equal (level, "5.2")) {
+     return (OMX_VIDEO_AVCLEVELTYPE) OMX_ALG_VIDEO_AVCLevel52;
+@@ -124,6 +128,7 @@ gst_omx_h264_utils_get_level_from_str (const gchar * level)
+     return (OMX_VIDEO_AVCLEVELTYPE) OMX_ALG_VIDEO_AVCLevel61;
+   } else if (g_str_equal (level, "6.2")) {
+     return (OMX_VIDEO_AVCLEVELTYPE) OMX_ALG_VIDEO_AVCLevel62;
++#endif
+ #endif
+   }
+
+-- 
+2.17.1
+

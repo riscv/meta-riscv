@@ -1,0 +1,69 @@
+diff --git a/config/meson.build b/config/meson.build
+index 1068c6d..7f8abe9 100755
+--- a/config/meson.build
++++ b/config/meson.build
+@@ -6,6 +6,8 @@ elif omx_target == 'zynqultrascaleplus'
+   sub = 'zynqultrascaleplus'
+ elif omx_target == 'tizonia'
+   sub = 'tizonia'
++ elif omx_target == 'stf'
++  sub = 'stf'
+ else
+   # No config file defined for the 'generic' target
+   sub = ''
+diff --git a/config/stf/gstomx.conf b/config/stf/gstomx.conf
+new file mode 100644
+index 0000000..b4cdebb
+--- /dev/null
++++ b/config/stf/gstomx.conf
+@@ -0,0 +1,17 @@
++[omxh265dec]
++type-name=GstOMXH265Dec
++core-name=/usr/lib/libsf-omx-il.so
++component-name=sf.dec.decoder.h265
++in-port-index=0
++out-port-index=1
++rank=0
++hacks=pass-profile-to-decoder;pass-color-format-to-decoder;ensure-buffer-count-actual
++
++[omxh264dec]
++type-name=GstOMXH264Dec
++core-name=/usr/lib/libsf-omx-il.so
++component-name=sf.dec.decoder.h264
++in-port-index=0
++out-port-index=1
++rank=1
++hacks=pass-profile-to-decoder;pass-color-format-to-decoder;ensure-buffer-count-actual
+diff --git a/config/stf/meson.build b/config/stf/meson.build
+new file mode 100644
+index 0000000..dc99c08
+--- /dev/null
++++ b/config/stf/meson.build
+@@ -0,0 +1 @@
++install_data (['gstomx.conf'], install_dir : omx_conf_dir)
+diff --git a/meson.build b/meson.build
+index 32c7fa7..aeda56a 100755
+--- a/meson.build
++++ b/meson.build
+@@ -216,6 +216,8 @@ elif omx_target == 'tizonia'
+   tizil_includedir = tizil_dep.get_pkgconfig_variable('includedir')
+   gst_omx_args += ['-I' + tizil_includedir + '/tizonia']
+   omx_inc = []
++elif omx_target == 'stf'
++  warning('stf selected')
+ else
+   error ('Unsupported omx target specified. Use the -Dtarget option')
+ endif
+diff --git a/meson_options.txt b/meson_options.txt
+index e18beb2..4fc6139 100755
+--- a/meson_options.txt
++++ b/meson_options.txt
+@@ -1,7 +1,7 @@
+ option('header_path', type : 'string', value : '',
+     description : 'An extra include directory to find the OpenMax headers')
+ option('target', type : 'combo',
+-    choices : ['none', 'generic', 'rpi', 'bellagio', 'tizonia', 'zynqultrascaleplus'], value : 'none',
++    choices : ['none', 'generic', 'rpi', 'bellagio', 'tizonia', 'zynqultrascaleplus', 'stf'], value : 'none',
+     description : 'The OMX platform to target')
+ option('struct_packing', type : 'combo',
+     choices : ['0', '1', '2', '4', '8'], value : '0',
