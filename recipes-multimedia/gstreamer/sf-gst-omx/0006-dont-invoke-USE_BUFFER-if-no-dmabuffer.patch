@@ -1,0 +1,19 @@
+--- a/omx/gstomxvideodec.c
++++ b/omx/gstomxvideodec.c
+@@ -718,6 +718,15 @@
+     goto out;
+   }
+ 
++#ifdef USE_OMX_TARGET_STARFIVE
++  if ( !gst_is_dmabuf_memory (mem)) {
++    GST_INFO_OBJECT (self,
++        " %d-th buffer doesn't contain dmabuf, go to out. port->port_def.nBufferSize: %lu",
++        i, port->port_def.nBufferSize);
++    goto out;
++  } 
++#endif
++
+   *frame = g_slice_new0 (GstVideoFrame);
+ 
+   is_mapped = gst_video_frame_map (*frame, v_info, buffer, flags);
+

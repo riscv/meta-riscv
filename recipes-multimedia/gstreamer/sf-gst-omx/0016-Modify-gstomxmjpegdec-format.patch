@@ -1,0 +1,86 @@
+Changed Y444 for correct format
+Add VYUY v308 NV61 format for omxmjpegdec
+
+Signed-off-by: Leo Lu <leo.lu@starfivetech.com>
+
+diff -purN a/omx/gstomxbufferpool.c b/omx/gstomxbufferpool.c
+--- a/omx/gstomxbufferpool.c	2022-09-23 11:48:33.011477728 +0800
++++ b/omx/gstomxbufferpool.c	2022-09-23 15:01:05.053735591 +0800
+@@ -355,10 +355,13 @@ gst_omx_buffer_pool_alloc_buffer (GstBuf
+       case GST_VIDEO_FORMAT_ARGB:
+       case GST_VIDEO_FORMAT_RGB16:
+       case GST_VIDEO_FORMAT_BGR16:
++      case GST_VIDEO_FORMAT_GRAY8:
++        break;
+       case GST_VIDEO_FORMAT_YUY2:
+       case GST_VIDEO_FORMAT_UYVY:
+       case GST_VIDEO_FORMAT_YVYU:
+-      case GST_VIDEO_FORMAT_GRAY8:
++      case GST_VIDEO_FORMAT_VYUY:
++        stride[0] = GST_ROUND_UP_4(nstride * 2);
+         break;
+       case GST_VIDEO_FORMAT_I420:
+         stride[1] = nstride / 2;
+@@ -370,6 +373,7 @@ gst_omx_buffer_pool_alloc_buffer (GstBuf
+       case GST_VIDEO_FORMAT_NV12_10LE32:
+       case GST_VIDEO_FORMAT_NV16:
+       case GST_VIDEO_FORMAT_NV16_10LE32:
++      case GST_VIDEO_FORMAT_NV61:
+ #ifdef USE_OMX_TARGET_STARFIVE
+       case GST_VIDEO_FORMAT_NV21:
+ #endif
+@@ -392,6 +396,9 @@ gst_omx_buffer_pool_alloc_buffer (GstBuf
+         offset[1] = offset[0] + stride[0] * nslice;
+         offset[2] = offset[1] + stride[1] * nslice;
+         break;
++      case GST_VIDEO_FORMAT_v308:
++        stride[0] = GST_ROUND_UP_4(nstride * 3);
++        break;
+ #endif
+       default:
+         g_assert_not_reached ();
+diff -purN a/omx/gstomxvideo.c b/omx/gstomxvideo.c
+--- a/omx/gstomxvideo.c	2022-09-23 11:48:33.011477728 +0800
++++ b/omx/gstomxvideo.c	2022-09-23 15:00:40.937734140 +0800
+@@ -99,11 +99,20 @@ gst_omx_video_get_format_from_omx (OMX_C
+       format = GST_VIDEO_FORMAT_Y42B;
+       break;
+     case OMX_COLOR_FormatYUV444Interleaved:
+-      format = GST_VIDEO_FORMAT_Y444;
++      format = GST_VIDEO_FORMAT_v308;
+       break;
+     case OMX_COLOR_FormatYVU420SemiPlanar:
+       format = GST_VIDEO_FORMAT_NV21;
+       break;
++    case OMX_COLOR_FormatCrYCbY:
++      format = GST_VIDEO_FORMAT_VYUY;
++      break;
++    case OMX_COLOR_FormatYUV444Planar:
++      format = GST_VIDEO_FORMAT_Y444;
++      break;
++    case OMX_COLOR_FormatYVU422SemiPlanar:
++      format = GST_VIDEO_FORMAT_NV61;
++      break;
+ #endif
+     default:
+       format = GST_VIDEO_FORMAT_UNKNOWN;
+diff -purN a/omx/gstomxvideodec.c b/omx/gstomxvideodec.c
+--- a/omx/gstomxvideodec.c	2022-09-23 11:48:33.011477728 +0800
++++ b/omx/gstomxvideodec.c	2022-09-23 11:42:45.251075196 +0800
+@@ -646,6 +646,7 @@ gst_omx_video_dec_fill_buffer (GstOMXVid
+         break;
+ #ifdef USE_OMX_TARGET_STARFIVE
+       case GST_VIDEO_FORMAT_Y444:
++      case GST_VIDEO_FORMAT_v308:
+         dst_width[0] = GST_VIDEO_INFO_WIDTH (vinfo);
+         dst_width[1] = GST_VIDEO_INFO_WIDTH (vinfo);
+         dst_width[2] = GST_VIDEO_INFO_WIDTH (vinfo);
+diff -purN a/config/stf/gstomx.conf b/config/stf/gstomx.conf
+--- a/config/stf/gstomx.conf	2022-09-23 11:48:33.079477828 +0800
++++ b/config/stf/gstomx.conf	2022-09-23 15:04:52.249741473 +0800
+@@ -42,4 +42,4 @@ in-port-index=0
+ out-port-index=1
+ rank=1
+ hacks=pass-profile-to-decoder;pass-color-format-to-decoder;ensure-buffer-count-actual
+-src-template-caps=video/x-raw, format = (string) { NV16_10LE32, NV12_10LE32, NV16, YUY2, YVYU, UYVY, NV12, NV21, I420, RGB16, BGR16, ABGR, ARGB, GRAY8, Y42B, Y444 }, width = (int) [ 1, max ], height = (int) [ 1, max ], framerate = (fraction) [ 0, max ]
++src-template-caps=video/x-raw, format = (string) { NV16_10LE32, NV12_10LE32, NV16, NV61, YUY2, YVYU, UYVY, NV12, NV21, I420, RGB16, BGR16, ABGR, ARGB, GRAY8, Y42B, Y444, VYUY, v308 }, width = (int) [ 1, max ], height = (int) [ 1, max ], framerate = (fraction) [ 0, max ]
