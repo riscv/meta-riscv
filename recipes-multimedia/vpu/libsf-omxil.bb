@@ -9,14 +9,14 @@ COMPATIBLE_MACHINE = "visionfive2"
 PROVIDES = "virtual/libomxil"
 
 require recipes-bsp/common/visionfive2-firmware.inc
-inherit autotools
+inherit cmake
 
 SOLIBS = ".so"
 FILES_SOLIBSDEV = ""
 INSANE_SKIP:${PN} += "dev-so"
 
 SRC_URI += " \
-     file://0001-Adapt-Makefile-for-usage-in-Yocto.patch;subdir=git/omx-il \
+     file://CMakeLists.txt;subdir=git/omx-il \
 "
 
 S = "${WORKDIR}/git/omx-il"
@@ -33,18 +33,8 @@ RDEPENDS:${PN} += " \
     libsf-codaj12 \
 "
 
-do_compile() {
-    oe_runmake -C ${S} STAGING_DIR=${WORKDIR}/recipe-sysroot/
-}
-
-do_install() {
-    install -d ${D}/usr/include/khronos
-    for i in $(ls ${S}/include/khronos); do
-        install -m 0644 ${S}/include/khronos/${i} ${D}/usr/include/khronos
-    done
-    install -d ${D}/usr/lib/
-    install -m 0644 ${S}/libsf-omx-il.so ${D}/usr/lib/libsf-omx-il.so
-    ln -s -r ${D}/libsf-omx-il.so ${D}/usr/lib/libOMX_Core.so
+do_install:append() {
+    ln -s -r -f ${D}/usr/lib/libsf-omx-il.so ${D}/usr/lib/libOMX_Core.so
 }
 
 FILES:${PN} += " \
