@@ -44,7 +44,7 @@ do_deploy:append() {
     install -m 644 ${WORKDIR}/uEnv-nezha.txt ${DEPLOYDIR}/uEnv.txt
 }
 
-COMPATIBLE_MACHINE = "(nezha-allwinner-d1)"
+COMPATIBLE_MACHINE = "(nezha-allwinner-d1|mangopi-mq-pro)"
 
 TOOLCHAIN = "gcc"
 

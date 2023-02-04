@@ -27,6 +27,6 @@ KERNEL_FEATURES += "ktypes/standard/standard.cfg"
 # using out-of-tree
 #KBUILD_DEFCONFIG = "nezha_defconfig"
 
-COMPATIBLE_MACHINE = "(nezha-allwinner-d1)"
+COMPATIBLE_MACHINE = "(nezha-allwinner-d1|mangopi-mq-pro)"
 
 KERNEL_VERSION_SANITY_SKIP="1"
