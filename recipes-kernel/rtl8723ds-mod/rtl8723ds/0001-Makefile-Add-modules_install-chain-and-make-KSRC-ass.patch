@@ -1,0 +1,41 @@
+From cc69e105677d7d52809228cf688615d9936b26c1 Mon Sep 17 00:00:00 2001
+From: Pavel Zhukov <pavel@zhukoff.net>
+Date: Sun, 5 Feb 2023 09:20:57 +0100
+Subject: [PATCH 1/2] Makefile: Add modules_install chain and make KSRC
+ assignment weaker
+Cc: pavel@zhukoff.net
+
+Upstream-Status: Inappropriate [embedded/chroot specific]
+May be submittable with further modifications.
+
+Signed-off-by: Pavel Zhukov <pavel@zhukoff.net>
+---
+ Makefile | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index ddd4561..ebae427 100644
+--- a/Makefile
++++ b/Makefile
+@@ -996,7 +996,7 @@ EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
+ EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT
+ CROSS_COMPILE ?=
+ KVER  := $(shell uname -r)
+-KSRC := /lib/modules/$(KVER)/build
++KSRC ?= /lib/modules/$(KVER)/build
+ MODDESTDIR := /lib/modules/$(KVER)/kernel/drivers/net/wireless/
+ INSTALL_PREFIX :=
+ endif
+@@ -1809,6 +1809,9 @@ install:
+ 	install -p -m 644 $(MODULE_NAME).ko  $(MODDESTDIR)
+ 	/sbin/depmod -a ${KVER}
+ 
++modules_install:
++	$(MAKE) -C $(KSRC) M=$(shell pwd) modules_install
++
+ uninstall:
+ 	rm -f $(MODDESTDIR)/$(MODULE_NAME).ko
+ 	/sbin/depmod -a ${KVER}
+-- 
+2.39.1
+
