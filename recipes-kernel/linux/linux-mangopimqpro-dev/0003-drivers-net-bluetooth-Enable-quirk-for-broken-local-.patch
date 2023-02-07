@@ -6,6 +6,8 @@ Subject: [PATCH 3/3] drivers/net/bluetooth: Enable quirk for broken local ext
 Cc: pavel@zhukoff.net
 
 Signed-off-by: Pavel Zhukov <pavel@zhukoff.net>
+Upstream-Status: Pending [Waiting for base patches to be accepted]
+
 ---
  drivers/bluetooth/btrtl.c | 1 +
  1 file changed, 1 insertion(+)

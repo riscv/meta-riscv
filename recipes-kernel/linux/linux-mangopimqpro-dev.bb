@@ -2,9 +2,9 @@ require linux-d1-dev.inc
 
 FILESEXTRAPATHS:prepend = "${FILE_DIRNAME}/linux-nezha:"
 SUMMARY = "MangoPi MQ Pro dev kernel recipe"
-## TODO Should be changed to once
+## TODO Should be changed to
 ## https://github.com/smaeul/u-boot/commit/528ae9bc6c55edd3ffe642734b4132a8246ea777#diff-7a77df959a917850f0b29cd98afe6c3ca6de627a0c52dd9983cd42fede7a0e34
-## is merged into kernel too
+## once it's is merged into kernel too
 ## mangopi_mq_pro_defconfig
 
 KBUILD_DEFCONFIG = "nezha_defconfig"
