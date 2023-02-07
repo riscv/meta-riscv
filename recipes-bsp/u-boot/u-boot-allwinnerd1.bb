@@ -13,7 +13,6 @@ SRC_URI = " \
     file://uEnv-nezha.txt \
     file://0001-sun20i-set-CONFIG_SYS_BOOTM_LEN.patch \
 "
-
 SRCREV = "528ae9bc6c55edd3ffe642734b4132a8246ea777"
 
 DEPENDS:append = " \
@@ -21,7 +20,6 @@ DEPENDS:append = " \
     python3-setuptools-native \
 "
 
-UBOOT_MACHINE = "nezha_defconfig"
 
 # Overwrite this for your server
 TFTP_SERVER_IP ?= "127.0.0.1"
@@ -44,7 +42,7 @@ do_deploy:append() {
     install -m 644 ${WORKDIR}/uEnv-nezha.txt ${DEPLOYDIR}/uEnv.txt
 }
 
-COMPATIBLE_MACHINE = "(nezha-allwinner-d1|mangopi-mq-pro)"
-
 TOOLCHAIN = "gcc"
-
+## Should be overwritten in machine conf
+UBOOT_MACHINE ?= "allwinner_defconfig"
+COMPATIBLE_MACHINE = "(nezha-allwinner-d1|mangopi-mq-pro)"
