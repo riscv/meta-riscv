@@ -13,6 +13,8 @@ SRC_URI = " \
     file://uEnv-nezha.txt \
     file://0001-sun20i-set-CONFIG_SYS_BOOTM_LEN.patch \
 "
+SRC_URI:append:mangopi-mq-pro = "file://0001-Sync-with-d1-wip.patch"
+
 SRCREV = "528ae9bc6c55edd3ffe642734b4132a8246ea777"
 
 DEPENDS:append = " \
