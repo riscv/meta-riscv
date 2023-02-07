@@ -16,6 +16,10 @@ so add a quirk to indicate that these features are broken.
 
 Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
 Signed-off-by: Bastian Germann <bage@debian.org>
+
+Upstream-Status: Submitted [https://lore.kernel.org/netdev/20230206233912.9410-2-bage@debian.org/T/]
+Signed-off-by: Pavel Zhukov <pavel@zhukoff.net>
+
 ---
  drivers/bluetooth/btrtl.c  | 120 +++++++++++++++++++++++++++++++++++--
  drivers/bluetooth/btrtl.h  |   5 ++

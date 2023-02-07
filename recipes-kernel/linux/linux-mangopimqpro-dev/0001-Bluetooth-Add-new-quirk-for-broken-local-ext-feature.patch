@@ -13,6 +13,10 @@ either garbage or with error in status on corresponding commands.
 
 Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
 Signed-off-by: Bastian Germann <bage@debian.org>
+
+Upstream-Status: Submitted [https://lore.kernel.org/netdev/20230206233912.9410-2-bage@debian.org/T/]
+Signed-off-by: Pavel Zhukov <pavel@zhukoff.net>
+
 ---
  include/net/bluetooth/hci.h | 8 ++++++++
  net/bluetooth/hci_event.c   | 4 +++-
