@@ -47,9 +47,13 @@ do_deploy:append:freedom-u540() {
 }
 
 # Only add opensbi dependency if opensbi is in image deps
-do_compile[depends] += "${@bb.utils.contains('EXTRA_IMAGEDEPENDS', 'opensbi', 'opensbi:do_deploy', '',d)}"
+do_compile[depends] += "opensbi:do_deploy"
 
 do_compile:prepend:ae350-ax45mp() {
+    export OPENSBI=${DEPLOY_DIR_IMAGE}/fw_dynamic.bin
+}
+
+do_compile:prepend:freedom-u540() {
     export OPENSBI=${DEPLOY_DIR_IMAGE}/fw_dynamic.bin
 }
 

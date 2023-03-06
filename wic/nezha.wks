@@ -1,9 +1,5 @@
 # short-description: Create SD card image for Nezha Allwinner D1 development board
 
-part boot0 --source rawcopy --sourceparams="file=boot0_sdcard_sun20iw1p1.bin" --offset 16s --ondisk mmcblk0 --no-table
-
-part u-boot --source rawcopy --sourceparams="file=u-boot.toc1" --offset 32800s --ondisk mmcblk0 --no-table
-
+part u-boot --source rawcopy --sourceparams="file=u-boot-sunxi-with-spl.bin" --offset 16s --ondisk mmcblk0 --no-table
 part /boot --source bootimg-partition --ondisk mmcblk0 --fstype=vfat --label boot --align 4096 --fixed-size 64 --active
-
 part /     --source rootfs --ondisk mmcblk0 --fstype=ext4 --label rootfs  --align 4096 --fixed-size 14000 --exclude-path data/

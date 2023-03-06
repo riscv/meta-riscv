@@ -1,0 +1,29 @@
+From 87c37b89a48412c2a4866a2ec12db7421937042e Mon Sep 17 00:00:00 2001
+From: Pavel Zhukov <pavel@zhukoff.net>
+Date: Tue, 7 Feb 2023 18:35:52 +0100
+Subject: [PATCH 3/3] drivers/net/bluetooth: Enable quirk for broken local ext
+ features page 2
+Cc: pavel@zhukoff.net
+
+Signed-off-by: Pavel Zhukov <pavel@zhukoff.net>
+Upstream-Status: Pending [Waiting for base patches to be accepted]
+
+---
+ drivers/bluetooth/btrtl.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/bluetooth/btrtl.c b/drivers/bluetooth/btrtl.c
+index ae1a63e70b1d..8645b2e35e22 100644
+--- a/drivers/bluetooth/btrtl.c
++++ b/drivers/bluetooth/btrtl.c
+@@ -884,6 +884,7 @@ void btrtl_set_quirks(struct hci_dev *hdev, struct btrtl_device_info *btrtl_dev)
+ 
+ 	switch (btrtl_dev->ic_info->lmp_subver) {
+ 	case RTL_ROM_LMP_8703B:
++	case RTL_ROM_LMP_8723B:
+ 		/* 8723CS reports two pages for local ext features,
+ 		 * but it doesn't support any features from page 2 -
+ 		 * it either responds with garbage or with error status
+-- 
+2.39.1
+

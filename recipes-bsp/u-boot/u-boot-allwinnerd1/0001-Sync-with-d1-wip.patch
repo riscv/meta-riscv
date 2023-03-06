@@ -1,0 +1,411 @@
+From 97170c18786f009367a484f51893a7adc4a111d6 Mon Sep 17 00:00:00 2001
+From: Pavel Zhukov <pavel@zhukoff.net>
+Date: Tue, 7 Feb 2023 15:26:00 +0100
+Subject: [PATCH] Sync with d1/wip
+Cc: pavel@zhukoff.net
+
+Upstream-Status: Backport
+Signed-off-by: Pavel Zhukov <pavel@zhukoff.net>
+
+---
+ .../dts/sun20i-d1-lichee-rv-86-panel.dtsi     |  20 +-
+ arch/riscv/dts/sun20i-d1-nezha.dts            |  10 +-
+ arch/riscv/dts/sun20i-d1.dtsi                 | 187 ++++++++++++++++++
+ 3 files changed, 215 insertions(+), 2 deletions(-)
+
+diff --git a/arch/riscv/dts/sun20i-d1-lichee-rv-86-panel.dtsi b/arch/riscv/dts/sun20i-d1-lichee-rv-86-panel.dtsi
+index 000d4c1cb2..0f9cb3fefd 100644
+--- a/arch/riscv/dts/sun20i-d1-lichee-rv-86-panel.dtsi
++++ b/arch/riscv/dts/sun20i-d1-lichee-rv-86-panel.dtsi
+@@ -7,6 +7,7 @@
+ 	aliases {
+ 		ethernet0 = &emac;
+ 		ethernet1 = &xr829;
++		serial3 = &uart3;
+ 	};
+ 
+ 	audio_amplifier: audio-amplifier {
+@@ -133,6 +134,11 @@
+ 		pins = "PE17";
+ 		function = "dmic";
+ 	};
++
++	uart3_pb_pins: uart3-pb-pins {
++		pins = "PB6", "PB7";
++		function = "uart3";
++	};
+ };
+ 
+ &uart1 {
+@@ -141,7 +147,19 @@
+ 	pinctrl-names = "default";
+ 	status = "okay";
+ 
+-	/* XR829 bluetooth is connected here */
++	bluetooth {
++		compatible = "xradio,xr829-bt";
++		interrupt-parent = <&pio>;
++		interrupts = <2 0 IRQ_TYPE_LEVEL_LOW>; /* PC0 */
++		device-wakeup-gpios = <&pio 2 1 GPIO_ACTIVE_LOW>; /* PC1 */
++		reset-gpios = <&pio 6 18 GPIO_ACTIVE_LOW>; /* PG18 */
++	};
++};
++
++&uart3 {
++	pinctrl-0 = <&uart3_pb_pins>;
++	pinctrl-names = "default";
++	status = "okay";
+ };
+ 
+ &usb_otg {
+diff --git a/arch/riscv/dts/sun20i-d1-nezha.dts b/arch/riscv/dts/sun20i-d1-nezha.dts
+index 521fef9eb6..4b87e9cc29 100644
+--- a/arch/riscv/dts/sun20i-d1-nezha.dts
++++ b/arch/riscv/dts/sun20i-d1-nezha.dts
+@@ -143,6 +143,7 @@
+ };
+ 
+ &lradc {
++	wakeup-source;
+ 	status = "okay";
+ 
+ 	button-160 {
+@@ -183,6 +184,7 @@
+ 
+ 	xr829: wifi@1 {
+ 		reg = <1>;
++		host-wake-gpios = <&pio 6 10 GPIO_ACTIVE_LOW>; /* PG10 */
+ 	};
+ };
+ 
+@@ -255,7 +257,13 @@
+ 	pinctrl-names = "default";
+ 	status = "okay";
+ 
+-	/* XR829 bluetooth is connected here */
++	bluetooth {
++		compatible = "xradio,xr829-bt";
++		device-wakeup-gpios = <&pio 6 16 GPIO_ACTIVE_LOW>; /* PG16 */
++		interrupts-extended = <&pio 6 17 IRQ_TYPE_LEVEL_LOW>; /* PG17 */
++		interrupt-names = "wakeup";
++		reset-gpios = <&pio 6 18 GPIO_ACTIVE_LOW>; /* PG18 */
++	};
+ };
+ 
+ &usb_otg {
+diff --git a/arch/riscv/dts/sun20i-d1.dtsi b/arch/riscv/dts/sun20i-d1.dtsi
+index e218c9d681..b162b3653f 100644
+--- a/arch/riscv/dts/sun20i-d1.dtsi
++++ b/arch/riscv/dts/sun20i-d1.dtsi
+@@ -16,6 +16,22 @@
+ 	#address-cells = <1>;
+ 	#size-cells = <1>;
+ 
++	// FIXME: no riscv architecture support for cpufreq
++	cpu_opp_table: cpu-opp-table {
++		compatible = "allwinner,sun20i-d1-operating-points",
++			     "allwinner,sun50i-h6-operating-points";
++		nvmem-cells = <&cpu_speed_grade>;
++
++		opp-1080000000 {
++			// FIXME: this is probably wrong now.
++			clock-latency-ns = <244144>; /* 8 32k periods */
++			opp-hz = /bits/ 64 <1008000000>;
++
++			// FIXME: derive a real voltage range.
++			opp-microvolt-speed0 = <1100000>;
++		};
++	};
++
+ 	cpus {
+ 		timebase-frequency = <24000000>;
+ 		#address-cells = <1>;
+@@ -34,6 +50,7 @@
+ 			i-cache-sets = <128>;
+ 			i-cache-size = <32768>;
+ 			mmu-type = "riscv,sv39";
++			operating-points-v2 = <&cpu_opp_table>;
+ 			riscv,isa = "rv64imafdc";
+ 			#cooling-cells = <2>;
+ 
+@@ -48,6 +65,7 @@
+ 
+ 	de: display-engine {
+ 		compatible = "allwinner,sun20i-d1-display-engine";
++		// interrupts = <103 IRQ_TYPE_LEVEL_HIGH>;
+ 		allwinner,pipelines = <&mixer0>, <&mixer1>;
+ 		status = "disabled";
+ 	};
+@@ -59,6 +77,11 @@
+ 		#clock-cells = <0>;
+ 	};
+ 
++	// FIXME: depends on what T-HEAD tries to upstream.
++	pmu {
++		compatible = "thead,c900-pmu";
++	};
++
+ 	thermal-zones {
+ 		cpu-thermal {
+ 			polling-delay = <0>;
+@@ -105,6 +128,21 @@
+ 			status = "reserved";
+ 		};
+ 
++		ve: video-codec@1c0e000 {
++			compatible = "allwinner,sun20i-d1-video-engine";
++			reg = <0x1c0e000 0x2000>;
++			interrupts = <82 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&ccu CLK_BUS_VE>,
++				 <&ccu CLK_VE>,
++				 <&ccu CLK_MBUS_VE>;
++			clock-names = "ahb", "mod", "ram";
++			resets = <&ccu RST_BUS_VE>;
++			allwinner,sram = <&ve_sram 1>;
++			interconnects = <&mbus 4>;
++			interconnect-names = "dma-mem";
++			iommus = <&iommu 0>;
++		};
++
+ 		pio: pinctrl@2000000 {
+ 			compatible = "allwinner,sun20i-d1-pinctrl";
+ 			reg = <0x2000000 0x800>;
+@@ -274,6 +312,21 @@
+ 			#reset-cells = <1>;
+ 		};
+ 
++		// TODO: write a binding and driver.
++		ir_tx: irled@2003000 {
++			compatible = "allwinner,sun20i-d1-ir-tx";
++			reg = <0x2003000 0x400>;
++			interrupts = <35 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&ccu CLK_BUS_IR_TX>,
++				 <&osc24M>,
++				 <&ccu CLK_IR_TX>;
++			clock-names = "bus", "pclk", "mclk";
++			resets = <&ccu RST_BUS_IR_TX>;
++			dmas = <&dma 13>;
++			dma-names = "tx";
++			status = "disabled";
++		};
++
+ 		ledc: led-controller@2008000 {
+ 			compatible = "allwinner,sun20i-d1-ledc",
+ 				     "allwinner,sun50i-a100-ledc";
+@@ -289,6 +342,18 @@
+ 			#size-cells = <0>;
+ 		};
+ 
++		// TODO: write a binding and driver.
++		gpadc: adc@2009000 {
++			compatible = "allwinner,sun20i-d1-gpadc";
++			reg = <0x2009000 0x400>;
++			interrupts = <73 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&ccu CLK_BUS_GPADC>;
++			resets = <&ccu RST_BUS_GPADC>;
++			dmas = <&dma 12>;
++			dma-names = "rx";
++			status = "disabled";
++		};
++
+ 		ths: temperature-sensor@2009400 {
+ 			compatible = "allwinner,sun20i-d1-ths";
+ 			reg = <0x2009400 0x400>;
+@@ -311,6 +376,20 @@
+ 			status = "disabled";
+ 		};
+ 
++		// TODO: write a binding and driver.
++		tpadc: touchscreen@2009c00 {
++			compatible = "allwinner,sun20i-d1-ts";
++			reg = <0x2009c00 0x400>;
++			interrupts = <78 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&ccu CLK_BUS_TPADC>, <&ccu CLK_TPADC>;
++			clock-names = "bus", "mod";
++			resets = <&ccu RST_BUS_TPADC>;
++			dmas = <&dma 13>;
++			dma-names = "rx";
++			status = "disabled";
++		};
++
++		// FIXME: this driver probably needs updates.
+ 		iommu: iommu@2010000 {
+ 			compatible = "allwinner,sun20i-d1-iommu";
+ 			reg = <0x2010000 0x10000>;
+@@ -459,6 +538,7 @@
+ 			status = "disabled";
+ 		};
+ 
++		// TODO: write a driver, add IDMA?
+ 		uart1: serial@2500400 {
+ 			compatible = "snps,dw-apb-uart";
+ 			reg = <0x2500400 0x400>;
+@@ -591,6 +671,21 @@
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+ 
++			// FIXME: Address is not verified. It is copied from A64/H6.
++			sram@1d00000 {
++				compatible = "mmio-sram";
++				reg = <0x1d00000 0x40000>;
++				ranges = <0 0x1d00000 0x40000>;
++				#address-cells = <1>;
++				#size-cells = <1>;
++
++				ve_sram: sram-section@0 {
++					compatible = "allwinner,sun20i-d1-sram-c1",
++						     "allwinner,sun4i-a10-sram-c1";
++					reg = <0 0x40000>;
++				};
++			};
++
+ 			regulators@3000150 {
+ 				compatible = "allwinner,sun20i-d1-system-ldos";
+ 				reg = <0x3000150 0x4>;
+@@ -621,6 +716,10 @@
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+ 
++			cpu_speed_grade: cpu-speed-grade@0 {
++				reg = <0x0 0x2>;
++			};
++
+ 			ths_calib: ths-calib@14 {
+ 				reg = <0x14 0x4>;
+ 			};
+@@ -631,6 +730,17 @@
+ 			};
+ 		};
+ 
++		// TODO: write a binding and driver.
++		hstimer: timer@3008000 {
++			compatible = "allwinner,sun20i-d1-hstimer",
++				     "allwinner,sun50i-h6-hstimer";
++			reg = <0x3008000 0x1000>;
++			interrupts = <71 IRQ_TYPE_LEVEL_HIGH>,
++				     <72 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&ccu CLK_BUS_HSTIMER>;
++			resets = <&ccu RST_BUS_HSTIMER>;
++		};
++
+ 		crypto: crypto@3040000 {
+ 			compatible = "allwinner,sun20i-d1-crypto";
+ 			reg = <0x3040000 0x800>;
+@@ -643,6 +753,7 @@
+ 			resets = <&ccu RST_BUS_CE>;
+ 		};
+ 
++		// TODO: write a driver.
+ 		mbus: dram-controller@3102000 {
+ 			compatible = "allwinner,sun20i-d1-mbus";
+ 			reg = <0x3102000 0x1000>,
+@@ -752,6 +863,16 @@
+ 			interrupt-names = "mc";
+ 			clocks = <&ccu CLK_BUS_OTG>;
+ 			resets = <&ccu RST_BUS_OTG>;
++			dmas = <&dma 30>, <&dma 30>,
++			       <&dma 31>, <&dma 31>,
++			       <&dma 32>, <&dma 32>,
++			       <&dma 33>, <&dma 33>,
++			       <&dma 34>, <&dma 34>;
++			dma-names = "ep1_rx", "ep1_tx",
++				    "ep2_rx", "ep2_tx",
++				    "ep3_rx", "ep3_tx",
++				    "ep4_rx", "ep4_tx",
++				    "ep5_rx", "ep5_tx";
+ 			extcon = <&usbphy 0>;
+ 			phys = <&usbphy 0>;
+ 			phy-names = "usb";
+@@ -911,6 +1032,22 @@
+ 			};
+ 		};
+ 
++		deinterlace: deinterlace@5400000 {
++			reg = <0x5400000 0x10000>;
++			interrupts = <104 IRQ_TYPE_LEVEL_HIGH>;
++			interconnects = <&mbus 10>;
++			interconnect-names = "dma-mem";
++			iommus = <&iommu 4>;
++		};
++
++		g2d: g2d@5410000 {
++			reg = <0x5410000 0x40000>;
++			interrupts = <105 IRQ_TYPE_LEVEL_HIGH>;
++			interconnects = <&mbus 9>;
++			interconnect-names = "dma-mem";
++			iommus = <&iommu 3>;
++		};
++
+ 		dsi: dsi@5450000 {
+ 			compatible = "allwinner,sun20i-d1-mipi-dsi",
+ 				     "allwinner,sun50i-a100-mipi-dsi";
+@@ -1165,6 +1302,37 @@
+ 			#phy-cells = <0>;
+ 		};
+ 
++		tve_top: video-codec@5600000 {
++			reg = <0x5600000 0x4000>;
++		};
++
++		tve0: video-codec@5604000 {
++			reg = <0x5604000 0x4000>;
++			interrupts = <110 IRQ_TYPE_LEVEL_HIGH>;
++		};
++
++		csi: csi@5800000 {
++			reg = <0x5800000 0x400000>;
++			interrupts = <111 IRQ_TYPE_LEVEL_HIGH>,
++				     <112 IRQ_TYPE_LEVEL_HIGH>,
++				     <116 IRQ_TYPE_LEVEL_HIGH>,
++				     <122 IRQ_TYPE_LEVEL_HIGH>;
++			interconnects = <&mbus 7>;
++			interconnect-names = "dma-mem";
++			iommus = <&iommu 1>;
++		};
++
++		tvd_top: video-codec@5c00000 {
++			reg = <0x5c00000 0x1000>;
++			interconnects = <&mbus 6>;
++			interconnect-names = "dma-mem";
++		};
++
++		tvd0: video-codec@5c01000 {
++			reg = <0x5c01000 0x1000>;
++			interrupts = <123 IRQ_TYPE_LEVEL_HIGH>;
++		};
++
+ 		riscv_wdt: watchdog@6011000 {
+ 			compatible = "allwinner,sun20i-d1-wdt";
+ 			reg = <0x6011000 0x20>;
+@@ -1185,6 +1353,17 @@
+ 			#reset-cells = <1>;
+ 		};
+ 
++		r_ir_rx: ir@7040000 {
++			compatible = "allwinner,sun20i-d1-ir",
++				     "allwinner,sun6i-a31-ir";
++			reg = <0x7040000 0x400>;
++			interrupts = <167 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&r_ccu CLK_BUS_R_IR_RX>, <&r_ccu CLK_R_IR_RX>;
++			clock-names = "apb", "ir";
++			resets = <&r_ccu RST_BUS_R_IR_RX>;
++		};
++
++		// TODO: audit all blocks for hidden use of CLK_DCXO24M
+ 		rtc: rtc@7090000 {
+ 			compatible = "allwinner,sun20i-d1-rtc",
+ 				     "allwinner,sun50i-r329-rtc";
+@@ -1208,5 +1387,13 @@
+ 			#address-cells = <0>;
+ 			#interrupt-cells = <2>;
+ 		};
++
++		clint: clint@14000000 {
++			compatible = "allwinner,sun20i-d1-clint",
++				     "thead,c900-clint";
++			reg = <0x14000000 0xc000>;
++			interrupts-extended = <&cpu0_intc 3>,
++					      <&cpu0_intc 7>;
++		};
+ 	};
+ };
