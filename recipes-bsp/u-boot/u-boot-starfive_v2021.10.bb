@@ -32,7 +32,7 @@ do_configure:prepend() {
 }
 
 do_deploy:append:visionfive2() {
-    install -m 644 ${WORKDIR}/uEnv-visionfive2.txt ${DEPLOYDIR}/uEnv.txt
+    install -m 644 ${WORKDIR}/uEnv-visionfive2.txt ${DEPLOYDIR}/vf2_uEnv.txt
     spl_tool -c -f ${DEPLOYDIR}/${SPL_IMAGE}
     ln -sf ${SPL_IMAGE}.normal.out ${DEPLOYDIR}/${SPL_BINARYNAME}.normal.out
     ln -sf ${SPL_IMAGE}.normal.out ${DEPLOYDIR}/${SPL_SYMLINK}.normal.out
