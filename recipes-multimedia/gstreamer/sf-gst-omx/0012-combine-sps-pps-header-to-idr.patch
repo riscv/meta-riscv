@@ -2,10 +2,9 @@ Combine SPS/PPS header to IDR frame.
 
 Signed-off-by: Windsome Zeng <windsome.zeng@starfivetech.com>
 
-diff -purN a/meson.build b/meson.build
---- a/meson.build	2022-05-13 11:31:02.725614796 +0800
-+++ b/meson.build	2022-05-13 11:32:26.213975419 +0800
-@@ -218,6 +218,7 @@ elif omx_target == 'tizonia'
+--- a/meson.build
++++ b/meson.build
+@@ -229,6 +229,7 @@ elif omx_target == 'tizonia'
    omx_inc = []
  elif omx_target == 'stf'
    cdata.set('USE_OMX_TARGET_STARFIVE', 1)
@@ -13,9 +12,8 @@ diff -purN a/meson.build b/meson.build
    warning('stf selected')
  else
    error ('Unsupported omx target specified. Use the -Dtarget option')
-diff -purN a/omx/gstomx.c b/omx/gstomx.c
---- a/omx/gstomx.c	2022-05-13 11:31:02.725614796 +0800
-+++ b/omx/gstomx.c	2022-05-13 11:33:15.461950978 +0800
+--- a/omx/gstomx.c
++++ b/omx/gstomx.c
 @@ -70,6 +70,11 @@ static GHashTable *core_handles;
  G_LOCK_DEFINE_STATIC (buffer_flags_str);
  static GHashTable *buffer_flags_str;
