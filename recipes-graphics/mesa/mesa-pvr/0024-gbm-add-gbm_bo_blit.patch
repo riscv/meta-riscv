@@ -1,10 +1,11 @@
-From 0751612b949f1c90338a14453ff7fa4be8bfd016 Mon Sep 17 00:00:00 2001
+From 689befeb2523bc1244efda8de8585e079de47e6f Mon Sep 17 00:00:00 2001
 From: Brendan King <Brendan.King@imgtec.com>
 Date: Tue, 28 Nov 2017 16:27:38 +0000
-Subject: [PATCH 24/67] gbm: add gbm_bo_blit
+Subject: [PATCH] gbm: add gbm_bo_blit
 
 For the GBM DRI backend, gbm_bo_blit is a wrapper around blitImage in
 the DRI Image extension.
+
 ---
  src/gbm/backends/dri/gbm_dri.c | 33 +++++++++++++++++++++++++++++++++
  src/gbm/main/gbm.c             | 31 +++++++++++++++++++++++++++++++
@@ -14,7 +15,7 @@ the DRI Image extension.
  5 files changed, 113 insertions(+), 2 deletions(-)
 
 diff --git a/src/gbm/backends/dri/gbm_dri.c b/src/gbm/backends/dri/gbm_dri.c
-index 96fa9217255..bd8a80cdecf 100644
+index 96fa921..bd8a80c 100644
 --- a/src/gbm/backends/dri/gbm_dri.c
 +++ b/src/gbm/backends/dri/gbm_dri.c
 @@ -1355,6 +1355,37 @@ gbm_dri_surface_destroy(struct gbm_surface *_surf)
@@ -65,7 +66,7 @@ index 96fa9217255..bd8a80cdecf 100644
     dri->num_visuals = ARRAY_SIZE(gbm_dri_visuals_table);
  
 diff --git a/src/gbm/main/gbm.c b/src/gbm/main/gbm.c
-index d81931a7483..e2351d34ad8 100644
+index d81931a..e2351d3 100644
 --- a/src/gbm/main/gbm.c
 +++ b/src/gbm/main/gbm.c
 @@ -758,6 +758,37 @@ gbm_format_get_name(uint32_t gbm_format, struct gbm_format_name_desc *desc)
@@ -107,7 +108,7 @@ index d81931a7483..e2351d34ad8 100644
   * A global table of functions and global variables defined in the core GBM
   * code that need to be accessed directly by GBM backends.
 diff --git a/src/gbm/main/gbm.h b/src/gbm/main/gbm.h
-index 3a0fe73faae..7c82cd661a3 100644
+index 3a0fe73..7c82cd6 100644
 --- a/src/gbm/main/gbm.h
 +++ b/src/gbm/main/gbm.h
 @@ -246,6 +246,21 @@ enum gbm_bo_flags {
@@ -146,7 +147,7 @@ index 3a0fe73faae..7c82cd661a3 100644
  }
  #endif
 diff --git a/src/gbm/main/gbm_abi_check.c b/src/gbm/main/gbm_abi_check.c
-index f1137be7baf..02ce23b129e 100644
+index f1137be..02ce23b 100644
 --- a/src/gbm/main/gbm_abi_check.c
 +++ b/src/gbm/main/gbm_abi_check.c
 @@ -101,6 +101,21 @@ struct gbm_device_abi0 {
@@ -185,7 +186,7 @@ index f1137be7baf..02ce23b129e 100644
  
     /* Check current gbm_bo ABI against gbm_bo_abi0*/
 diff --git a/src/gbm/main/gbm_backend_abi.h b/src/gbm/main/gbm_backend_abi.h
-index 962ee74f003..3abf29faa92 100644
+index 962ee74..3abf29f 100644
 --- a/src/gbm/main/gbm_backend_abi.h
 +++ b/src/gbm/main/gbm_backend_abi.h
 @@ -72,7 +72,7 @@ struct gbm_backend_desc;
@@ -219,6 +220,3 @@ index 962ee74f003..3abf29faa92 100644
  };
  
  /**
--- 
-2.25.1
-

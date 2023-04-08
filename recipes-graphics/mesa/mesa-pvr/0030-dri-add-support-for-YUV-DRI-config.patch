@@ -1,11 +1,12 @@
-From 389e1a41360160bf56182a87cc52b5df9dc1265d Mon Sep 17 00:00:00 2001
+From 23b1868e2fbf2340a354559ca3e6ed61e723f7c8 Mon Sep 17 00:00:00 2001
 From: Frank Binns <frank.binns@imgtec.com>
 Date: Fri, 22 Dec 2017 17:17:50 +0000
-Subject: [PATCH 30/67] dri: add support for YUV DRI config
+Subject: [PATCH] dri: add support for YUV DRI config
 
 This is prerequisite for adding support for EGL_EXT_yuv_surface.
 
 This also adds support for NV12 and NV21 EGL configs.
+
 ---
  include/GL/internal/dri_interface.h           | 42 ++++++++-
  src/gallium/frontends/dri/dri_screen.c        |  8 +-
@@ -24,7 +25,7 @@ This also adds support for NV12 and NV21 EGL configs.
  14 files changed, 181 insertions(+), 19 deletions(-)
 
 diff --git a/include/GL/internal/dri_interface.h b/include/GL/internal/dri_interface.h
-index 16cc095ea29..4d5a1874dc2 100644
+index 16cc095..4d5a187 100644
 --- a/include/GL/internal/dri_interface.h
 +++ b/include/GL/internal/dri_interface.h
 @@ -826,7 +826,13 @@ struct __DRIuseInvalidateExtensionRec {
@@ -91,7 +92,7 @@ index 16cc095ea29..4d5a1874dc2 100644
   * This extension defines the core DRI functionality.
   *
 diff --git a/src/gallium/frontends/dri/dri_screen.c b/src/gallium/frontends/dri/dri_screen.c
-index b565a1fe8ec..37a0d4add0c 100644
+index b565a1f..37a0d4a 100644
 --- a/src/gallium/frontends/dri/dri_screen.c
 +++ b/src/gallium/frontends/dri/dri_screen.c
 @@ -324,7 +324,9 @@ dri_fill_in_modes(struct dri_screen *screen)
@@ -117,7 +118,7 @@ index b565a1fe8ec..37a0d4add0c 100644
           }
        }
 diff --git a/src/gallium/include/pipe/p_format.h b/src/gallium/include/pipe/p_format.h
-index 0c93d7df6e2..fd653379b7a 100644
+index 0c93d7d..fd65337 100644
 --- a/src/gallium/include/pipe/p_format.h
 +++ b/src/gallium/include/pipe/p_format.h
 @@ -513,6 +513,8 @@ enum pipe_format {
@@ -130,7 +131,7 @@ index 0c93d7df6e2..fd653379b7a 100644
     PIPE_FORMAT_COUNT
  };
 diff --git a/src/mesa/drivers/dri/common/utils.c b/src/mesa/drivers/dri/common/utils.c
-index a3f2bc57f46..d268dc41fbb 100644
+index a3f2bc5..d268dc4 100644
 --- a/src/mesa/drivers/dri/common/utils.c
 +++ b/src/mesa/drivers/dri/common/utils.c
 @@ -163,6 +163,21 @@ driGetRendererString( char * buffer, const char * hardware_name,
@@ -292,7 +293,7 @@ index a3f2bc57f46..d268dc41fbb 100644
          /* XXX log an error or smth */
          return GL_FALSE;
 diff --git a/src/mesa/drivers/dri/common/utils.h b/src/mesa/drivers/dri/common/utils.h
-index 7be0465c261..ebd98d9dc33 100644
+index 7be0465..ebd98d9 100644
 --- a/src/mesa/drivers/dri/common/utils.h
 +++ b/src/mesa/drivers/dri/common/utils.h
 @@ -45,7 +45,8 @@ driCreateConfigs(mesa_format format,
@@ -306,7 +307,7 @@ index 7be0465c261..ebd98d9dc33 100644
  __DRIconfig **driConcatConfigs(__DRIconfig **a,
  			       __DRIconfig **b);
 diff --git a/src/mesa/drivers/dri/i915/intel_screen.c b/src/mesa/drivers/dri/i915/intel_screen.c
-index 6135357c2a0..a94c6de0a06 100644
+index 6135357..a94c6de 100644
 --- a/src/mesa/drivers/dri/i915/intel_screen.c
 +++ b/src/mesa/drivers/dri/i915/intel_screen.c
 @@ -1083,7 +1083,9 @@ intel_screen_make_configs(__DRIscreen *dri_screen)
@@ -332,7 +333,7 @@ index 6135357c2a0..a94c6de0a06 100644
     }
  
 diff --git a/src/mesa/drivers/dri/i965/brw_screen.c b/src/mesa/drivers/dri/i965/brw_screen.c
-index 56811110567..c450bae1054 100644
+index 5681111..c450bae 100644
 --- a/src/mesa/drivers/dri/i965/brw_screen.c
 +++ b/src/mesa/drivers/dri/i965/brw_screen.c
 @@ -2292,7 +2292,9 @@ brw_screen_make_configs(__DRIscreen *dri_screen)
@@ -369,7 +370,7 @@ index 56811110567..c450bae1054 100644
     }
  
 diff --git a/src/mesa/drivers/dri/nouveau/nouveau_screen.c b/src/mesa/drivers/dri/nouveau/nouveau_screen.c
-index c92efcd7b20..fc87d5eb395 100644
+index c92efcd..fc87d5e 100644
 --- a/src/mesa/drivers/dri/nouveau/nouveau_screen.c
 +++ b/src/mesa/drivers/dri/nouveau/nouveau_screen.c
 @@ -79,7 +79,9 @@ nouveau_get_configs(uint32_t chipset)
@@ -384,7 +385,7 @@ index c92efcd7b20..fc87d5eb395 100644
  
  		configs = driConcatConfigs(configs, config);
 diff --git a/src/mesa/drivers/dri/radeon/radeon_screen.c b/src/mesa/drivers/dri/radeon/radeon_screen.c
-index 3764a5d6538..f7628555b8f 100644
+index 3764a5d..f762855 100644
 --- a/src/mesa/drivers/dri/radeon/radeon_screen.c
 +++ b/src/mesa/drivers/dri/radeon/radeon_screen.c
 @@ -838,7 +838,9 @@ __DRIconfig **radeonInitScreen2(__DRIscreen *psp)
@@ -399,7 +400,7 @@ index 3764a5d6538..f7628555b8f 100644
     }
  
 diff --git a/src/mesa/main/format_info.py b/src/mesa/main/format_info.py
-index edc0324e60b..d58403ea85e 100644
+index edc0324..d58403e 100644
 --- a/src/mesa/main/format_info.py
 +++ b/src/mesa/main/format_info.py
 @@ -29,7 +29,7 @@ import sys
@@ -412,7 +413,7 @@ index edc0324e60b..d58403ea85e 100644
     elif fmat.has_channel('r'):
        if fmat.has_channel('g'):
 diff --git a/src/mesa/main/formats.c b/src/mesa/main/formats.c
-index 9cd026f7507..f81caeceff4 100644
+index 9cd026f..f81caec 100644
 --- a/src/mesa/main/formats.c
 +++ b/src/mesa/main/formats.c
 @@ -1452,6 +1452,15 @@ _mesa_format_matches_format_and_type(mesa_format mformat,
@@ -432,7 +433,7 @@ index 9cd026f7507..f81caeceff4 100644
        if (error)
           *error = GL_INVALID_ENUM;
 diff --git a/src/mesa/main/formats.csv b/src/mesa/main/formats.csv
-index 21cdea26e08..b2d476577e0 100644
+index 21cdea2..b2d4765 100644
 --- a/src/mesa/main/formats.csv
 +++ b/src/mesa/main/formats.csv
 @@ -92,6 +92,8 @@ MESA_FORMAT_A2R10G10B10_UNORM             , packed, 1, 1, 1, un2 , un10, un10, u
@@ -445,7 +446,7 @@ index 21cdea26e08..b2d476577e0 100644
  MESA_FORMAT_RG_RB_UNORM8                  , other , 2, 1, 1, x16 ,     ,     ,     , xyz1, rgb
  MESA_FORMAT_GR_BR_UNORM8                  , other , 2, 1, 1, x16 ,     ,     ,     , xyz1, rgb
 diff --git a/src/mesa/main/formats.h b/src/mesa/main/formats.h
-index 508c9c342d2..0e778d64467 100644
+index 508c9c3..0e778d6 100644
 --- a/src/mesa/main/formats.h
 +++ b/src/mesa/main/formats.h
 @@ -617,6 +617,13 @@ typedef enum pipe_format mesa_format;
@@ -463,7 +464,7 @@ index 508c9c342d2..0e778d64467 100644
  
  /* Packed to array format adapters */
 diff --git a/src/mesa/main/mtypes.h b/src/mesa/main/mtypes.h
-index 32528a5f16b..8f77d4c58dd 100644
+index 32528a5..8f77d4c 100644
 --- a/src/mesa/main/mtypes.h
 +++ b/src/mesa/main/mtypes.h
 @@ -158,6 +158,7 @@ _mesa_varying_slot_in_fs(gl_varying_slot slot)
@@ -489,6 +490,3 @@ index 32528a5f16b..8f77d4c58dd 100644
  };
  
  
--- 
-2.25.1
-

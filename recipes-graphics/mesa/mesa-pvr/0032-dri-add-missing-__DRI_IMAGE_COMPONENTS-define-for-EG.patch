@@ -1,18 +1,19 @@
-From 5a22280c13e98932ad45fa6a131217abdffd16b4 Mon Sep 17 00:00:00 2001
+From 01febf756ccf6ffd8a8a0a16a465f755c32fc2de Mon Sep 17 00:00:00 2001
 From: Frank Binns <frank.binns@imgtec.com>
 Date: Fri, 2 Feb 2018 16:59:52 +0000
-Subject: [PATCH 32/67] dri: add missing __DRI_IMAGE_COMPONENTS define for
+Subject: [PATCH] dri: add missing __DRI_IMAGE_COMPONENTS define for
  EGL_TEXTURE_EXTERNAL_WL
 
 The __DRI_IMAGE_COMPONENTS defines have been re-ordered, to make it
 less likely that new defines will be added with the same values as
 existing ones.
+
 ---
  include/GL/internal/dri_interface.h | 5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/include/GL/internal/dri_interface.h b/include/GL/internal/dri_interface.h
-index 62517e4004a..6490f6e80e2 100644
+index 62517e4..6490f6e 100644
 --- a/include/GL/internal/dri_interface.h
 +++ b/include/GL/internal/dri_interface.h
 @@ -1461,11 +1461,12 @@ struct __DRIdri2ExtensionRec {
@@ -30,6 +31,3 @@ index 62517e4004a..6490f6e80e2 100644
  
  
  /**
--- 
-2.25.1
-

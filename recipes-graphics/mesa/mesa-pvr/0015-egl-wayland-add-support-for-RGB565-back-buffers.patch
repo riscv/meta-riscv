@@ -1,14 +1,14 @@
-From 55a15a019dd792477e39f6225f2b4e50a1359b66 Mon Sep 17 00:00:00 2001
+From 0faf5745262a68722abce4fe692a341cbdba811b Mon Sep 17 00:00:00 2001
 From: James Glanville <James.Glanville@imgtec.com>
 Date: Tue, 28 Feb 2017 16:08:47 +0000
-Subject: [PATCH 15/67] egl/wayland: add support for RGB565 back buffers
+Subject: [PATCH] egl/wayland: add support for RGB565 back buffers
 
 ---
  src/egl/drivers/dri2/platform_wayland.c | 13 +++++++++++--
  1 file changed, 11 insertions(+), 2 deletions(-)
 
 diff --git a/src/egl/drivers/dri2/platform_wayland.c b/src/egl/drivers/dri2/platform_wayland.c
-index cfff0ade90e..c18edc0de4e 100644
+index cfff0ad..c18edc0 100644
 --- a/src/egl/drivers/dri2/platform_wayland.c
 +++ b/src/egl/drivers/dri2/platform_wayland.c
 @@ -633,18 +633,27 @@ back_bo_to_dri_buffer(struct dri2_egl_surface *dri2_surf, __DRIbuffer *buffer)
@@ -41,6 +41,3 @@ index cfff0ade90e..c18edc0de4e 100644
  }
  
  static int
--- 
-2.25.1
-

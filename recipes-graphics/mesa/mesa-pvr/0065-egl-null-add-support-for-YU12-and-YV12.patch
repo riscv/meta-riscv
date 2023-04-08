@@ -1,17 +1,17 @@
-From 89f34a04c15c8657cb77bbbc94fb9b9d0ac76980 Mon Sep 17 00:00:00 2001
+From 033231f1902849d2ff8ff3c82bef02174a62e01d Mon Sep 17 00:00:00 2001
 From: Luigi Santivetti <luigi.santivetti@imgtec.com>
 Date: Mon, 23 Aug 2021 09:18:37 +0100
-Subject: [PATCH 65/67] egl/null: add support for YU12 and YV12
+Subject: [PATCH] egl/null: add support for YU12 and YV12
 
 ---
  src/egl/drivers/dri2/platform_null.c | 28 ++++++++++++++++++++++++++++
  1 file changed, 28 insertions(+)
 
 diff --git a/src/egl/drivers/dri2/platform_null.c b/src/egl/drivers/dri2/platform_null.c
-index 529cc7a2a2f..2e86d6533de 100644
+index c9409c0..03fb5e0 100644
 --- a/src/egl/drivers/dri2/platform_null.c
 +++ b/src/egl/drivers/dri2/platform_null.c
-@@ -106,6 +106,20 @@ static const struct dri2_null_yuv_attrib {
+@@ -107,6 +107,20 @@ static const struct dri2_null_yuv_attrib {
        .num_planes = 2,
        .plane_bpp = __DRI_ATTRIB_YUV_PLANE_BPP_8_BIT,
     },
@@ -32,7 +32,7 @@ index 529cc7a2a2f..2e86d6533de 100644
  };
  
  /*
-@@ -161,6 +175,20 @@ static const struct dri2_null_format {
+@@ -162,6 +176,20 @@ static const struct dri2_null_format {
        .rgba_sizes = { 0, 0, 0, 0 },
        .yuv = &dri2_null_yuv_attribs[2],
     },
@@ -53,6 +53,3 @@ index 529cc7a2a2f..2e86d6533de 100644
  };
  
  
--- 
-2.25.1
-

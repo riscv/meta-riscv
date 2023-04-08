@@ -1,9 +1,10 @@
-From 4e65ae659b775259b4f703eb563feffc623c17b7 Mon Sep 17 00:00:00 2001
+From a94bb1db20b8d60184af23a117ae2602e6c50290 Mon Sep 17 00:00:00 2001
 From: Frank Binns <frank.binns@imgtec.com>
 Date: Wed, 20 Dec 2017 17:41:38 +0000
-Subject: [PATCH 31/67] egl: add support for EXT_yuv_surface
+Subject: [PATCH] egl: add support for EXT_yuv_surface
 
 This implements EXT_yuv_surface but doesn't expose it for any platform.
+
 ---
  include/GL/internal/dri_interface.h |   1 +
  src/egl/drivers/dri2/egl_dri2.c     |  83 +++++++++
@@ -14,7 +15,7 @@ This implements EXT_yuv_surface but doesn't expose it for any platform.
  6 files changed, 348 insertions(+), 5 deletions(-)
 
 diff --git a/include/GL/internal/dri_interface.h b/include/GL/internal/dri_interface.h
-index 4d5a1874dc2..62517e4004a 100644
+index 4d5a187..62517e4 100644
 --- a/include/GL/internal/dri_interface.h
 +++ b/include/GL/internal/dri_interface.h
 @@ -1154,6 +1154,7 @@ enum dri_loader_cap {
@@ -26,7 +27,7 @@ index 4d5a1874dc2..62517e4004a 100644
  
  struct __DRIdri2LoaderExtensionRec {
 diff --git a/src/egl/drivers/dri2/egl_dri2.c b/src/egl/drivers/dri2/egl_dri2.c
-index db993f8f059..ee3bcda4d12 100644
+index db993f8..ee3bcda 100644
 --- a/src/egl/drivers/dri2/egl_dri2.c
 +++ b/src/egl/drivers/dri2/egl_dri2.c
 @@ -306,6 +306,7 @@ static const EGLint dri2_to_egl_attribute_map[__DRI_ATTRIB_MAX] = {
@@ -148,7 +149,7 @@ index db993f8f059..ee3bcda4d12 100644
  
  void
 diff --git a/src/egl/main/eglapi.c b/src/egl/main/eglapi.c
-index e2a7797d73e..6d7f62c6851 100644
+index e2a7797..6d7f62c 100644
 --- a/src/egl/main/eglapi.c
 +++ b/src/egl/main/eglapi.c
 @@ -512,6 +512,7 @@ _eglCreateExtensionsString(_EGLDisplay *disp)
@@ -160,7 +161,7 @@ index e2a7797d73e..6d7f62c6851 100644
     _EGL_CHECK_EXTENSION(IMG_context_priority);
  
 diff --git a/src/egl/main/eglconfig.c b/src/egl/main/eglconfig.c
-index 17d8f3555d4..5e56948ab72 100644
+index 17d8f35..5e56948 100644
 --- a/src/egl/main/eglconfig.c
 +++ b/src/egl/main/eglconfig.c
 @@ -258,6 +258,24 @@ static const struct {
@@ -495,7 +496,7 @@ index 17d8f3555d4..5e56948ab72 100644
  
     return (compare_id) ? (conf1->ConfigID - conf2->ConfigID) : 0;
 diff --git a/src/egl/main/eglconfig.h b/src/egl/main/eglconfig.h
-index 1f2a4008f12..d4a748970b5 100644
+index 1f2a400..d4a7489 100644
 --- a/src/egl/main/eglconfig.h
 +++ b/src/egl/main/eglconfig.h
 @@ -89,6 +89,12 @@ struct _egl_config
@@ -525,7 +526,7 @@ index 1f2a4008f12..d4a748970b5 100644
     default:
        return -1;
 diff --git a/src/egl/main/egldisplay.h b/src/egl/main/egldisplay.h
-index 0a7366b7c07..020529c57e2 100644
+index 0a7366b..020529c 100644
 --- a/src/egl/main/egldisplay.h
 +++ b/src/egl/main/egldisplay.h
 @@ -112,6 +112,7 @@ struct _egl_extensions
@@ -536,6 +537,3 @@ index 0a7366b7c07..020529c57e2 100644
  
     unsigned int IMG_context_priority;
  #define  __EGL_CONTEXT_PRIORITY_LOW_BIT    0
--- 
-2.25.1
-

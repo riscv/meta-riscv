@@ -1,19 +1,20 @@
-From 5bd42e648dc9068392641436b70fc28a00689c8e Mon Sep 17 00:00:00 2001
+From 7d5e378bf6fb2c000d17805032cb044b38d1218d Mon Sep 17 00:00:00 2001
 From: Silvestrs Timofejevs <silvestrs.timofejevs@imgtec.com>
 Date: Thu, 30 Aug 2018 13:48:53 +0100
-Subject: [PATCH 35/67] gbm: add some new GBM formats
+Subject: [PATCH] gbm: add some new GBM formats
 
 GBM_FORMAT_ARGB4444
 GBM_FORMAT_BGR888
 GBM_FORMAT_YUYV
 GBM_FORMAT_YVU444_PACK10_IMG
+
 ---
  src/gbm/backends/dri/gbm_dri.c | 16 ++++++++++++++++
  src/gbm/main/gbm.h             |  2 ++
  2 files changed, 18 insertions(+)
 
 diff --git a/src/gbm/backends/dri/gbm_dri.c b/src/gbm/backends/dri/gbm_dri.c
-index 2aa9c7c41ad..5acb15b516f 100644
+index 2aa9c7c..5acb15b 100644
 --- a/src/gbm/backends/dri/gbm_dri.c
 +++ b/src/gbm/backends/dri/gbm_dri.c
 @@ -514,11 +514,21 @@ static const struct gbm_dri_visual gbm_dri_visuals_table[] = {
@@ -52,7 +53,7 @@ index 2aa9c7c41ad..5acb15b516f 100644
  
  static int
 diff --git a/src/gbm/main/gbm.h b/src/gbm/main/gbm.h
-index 7c82cd661a3..81308ab9745 100644
+index 7c82cd6..81308ab 100644
 --- a/src/gbm/main/gbm.h
 +++ b/src/gbm/main/gbm.h
 @@ -167,6 +167,8 @@ enum gbm_bo_format {
@@ -64,6 +65,3 @@ index 7c82cd661a3..81308ab9745 100644
  /*
   * 2 plane YCbCr
   * index 0 = Y plane, [7:0] Y
--- 
-2.25.1
-

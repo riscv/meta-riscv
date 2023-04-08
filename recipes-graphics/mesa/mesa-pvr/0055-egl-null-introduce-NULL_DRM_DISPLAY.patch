@@ -1,7 +1,7 @@
-From 693fff6d87abfcae887afde7f80f402b7ff5c0ab Mon Sep 17 00:00:00 2001
+From 58e030c23402e2ea7a5e7627daabe1e68f1d8130 Mon Sep 17 00:00:00 2001
 From: Brendan King <Brendan.King@imgtec.com>
 Date: Mon, 28 Jun 2021 16:36:15 +0100
-Subject: [PATCH 55/67] egl/null: introduce NULL_DRM_DISPLAY
+Subject: [PATCH] egl/null: introduce NULL_DRM_DISPLAY
 
 Introduce the NULL_DRM_DISPLAY environment variable, which allows
 a particular DRM display to be selected, rather than the first
@@ -11,15 +11,16 @@ To select a particular display, NULL_DRM_DISPLAY should be set to
 the card number (i.e. minor number) of the DRM device representing
 the display. For example, NULL_DRM_DISPLAY=2 will select
 /dev/dri/card2.
+
 ---
  src/egl/drivers/dri2/platform_null.c | 65 ++++++++++++++++++++--------
  1 file changed, 46 insertions(+), 19 deletions(-)
 
 diff --git a/src/egl/drivers/dri2/platform_null.c b/src/egl/drivers/dri2/platform_null.c
-index af77ea4dd89..529cc7a2a2f 100644
+index 0d81151..c9409c0 100644
 --- a/src/egl/drivers/dri2/platform_null.c
 +++ b/src/egl/drivers/dri2/platform_null.c
-@@ -1784,6 +1784,8 @@ dri2_null_try_device(_EGLDisplay *disp)
+@@ -1819,6 +1819,8 @@ dri2_null_try_device(_EGLDisplay *disp)
  {
     struct dri2_egl_display *dri2_dpy = dri2_egl_display(disp);
  
@@ -28,7 +29,7 @@ index af77ea4dd89..529cc7a2a2f 100644
     if (!dri2_null_device_is_kms(dri2_dpy->fd_dpy))
        return false;
  
-@@ -1841,34 +1843,56 @@ dri2_null_try_device(_EGLDisplay *disp)
+@@ -1876,34 +1878,56 @@ dri2_null_try_device(_EGLDisplay *disp)
  }
  
  static bool
@@ -103,7 +104,7 @@ index af77ea4dd89..529cc7a2a2f 100644
     }
  
     return false;
-@@ -1965,7 +1989,10 @@ dri2_initialize_null(_EGLDisplay *disp)
+@@ -2001,7 +2025,10 @@ dri2_initialize_null(_EGLDisplay *disp)
  
     disp->DriverData = (void *) dri2_dpy;
  
@@ -115,6 +116,3 @@ index af77ea4dd89..529cc7a2a2f 100644
        _eglError(EGL_NOT_INITIALIZED, "failed to load driver");
        goto cleanup;
     }
--- 
-2.25.1
-

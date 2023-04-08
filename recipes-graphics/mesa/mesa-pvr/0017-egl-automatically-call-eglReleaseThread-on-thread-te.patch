@@ -1,7 +1,7 @@
-From d98cd46b5841ecb785a801a977a1b341d98d08c4 Mon Sep 17 00:00:00 2001
+From df5f4dae5d92afb8d9922197efabd32c26e665a7 Mon Sep 17 00:00:00 2001
 From: Iosif Antochi <iosif.antochi@imgtec.com>
 Date: Wed, 14 Jun 2017 14:49:55 +0100
-Subject: [PATCH 17/67] egl: automatically call eglReleaseThread on thread
+Subject: [PATCH] egl: automatically call eglReleaseThread on thread
  termination
 
 EGL thread cleanup conformance tests could run out of memory as the contexts
@@ -17,12 +17,13 @@ EGL 1.5 spec, eglReleaseThread can be called multiple times without error.
 Fixes:
 dEQP-EGL.functional.thread_cleanup.multi_context_*
 dEQP-EGL.functional.robustness.create_context.query_robust_access
+
 ---
  src/egl/main/eglcurrent.c | 27 ++++++++++++++++++++++++++-
  1 file changed, 26 insertions(+), 1 deletion(-)
 
 diff --git a/src/egl/main/eglcurrent.c b/src/egl/main/eglcurrent.c
-index 11277d3e4c0..c87eac0d007 100644
+index 11277d3..c87eac0 100644
 --- a/src/egl/main/eglcurrent.c
 +++ b/src/egl/main/eglcurrent.c
 @@ -44,6 +44,7 @@ static mtx_t _egl_TSDMutex = _MTX_INITIALIZER_NP;
@@ -73,6 +74,3 @@ index 11277d3e4c0..c87eac0d007 100644
  /**
   * Make sure TSD is initialized and return current value.
   */
--- 
-2.25.1
-

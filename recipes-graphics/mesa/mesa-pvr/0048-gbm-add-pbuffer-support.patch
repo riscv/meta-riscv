@@ -1,7 +1,7 @@
-From 4d19dc5cc9be4f3f25ed8befbfcda70c047065d3 Mon Sep 17 00:00:00 2001
+From e98ab37481eb89284b95a84bdb01a43262841cce Mon Sep 17 00:00:00 2001
 From: Brendan King <Brendan.King@imgtec.com>
 Date: Fri, 21 Aug 2020 12:13:28 +0100
-Subject: [PATCH 48/67] gbm: add pbuffer support
+Subject: [PATCH] gbm: add pbuffer support
 
 The EGL backend GLX provider for XWayland may get the EGL configs it
 uses to generate the GLX ones from GBM. That platform doesn't support
@@ -12,16 +12,17 @@ being rejected.
 Although support for creating pbuffers has been added, this isn't
 required when using the EGL backend GLX provider, as indirect GLX
 isn't supported.
+
 ---
  src/egl/drivers/dri2/egl_dri2.h     |   3 +
  src/egl/drivers/dri2/platform_drm.c | 110 +++++++++++++++++++++++++---
  2 files changed, 103 insertions(+), 10 deletions(-)
 
 diff --git a/src/egl/drivers/dri2/egl_dri2.h b/src/egl/drivers/dri2/egl_dri2.h
-index 13b808bff80..141df1b1732 100644
+index 27beae5..f8792ea 100644
 --- a/src/egl/drivers/dri2/egl_dri2.h
 +++ b/src/egl/drivers/dri2/egl_dri2.h
-@@ -471,6 +471,9 @@ struct dri2_egl_surface
+@@ -468,6 +468,9 @@ struct dri2_egl_surface
     /* surfaceless and device */
     __DRIimage           *front;
     unsigned int         visual;
@@ -32,7 +33,7 @@ index 13b808bff80..141df1b1732 100644
  #ifdef HAVE_WAYLAND_PLATFORM
     void                 *swrast_front;
 diff --git a/src/egl/drivers/dri2/platform_drm.c b/src/egl/drivers/dri2/platform_drm.c
-index 2b329437f88..258e8b6593e 100644
+index 2b32943..258e8b6 100644
 --- a/src/egl/drivers/dri2/platform_drm.c
 +++ b/src/egl/drivers/dri2/platform_drm.c
 @@ -41,6 +41,38 @@
@@ -224,6 +225,3 @@ index 2b329437f88..258e8b6593e 100644
     .destroy_surface = dri2_drm_destroy_surface,
     .create_image = dri2_drm_create_image_khr,
     .swap_buffers = dri2_drm_swap_buffers,
--- 
-2.25.1
-

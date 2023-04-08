@@ -1,7 +1,7 @@
-From b0ea3289c16d31d840af71876187cf30b2b32e9a Mon Sep 17 00:00:00 2001
+From d19c811118e56dfc7210927151ba19559cc0a17e Mon Sep 17 00:00:00 2001
 From: Luigi Santivetti <luigi.santivetti@imgtec.com>
 Date: Thu, 2 Sep 2021 22:47:54 +0100
-Subject: [PATCH 49/68] egl/null: expose EXT_yuv_surface support
+Subject: [PATCH] egl/null: expose EXT_yuv_surface support
 
 ---
  include/GL/internal/dri_interface.h  |   2 +
@@ -10,7 +10,7 @@ Subject: [PATCH 49/68] egl/null: expose EXT_yuv_surface support
  3 files changed, 173 insertions(+), 14 deletions(-)
 
 diff --git a/include/GL/internal/dri_interface.h b/include/GL/internal/dri_interface.h
-index 9c7bcac4cae..888a117d56e 100644
+index 9c7bcac..888a117 100644
 --- a/include/GL/internal/dri_interface.h
 +++ b/include/GL/internal/dri_interface.h
 @@ -1411,6 +1411,8 @@ struct __DRIdri2ExtensionRec {
@@ -23,7 +23,7 @@ index 9c7bcac4cae..888a117d56e 100644
  #define __DRI_IMAGE_USE_SHARE		0x0001
  #define __DRI_IMAGE_USE_SCANOUT		0x0002
 diff --git a/src/egl/drivers/dri2/platform_null.c b/src/egl/drivers/dri2/platform_null.c
-index f2c481c256b..d1e576af5ce 100644
+index 0ce7e60..8efac19 100644
 --- a/src/egl/drivers/dri2/platform_null.c
 +++ b/src/egl/drivers/dri2/platform_null.c
 @@ -79,6 +79,35 @@ uint32_t get_back_buffer_id(struct dri2_egl_surface *dri2_surf)
@@ -317,7 +317,7 @@ index f2c481c256b..d1e576af5ce 100644
           count++;
     }
 diff --git a/src/mesa/drivers/dri/pvr/pvrutil.c b/src/mesa/drivers/dri/pvr/pvrutil.c
-index 945e18cf220..d107a5dafad 100644
+index 945e18c..d107a5d 100644
 --- a/src/mesa/drivers/dri/pvr/pvrutil.c
 +++ b/src/mesa/drivers/dri/pvr/pvrutil.c
 @@ -174,6 +174,10 @@ PVRDRIFormatToFourCC(int dri_format)
@@ -342,6 +342,3 @@ index 945e18cf220..d107a5dafad 100644
     default:
        __driUtilMessage("%s: Unknown format: %d", __func__, iFourCC);
        break;
--- 
-2.25.1
-

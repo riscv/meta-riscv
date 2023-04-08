@@ -1,7 +1,7 @@
-From f775167cbe3f324468f8f355be13bd6efa7d4567 Mon Sep 17 00:00:00 2001
+From 5212f22050e6e92812b14b6cd1fe5029ceeb4225 Mon Sep 17 00:00:00 2001
 From: Luigi Santivetti <luigi.santivetti@imgtec.com>
 Date: Mon, 21 Oct 2019 09:21:52 +0100
-Subject: [PATCH 47/67] egl/null: add support for async flip with front buffer
+Subject: [PATCH] egl/null: add support for async flip with front buffer
  rendering
 
 This change enables the application to render into the buffer being
@@ -39,16 +39,17 @@ than 1.
 
 Change-Id: I3930cfcdb30bfb5358166911bcf84a78bdb4548d
 Signed-off-by: Luigi Santivetti <luigi.santivetti@imgtec.com>
+
 ---
  src/egl/drivers/dri2/egl_dri2.h      |   8 +-
  src/egl/drivers/dri2/platform_null.c | 153 +++++++++++++++++++++------
  2 files changed, 129 insertions(+), 32 deletions(-)
 
 diff --git a/src/egl/drivers/dri2/egl_dri2.h b/src/egl/drivers/dri2/egl_dri2.h
-index 0f683d76e18..13b808bff80 100644
+index 32ad720..27beae5 100644
 --- a/src/egl/drivers/dri2/egl_dri2.h
 +++ b/src/egl/drivers/dri2/egl_dri2.h
-@@ -282,6 +282,7 @@ struct dri2_egl_display
+@@ -283,6 +283,7 @@ struct dri2_egl_display
  #ifdef HAVE_NULL_PLATFORM
     bool                      atomic_enabled;
     bool                      in_formats_enabled;
@@ -56,7 +57,7 @@ index 0f683d76e18..13b808bff80 100644
     struct display_output     output;
  #endif
  
-@@ -442,8 +443,12 @@ struct dri2_egl_surface
+@@ -439,8 +440,12 @@ struct dri2_egl_surface
  #endif
        bool                locked;
        int                 age;
@@ -69,7 +70,7 @@ index 0f683d76e18..13b808bff80 100644
  
  #ifdef HAVE_ANDROID_PLATFORM
     struct ANativeWindow *window;
-@@ -472,12 +477,13 @@ struct dri2_egl_surface
+@@ -469,12 +474,13 @@ struct dri2_egl_surface
  #endif
  
  #ifdef HAVE_NULL_PLATFORM
@@ -85,10 +86,10 @@ index 0f683d76e18..13b808bff80 100644
  #endif
  
 diff --git a/src/egl/drivers/dri2/platform_null.c b/src/egl/drivers/dri2/platform_null.c
-index 48a586b6f38..33cf576f147 100644
+index 2c79199..0ce7e60 100644
 --- a/src/egl/drivers/dri2/platform_null.c
 +++ b/src/egl/drivers/dri2/platform_null.c
-@@ -601,6 +601,15 @@ swap_dequeue_data_finish(struct dri2_egl_surface *dri2_surf)
+@@ -602,6 +602,15 @@ swap_dequeue_data_finish(struct dri2_egl_surface *dri2_surf)
     pthread_mutex_unlock(&dri2_surf->mutex);
  }
  
@@ -104,7 +105,7 @@ index 48a586b6f38..33cf576f147 100644
  static void
  flip_handler(int fd, unsigned int sequence, unsigned int tv_sec,
               unsigned int tv_usec, void *flip_data)
-@@ -1118,15 +1127,15 @@ get_front_bo(struct dri2_egl_surface *dri2_surf)
+@@ -1146,15 +1155,15 @@ get_front_bo(struct dri2_egl_surface *dri2_surf)
     if (dri2_surf->base.Type == EGL_WINDOW_BIT)
        use |= __DRI_IMAGE_USE_SCANOUT;
  
@@ -126,7 +127,7 @@ index 48a586b6f38..33cf576f147 100644
           return false;
        }
     }
-@@ -1330,7 +1339,7 @@ dri2_null_create_window_surface(_EGLDisplay *disp, _EGLConfig *config,
+@@ -1362,7 +1371,7 @@ dri2_null_create_window_surface(_EGLDisplay *disp, _EGLConfig *config,
     }
  
     err = display_output_modeset(dri2_dpy->fd, &dri2_dpy->output,
@@ -135,7 +136,7 @@ index 48a586b6f38..33cf576f147 100644
     if (err) {
        _eglError(EGL_BAD_NATIVE_WINDOW, "window set mode");
        goto err_destroy_surface;
-@@ -1360,6 +1369,60 @@ dri2_null_create_pbuffer_surface(_EGLDisplay *disp, _EGLConfig *config,
+@@ -1392,6 +1401,60 @@ dri2_null_create_pbuffer_surface(_EGLDisplay *disp, _EGLConfig *config,
     return create_surface(disp, config, EGL_PBUFFER_BIT, attrib_list);
  }
  
@@ -196,7 +197,7 @@ index 48a586b6f38..33cf576f147 100644
  static EGLBoolean
  dri2_null_destroy_surface(_EGLDisplay *disp, _EGLSurface *surf)
  {
-@@ -1371,14 +1434,7 @@ dri2_null_destroy_surface(_EGLDisplay *disp, _EGLSurface *surf)
+@@ -1403,14 +1466,7 @@ dri2_null_destroy_surface(_EGLDisplay *disp, _EGLSurface *surf)
      * sure we process the flip event.
      */
     if (dri2_surf->swap_queue_processor) {
@@ -212,7 +213,7 @@ index 48a586b6f38..33cf576f147 100644
        pthread_cancel(dri2_surf->swap_queue_processor);
        pthread_join(dri2_surf->swap_queue_processor, NULL);
     }
-@@ -1392,11 +1448,11 @@ dri2_null_destroy_surface(_EGLDisplay *disp, _EGLSurface *surf)
+@@ -1424,11 +1480,11 @@ dri2_null_destroy_surface(_EGLDisplay *disp, _EGLSurface *surf)
     if (dri2_surf->mutex_init)
        pthread_mutex_destroy(&dri2_surf->mutex);
  
@@ -228,7 +229,7 @@ index 48a586b6f38..33cf576f147 100644
  
     for (unsigned i = 0; i < ARRAY_SIZE(dri2_surf->color_buffers); i++) {
        if (dri2_surf->color_buffers[i].fb_id)
-@@ -1423,6 +1479,16 @@ dri2_null_swap_buffers(_EGLDisplay *disp, _EGLSurface *draw)
+@@ -1455,6 +1511,16 @@ dri2_null_swap_buffers(_EGLDisplay *disp, _EGLSurface *draw)
     if (dri2_surf->base.Type != EGL_WINDOW_BIT)
        return EGL_TRUE;
  
@@ -245,7 +246,7 @@ index 48a586b6f38..33cf576f147 100644
     for (unsigned i = 0; i < ARRAY_SIZE(dri2_surf->color_buffers); i++)
        if (dri2_surf->color_buffers[i].age > 0)
           dri2_surf->color_buffers[i].age++;
-@@ -1465,6 +1531,22 @@ dri2_null_query_buffer_age(_EGLDisplay *disp, _EGLSurface *surface)
+@@ -1497,6 +1563,22 @@ dri2_null_query_buffer_age(_EGLDisplay *disp, _EGLSurface *surface)
  static EGLBoolean
  dri2_null_swap_interval(_EGLDisplay *dpy, _EGLSurface *draw, EGLint interval)
  {
@@ -268,7 +269,7 @@ index 48a586b6f38..33cf576f147 100644
     _eglLog(_EGL_DEBUG, "DRI2: set swap interval to %d", interval);
     draw->SwapInterval = interval;
     return EGL_TRUE;
-@@ -1502,7 +1584,7 @@ dri2_null_image_get_buffers(__DRIdrawable *driDrawable, unsigned int format,
+@@ -1534,7 +1616,7 @@ dri2_null_image_get_buffers(__DRIdrawable *driDrawable, unsigned int format,
  
     if (buffer_mask & __DRI_IMAGE_BUFFER_FRONT) {
        buffers->image_mask |= __DRI_IMAGE_BUFFER_FRONT;
@@ -277,7 +278,7 @@ index 48a586b6f38..33cf576f147 100644
     }
  
     if (buffer_mask & __DRI_IMAGE_BUFFER_BACK) {
-@@ -1640,18 +1722,27 @@ dri2_null_setup_swap_interval(_EGLDisplay *disp)
+@@ -1672,18 +1754,27 @@ dri2_null_setup_swap_interval(_EGLDisplay *disp)
     dri2_setup_swap_interval(disp, swap_max_interval);
  
     err = drmGetCap(dri2_dpy->fd, DRM_CAP_ASYNC_PAGE_FLIP, &value);
@@ -316,6 +317,3 @@ index 48a586b6f38..33cf576f147 100644
  }
  
  EGLBoolean
--- 
-2.25.1
-

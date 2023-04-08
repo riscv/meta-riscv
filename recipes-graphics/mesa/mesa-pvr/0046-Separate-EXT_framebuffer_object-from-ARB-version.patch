@@ -1,7 +1,7 @@
-From ed4671544a6add01e87e94c04df59a600403dd21 Mon Sep 17 00:00:00 2001
+From 01d9921f0768cf26cf37a402b2d9f92a6dbfe2c0 Mon Sep 17 00:00:00 2001
 From: Brendan King <Brendan.King@imgtec.com>
 Date: Mon, 10 Mar 2014 13:43:45 +0000
-Subject: [PATCH 46/67] Separate EXT_framebuffer_object from ARB version
+Subject: [PATCH] Separate EXT_framebuffer_object from ARB version
 
 This patch separates the EXT_framebuffer_object entry points from the ARB
 equivalents.
@@ -16,6 +16,7 @@ Next time this patch is implemented, see if it can be trimmed down to
 just the above functions, as it may be more upstreamable.
 
 We may need to implement the EXT restrictions if we want to upstream.
+
 ---
  src/mapi/glapi/gen/EXT_framebuffer_object.xml | 30 +++----
  src/mapi/glapi/gen/static_data.py             | 15 ++++
@@ -26,7 +27,7 @@ We may need to implement the EXT restrictions if we want to upstream.
  6 files changed, 176 insertions(+), 15 deletions(-)
 
 diff --git a/src/mapi/glapi/gen/EXT_framebuffer_object.xml b/src/mapi/glapi/gen/EXT_framebuffer_object.xml
-index 6c0e54af1c9..957b6a3a632 100644
+index 6c0e54a..957b6a3 100644
 --- a/src/mapi/glapi/gen/EXT_framebuffer_object.xml
 +++ b/src/mapi/glapi/gen/EXT_framebuffer_object.xml
 @@ -70,7 +70,7 @@
@@ -145,7 +146,7 @@ index 6c0e54af1c9..957b6a3a632 100644
      </function>
  </category>
 diff --git a/src/mapi/glapi/gen/static_data.py b/src/mapi/glapi/gen/static_data.py
-index e231c176264..974f366d7b4 100644
+index e231c17..974f366 100644
 --- a/src/mapi/glapi/gen/static_data.py
 +++ b/src/mapi/glapi/gen/static_data.py
 @@ -1706,6 +1706,21 @@ offsets = {
@@ -171,7 +172,7 @@ index e231c176264..974f366d7b4 100644
  
  functions = [
 diff --git a/src/mesa/main/fbobject.c b/src/mesa/main/fbobject.c
-index 49893165250..885aa442911 100644
+index 4989316..885aa44 100644
 --- a/src/mesa/main/fbobject.c
 +++ b/src/mesa/main/fbobject.c
 @@ -1995,6 +1995,11 @@ _mesa_detach_renderbuffer(struct gl_context *ctx,
@@ -356,7 +357,7 @@ index 49893165250..885aa442911 100644
  void GLAPIENTRY
  _mesa_GetFramebufferAttachmentParameteriv(GLenum target, GLenum attachment,
 diff --git a/src/mesa/main/fbobject.h b/src/mesa/main/fbobject.h
-index 2a32c158e68..98271d76f50 100644
+index 2a32c15..98271d7 100644
 --- a/src/mesa/main/fbobject.h
 +++ b/src/mesa/main/fbobject.h
 @@ -145,6 +145,9 @@ _mesa_bind_framebuffers(struct gl_context *ctx,
@@ -507,7 +508,7 @@ index 2a32c158e68..98271d76f50 100644
  _mesa_InvalidateSubFramebuffer(GLenum target, GLsizei numAttachments,
                                 const GLenum *attachments, GLint x, GLint y,
 diff --git a/src/mesa/main/genmipmap.c b/src/mesa/main/genmipmap.c
-index 36727bb7060..8d262e53852 100644
+index 36727bb..8d262e5 100644
 --- a/src/mesa/main/genmipmap.c
 +++ b/src/mesa/main/genmipmap.c
 @@ -267,3 +267,9 @@ _mesa_GenerateMultiTexMipmapEXT(GLenum texunit, GLenum target)
@@ -521,7 +522,7 @@ index 36727bb7060..8d262e53852 100644
 +   _mesa_GenerateMipmap(target);
 +}
 diff --git a/src/mesa/main/genmipmap.h b/src/mesa/main/genmipmap.h
-index c661f2184c7..ff3b45a4417 100644
+index c661f21..ff3b45a 100644
 --- a/src/mesa/main/genmipmap.h
 +++ b/src/mesa/main/genmipmap.h
 @@ -44,6 +44,9 @@ _mesa_GenerateMipmap(GLenum target);
@@ -534,6 +535,3 @@ index c661f2184c7..ff3b45a4417 100644
  extern void GLAPIENTRY
  _mesa_GenerateTextureMipmap(GLuint texture);
  
--- 
-2.25.1
-

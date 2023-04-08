@@ -1,7 +1,7 @@
-From 4f9ca104c16a6eb1af770e2447adb4413fb41cb7 Mon Sep 17 00:00:00 2001
+From dbf265558ceb9688f5ffd626ab8969bd836ca60f Mon Sep 17 00:00:00 2001
 From: Luigi Santivetti <luigi.santivetti@imgtec.com>
 Date: Thu, 26 Sep 2019 13:32:15 +0100
-Subject: [PATCH 42/68] egl/null: add support for DRM image format modifiers
+Subject: [PATCH] egl/null: add support for DRM image format modifiers
 
 This change introduces support for image modifiers to platform_null. In
 order for it to create an image with modifiers, it relies on libdrm to
@@ -25,6 +25,7 @@ Internal notes:
 
 Change-Id: I0f7b030f6e1943690692674bf18daabfc153208a
 Signed-off-by: Luigi Santivetti <luigi.santivetti@imgtec.com>
+
 ---
  meson.build                          |   5 +
  src/egl/drivers/dri2/egl_dri2.h      |   3 +
@@ -32,7 +33,7 @@ Signed-off-by: Luigi Santivetti <luigi.santivetti@imgtec.com>
  3 files changed, 203 insertions(+), 26 deletions(-)
 
 diff --git a/meson.build b/meson.build
-index 21d93d372c2..ca89b8ac20d 100644
+index 21d93d3..ca89b8a 100644
 --- a/meson.build
 +++ b/meson.build
 @@ -1581,6 +1581,11 @@ if with_gallium_etnaviv
@@ -48,7 +49,7 @@ index 21d93d372c2..ca89b8ac20d 100644
  # active drivers.
  _drm_blame = ''
 diff --git a/src/egl/drivers/dri2/egl_dri2.h b/src/egl/drivers/dri2/egl_dri2.h
-index eb6e4551087..32ad720b343 100644
+index eb6e455..32ad720 100644
 --- a/src/egl/drivers/dri2/egl_dri2.h
 +++ b/src/egl/drivers/dri2/egl_dri2.h
 @@ -117,6 +117,8 @@ struct display_output {
@@ -69,7 +70,7 @@ index eb6e4551087..32ad720b343 100644
  #endif
  
 diff --git a/src/egl/drivers/dri2/platform_null.c b/src/egl/drivers/dri2/platform_null.c
-index d36dc0ced2a..2c79199da26 100644
+index d36dc0c..2c79199 100644
 --- a/src/egl/drivers/dri2/platform_null.c
 +++ b/src/egl/drivers/dri2/platform_null.c
 @@ -40,6 +40,7 @@
@@ -396,6 +397,3 @@ index d36dc0ced2a..2c79199da26 100644
 +
 +   u_vector_finish(&dri2_dpy->output.modifiers);
  }
--- 
-2.25.1
-

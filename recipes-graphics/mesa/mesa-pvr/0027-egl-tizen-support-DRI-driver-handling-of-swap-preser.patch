@@ -1,7 +1,7 @@
-From 48fe256681d8d7d3892393b102bf0a3ebc697c51 Mon Sep 17 00:00:00 2001
+From 446ff9fb0a0137745a2301982c52d187285d9837 Mon Sep 17 00:00:00 2001
 From: Frank Binns <frank.binns@imgtec.com>
 Date: Mon, 18 Dec 2017 19:22:50 +0000
-Subject: [PATCH 27/67] egl/tizen: support DRI driver handling of swap preserve
+Subject: [PATCH] egl/tizen: support DRI driver handling of swap preserve
 
 This adds a new flag (__DRI_IMAGE_BUFFER_PREV) to the __DRIimageBufferMask
 enum that allows a DRI driver to request the previous back buffer. This
@@ -10,13 +10,14 @@ should result in the DRI driver preserving the previous content instead of
 this being done in the platform code. For hardware that supports it, this
 should avoid a blit being performed every frame, although this will still
 be necessary under certain conditions, e.g. an empty swap.
+
 ---
  include/GL/internal/dri_interface.h   |  3 +++
  src/egl/drivers/dri2/platform_tizen.c | 29 +++++++++++++++++++++------
  2 files changed, 26 insertions(+), 6 deletions(-)
 
 diff --git a/include/GL/internal/dri_interface.h b/include/GL/internal/dri_interface.h
-index b197092939f..16cc095ea29 100644
+index b197092..16cc095 100644
 --- a/include/GL/internal/dri_interface.h
 +++ b/include/GL/internal/dri_interface.h
 @@ -2073,12 +2073,15 @@ enum __DRIimageBufferMask {
@@ -36,7 +37,7 @@ index b197092939f..16cc095ea29 100644
  
  #define __DRI_IMAGE_LOADER "DRI_IMAGE_LOADER"
 diff --git a/src/egl/drivers/dri2/platform_tizen.c b/src/egl/drivers/dri2/platform_tizen.c
-index 49462152beb..2bc9b3e7c64 100644
+index 4946215..2bc9b3e 100644
 --- a/src/egl/drivers/dri2/platform_tizen.c
 +++ b/src/egl/drivers/dri2/platform_tizen.c
 @@ -147,7 +147,8 @@ create_image_from_native(struct dri2_egl_surface *dri2_surf,
@@ -116,6 +117,3 @@ index 49462152beb..2bc9b3e7c64 100644
     return 1;
  }
  
--- 
-2.25.1
-

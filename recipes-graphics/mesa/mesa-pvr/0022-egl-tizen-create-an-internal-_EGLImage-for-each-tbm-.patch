@@ -1,14 +1,14 @@
-From 404c0e915de381c2337c79657f80b0aa95c1c995 Mon Sep 17 00:00:00 2001
+From 6d364d64fb28069a0ce9bab65a6f12f873707eda Mon Sep 17 00:00:00 2001
 From: Frank Binns <frank.binns@imgtec.com>
 Date: Wed, 25 Oct 2017 18:15:00 +0100
-Subject: [PATCH 22/67] egl/tizen: create an internal _EGLImage for each tbm
- surface
+Subject: [PATCH] egl/tizen: create an internal _EGLImage for each tbm surface
 
 Create an internal _EGLImage the first time a tbm surface is seen
 by eglCreateImageKHR (with either the EGL_WAYLAND_BUFFER_WL or
 EGL_NATIVE_SURFACE_TIZEN target) and return a copy of it to the
 caller. This avoids some tbm surfaces being frequently mapped and
 then unmapped from the GPU.
+
 ---
  src/egl/drivers/dri2/egl_dri2.c       | 236 +++++++++++++++++++++++++-
  src/egl/drivers/dri2/egl_dri2.h       |  12 ++
@@ -16,7 +16,7 @@ then unmapped from the GPU.
  3 files changed, 251 insertions(+), 3 deletions(-)
 
 diff --git a/src/egl/drivers/dri2/egl_dri2.c b/src/egl/drivers/dri2/egl_dri2.c
-index eaa0baed066..db993f8f059 100644
+index eaa0bae..db993f8 100644
 --- a/src/egl/drivers/dri2/egl_dri2.c
 +++ b/src/egl/drivers/dri2/egl_dri2.c
 @@ -1264,6 +1264,10 @@ dri2_display_destroy(_EGLDisplay *disp)
@@ -322,7 +322,7 @@ index eaa0baed066..db993f8f059 100644
  }
  
 diff --git a/src/egl/drivers/dri2/egl_dri2.h b/src/egl/drivers/dri2/egl_dri2.h
-index a8bfe45b1f5..546bc0a0dbc 100644
+index a8bfe45..546bc0a 100644
 --- a/src/egl/drivers/dri2/egl_dri2.h
 +++ b/src/egl/drivers/dri2/egl_dri2.h
 @@ -268,6 +268,15 @@ struct dri2_egl_display
@@ -352,7 +352,7 @@ index a8bfe45b1f5..546bc0a0dbc 100644
  
  struct dri2_egl_sync {
 diff --git a/src/egl/drivers/dri2/platform_tizen.c b/src/egl/drivers/dri2/platform_tizen.c
-index ad75c115d7e..49462152beb 100644
+index ad75c11..4946215 100644
 --- a/src/egl/drivers/dri2/platform_tizen.c
 +++ b/src/egl/drivers/dri2/platform_tizen.c
 @@ -891,6 +891,7 @@ dri2_initialize_tizen(_EGLDisplay *dpy)
@@ -375,6 +375,3 @@ index ad75c115d7e..49462152beb 100644
     for (i = TIZEN_DRM_RENDER_MINOR_START; i <= TIZEN_DRM_RENDER_MINOR_MAX; i++) {
        char *render_path;
  
--- 
-2.25.1
-

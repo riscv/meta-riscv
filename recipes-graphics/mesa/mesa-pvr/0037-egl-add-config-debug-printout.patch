@@ -1,7 +1,7 @@
-From 02065d490a68d542be56c2ea23346b3fa19928cb Mon Sep 17 00:00:00 2001
+From a5c947e12d7b29419f8996ca3a7beeefe424d8dc Mon Sep 17 00:00:00 2001
 From: Silvestrs Timofejevs <silvestrs.timofejevs@imgtec.com>
 Date: Mon, 24 Sep 2018 14:14:25 +0100
-Subject: [PATCH 37/67] egl: add config debug printout
+Subject: [PATCH] egl: add config debug printout
 
 Feature to print out EGL returned configs for debug purposes.
 
@@ -9,6 +9,7 @@ Feature to print out EGL returned configs for debug purposes.
 enabled when the log level equals '_EGL_DEBUG'. The configs are
 printed, and if any of them are "chosen" they are marked with their
 index in the chosen configs array.
+
 ---
  src/egl/main/eglconfig.c      |  20 ++-
  src/egl/main/eglconfigdebug.c | 321 ++++++++++++++++++++++++++++++++++
@@ -21,7 +22,7 @@ index in the chosen configs array.
  create mode 100644 src/egl/main/eglconfigdebug.h
 
 diff --git a/src/egl/main/eglconfig.c b/src/egl/main/eglconfig.c
-index 5e56948ab72..ea4b3c15f3f 100644
+index 5e56948..ea4b3c1 100644
 --- a/src/egl/main/eglconfig.c
 +++ b/src/egl/main/eglconfig.c
 @@ -40,6 +40,7 @@
@@ -70,7 +71,7 @@ index 5e56948ab72..ea4b3c15f3f 100644
  }
 diff --git a/src/egl/main/eglconfigdebug.c b/src/egl/main/eglconfigdebug.c
 new file mode 100644
-index 00000000000..92ac41a5614
+index 0000000..92ac41a
 --- /dev/null
 +++ b/src/egl/main/eglconfigdebug.c
 @@ -0,0 +1,321 @@
@@ -397,7 +398,7 @@ index 00000000000..92ac41a5614
 +}
 diff --git a/src/egl/main/eglconfigdebug.h b/src/egl/main/eglconfigdebug.h
 new file mode 100644
-index 00000000000..562aefff9de
+index 0000000..562aeff
 --- /dev/null
 +++ b/src/egl/main/eglconfigdebug.h
 @@ -0,0 +1,55 @@
@@ -457,7 +458,7 @@ index 00000000000..562aefff9de
 +
 +#endif /* EGLCONFIGDEBUG_INCLUDED */
 diff --git a/src/egl/main/egllog.c b/src/egl/main/egllog.c
-index 973b7600ab1..7a9032f9bbb 100644
+index 973b760..7a9032f 100644
 --- a/src/egl/main/egllog.c
 +++ b/src/egl/main/egllog.c
 @@ -153,6 +153,15 @@ _eglInitLogger(void)
@@ -477,7 +478,7 @@ index 973b7600ab1..7a9032f9bbb 100644
  /**
   * Log a message with message logger.
 diff --git a/src/egl/main/egllog.h b/src/egl/main/egllog.h
-index 2a06a34684a..a1cf9770ed8 100644
+index 2a06a34..a1cf977 100644
 --- a/src/egl/main/egllog.h
 +++ b/src/egl/main/egllog.h
 @@ -44,6 +44,10 @@ extern "C" {
@@ -492,7 +493,7 @@ index 2a06a34684a..a1cf9770ed8 100644
  _eglLog(EGLint level, const char *fmtStr, ...);
  
 diff --git a/src/egl/meson.build b/src/egl/meson.build
-index daa6a3a04f0..384bb98ebb3 100644
+index daa6a3a..384bb98 100644
 --- a/src/egl/meson.build
 +++ b/src/egl/meson.build
 @@ -31,6 +31,8 @@ files_egl = files(
@@ -504,6 +505,3 @@ index daa6a3a04f0..384bb98ebb3 100644
    'main/eglconfig.c',
    'main/eglconfig.h',
    'main/eglcontext.c',
--- 
-2.25.1
-

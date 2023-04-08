@@ -1,7 +1,7 @@
-From dbb0d023abb9e4bfed70144514595f0477840f3e Mon Sep 17 00:00:00 2001
+From 6d46bd2dc65bde965fe8d6c53112c61274ac837f Mon Sep 17 00:00:00 2001
 From: Luigi Santivetti <luigi.santivetti@imgtec.com>
 Date: Wed, 19 Jun 2019 16:36:06 +0100
-Subject: [PATCH 40/67] dri2: add support for swap intervals other than 1
+Subject: [PATCH] dri2: add support for swap intervals other than 1
 
 Before this change, the swap interval was fixed at 1, with page flips
 scheduled on the next vblank. This change allows any swap interval
@@ -16,13 +16,14 @@ regardless of the timing of subsequent calls to swap buffers.
 
 Change-Id: If7c0495df7ddfaa08583a14f820c46e1b97da788
 Signed-off-by: Luigi Santivetti <luigi.santivetti@imgtec.com>
+
 ---
  src/egl/drivers/dri2/egl_dri2.h      |  34 +-
  src/egl/drivers/dri2/platform_null.c | 541 +++++++++++++++++++++++----
  2 files changed, 497 insertions(+), 78 deletions(-)
 
 diff --git a/src/egl/drivers/dri2/egl_dri2.h b/src/egl/drivers/dri2/egl_dri2.h
-index eb2127e3fe6..64d60ed66e4 100644
+index eb2127e..64d60ed 100644
 --- a/src/egl/drivers/dri2/egl_dri2.h
 +++ b/src/egl/drivers/dri2/egl_dri2.h
 @@ -332,6 +332,23 @@ struct tpl_swap_queue_elem
@@ -94,7 +95,7 @@ index eb2127e3fe6..64d60ed66e4 100644
  
     int out_fence_fd;
 diff --git a/src/egl/drivers/dri2/platform_null.c b/src/egl/drivers/dri2/platform_null.c
-index fb03ecc36fd..5b7c1ec426c 100644
+index fb03ecc..5b7c1ec 100644
 --- a/src/egl/drivers/dri2/platform_null.c
 +++ b/src/egl/drivers/dri2/platform_null.c
 @@ -31,6 +31,7 @@
@@ -780,6 +781,3 @@ index fb03ecc36fd..5b7c1ec426c 100644
  
     if (dri2_dpy->image->base.version < NULL_IMAGE_EXTENSION_VERSION_MIN) {
        _eglError(EGL_NOT_INITIALIZED, "image extension version too old");
--- 
-2.25.1
-

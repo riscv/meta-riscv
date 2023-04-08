@@ -1,7 +1,7 @@
-From def26b8534e4f8e150e5775dd1f7d2d955580c05 Mon Sep 17 00:00:00 2001
+From 7f4c353e7d2778fff8d728c1aed247900610b725 Mon Sep 17 00:00:00 2001
 From: Frank Binns <francisbinns@gmail.com>
 Date: Sun, 5 Jun 2016 12:04:40 +0100
-Subject: [PATCH 36/67] egl: add "null" platform
+Subject: [PATCH] egl: add "null" platform
 
 ---
  meson.build                          |   25 +-
@@ -17,7 +17,7 @@ Subject: [PATCH 36/67] egl: add "null" platform
  create mode 100644 src/egl/drivers/dri2/platform_null.c
 
 diff --git a/meson.build b/meson.build
-index 3d9d345dbf2..2018562a1ec 100644
+index 3d9d345..2018562 100644
 --- a/meson.build
 +++ b/meson.build
 @@ -340,7 +340,7 @@ endif
@@ -74,7 +74,7 @@ index 3d9d345dbf2..2018562a1ec 100644
  if dep_libdrm.found()
    pre_args += '-DHAVE_LIBDRM'
 diff --git a/meson_options.txt b/meson_options.txt
-index 8230db93c70..d90a25f97ff 100644
+index 8230db9..d90a25f 100644
 --- a/meson_options.txt
 +++ b/meson_options.txt
 @@ -23,7 +23,7 @@ option(
@@ -87,7 +87,7 @@ index 8230db93c70..d90a25f97ff 100644
    description : 'window systems to support. If this is set to `auto`, all platforms applicable will be enabled.'
  )
 diff --git a/src/egl/drivers/dri2/egl_dri2.c b/src/egl/drivers/dri2/egl_dri2.c
-index d511d73f2ed..2f8414e0c60 100644
+index d511d73..2f8414e 100644
 --- a/src/egl/drivers/dri2/egl_dri2.c
 +++ b/src/egl/drivers/dri2/egl_dri2.c
 @@ -1253,6 +1253,9 @@ dri2_initialize(_EGLDisplay *disp)
@@ -128,7 +128,7 @@ index d511d73f2ed..2f8414e0c60 100644
      * the ones from the gbm device. As such the gbm itself is responsible
      * for the cleanup.
 diff --git a/src/egl/drivers/dri2/egl_dri2.h b/src/egl/drivers/dri2/egl_dri2.h
-index f41f32cd234..eb2127e3fe6 100644
+index f41f32c..eb2127e 100644
 --- a/src/egl/drivers/dri2/egl_dri2.h
 +++ b/src/egl/drivers/dri2/egl_dri2.h
 @@ -81,6 +81,10 @@ struct zwp_linux_dmabuf_v1;
@@ -247,7 +247,7 @@ index f41f32cd234..eb2127e3fe6 100644
  static inline void
 diff --git a/src/egl/drivers/dri2/platform_null.c b/src/egl/drivers/dri2/platform_null.c
 new file mode 100644
-index 00000000000..fb03ecc36fd
+index 0000000..fb03ecc
 --- /dev/null
 +++ b/src/egl/drivers/dri2/platform_null.c
 @@ -0,0 +1,1179 @@
@@ -1431,7 +1431,7 @@ index 00000000000..fb03ecc36fd
 +   }
 +}
 diff --git a/src/egl/main/eglapi.c b/src/egl/main/eglapi.c
-index 6d7f62c6851..e4f2c43b4ef 100644
+index 6d7f62c..e4f2c43 100644
 --- a/src/egl/main/eglapi.c
 +++ b/src/egl/main/eglapi.c
 @@ -989,7 +989,10 @@ _eglCreateWindowSurfaceCommon(_EGLDisplay *disp, EGLConfig config,
@@ -1447,7 +1447,7 @@ index 6d7f62c6851..e4f2c43b4ef 100644
     if (disp && (disp->Platform == _EGL_PLATFORM_SURFACELESS ||
                  disp->Platform == _EGL_PLATFORM_DEVICE)) {
 diff --git a/src/egl/main/egldisplay.c b/src/egl/main/egldisplay.c
-index 486ac3b0557..395f38156d7 100644
+index 486ac3b..395f381 100644
 --- a/src/egl/main/egldisplay.c
 +++ b/src/egl/main/egldisplay.c
 @@ -78,6 +78,7 @@ static const struct {
@@ -1459,7 +1459,7 @@ index 486ac3b0557..395f38156d7 100644
  
  
 diff --git a/src/egl/main/egldisplay.h b/src/egl/main/egldisplay.h
-index 020529c57e2..8489af9dde2 100644
+index 020529c..8489af9 100644
 --- a/src/egl/main/egldisplay.h
 +++ b/src/egl/main/egldisplay.h
 @@ -53,6 +53,7 @@ enum _egl_platform_type {
@@ -1471,7 +1471,7 @@ index 020529c57e2..8489af9dde2 100644
     _EGL_NUM_PLATFORMS,
     _EGL_INVALID_PLATFORM = -1
 diff --git a/src/egl/meson.build b/src/egl/meson.build
-index 5749ec88f89..daa6a3a04f0 100644
+index 5749ec8..daa6a3a 100644
 --- a/src/egl/meson.build
 +++ b/src/egl/meson.build
 @@ -146,6 +146,11 @@ if with_platform_tizen
@@ -1486,6 +1486,3 @@ index 5749ec88f89..daa6a3a04f0 100644
  
  if cc.has_function('mincore')
    c_args_for_egl += '-DHAVE_MINCORE'
--- 
-2.25.1
-

@@ -1,11 +1,12 @@
-From fec4f46f7cedb6b3e90bf88c3efc3cd5da0d9131 Mon Sep 17 00:00:00 2001
+From 31cc2cd723963bdecb2c5d5e4c09598ee830f0d6 Mon Sep 17 00:00:00 2001
 From: Frank Binns <frank.binns@imgtec.com>
 Date: Thu, 5 Jun 2014 12:07:01 +0100
-Subject: [PATCH 03/67] dri: Add some new DRI formats and fourccs
+Subject: [PATCH] dri: Add some new DRI formats and fourccs
 
 Add ARGB4444 DRI format and fourcc.
 Add YVU444_PACK10_IMG DRI format and fourcc.
 Add BGR888 DRI format and fourcc.
+
 ---
  include/GL/internal/dri_interface.h    | 4 ++++
  include/drm-uapi/drm_fourcc.h          | 1 +
@@ -14,7 +15,7 @@ Add BGR888 DRI format and fourcc.
  4 files changed, 11 insertions(+)
 
 diff --git a/include/GL/internal/dri_interface.h b/include/GL/internal/dri_interface.h
-index 66dc0927cb7..510289403d2 100644
+index 66dc092..5102894 100644
 --- a/include/GL/internal/dri_interface.h
 +++ b/include/GL/internal/dri_interface.h
 @@ -1367,6 +1367,9 @@ struct __DRIdri2ExtensionRec {
@@ -36,7 +37,7 @@ index 66dc0927cb7..510289403d2 100644
  /**
   * Queryable on images created by createImageFromNames.
 diff --git a/include/drm-uapi/drm_fourcc.h b/include/drm-uapi/drm_fourcc.h
-index cd3ce8a8c60..57657592a38 100644
+index cd3ce8a..5765759 100644
 --- a/include/drm-uapi/drm_fourcc.h
 +++ b/include/drm-uapi/drm_fourcc.h
 @@ -344,6 +344,7 @@ extern "C" {
@@ -48,7 +49,7 @@ index cd3ce8a8c60..57657592a38 100644
  /*
   * Format Modifiers:
 diff --git a/src/egl/drivers/dri2/egl_dri2.c b/src/egl/drivers/dri2/egl_dri2.c
-index 9e5a55a287c..eee28eb4726 100644
+index 9e5a55a..eee28eb 100644
 --- a/src/egl/drivers/dri2/egl_dri2.c
 +++ b/src/egl/drivers/dri2/egl_dri2.c
 @@ -2652,6 +2652,7 @@ dri2_num_fourcc_format_planes(EGLint format)
@@ -60,7 +61,7 @@ index 9e5a55a287c..eee28eb4726 100644
  
     case DRM_FORMAT_NV12:
 diff --git a/src/mesa/drivers/dri/common/dri_util.c b/src/mesa/drivers/dri/common/dri_util.c
-index e2a11240dea..caed5fa6a68 100644
+index e2a1124..caed5fa 100644
 --- a/src/mesa/drivers/dri/common/dri_util.c
 +++ b/src/mesa/drivers/dri/common/dri_util.c
 @@ -904,6 +904,11 @@ static const struct {
@@ -75,6 +76,3 @@ index e2a11240dea..caed5fa6a68 100644
     {
        .image_format    = __DRI_IMAGE_FORMAT_XRGB8888,
        .mesa_format     =        MESA_FORMAT_B8G8R8X8_UNORM,
--- 
-2.25.1
-

@@ -1,20 +1,21 @@
-From 9bb8868ebab2d041c24c76487b6419a8039a5ce7 Mon Sep 17 00:00:00 2001
+From 8dd3c5e884c1ff76bcc67759dd3f6f8559096859 Mon Sep 17 00:00:00 2001
 From: Frank Binns <frank.binns@imgtec.com>
 Date: Wed, 4 Jun 2014 13:43:03 +0100
-Subject: [PATCH 67/67] egl_dri2: set pbuffer config attribs to 0 for
- non-pbuffer configs
+Subject: [PATCH] egl_dri2: set pbuffer config attribs to 0 for non-pbuffer
+ configs
 
 If the EGL_PBUFFER_BIT isn't set in the surface type, don't set the
 EGL_MAX_PBUFFER_WIDTH, EGL_MAX_PBUFFER_HEIGHT and
 EGL_MAX_PBUFFER_PIXELS attributes to non-zero values when adding an
 EGL config. If the EGL_PBUFFER_BIT is set, don't override non-zero
 values from the DRI config.
+
 ---
  src/egl/drivers/dri2/egl_dri2.c | 20 ++++++++++++++++++--
  1 file changed, 18 insertions(+), 2 deletions(-)
 
 diff --git a/src/egl/drivers/dri2/egl_dri2.c b/src/egl/drivers/dri2/egl_dri2.c
-index 56b5175db6e..1b10c2e7362 100644
+index 56b5175..1b10c2e 100644
 --- a/src/egl/drivers/dri2/egl_dri2.c
 +++ b/src/egl/drivers/dri2/egl_dri2.c
 @@ -407,6 +407,7 @@ dri2_add_config(_EGLDisplay *disp, const __DRIconfig *dri_config, int id,
@@ -61,6 +62,3 @@ index 56b5175db6e..1b10c2e7362 100644
     if (attr_list)
        for (int i = 0; attr_list[i] != EGL_NONE; i += 2)
           _eglSetConfigKey(&base, attr_list[i], attr_list[i+1]);
--- 
-2.25.1
-

@@ -1,16 +1,17 @@
-From f16ea577ee06375423198dced8231d04e94536af Mon Sep 17 00:00:00 2001
+From 965b7a6be10d89e8cf3bfcf6737a7b9e3375e394 Mon Sep 17 00:00:00 2001
 From: Brendan King <Brendan.King@imgtec.com>
 Date: Fri, 17 Mar 2017 16:23:07 +0000
-Subject: [PATCH 26/67] egl/wayland: add pbuffer support
+Subject: [PATCH] egl/wayland: add pbuffer support
 
 The pbuffer code is based on that in the Surfaceless platform code.
+
 ---
  src/egl/drivers/dri2/egl_dri2.h         |   4 +
  src/egl/drivers/dri2/platform_wayland.c | 270 ++++++++++++++++++++----
  2 files changed, 236 insertions(+), 38 deletions(-)
 
 diff --git a/src/egl/drivers/dri2/egl_dri2.h b/src/egl/drivers/dri2/egl_dri2.h
-index 546bc0a0dbc..f41f32cd234 100644
+index 546bc0a..f41f32c 100644
 --- a/src/egl/drivers/dri2/egl_dri2.h
 +++ b/src/egl/drivers/dri2/egl_dri2.h
 @@ -405,6 +405,10 @@ struct dri2_egl_surface
@@ -25,7 +26,7 @@ index 546bc0a0dbc..f41f32cd234 100644
     EGLBoolean enable_out_fence;
  
 diff --git a/src/egl/drivers/dri2/platform_wayland.c b/src/egl/drivers/dri2/platform_wayland.c
-index 811d28bd669..a096d9500c1 100644
+index 811d28b..a096d95 100644
 --- a/src/egl/drivers/dri2/platform_wayland.c
 +++ b/src/egl/drivers/dri2/platform_wayland.c
 @@ -427,6 +427,99 @@ dri2_wl_create_pixmap_surface(_EGLDisplay *disp, _EGLConfig *conf,
@@ -466,6 +467,3 @@ index 811d28bd669..a096d9500c1 100644
     .destroy_surface = dri2_wl_destroy_surface,
     .create_image = dri2_create_image_khr,
     .swap_buffers = dri2_wl_swrast_swap_buffers,
--- 
-2.25.1
-

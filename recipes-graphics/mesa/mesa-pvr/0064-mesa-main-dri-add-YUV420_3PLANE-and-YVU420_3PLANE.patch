@@ -1,7 +1,7 @@
-From 85762f3538a21a99bf1b71d87345ebe51f9de453 Mon Sep 17 00:00:00 2001
+From fa99f7580504ea68bf36cf1f0dcf7cdcd0338916 Mon Sep 17 00:00:00 2001
 From: Luigi Santivetti <luigi.santivetti@imgtec.com>
 Date: Thu, 12 Aug 2021 00:55:46 +0100
-Subject: [PATCH 64/67] mesa/main: dri: add YUV420_3PLANE and YVU420_3PLANE
+Subject: [PATCH] mesa/main: dri: add YUV420_3PLANE and YVU420_3PLANE
 
 ---
  include/GL/internal/dri_interface.h    |  2 ++
@@ -16,7 +16,7 @@ Subject: [PATCH 64/67] mesa/main: dri: add YUV420_3PLANE and YVU420_3PLANE
  9 files changed, 49 insertions(+), 1 deletion(-)
 
 diff --git a/include/GL/internal/dri_interface.h b/include/GL/internal/dri_interface.h
-index 080d191b0a3..7d9a1bd9ba6 100644
+index 080d191..7d9a1bd 100644
 --- a/include/GL/internal/dri_interface.h
 +++ b/include/GL/internal/dri_interface.h
 @@ -1424,6 +1424,8 @@ struct __DRIdri2ExtensionRec {
@@ -29,7 +29,7 @@ index 080d191b0a3..7d9a1bd9ba6 100644
  #define __DRI_IMAGE_USE_SHARE		0x0001
  #define __DRI_IMAGE_USE_SCANOUT		0x0002
 diff --git a/src/gallium/include/pipe/p_format.h b/src/gallium/include/pipe/p_format.h
-index fd653379b7a..970f07598d5 100644
+index fd65337..970f075 100644
 --- a/src/gallium/include/pipe/p_format.h
 +++ b/src/gallium/include/pipe/p_format.h
 @@ -516,6 +516,9 @@ enum pipe_format {
@@ -43,7 +43,7 @@ index fd653379b7a..970f07598d5 100644
  };
  
 diff --git a/src/mesa/drivers/dri/common/utils.c b/src/mesa/drivers/dri/common/utils.c
-index d268dc41fbb..df5f8cbfdc0 100644
+index d268dc4..df5f8cb 100644
 --- a/src/mesa/drivers/dri/common/utils.c
 +++ b/src/mesa/drivers/dri/common/utils.c
 @@ -330,6 +330,24 @@ driCreateConfigs(mesa_format format,
@@ -72,20 +72,20 @@ index d268dc41fbb..df5f8cbfdc0 100644
        fprintf(stderr, "[%s:%u] Unknown framebuffer type %s (%d).\n",
                __func__, __LINE__,
 diff --git a/src/mesa/drivers/dri/pvr/dri_support.h b/src/mesa/drivers/dri/pvr/dri_support.h
-index ab0b9dd9a23..a4999dc36bf 100644
+index 6314104..51524a9 100644
 --- a/src/mesa/drivers/dri/pvr/dri_support.h
 +++ b/src/mesa/drivers/dri/pvr/dri_support.h
-@@ -189,6 +189,8 @@ typedef enum
+@@ -92,6 +92,8 @@ typedef enum
  #define PVRDRI_MESA_FORMAT_YVU420_2PLANE	8
  #define PVRDRI_MESA_FORMAT_B8G8R8A8_SRGB	9
  #define PVRDRI_MESA_FORMAT_R8G8B8A8_SRGB	10
 +#define PVRDRI_MESA_FORMAT_YUV420_3PLANE	11
 +#define PVRDRI_MESA_FORMAT_YVU420_3PLANE	12
  
- /* The blit flags match their DRI counterparts */
- #define PVRDRI_BLIT_FLAG_FLUSH		0x0001
+ typedef struct __DRIimageRec __DRIimage;
+ 
 diff --git a/src/mesa/drivers/dri/pvr/pvrutil.c b/src/mesa/drivers/dri/pvr/pvrutil.c
-index d107a5dafad..ee11ac55914 100644
+index d107a5d..ee11ac5 100644
 --- a/src/mesa/drivers/dri/pvr/pvrutil.c
 +++ b/src/mesa/drivers/dri/pvr/pvrutil.c
 @@ -118,6 +118,10 @@ PVRDRIMesaFormatToMesaFormat(int pvrdri_mesa_format)
@@ -123,7 +123,7 @@ index d107a5dafad..ee11ac55914 100644
        __driUtilMessage("%s: Unknown format: %d", __func__, iFourCC);
        break;
 diff --git a/src/mesa/main/format_info.py b/src/mesa/main/format_info.py
-index d58403ea85e..bc18db74f17 100644
+index d58403e..bc18db7 100644
 --- a/src/mesa/main/format_info.py
 +++ b/src/mesa/main/format_info.py
 @@ -29,7 +29,7 @@ import sys
@@ -136,7 +136,7 @@ index d58403ea85e..bc18db74f17 100644
     elif fmat.has_channel('r'):
        if fmat.has_channel('g'):
 diff --git a/src/mesa/main/formats.c b/src/mesa/main/formats.c
-index f81caeceff4..d7b0d0a07c9 100644
+index f81caec..d7b0d0a 100644
 --- a/src/mesa/main/formats.c
 +++ b/src/mesa/main/formats.c
 @@ -1455,6 +1455,8 @@ _mesa_format_matches_format_and_type(mesa_format mformat,
@@ -149,7 +149,7 @@ index f81caeceff4..d7b0d0a07c9 100644
  
     default:
 diff --git a/src/mesa/main/formats.csv b/src/mesa/main/formats.csv
-index b2d476577e0..825443b10ce 100644
+index b2d4765..825443b 100644
 --- a/src/mesa/main/formats.csv
 +++ b/src/mesa/main/formats.csv
 @@ -94,6 +94,8 @@ MESA_FORMAT_YCBCR                         , other , 1, 1, 1, x16 ,     ,     ,
@@ -162,7 +162,7 @@ index b2d476577e0..825443b10ce 100644
  MESA_FORMAT_RG_RB_UNORM8                  , other , 2, 1, 1, x16 ,     ,     ,     , xyz1, rgb
  MESA_FORMAT_GR_BR_UNORM8                  , other , 2, 1, 1, x16 ,     ,     ,     , xyz1, rgb
 diff --git a/src/mesa/main/formats.h b/src/mesa/main/formats.h
-index 0e778d64467..1ab03d2be7e 100644
+index 0e778d6..1ab03d2 100644
 --- a/src/mesa/main/formats.h
 +++ b/src/mesa/main/formats.h
 @@ -624,6 +624,12 @@ typedef enum pipe_format mesa_format;
@@ -178,6 +178,3 @@ index 0e778d64467..1ab03d2be7e 100644
  #define MESA_FORMAT_COUNT                        PIPE_FORMAT_COUNT
  
  /* Packed to array format adapters */
--- 
-2.25.1
-

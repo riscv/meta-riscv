@@ -1,7 +1,7 @@
-From db015d5fd0ded075e759677c047c581151bb1b52 Mon Sep 17 00:00:00 2001
+From 4163f34fbdbc0516085ba562e0013487b408c7ab Mon Sep 17 00:00:00 2001
 From: Brendan King <Brendan.King@imgtec.com>
 Date: Tue, 9 Mar 2021 17:15:30 +0000
-Subject: [PATCH 50/67] dri: preserve the original FD for driver use.
+Subject: [PATCH] dri: preserve the original FD for driver use.
 
 If an application uses a different GPU from the default, allow the
 file descriptor (FD) for that original GPU/display to be preserved
@@ -22,6 +22,7 @@ driver, and the platform is responsible for closing it.
 
 The feature is currently supported by the Wayland, and DRI3 based
 X11 EGL and GLX platforms.
+
 ---
  include/GL/internal/dri_interface.h      | 26 +++++++++++++++++--
  src/egl/drivers/dri2/egl_dri2.c          | 10 +++++++
@@ -34,7 +35,7 @@ X11 EGL and GLX platforms.
  8 files changed, 125 insertions(+), 7 deletions(-)
 
 diff --git a/include/GL/internal/dri_interface.h b/include/GL/internal/dri_interface.h
-index 888a117d56e..2fb440feb50 100644
+index 888a117..2fb440f 100644
 --- a/include/GL/internal/dri_interface.h
 +++ b/include/GL/internal/dri_interface.h
 @@ -1146,7 +1146,7 @@ struct __DRIbufferRec {
@@ -92,7 +93,7 @@ index 888a117d56e..2fb440feb50 100644
  
  /**
 diff --git a/src/egl/drivers/dri2/egl_dri2.c b/src/egl/drivers/dri2/egl_dri2.c
-index c4a49cae592..1df53ef011c 100644
+index c4a49ca..1df53ef 100644
 --- a/src/egl/drivers/dri2/egl_dri2.c
 +++ b/src/egl/drivers/dri2/egl_dri2.c
 @@ -1367,6 +1367,16 @@ dri2_display_destroy(_EGLDisplay *disp)
@@ -113,10 +114,10 @@ index c4a49cae592..1df53ef011c 100644
        close(dri2_dpy->fd);
  
 diff --git a/src/egl/drivers/dri2/egl_dri2.h b/src/egl/drivers/dri2/egl_dri2.h
-index 141df1b1732..af03caee623 100644
+index f8792ea..22e27b4 100644
 --- a/src/egl/drivers/dri2/egl_dri2.h
 +++ b/src/egl/drivers/dri2/egl_dri2.h
-@@ -230,6 +230,7 @@ struct dri2_egl_display
+@@ -231,6 +231,7 @@ struct dri2_egl_display
     const __DRIconfigOptionsExtension *configOptions;
     const __DRImutableRenderBufferDriverExtension *mutable_render_buffer;
     int                       fd;
@@ -125,7 +126,7 @@ index 141df1b1732..af03caee623 100644
     /* dri2_initialize/dri2_terminate increment/decrement this count, so does
      * dri2_make_current (tracks if there are active contexts/surfaces). */
 diff --git a/src/egl/drivers/dri2/platform_wayland.c b/src/egl/drivers/dri2/platform_wayland.c
-index 06272d4081e..b393e058770 100644
+index 06272d4..b393e05 100644
 --- a/src/egl/drivers/dri2/platform_wayland.c
 +++ b/src/egl/drivers/dri2/platform_wayland.c
 @@ -44,6 +44,7 @@
@@ -216,7 +217,7 @@ index 06272d4081e..b393e058770 100644
     if (disp->PlatformDisplay == NULL) {
        dri2_dpy->wl_dpy = wl_display_connect(NULL);
 diff --git a/src/egl/drivers/dri2/platform_x11.c b/src/egl/drivers/dri2/platform_x11.c
-index 5ffdf132184..5cf3ce2a369 100644
+index 5ffdf13..5cf3ce2 100644
 --- a/src/egl/drivers/dri2/platform_x11.c
 +++ b/src/egl/drivers/dri2/platform_x11.c
 @@ -1277,6 +1277,7 @@ dri2_initialize_x11_swrast(_EGLDisplay *disp)
@@ -244,7 +245,7 @@ index 5ffdf132184..5cf3ce2a369 100644
        goto cleanup;
  
 diff --git a/src/egl/drivers/dri2/platform_x11_dri3.c b/src/egl/drivers/dri2/platform_x11_dri3.c
-index e117105fcb6..0babf9f867e 100644
+index e117105..0babf9f 100644
 --- a/src/egl/drivers/dri2/platform_x11_dri3.c
 +++ b/src/egl/drivers/dri2/platform_x11_dri3.c
 @@ -32,6 +32,7 @@
@@ -313,7 +314,7 @@ index e117105fcb6..0babf9f867e 100644
     }
  
 diff --git a/src/glx/dri3_glx.c b/src/glx/dri3_glx.c
-index db1b079663f..1ed6b60ffe8 100644
+index db1b079..1ed6b60 100644
 --- a/src/glx/dri3_glx.c
 +++ b/src/glx/dri3_glx.c
 @@ -77,6 +77,7 @@
@@ -417,7 +418,7 @@ index db1b079663f..1ed6b60ffe8 100644
        close(psc->fd);
     if (psc->fd_display_gpu >= 0)
 diff --git a/src/glx/dri3_priv.h b/src/glx/dri3_priv.h
-index c0e833c16ef..b3dccf28c06 100644
+index c0e833c..b3dccf2 100644
 --- a/src/glx/dri3_priv.h
 +++ b/src/glx/dri3_priv.h
 @@ -107,6 +107,7 @@ struct dri3_screen {
@@ -428,6 +429,3 @@ index c0e833c16ef..b3dccf28c06 100644
     bool is_different_gpu;
  
     /* fd for display GPU in case of prime */
--- 
-2.25.1
-

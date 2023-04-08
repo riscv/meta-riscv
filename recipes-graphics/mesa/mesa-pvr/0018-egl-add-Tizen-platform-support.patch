@@ -1,10 +1,11 @@
-From a2fea4d0fb40d7bdfd2a3860132c37288f3d7864 Mon Sep 17 00:00:00 2001
+From 70abef4d4511b1e25ab3b4746644e5324140d9d7 Mon Sep 17 00:00:00 2001
 From: Frank Binns <frank.binns@imgtec.com>
 Date: Fri, 6 Jan 2017 16:35:00 +0000
-Subject: [PATCH 18/67] egl: add Tizen platform support
+Subject: [PATCH] egl: add Tizen platform support
 
 Add a new "tizen" platform to support drm/gbm and Wayland on Tizen.
 The platform can be enabled by passing "-Dplatforms=tizen" to Meson.
+
 ---
  meson.build                           |  25 +-
  meson_options.txt                     |   2 +-
@@ -20,7 +21,7 @@ The platform can be enabled by passing "-Dplatforms=tizen" to Meson.
  create mode 100644 src/egl/drivers/dri2/platform_tizen.c
 
 diff --git a/meson.build b/meson.build
-index 968b4f5f499..3d9d345dbf2 100644
+index 968b4f5..3d9d345 100644
 --- a/meson.build
 +++ b/meson.build
 @@ -358,6 +358,11 @@ with_platform_x11 = _platforms.contains('x11')
@@ -84,7 +85,7 @@ index 968b4f5f499..3d9d345dbf2 100644
    endif
    lines += 'EGL/Vulkan/VL platforms:   ' + ' '.join(_platforms)
 diff --git a/meson_options.txt b/meson_options.txt
-index dac791099a1..8230db93c70 100644
+index dac7910..8230db9 100644
 --- a/meson_options.txt
 +++ b/meson_options.txt
 @@ -23,7 +23,7 @@ option(
@@ -97,7 +98,7 @@ index dac791099a1..8230db93c70 100644
    description : 'window systems to support. If this is set to `auto`, all platforms applicable will be enabled.'
  )
 diff --git a/src/egl/drivers/dri2/egl_dri2.c b/src/egl/drivers/dri2/egl_dri2.c
-index dea5899b3a8..6d34395d65d 100644
+index dea5899..6d34395 100644
 --- a/src/egl/drivers/dri2/egl_dri2.c
 +++ b/src/egl/drivers/dri2/egl_dri2.c
 @@ -1179,6 +1179,11 @@ dri2_initialize(_EGLDisplay *disp)
@@ -326,7 +327,7 @@ index dea5899b3a8..6d34395d65d 100644
     .GetSyncValuesCHROMIUM = dri2_get_sync_values_chromium,
     .CreateSyncKHR = dri2_create_sync,
 diff --git a/src/egl/drivers/dri2/egl_dri2.h b/src/egl/drivers/dri2/egl_dri2.h
-index 6a7eedea112..a8bfe45b1f5 100644
+index 6a7eede..a8bfe45 100644
 --- a/src/egl/drivers/dri2/egl_dri2.h
 +++ b/src/egl/drivers/dri2/egl_dri2.h
 @@ -62,9 +62,9 @@ struct zwp_linux_dmabuf_v1;
@@ -455,7 +456,7 @@ index 6a7eedea112..a8bfe45b1f5 100644
  
 diff --git a/src/egl/drivers/dri2/platform_tizen.c b/src/egl/drivers/dri2/platform_tizen.c
 new file mode 100644
-index 00000000000..a08bc8c07bf
+index 0000000..a08bc8c
 --- /dev/null
 +++ b/src/egl/drivers/dri2/platform_tizen.c
 @@ -0,0 +1,980 @@
@@ -1440,7 +1441,7 @@ index 00000000000..a08bc8c07bf
 +   return EGL_FALSE;
 +}
 diff --git a/src/egl/main/eglapi.c b/src/egl/main/eglapi.c
-index 234449adf64..43c7b917909 100644
+index 234449a..43c7b91 100644
 --- a/src/egl/main/eglapi.c
 +++ b/src/egl/main/eglapi.c
 @@ -416,6 +416,13 @@ _eglGetPlatformDisplayCommon(EGLenum platform, void *native_display,
@@ -1458,7 +1459,7 @@ index 234449adf64..43c7b917909 100644
        RETURN_EGL_ERROR(NULL, EGL_BAD_PARAMETER, NULL);
     }
 diff --git a/src/egl/main/egldisplay.c b/src/egl/main/egldisplay.c
-index 765618f0dd0..486ac3b0557 100644
+index 765618f..486ac3b 100644
 --- a/src/egl/main/egldisplay.c
 +++ b/src/egl/main/egldisplay.c
 @@ -77,6 +77,7 @@ static const struct {
@@ -1529,7 +1530,7 @@ index 765618f0dd0..486ac3b0557 100644
  _eglGetDeviceDisplay(void *native_display,
                       const EGLAttrib *attrib_list)
 diff --git a/src/egl/main/egldisplay.h b/src/egl/main/egldisplay.h
-index 5b05dcc1e6d..cbb098331bf 100644
+index 5b05dcc..cbb0983 100644
 --- a/src/egl/main/egldisplay.h
 +++ b/src/egl/main/egldisplay.h
 @@ -52,6 +52,7 @@ enum _egl_platform_type {
@@ -1554,7 +1555,7 @@ index 5b05dcc1e6d..cbb098331bf 100644
  _eglGetDeviceDisplay(void *native_display,
                       const EGLAttrib *attrib_list);
 diff --git a/src/egl/main/egllog.c b/src/egl/main/egllog.c
-index 6a91952577f..973b7600ab1 100644
+index 6a91952..973b760 100644
 --- a/src/egl/main/egllog.c
 +++ b/src/egl/main/egllog.c
 @@ -46,15 +46,17 @@
@@ -1607,7 +1608,7 @@ index 6a91952577f..973b7600ab1 100644
  
  
 diff --git a/src/egl/meson.build b/src/egl/meson.build
-index ab8f4e1fdbe..5749ec88f89 100644
+index ab8f4e1..5749ec8 100644
 --- a/src/egl/meson.build
 +++ b/src/egl/meson.build
 @@ -106,7 +106,7 @@ if with_dri2
@@ -1631,6 +1632,3 @@ index ab8f4e1fdbe..5749ec88f89 100644
  
  if cc.has_function('mincore')
    c_args_for_egl += '-DHAVE_MINCORE'
--- 
-2.25.1
-

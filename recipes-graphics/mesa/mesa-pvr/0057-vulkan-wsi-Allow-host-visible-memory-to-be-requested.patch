@@ -1,13 +1,14 @@
-From b900d4998b95a8bdfb01600f81635ff76810cfe6 Mon Sep 17 00:00:00 2001
+From 0bfb1babce715e05151d35dec1daa0afe952b9c0 Mon Sep 17 00:00:00 2001
 From: Brendan King <Brendan.King@imgtec.com>
 Date: Tue, 16 Feb 2021 20:17:32 +0000
-Subject: [PATCH 57/67] vulkan/wsi: Allow host visible memory to be requested
+Subject: [PATCH] vulkan/wsi: Allow host visible memory to be requested
 
 Allow host visible memory to be explicitly requested when allocating
 native images.
 
 For a software driver on X11, we need to be able to map the memory on
 the host, in order to present the contents to the X Server.
+
 ---
  src/vulkan/wsi/wsi_common_display.c |  2 +-
  src/vulkan/wsi/wsi_common_drm.c     | 17 +++++++++++++----
@@ -17,7 +18,7 @@ the host, in order to present the contents to the X Server.
  5 files changed, 18 insertions(+), 6 deletions(-)
 
 diff --git a/src/vulkan/wsi/wsi_common_display.c b/src/vulkan/wsi/wsi_common_display.c
-index aa07cada107..71a84e54079 100644
+index aa07cad..71a84e5 100644
 --- a/src/vulkan/wsi/wsi_common_display.c
 +++ b/src/vulkan/wsi/wsi_common_display.c
 @@ -1031,7 +1031,7 @@ wsi_display_image_init(VkDevice device_h,
@@ -30,7 +31,7 @@ index aa07cada107..71a84e54079 100644
     if (result != VK_SUCCESS)
        return result;
 diff --git a/src/vulkan/wsi/wsi_common_drm.c b/src/vulkan/wsi/wsi_common_drm.c
-index 70d934aef13..aabb761908c 100644
+index 70d934a..aabb761 100644
 --- a/src/vulkan/wsi/wsi_common_drm.c
 +++ b/src/vulkan/wsi/wsi_common_drm.c
 @@ -66,6 +66,7 @@ wsi_device_matches_drm_fd(const struct wsi_device *wsi, int drm_fd)
@@ -101,7 +102,7 @@ index 70d934aef13..aabb761908c 100644
     result = wsi->AllocateMemory(chain->device, &memory_info,
                                  &chain->alloc, &image->memory);
 diff --git a/src/vulkan/wsi/wsi_common_private.h b/src/vulkan/wsi/wsi_common_private.h
-index 1fe8211f9cb..5ad087b32e0 100644
+index 1fe8211..5ad087b 100644
 --- a/src/vulkan/wsi/wsi_common_private.h
 +++ b/src/vulkan/wsi/wsi_common_private.h
 @@ -94,6 +94,7 @@ wsi_create_native_image(const struct wsi_swapchain *chain,
@@ -113,7 +114,7 @@ index 1fe8211f9cb..5ad087b32e0 100644
  
  VkResult
 diff --git a/src/vulkan/wsi/wsi_common_wayland.c b/src/vulkan/wsi/wsi_common_wayland.c
-index 40f5338314f..983833e880b 100644
+index 40f5338..983833e 100644
 --- a/src/vulkan/wsi/wsi_common_wayland.c
 +++ b/src/vulkan/wsi/wsi_common_wayland.c
 @@ -1074,7 +1074,8 @@ wsi_wl_image_init(struct wsi_wl_swapchain *chain,
@@ -127,7 +128,7 @@ index 40f5338314f..983833e880b 100644
     if (result != VK_SUCCESS)
        return result;
 diff --git a/src/vulkan/wsi/wsi_common_x11.c b/src/vulkan/wsi/wsi_common_x11.c
-index 9eb624df640..eb639d6c265 100644
+index 9eb624d..eb639d6 100644
 --- a/src/vulkan/wsi/wsi_common_x11.c
 +++ b/src/vulkan/wsi/wsi_common_x11.c
 @@ -1315,6 +1315,7 @@ x11_image_init(VkDevice device_h, struct x11_swapchain *chain,
@@ -138,6 +139,3 @@ index 9eb624df640..eb639d6c265 100644
                                         &image->base);
     }
     if (result < 0)
--- 
-2.25.1
-
