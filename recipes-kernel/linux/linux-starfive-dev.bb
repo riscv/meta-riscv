@@ -8,8 +8,8 @@ KERNEL_VERSION_SANITY_SKIP = "1"
 SRCREV = "${AUTOREV}"
 
 # pin srcrev for now to have a fixed target
-# release v2.8.0
-SRCREV:visionfive2 = "59cf9af678dbfa3d73f6cb86ed1ae7219da9f5c9"
+# release VF2_v2.11.5
+SRCREV:visionfive2 = "a87c6861c6d96621026ee53b94f081a1a00a4cc7"
 
 BRANCH = "visionfive"
 BRANCH:visionfive2 = "JH7110_VisionFive2_devel"
@@ -25,9 +25,8 @@ SRC_URI:append:visionfive = " \
 "
 
 SRC_URI:append:visionfive2 = " \
-          file://0004-riscv-fix-build-with-binutils-2.38.patch \
-          file://visionfive2-graphics.cfg \
-          "
+           file://visionfive2-graphics.cfg \
+"
 
 LINUX_VERSION ?= "6.2.0"
 LINUX_VERSION:visionfive2 = "5.15.0"
