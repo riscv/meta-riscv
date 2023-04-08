@@ -1,7 +1,7 @@
-From 1546e69ae9fec54134bc06146143511b4374bf4a Mon Sep 17 00:00:00 2001
+From a97794e871281ac4a8184e65f988bb6d37250500 Mon Sep 17 00:00:00 2001
 From: Frank Binns <frank.binns@imgtec.com>
 Date: Tue, 14 Apr 2020 09:47:46 +0100
-Subject: [PATCH 01/67] Add pvr dri driver
+Subject: [PATCH] Add pvr dri driver
 
 ---
  meson.build                               |  19 +-
@@ -39,7 +39,7 @@ Subject: [PATCH 01/67] Add pvr dri driver
  create mode 100644 src/mesa/drivers/dri/pvr/pvrutil.c
 
 diff --git a/meson.build b/meson.build
-index 155db287796..968b4f5f499 100644
+index 155db28..968b4f5 100644
 --- a/meson.build
 +++ b/meson.build
 @@ -171,11 +171,11 @@ if dri_drivers.contains('auto')
@@ -96,7 +96,7 @@ index 155db287796..968b4f5f499 100644
        'dep_libdrm_' + d[0],
        dependency('libdrm_' + d[0], version : '>=' + _drm_ver)
 diff --git a/meson_options.txt b/meson_options.txt
-index 29c402c4844..dac791099a1 100644
+index 29c402c..dac7910 100644
 --- a/meson_options.txt
 +++ b/meson_options.txt
 @@ -55,7 +55,7 @@ option(
@@ -109,7 +109,7 @@ index 29c402c4844..dac791099a1 100644
  )
  option(
 diff --git a/src/mesa/drivers/dri/meson.build b/src/mesa/drivers/dri/meson.build
-index 239ca962c2a..88a973bb84f 100644
+index 239ca96..88a973b 100644
 --- a/src/mesa/drivers/dri/meson.build
 +++ b/src/mesa/drivers/dri/meson.build
 @@ -48,6 +48,11 @@ if with_dri_nouveau
@@ -126,7 +126,7 @@ index 239ca962c2a..88a973bb84f 100644
    libmesa_dri_drivers = shared_library(
 diff --git a/src/mesa/drivers/dri/pvr/dri_support.h b/src/mesa/drivers/dri/pvr/dri_support.h
 new file mode 100644
-index 00000000000..631410438fd
+index 0000000..6314104
 --- /dev/null
 +++ b/src/mesa/drivers/dri/pvr/dri_support.h
 @@ -0,0 +1,581 @@
@@ -713,7 +713,7 @@ index 00000000000..631410438fd
 +#endif /* defined(__PVRDRIIFCE_H__) */
 diff --git a/src/mesa/drivers/dri/pvr/img_drm_fourcc.h b/src/mesa/drivers/dri/pvr/img_drm_fourcc.h
 new file mode 100644
-index 00000000000..8d570ff8f53
+index 0000000..8d570ff
 --- /dev/null
 +++ b/src/mesa/drivers/dri/pvr/img_drm_fourcc.h
 @@ -0,0 +1,113 @@
@@ -832,7 +832,7 @@ index 00000000000..8d570ff8f53
 +#endif /* IMG_DRM_FOURCC_H */
 diff --git a/src/mesa/drivers/dri/pvr/imgpixfmts.h b/src/mesa/drivers/dri/pvr/imgpixfmts.h
 new file mode 100644
-index 00000000000..da12a0fb5f6
+index 0000000..da12a0f
 --- /dev/null
 +++ b/src/mesa/drivers/dri/pvr/imgpixfmts.h
 @@ -0,0 +1,307 @@
@@ -1145,7 +1145,7 @@ index 00000000000..da12a0fb5f6
 +#endif /* IMGPIXFMTS_H */
 diff --git a/src/mesa/drivers/dri/pvr/imgyuv.h b/src/mesa/drivers/dri/pvr/imgyuv.h
 new file mode 100644
-index 00000000000..7ae8fd19ac0
+index 0000000..7ae8fd1
 --- /dev/null
 +++ b/src/mesa/drivers/dri/pvr/imgyuv.h
 @@ -0,0 +1,58 @@
@@ -1209,7 +1209,7 @@ index 00000000000..7ae8fd19ac0
 +#endif /* IMGYUV_H */
 diff --git a/src/mesa/drivers/dri/pvr/mesa_context.c b/src/mesa/drivers/dri/pvr/mesa_context.c
 new file mode 100644
-index 00000000000..d36bae5ac54
+index 0000000..d36bae5
 --- /dev/null
 +++ b/src/mesa/drivers/dri/pvr/mesa_context.c
 @@ -0,0 +1,208 @@
@@ -1423,7 +1423,7 @@ index 00000000000..d36bae5ac54
 +}
 diff --git a/src/mesa/drivers/dri/pvr/meson.build b/src/mesa/drivers/dri/pvr/meson.build
 new file mode 100644
-index 00000000000..59cccf8add4
+index 0000000..59cccf8
 --- /dev/null
 +++ b/src/mesa/drivers/dri/pvr/meson.build
 @@ -0,0 +1,48 @@
@@ -1477,7 +1477,7 @@ index 00000000000..59cccf8add4
 +)
 diff --git a/src/mesa/drivers/dri/pvr/pvrcb.c b/src/mesa/drivers/dri/pvr/pvrcb.c
 new file mode 100644
-index 00000000000..ea8911c64d5
+index 0000000..ea8911c
 --- /dev/null
 +++ b/src/mesa/drivers/dri/pvr/pvrcb.c
 @@ -0,0 +1,328 @@
@@ -1811,7 +1811,7 @@ index 00000000000..ea8911c64d5
 +}
 diff --git a/src/mesa/drivers/dri/pvr/pvrcompat.c b/src/mesa/drivers/dri/pvr/pvrcompat.c
 new file mode 100644
-index 00000000000..23a57dde682
+index 0000000..23a57dd
 --- /dev/null
 +++ b/src/mesa/drivers/dri/pvr/pvrcompat.c
 @@ -0,0 +1,838 @@
@@ -2655,7 +2655,7 @@ index 00000000000..23a57dde682
 +}
 diff --git a/src/mesa/drivers/dri/pvr/pvrdri.c b/src/mesa/drivers/dri/pvr/pvrdri.c
 new file mode 100644
-index 00000000000..ab941f71567
+index 0000000..ab941f7
 --- /dev/null
 +++ b/src/mesa/drivers/dri/pvr/pvrdri.c
 @@ -0,0 +1,613 @@
@@ -3274,7 +3274,7 @@ index 00000000000..ab941f71567
 +}
 diff --git a/src/mesa/drivers/dri/pvr/pvrdri.h b/src/mesa/drivers/dri/pvr/pvrdri.h
 new file mode 100644
-index 00000000000..fd465bf7f5c
+index 0000000..fd465bf
 --- /dev/null
 +++ b/src/mesa/drivers/dri/pvr/pvrdri.h
 @@ -0,0 +1,188 @@
@@ -3468,7 +3468,7 @@ index 00000000000..fd465bf7f5c
 +#endif /* defined(__PVRDRI_H__) */
 diff --git a/src/mesa/drivers/dri/pvr/pvrdri_support.h b/src/mesa/drivers/dri/pvr/pvrdri_support.h
 new file mode 100644
-index 00000000000..58ea3505a4d
+index 0000000..58ea350
 --- /dev/null
 +++ b/src/mesa/drivers/dri/pvr/pvrdri_support.h
 @@ -0,0 +1,206 @@
@@ -3680,7 +3680,7 @@ index 00000000000..58ea3505a4d
 +#endif /* defined(__PVRDRI_SUPPORT_H__) */
 diff --git a/src/mesa/drivers/dri/pvr/pvrext.c b/src/mesa/drivers/dri/pvr/pvrext.c
 new file mode 100644
-index 00000000000..478399618df
+index 0000000..4783996
 --- /dev/null
 +++ b/src/mesa/drivers/dri/pvr/pvrext.c
 @@ -0,0 +1,704 @@
@@ -4390,7 +4390,7 @@ index 00000000000..478399618df
 +}
 diff --git a/src/mesa/drivers/dri/pvr/pvrmesa.h b/src/mesa/drivers/dri/pvr/pvrmesa.h
 new file mode 100644
-index 00000000000..5e1c9c1b2e6
+index 0000000..5e1c9c1
 --- /dev/null
 +++ b/src/mesa/drivers/dri/pvr/pvrmesa.h
 @@ -0,0 +1,36 @@
@@ -4432,7 +4432,7 @@ index 00000000000..5e1c9c1b2e6
 +#endif /* !defined(__PVRMESA_H__) */
 diff --git a/src/mesa/drivers/dri/pvr/pvrutil.c b/src/mesa/drivers/dri/pvr/pvrutil.c
 new file mode 100644
-index 00000000000..945e18cf220
+index 0000000..945e18c
 --- /dev/null
 +++ b/src/mesa/drivers/dri/pvr/pvrutil.c
 @@ -0,0 +1,239 @@
@@ -4676,7 +4676,7 @@ index 00000000000..945e18cf220
 +   return 0;
 +}
 diff --git a/src/meson.build b/src/meson.build
-index acc7fe94abb..c3bab27718d 100644
+index acc7fe9..c3bab27 100644
 --- a/src/meson.build
 +++ b/src/meson.build
 @@ -25,6 +25,7 @@ inc_gallium = include_directories('gallium/include')
@@ -4687,6 +4687,3 @@ index acc7fe94abb..c3bab27718d 100644
  inc_tool = include_directories('tool')
  pps_datasources = []
  pps_includes = []
--- 
-2.25.1
-

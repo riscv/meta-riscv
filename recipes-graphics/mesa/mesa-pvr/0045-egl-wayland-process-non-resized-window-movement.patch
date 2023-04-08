@@ -1,17 +1,18 @@
-From 394d340dda351452571ec8861d6768c52d338251 Mon Sep 17 00:00:00 2001
+From b873893f09ebdb8a6816c6f1e9abad953695ab3c Mon Sep 17 00:00:00 2001
 From: Brendan King <Brendan.King@imgtec.com>
 Date: Tue, 25 Aug 2020 14:12:32 +0100
-Subject: [PATCH 45/67] egl/wayland: process non-resized window movement
+Subject: [PATCH] egl/wayland: process non-resized window movement
 
 The dx and dy parameters to the wl_egl_window_resize function were
 not being processed unless the window width or height were being
 changed.
+
 ---
  src/egl/drivers/dri2/platform_wayland.c | 5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/src/egl/drivers/dri2/platform_wayland.c b/src/egl/drivers/dri2/platform_wayland.c
-index 72456d5d748..06272d4081e 100644
+index 72456d5..06272d4 100644
 --- a/src/egl/drivers/dri2/platform_wayland.c
 +++ b/src/egl/drivers/dri2/platform_wayland.c
 @@ -266,6 +266,9 @@ resize_callback(struct wl_egl_window *wl_win, void *data)
@@ -33,6 +34,3 @@ index 72456d5d748..06272d4081e 100644
     }
  
     if (dri2_surf->wl_win &&
--- 
-2.25.1
-

@@ -1,7 +1,7 @@
-From f9c028d508bac22d7c78b0232c625e27d13340a7 Mon Sep 17 00:00:00 2001
+From 64890c411e05d8a87e9e692b1d8cf470e7d4488c Mon Sep 17 00:00:00 2001
 From: Brendan King <Brendan.King@imgtec.com>
 Date: Thu, 11 Nov 2021 12:09:38 +0000
-Subject: [PATCH 68/68] GL_ARB_geometry_shader4 entry points.
+Subject: [PATCH] GL_ARB_geometry_shader4 entry points.
 
 ---
  src/mapi/glapi/gen/ARB_geometry_shader4.xml | 97 +++++++++++++++++++++
@@ -12,7 +12,7 @@ Subject: [PATCH 68/68] GL_ARB_geometry_shader4 entry points.
 
 diff --git a/src/mapi/glapi/gen/ARB_geometry_shader4.xml b/src/mapi/glapi/gen/ARB_geometry_shader4.xml
 new file mode 100644
-index 00000000000..d92dc577b17
+index 0000000..d92dc57
 --- /dev/null
 +++ b/src/mapi/glapi/gen/ARB_geometry_shader4.xml
 @@ -0,0 +1,97 @@
@@ -114,7 +114,7 @@ index 00000000000..d92dc577b17
 +
 +</OpenGLAPI>
 diff --git a/src/mapi/glapi/gen/gl_API.xml b/src/mapi/glapi/gen/gl_API.xml
-index 4e35de0f4ea..d5a5e7f5386 100644
+index 4e35de0..d5a5e7f 100644
 --- a/src/mapi/glapi/gen/gl_API.xml
 +++ b/src/mapi/glapi/gen/gl_API.xml
 @@ -8064,7 +8064,7 @@
@@ -127,7 +127,7 @@ index 4e35de0f4ea..d5a5e7f5386 100644
  <!-- 48. GL_ARB_half_float_vertex -->
  
 diff --git a/src/mapi/glapi/gen/static_data.py b/src/mapi/glapi/gen/static_data.py
-index 974f366d7b4..833ad73dd6a 100644
+index 974f366..833ad73 100644
 --- a/src/mapi/glapi/gen/static_data.py
 +++ b/src/mapi/glapi/gen/static_data.py
 @@ -1721,6 +1721,10 @@ offsets = {
@@ -141,6 +141,3 @@ index 974f366d7b4..833ad73dd6a 100644
  }
  
  functions = [
--- 
-2.25.1
-

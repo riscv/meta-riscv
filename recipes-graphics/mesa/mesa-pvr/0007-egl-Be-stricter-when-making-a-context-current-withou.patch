@@ -1,8 +1,8 @@
-From fa57726f60bc6fc6e7094f16300cdc41b44ff4f3 Mon Sep 17 00:00:00 2001
+From d2badaa4a36fdd2193faf40df67b3595f871ffd7 Mon Sep 17 00:00:00 2001
 From: Frank Binns <frank.binns@imgtec.com>
 Date: Wed, 18 Jun 2014 17:10:28 +0100
-Subject: [PATCH 07/67] egl: Be stricter when making a context current without
- any surfaces
+Subject: [PATCH] egl: Be stricter when making a context current without any
+ surfaces
 
 The EGL_KHR_surfaceless_context extension spec states for eglMakeCurrent:
     "If <ctx> does not support being bound without read and draw
@@ -28,12 +28,13 @@ In order to upstream this patch the check would need to be changed
 to set the error to EGL_BAD_MATCH if EGL_KHR_surfaceless_context is
 supported and the context API isn't OpenGLES or the OpenGLES version
 is 1.0.
+
 ---
  src/egl/main/eglapi.c | 3 +++
  1 file changed, 3 insertions(+)
 
 diff --git a/src/egl/main/eglapi.c b/src/egl/main/eglapi.c
-index 6ffcff8b2cc..3cd69b96a0f 100644
+index 6ffcff8..3cd69b9 100644
 --- a/src/egl/main/eglapi.c
 +++ b/src/egl/main/eglapi.c
 @@ -888,6 +888,9 @@ eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read,
@@ -46,6 +47,3 @@ index 6ffcff8b2cc..3cd69b96a0f 100644
     }
  
     /*    If a native window underlying either draw or read is no longer valid,
--- 
-2.25.1
-

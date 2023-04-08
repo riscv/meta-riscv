@@ -1,12 +1,12 @@
-From e57b9a1b34a733f88af51b1395eebe647006939d Mon Sep 17 00:00:00 2001
+From a10f534a4b8cc1c07532628b35874cf54a1bfd89 Mon Sep 17 00:00:00 2001
 From: Brendan King <Brendan.King@imgtec.com>
 Date: Wed, 28 Apr 2021 16:33:42 +0100
-Subject: [PATCH 52/67] dri3: a linear buffer is not needed with DRM format
- modifiers
+Subject: [PATCH] dri3: a linear buffer is not needed with DRM format modifiers
 
 If the X Server supports DRM format modifiers, there is no need
 for an additional linear buffer, as the client can allocate buffers
 with attributes known to the Server.
+
 ---
  src/egl/drivers/dri2/platform_x11_dri3.c |   7 +-
  src/glx/dri3_glx.c                       | 137 +++++++++++++++--------
@@ -15,7 +15,7 @@ with attributes known to the Server.
  4 files changed, 113 insertions(+), 50 deletions(-)
 
 diff --git a/src/egl/drivers/dri2/platform_x11_dri3.c b/src/egl/drivers/dri2/platform_x11_dri3.c
-index 0babf9f867e..94205a495a6 100644
+index 0babf9f..94205a4 100644
 --- a/src/egl/drivers/dri2/platform_x11_dri3.c
 +++ b/src/egl/drivers/dri2/platform_x11_dri3.c
 @@ -143,6 +143,7 @@ dri3_create_surface(_EGLDisplay *disp, EGLint type, _EGLConfig *conf,
@@ -47,7 +47,7 @@ index 0babf9f867e..94205a495a6 100644
                                   dri_config,
                                   &dri2_dpy->loader_dri3_ext,
 diff --git a/src/glx/dri3_glx.c b/src/glx/dri3_glx.c
-index 1ed6b60ffe8..025ad0128ec 100644
+index 1ed6b60..025ad01 100644
 --- a/src/glx/dri3_glx.c
 +++ b/src/glx/dri3_glx.c
 @@ -354,6 +354,21 @@ dri3_destroy_drawable(__GLXDRIdrawable *base)
@@ -263,7 +263,7 @@ index 1ed6b60ffe8..025ad0128ec 100644
     if (!psc->image || psc->image->base.version < 7 || !psc->image->createImageFromFds) {
        ErrorMessageF("Version 7 or imageFromFds image extension not found\n");
 diff --git a/src/loader/loader_dri3_helper.c b/src/loader/loader_dri3_helper.c
-index ff6d1ffc660..5c0379ab5de 100644
+index ff6d1ff..5c0379a 100644
 --- a/src/loader/loader_dri3_helper.c
 +++ b/src/loader/loader_dri3_helper.c
 @@ -2288,3 +2288,18 @@ dri3_find_back_alloc(struct loader_dri3_drawable *draw)
@@ -286,7 +286,7 @@ index ff6d1ffc660..5c0379ab5de 100644
 +#endif
 +}
 diff --git a/src/loader/loader_dri3_helper.h b/src/loader/loader_dri3_helper.h
-index 028e25dc070..5790f5444f5 100644
+index 028e25d..5790f54 100644
 --- a/src/loader/loader_dri3_helper.h
 +++ b/src/loader/loader_dri3_helper.h
 @@ -287,4 +287,8 @@ loader_dri3_swapbuffer_barrier(struct loader_dri3_drawable *draw);
@@ -298,6 +298,3 @@ index 028e25dc070..5790f5444f5 100644
 +loader_dri3_has_modifiers(bool multiplanes_available,
 +                          const __DRIimageExtension *image);
  #endif
--- 
-2.25.1
-

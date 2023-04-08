@@ -1,7 +1,7 @@
-From 230a8cb550dc23a46a96b1852720c262bb244665 Mon Sep 17 00:00:00 2001
+From 917eca873d3c493ce552811cbe4860334e73ddc1 Mon Sep 17 00:00:00 2001
 From: Eric Engestrom <eric.engestrom@imgtec.com>
 Date: Mon, 6 Feb 2017 15:54:00 +0000
-Subject: [PATCH 19/67] egl: add support for EGL_TIZEN_image_native_surface
+Subject: [PATCH] egl: add support for EGL_TIZEN_image_native_surface
 
 ---
  src/egl/drivers/dri2/egl_dri2.c       | 127 ++++++++++++++++++++------
@@ -11,7 +11,7 @@ Subject: [PATCH 19/67] egl: add support for EGL_TIZEN_image_native_surface
  4 files changed, 102 insertions(+), 30 deletions(-)
 
 diff --git a/src/egl/drivers/dri2/egl_dri2.c b/src/egl/drivers/dri2/egl_dri2.c
-index 6d34395d65d..eaa0baed066 100644
+index 6d34395..eaa0bae 100644
 --- a/src/egl/drivers/dri2/egl_dri2.c
 +++ b/src/egl/drivers/dri2/egl_dri2.c
 @@ -58,6 +58,10 @@
@@ -189,7 +189,7 @@ index 6d34395d65d..eaa0baed066 100644
     case EGL_CL_IMAGE_IMG:
        return dri2_create_image_img_buffer(disp, ctx, target, buffer, attr_list);
 diff --git a/src/egl/drivers/dri2/platform_tizen.c b/src/egl/drivers/dri2/platform_tizen.c
-index a08bc8c07bf..ad75c115d7e 100644
+index a08bc8c..ad75c11 100644
 --- a/src/egl/drivers/dri2/platform_tizen.c
 +++ b/src/egl/drivers/dri2/platform_tizen.c
 @@ -965,6 +965,7 @@ dri2_initialize_tizen(_EGLDisplay *dpy)
@@ -201,7 +201,7 @@ index a08bc8c07bf..ad75c115d7e 100644
     /*
      * Fill vtbl last to prevent accidentally calling virtual function during
 diff --git a/src/egl/main/eglapi.c b/src/egl/main/eglapi.c
-index 43c7b917909..e2a7797d73e 100644
+index 43c7b91..e2a7797 100644
 --- a/src/egl/main/eglapi.c
 +++ b/src/egl/main/eglapi.c
 @@ -553,6 +553,8 @@ _eglCreateExtensionsString(_EGLDisplay *disp)
@@ -214,7 +214,7 @@ index 43c7b917909..e2a7797d73e 100644
     _EGL_CHECK_EXTENSION(WL_create_wayland_buffer_from_image);
  
 diff --git a/src/egl/main/egldisplay.h b/src/egl/main/egldisplay.h
-index cbb098331bf..0a7366b7c07 100644
+index cbb0983..0a7366b 100644
 --- a/src/egl/main/egldisplay.h
 +++ b/src/egl/main/egldisplay.h
 @@ -149,6 +149,8 @@ struct _egl_extensions
@@ -226,6 +226,3 @@ index cbb098331bf..0a7366b7c07 100644
     EGLBoolean WL_bind_wayland_display;
     EGLBoolean WL_create_wayland_buffer_from_image;
  
--- 
-2.25.1
-

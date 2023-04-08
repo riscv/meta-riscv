@@ -1,7 +1,7 @@
-From 1e6466e541e1fc67198be3eeb090e3af22bd6d19 Mon Sep 17 00:00:00 2001
+From 1ae221afb2c03d2b3cd0a607dc6646f33c07341c Mon Sep 17 00:00:00 2001
 From: Brendan King <Brendan.King@imgtec.com>
 Date: Mon, 10 Feb 2020 09:23:03 +0000
-Subject: [PATCH 43/67] egl: query the supported ES2 context version
+Subject: [PATCH] egl: query the supported ES2 context version
 
 For OpenGL ES contexts, the EGL specification states that querying
 EGL_CONTEXT_CLIENT_VERSION with eglQueryContext may return a version
@@ -28,6 +28,7 @@ has been added to the end of the new query name, this should be removed
 if an attempt is made to push this patch upstream. The value of the new
 query should be adjusted to be the next one in sequence, rather than the
 large value it currently has.
+
 ---
  include/GL/internal/dri_interface.h |  2 ++
  src/egl/drivers/dri2/egl_dri2.c     | 21 +++++++++++++++++++++
@@ -39,7 +40,7 @@ large value it currently has.
  7 files changed, 50 insertions(+), 4 deletions(-)
 
 diff --git a/include/GL/internal/dri_interface.h b/include/GL/internal/dri_interface.h
-index 6490f6e80e2..9c7bcac4cae 100644
+index 6490f6e..9c7bcac 100644
 --- a/include/GL/internal/dri_interface.h
 +++ b/include/GL/internal/dri_interface.h
 @@ -2052,6 +2052,8 @@ typedef struct __DRIDriverVtableExtensionRec {
@@ -52,7 +53,7 @@ index 6490f6e80e2..9c7bcac4cae 100644
  struct __DRI2rendererQueryExtensionRec {
     __DRIextension base;
 diff --git a/src/egl/drivers/dri2/egl_dri2.c b/src/egl/drivers/dri2/egl_dri2.c
-index 6b26ff979ae..c4a49cae592 100644
+index 6b26ff9..c4a49ca 100644
 --- a/src/egl/drivers/dri2/egl_dri2.c
 +++ b/src/egl/drivers/dri2/egl_dri2.c
 @@ -2055,6 +2055,26 @@ dri2_make_current(_EGLDisplay *disp, _EGLSurface *dsurf,
@@ -91,7 +92,7 @@ index 6b26ff979ae..c4a49cae592 100644
     .CreatePixmapSurface = dri2_create_pixmap_surface,
     .CreatePbufferSurface = dri2_create_pbuffer_surface,
 diff --git a/src/egl/drivers/haiku/egl_haiku.cpp b/src/egl/drivers/haiku/egl_haiku.cpp
-index 18c73c9cd8b..2690a82eb75 100644
+index 18c73c9..2690a82 100644
 --- a/src/egl/drivers/haiku/egl_haiku.cpp
 +++ b/src/egl/drivers/haiku/egl_haiku.cpp
 @@ -297,6 +297,14 @@ haiku_make_current(_EGLDisplay *disp, _EGLSurface *dsurf,
@@ -118,7 +119,7 @@ index 18c73c9cd8b..2690a82eb75 100644
  	.CreatePixmapSurface = haiku_create_pixmap_surface,
  	.CreatePbufferSurface = haiku_create_pbuffer_surface,
 diff --git a/src/egl/main/eglapi.c b/src/egl/main/eglapi.c
-index 2d3931dfd26..1cbff9656e4 100644
+index 2d3931d..1cbff96 100644
 --- a/src/egl/main/eglapi.c
 +++ b/src/egl/main/eglapi.c
 @@ -948,7 +948,7 @@ eglQueryContext(EGLDisplay dpy, EGLContext ctx,
@@ -131,7 +132,7 @@ index 2d3931dfd26..1cbff9656e4 100644
     RETURN_EGL_EVAL(disp, ret);
  }
 diff --git a/src/egl/main/eglcontext.c b/src/egl/main/eglcontext.c
-index 15de7c99496..7274d246194 100644
+index 15de7c9..7274d24 100644
 --- a/src/egl/main/eglcontext.c
 +++ b/src/egl/main/eglcontext.c
 @@ -35,6 +35,7 @@
@@ -173,7 +174,7 @@ index 15de7c99496..7274d246194 100644
     case EGL_CONTEXT_CLIENT_TYPE:
        *value = c->ClientAPI;
 diff --git a/src/egl/main/eglcontext.h b/src/egl/main/eglcontext.h
-index 06029e81251..d890217852d 100644
+index 06029e8..d890217 100644
 --- a/src/egl/main/eglcontext.h
 +++ b/src/egl/main/eglcontext.h
 @@ -74,7 +74,8 @@ _eglInitContext(_EGLContext *ctx, _EGLDisplay *disp,
@@ -187,7 +188,7 @@ index 06029e81251..d890217852d 100644
  
  extern EGLBoolean
 diff --git a/src/egl/main/egldriver.h b/src/egl/main/egldriver.h
-index 12f9a0aab86..92af8bd16d5 100644
+index 12f9a0a..92af8bd 100644
 --- a/src/egl/main/egldriver.h
 +++ b/src/egl/main/egldriver.h
 @@ -97,6 +97,7 @@ struct _egl_driver
@@ -198,6 +199,3 @@ index 12f9a0aab86..92af8bd16d5 100644
  
     /* surface funcs */
     _EGLSurface *(*CreateWindowSurface)(_EGLDisplay *disp, _EGLConfig *config,
--- 
-2.25.1
-

@@ -1,7 +1,7 @@
-From d1d64a3c11fbab083d6225857554ac1c9ad645b6 Mon Sep 17 00:00:00 2001
+From afc48c7cfe5e859832e753a987b9405544ce82e8 Mon Sep 17 00:00:00 2001
 From: Frank Binns <frank.binns@imgtec.com>
 Date: Tue, 29 Jan 2019 14:36:25 +0000
-Subject: [PATCH 38/67] egl: add support for EXT_image_gl_colorspace
+Subject: [PATCH] egl: add support for EXT_image_gl_colorspace
 
 ---
  src/egl/drivers/dri2/egl_dri2.c | 57 +++++++++++++++++++++++++++++++--
@@ -12,7 +12,7 @@ Subject: [PATCH 38/67] egl: add support for EXT_image_gl_colorspace
  5 files changed, 74 insertions(+), 2 deletions(-)
 
 diff --git a/src/egl/drivers/dri2/egl_dri2.c b/src/egl/drivers/dri2/egl_dri2.c
-index 2f8414e0c60..6b26ff979ae 100644
+index 2f8414e..6b26ff9 100644
 --- a/src/egl/drivers/dri2/egl_dri2.c
 +++ b/src/egl/drivers/dri2/egl_dri2.c
 @@ -1084,6 +1084,9 @@ dri2_setup_screen(_EGLDisplay *disp)
@@ -143,7 +143,7 @@ index 2f8414e0c60..6b26ff979ae 100644
              attrs.DMABufYuvColorSpaceHint.Value,
              attrs.DMABufSampleRangeHint.Value,
 diff --git a/src/egl/main/eglapi.c b/src/egl/main/eglapi.c
-index e4f2c43b4ef..2d3931dfd26 100644
+index e4f2c43..2d3931d 100644
 --- a/src/egl/main/eglapi.c
 +++ b/src/egl/main/eglapi.c
 @@ -508,6 +508,7 @@ _eglCreateExtensionsString(_EGLDisplay *disp)
@@ -155,7 +155,7 @@ index e4f2c43b4ef..2d3931dfd26 100644
     _EGL_CHECK_EXTENSION(EXT_surface_CTA861_3_metadata);
     _EGL_CHECK_EXTENSION(EXT_surface_SMPTE2086_metadata);
 diff --git a/src/egl/main/egldisplay.h b/src/egl/main/egldisplay.h
-index 8489af9dde2..6e5b29fe1ac 100644
+index 8489af9..6e5b29f 100644
 --- a/src/egl/main/egldisplay.h
 +++ b/src/egl/main/egldisplay.h
 @@ -108,6 +108,7 @@ struct _egl_extensions
@@ -167,7 +167,7 @@ index 8489af9dde2..6e5b29fe1ac 100644
     EGLBoolean EXT_protected_surface;
     EGLBoolean EXT_surface_CTA861_3_metadata;
 diff --git a/src/egl/main/eglimage.c b/src/egl/main/eglimage.c
-index 64bf7f2bfe9..73d4e85b82e 100644
+index 64bf7f2..73d4e85 100644
 --- a/src/egl/main/eglimage.c
 +++ b/src/egl/main/eglimage.c
 @@ -46,6 +46,18 @@ _eglParseKHRImageAttribs(_EGLImageAttribs *attrs, _EGLDisplay *disp,
@@ -199,7 +199,7 @@ index 64bf7f2bfe9..73d4e85b82e 100644
        return EGL_TRUE;
  
 diff --git a/src/egl/main/eglimage.h b/src/egl/main/eglimage.h
-index 9837f05dad1..fc02d7a265c 100644
+index 9837f05..fc02d7a 100644
 --- a/src/egl/main/eglimage.h
 +++ b/src/egl/main/eglimage.h
 @@ -80,6 +80,9 @@ struct _egl_image_attribs
@@ -212,6 +212,3 @@ index 9837f05dad1..fc02d7a265c 100644
     /* EGL_EXT_protected_surface */
     EGLBoolean ProtectedContent;
  };
--- 
-2.25.1
-

@@ -1,19 +1,20 @@
-From 4a1be491de2ea78be95dc4cf08af4b1da5e16d91 Mon Sep 17 00:00:00 2001
+From 804b1621754ab265af92c796e04da4d024fb22a5 Mon Sep 17 00:00:00 2001
 From: Brendan King <Brendan.King@imgtec.com>
 Date: Mon, 10 Mar 2014 12:27:03 +0000
-Subject: [PATCH 05/67] Add support for various GLES extensions
+Subject: [PATCH] Add support for various GLES extensions
 
 Add support for:
 	EXT_occlusion_query_boolean
 	IMG_multisampled_render_to_texture
 	OES_matrix_palette
+
 ---
  src/mapi/glapi/gen/es_EXT.xml     | 41 ++++++++++++++++++++++++-------
  src/mapi/glapi/gen/static_data.py |  6 +++++
  2 files changed, 38 insertions(+), 9 deletions(-)
 
 diff --git a/src/mapi/glapi/gen/es_EXT.xml b/src/mapi/glapi/gen/es_EXT.xml
-index 962170bc58e..e586b0ec19b 100644
+index 962170b..e586b0e 100644
 --- a/src/mapi/glapi/gen/es_EXT.xml
 +++ b/src/mapi/glapi/gen/es_EXT.xml
 @@ -285,28 +285,25 @@
@@ -85,7 +86,7 @@ index 962170bc58e..e586b0ec19b 100644
  <category name="GL_OES_EGL_image_external" number="87">
      <enum name="TEXTURE_EXTERNAL_OES"                     value="0x8D65"/>
 diff --git a/src/mapi/glapi/gen/static_data.py b/src/mapi/glapi/gen/static_data.py
-index d063930bd81..79b8f19cb75 100644
+index d063930..79b8f19 100644
 --- a/src/mapi/glapi/gen/static_data.py
 +++ b/src/mapi/glapi/gen/static_data.py
 @@ -1691,6 +1691,12 @@ offsets = {
@@ -101,6 +102,3 @@ index d063930bd81..79b8f19cb75 100644
  }
  
  functions = [
--- 
-2.25.1
-

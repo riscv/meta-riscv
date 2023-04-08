@@ -1,7 +1,7 @@
-From f43a3258b8f4859ff3e0e3d3d356b319dd6a5435 Mon Sep 17 00:00:00 2001
+From 16eb24dd94d836480cb3bb1fa7f30b8500b8c12f Mon Sep 17 00:00:00 2001
 From: Rufus Hamade <rufus.hamade@imgtec.com>
 Date: Thu, 4 Feb 2016 14:09:26 +0000
-Subject: [PATCH 10/67] GL_IMG_framebuffer_downsample entry points
+Subject: [PATCH] GL_IMG_framebuffer_downsample entry points
 
 ---
  .../glapi/gen/IMG_framebuffer_downsample.xml  | 37 +++++++++++++++++++
@@ -12,7 +12,7 @@ Subject: [PATCH 10/67] GL_IMG_framebuffer_downsample entry points
 
 diff --git a/src/mapi/glapi/gen/IMG_framebuffer_downsample.xml b/src/mapi/glapi/gen/IMG_framebuffer_downsample.xml
 new file mode 100644
-index 00000000000..b5ce77dfb08
+index 0000000..b5ce77d
 --- /dev/null
 +++ b/src/mapi/glapi/gen/IMG_framebuffer_downsample.xml
 @@ -0,0 +1,37 @@
@@ -54,7 +54,7 @@ index 00000000000..b5ce77dfb08
 +
 +</OpenGLAPI>
 diff --git a/src/mapi/glapi/gen/es_EXT.xml b/src/mapi/glapi/gen/es_EXT.xml
-index a3bfe86a888..b3432820ba6 100644
+index a3bfe86..b343282 100644
 --- a/src/mapi/glapi/gen/es_EXT.xml
 +++ b/src/mapi/glapi/gen/es_EXT.xml
 @@ -1462,6 +1462,9 @@
@@ -68,7 +68,7 @@ index a3bfe86a888..b3432820ba6 100644
      <function name="ViewportArrayvOES" es2="3.1" alias="ViewportArrayv">
          <param name="first" type="GLuint"/>
 diff --git a/src/mapi/glapi/gen/static_data.py b/src/mapi/glapi/gen/static_data.py
-index 99729e21b7f..c723cb3fab8 100644
+index 99729e2..c723cb3 100644
 --- a/src/mapi/glapi/gen/static_data.py
 +++ b/src/mapi/glapi/gen/static_data.py
 @@ -1700,6 +1700,8 @@ offsets = {
@@ -80,6 +80,3 @@ index 99729e21b7f..c723cb3fab8 100644
  }
  
  functions = [
--- 
-2.25.1
-

@@ -1,18 +1,19 @@
-From f556292d5811750d119acea6c7dc0c5ebd3e1af6 Mon Sep 17 00:00:00 2001
+From 9e3b9f4dfa273c5d0536c748153f65c0899bf3b8 Mon Sep 17 00:00:00 2001
 From: Frank Binns <frank.binns@imgtec.com>
 Date: Tue, 15 Sep 2015 14:15:31 +0100
-Subject: [PATCH 08/67] egl: optimise eglMakeCurrent for the case where nothing
- has changed
+Subject: [PATCH] egl: optimise eglMakeCurrent for the case where nothing has
+ changed
 
 When an application calls eglMakeCurrent with a context, draw surface and
 read surface that match those that are currently bound to the calling
 thread don't perform a flush as this is an expensive operation.
+
 ---
  src/egl/main/eglapi.c | 12 +++++++++++-
  1 file changed, 11 insertions(+), 1 deletion(-)
 
 diff --git a/src/egl/main/eglapi.c b/src/egl/main/eglapi.c
-index 3cd69b96a0f..234449adf64 100644
+index 3cd69b9..234449a 100644
 --- a/src/egl/main/eglapi.c
 +++ b/src/egl/main/eglapi.c
 @@ -853,6 +853,7 @@ eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read,
@@ -41,6 +42,3 @@ index 3cd69b96a0f..234449adf64 100644
  
     RETURN_EGL_EVAL(disp, ret);
  }
--- 
-2.25.1
-

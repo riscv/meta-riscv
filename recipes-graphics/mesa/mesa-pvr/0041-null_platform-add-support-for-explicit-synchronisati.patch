@@ -1,7 +1,7 @@
-From d286d05d0d84c913c8bfcbe8f693083caf3bcc77 Mon Sep 17 00:00:00 2001
+From ced3b5d803cd044526672c8458029b5a6519b86a Mon Sep 17 00:00:00 2001
 From: Silvestrs Timofejevs <silvestrs.timofejevs@imgtec.com>
 Date: Mon, 2 Sep 2019 09:32:01 +0100
-Subject: [PATCH 41/67] null_platform: add support for explicit synchronisation
+Subject: [PATCH] null_platform: add support for explicit synchronisation
 
 This change adds support for the 'in' fence, the 'out' fence will
 potentially be added in subsequent optimisation changes.
@@ -36,13 +36,14 @@ explicit synchronisation failure. As mentioned above, this failure
 will result in implicit synchronisation being used instead.
 
 Change-Id: Ib9c4a0bc3ea1b21192ee37909d7580d6b7b366ec
+
 ---
  src/egl/drivers/dri2/egl_dri2.h      |  2 +
  src/egl/drivers/dri2/platform_null.c | 77 +++++++++++++++++++++++++++-
  2 files changed, 77 insertions(+), 2 deletions(-)
 
 diff --git a/src/egl/drivers/dri2/egl_dri2.h b/src/egl/drivers/dri2/egl_dri2.h
-index 64d60ed66e4..eb6e4551087 100644
+index 64d60ed..eb6e455 100644
 --- a/src/egl/drivers/dri2/egl_dri2.h
 +++ b/src/egl/drivers/dri2/egl_dri2.h
 @@ -106,6 +106,7 @@ struct wl_buffer;
@@ -62,7 +63,7 @@ index 64d60ed66e4..eb6e4551087 100644
  
  enum {
 diff --git a/src/egl/drivers/dri2/platform_null.c b/src/egl/drivers/dri2/platform_null.c
-index 5b7c1ec426c..d36dc0ced2a 100644
+index 5b7c1ec..d36dc0c 100644
 --- a/src/egl/drivers/dri2/platform_null.c
 +++ b/src/egl/drivers/dri2/platform_null.c
 @@ -401,6 +401,9 @@ display_output_atomic_init(int fd, struct display_output *output)
@@ -209,6 +210,3 @@ index 5b7c1ec426c..d36dc0ced2a 100644
     return surf;
  
  err_free_surface:
--- 
-2.25.1
-

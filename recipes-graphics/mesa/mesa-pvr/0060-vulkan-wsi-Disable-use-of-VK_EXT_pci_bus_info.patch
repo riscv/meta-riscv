@@ -1,7 +1,7 @@
-From 83953c9325e4cc9adb23ad7654a02ddabdd3fd99 Mon Sep 17 00:00:00 2001
+From 2e1cdcd98f084bf62a2b1f4a8ecb77f3be8548db Mon Sep 17 00:00:00 2001
 From: brendan King <Brendan.King@imgtec.com>
 Date: Fri, 30 Jul 2021 15:34:13 +0100
-Subject: [PATCH 60/67] vulkan/wsi: Disable use of VK_EXT_pci_bus_info
+Subject: [PATCH] vulkan/wsi: Disable use of VK_EXT_pci_bus_info
 
 The VK_EXT_pci_bus_info related code has been wrapped in
 VULKAN_WSI_USE_PCI_BUS_INFO, effectively disabling it.
@@ -9,6 +9,7 @@ VULKAN_WSI_USE_PCI_BUS_INFO, effectively disabling it.
 Not all platforms support the VK_EXT_pci_bus_info extension.
 A better fix might be to pass another parameter to wsi_device_init,
 to indicate that the device is a PCI one.
+
 ---
  src/vulkan/wsi/wsi_common.c     | 4 ++++
  src/vulkan/wsi/wsi_common.h     | 2 ++
@@ -16,7 +17,7 @@ to indicate that the device is a PCI one.
  3 files changed, 10 insertions(+)
 
 diff --git a/src/vulkan/wsi/wsi_common.c b/src/vulkan/wsi/wsi_common.c
-index b1360edb911..66d6683a7c1 100644
+index b1360ed..66d6683 100644
 --- a/src/vulkan/wsi/wsi_common.c
 +++ b/src/vulkan/wsi/wsi_common.c
 @@ -56,11 +56,15 @@ wsi_device_init(struct wsi_device *wsi,
@@ -36,7 +37,7 @@ index b1360edb911..66d6683a7c1 100644
     GetPhysicalDeviceProperties2(pdevice, &pdp2);
  
 diff --git a/src/vulkan/wsi/wsi_common.h b/src/vulkan/wsi/wsi_common.h
-index c2563c677e6..4a733665d2c 100644
+index c2563c6..4a73366 100644
 --- a/src/vulkan/wsi/wsi_common.h
 +++ b/src/vulkan/wsi/wsi_common.h
 @@ -112,7 +112,9 @@ struct wsi_device {
@@ -50,7 +51,7 @@ index c2563c677e6..4a733665d2c 100644
     bool supports_modifiers;
     uint32_t maxImageDimension2D;
 diff --git a/src/vulkan/wsi/wsi_common_drm.c b/src/vulkan/wsi/wsi_common_drm.c
-index 6201891ca80..49a78cf4c62 100644
+index 6201891..49a78cf 100644
 --- a/src/vulkan/wsi/wsi_common_drm.c
 +++ b/src/vulkan/wsi/wsi_common_drm.c
 @@ -45,6 +45,7 @@ wsi_device_matches_drm_fd(const struct wsi_device *wsi, int drm_fd)
@@ -71,6 +72,3 @@ index 6201891ca80..49a78cf4c62 100644
  
     drmFreeDevice(&fd_device);
  
--- 
-2.25.1
-

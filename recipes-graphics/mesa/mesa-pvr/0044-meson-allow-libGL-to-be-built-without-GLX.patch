@@ -1,7 +1,7 @@
-From 64e6997ded5825f10125313ea15e3164bdad769b Mon Sep 17 00:00:00 2001
+From 01c91ceb04478e567cae1685d3fe44faefdfecb3 Mon Sep 17 00:00:00 2001
 From: Brendan King <Brendan.King@imgtec.com>
 Date: Thu, 11 Jun 2020 12:29:51 +0100
-Subject: [PATCH 44/67] meson: allow libGL to be built without GLX
+Subject: [PATCH] meson: allow libGL to be built without GLX
 
 If Meson is run with option "glx" set to "null", build the
 OpenGL library without GLX.
@@ -11,6 +11,7 @@ The "eglBindAPI workaround for dEQP bug" change to eglcurrent.h
 modified to use a new EGL_WITH_OPENGL define, which indicates
 whether OpneGL is present or not. This allows EGL to be used
 with OpenGL on platforms other than X11.
+
 ---
  meson.build               |  8 ++++++--
  meson_options.txt         |  2 +-
@@ -20,7 +21,7 @@ with OpenGL on platforms other than X11.
  5 files changed, 27 insertions(+), 12 deletions(-)
 
 diff --git a/meson.build b/meson.build
-index 21d93d372c2..8db1699729a 100644
+index ca89b8a..c0b6264 100644
 --- a/meson.build
 +++ b/meson.build
 @@ -485,6 +485,10 @@ if with_egl and not _platforms.contains(egl_native_platform)
@@ -53,7 +54,7 @@ index 21d93d372c2..8db1699729a 100644
    endif
  endif
 diff --git a/meson_options.txt b/meson_options.txt
-index d90a25f97ff..d36e714ea4c 100644
+index d90a25f..d36e714 100644
 --- a/meson_options.txt
 +++ b/meson_options.txt
 @@ -290,7 +290,7 @@ option(
@@ -66,7 +67,7 @@ index d90a25f97ff..d36e714ea4c 100644
  )
  option(
 diff --git a/src/egl/main/eglcurrent.h b/src/egl/main/eglcurrent.h
-index 32570970947..dcc418afd6f 100644
+index 3257097..dcc418a 100644
 --- a/src/egl/main/eglcurrent.h
 +++ b/src/egl/main/eglcurrent.h
 @@ -71,11 +71,10 @@ struct _egl_thread_info
@@ -85,7 +86,7 @@ index 32570970947..dcc418afd6f 100644
  }
  
 diff --git a/src/glx/meson.build b/src/glx/meson.build
-index 8f642d5e14b..605a9717e37 100644
+index 8f642d5..605a971 100644
 --- a/src/glx/meson.build
 +++ b/src/glx/meson.build
 @@ -122,7 +122,15 @@ else
@@ -127,7 +128,7 @@ index 8f642d5e14b..605a9717e37 100644
    dependencies : [
      dep_libdrm, dep_dl, dep_m, dep_thread, dep_x11, dep_xcb_glx, dep_xcb,
 diff --git a/src/meson.build b/src/meson.build
-index c3bab27718d..f6eede56648 100644
+index c3bab27..f6eede5 100644
 --- a/src/meson.build
 +++ b/src/meson.build
 @@ -110,7 +110,7 @@ subdir('loader')
@@ -139,6 +140,3 @@ index c3bab27718d..f6eede56648 100644
    subdir('glx')
  endif
  if with_gbm
--- 
-2.25.1
-

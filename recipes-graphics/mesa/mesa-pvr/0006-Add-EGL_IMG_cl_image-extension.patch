@@ -1,10 +1,11 @@
-From 7fdeb8bf25be01f122a7cb55dbe2b0e67e4a24a2 Mon Sep 17 00:00:00 2001
+From 6d9dc4ffa940f9bde48fc68c85b54ab1b839ea49 Mon Sep 17 00:00:00 2001
 From: Brendan King <Brendan.King@imgtec.com>
 Date: Tue, 11 Mar 2014 11:50:53 +0000
-Subject: [PATCH 06/67] Add EGL_IMG_cl_image extension
+Subject: [PATCH] Add EGL_IMG_cl_image extension
 
 Add support for the experimental EGL_IMG_cl_image extension to EGL, and
 the DRI2 EGL driver.
+
 ---
  include/EGL/eglmesaext.h            |  5 +++
  include/GL/internal/dri_interface.h | 13 +++++++
@@ -14,7 +15,7 @@ the DRI2 EGL driver.
  5 files changed, 73 insertions(+), 8 deletions(-)
 
 diff --git a/include/EGL/eglmesaext.h b/include/EGL/eglmesaext.h
-index f0395a8a58c..5d11f3e488e 100644
+index f0395a8..5d11f3e 100644
 --- a/include/EGL/eglmesaext.h
 +++ b/include/EGL/eglmesaext.h
 @@ -49,6 +49,11 @@ typedef EGLBoolean (EGLAPIENTRYP PFNEGLSWAPBUFFERSREGIONNOK) (EGLDisplay dpy, EG
@@ -30,7 +31,7 @@ index f0395a8a58c..5d11f3e488e 100644
  }
  #endif
 diff --git a/include/GL/internal/dri_interface.h b/include/GL/internal/dri_interface.h
-index 510289403d2..b197092939f 100644
+index 5102894..b197092 100644
 --- a/include/GL/internal/dri_interface.h
 +++ b/include/GL/internal/dri_interface.h
 @@ -1831,6 +1831,19 @@ struct __DRIimageExtensionRec {
@@ -54,7 +55,7 @@ index 510289403d2..b197092939f 100644
  
  
 diff --git a/src/egl/drivers/dri2/egl_dri2.c b/src/egl/drivers/dri2/egl_dri2.c
-index eee28eb4726..dea5899b3a8 100644
+index eee28eb..dea5899 100644
 --- a/src/egl/drivers/dri2/egl_dri2.c
 +++ b/src/egl/drivers/dri2/egl_dri2.c
 @@ -995,6 +995,10 @@ dri2_setup_screen(_EGLDisplay *disp)
@@ -158,7 +159,7 @@ index eee28eb4726..dea5899b3a8 100644
        _eglError(EGL_BAD_PARAMETER, "dri2_create_image_khr");
        return EGL_NO_IMAGE_KHR;
 diff --git a/src/egl/main/eglapi.c b/src/egl/main/eglapi.c
-index 17e36af22e1..6ffcff8b2cc 100644
+index 17e36af..6ffcff8 100644
 --- a/src/egl/main/eglapi.c
 +++ b/src/egl/main/eglapi.c
 @@ -549,6 +549,7 @@ _eglCreateExtensionsString(_EGLDisplay *disp)
@@ -170,7 +171,7 @@ index 17e36af22e1..6ffcff8b2cc 100644
  }
  
 diff --git a/src/egl/main/egldisplay.h b/src/egl/main/egldisplay.h
-index 4d2afbc712e..5b05dcc1e6d 100644
+index 4d2afbc..5b05dcc 100644
 --- a/src/egl/main/egldisplay.h
 +++ b/src/egl/main/egldisplay.h
 @@ -150,6 +150,8 @@ struct _egl_extensions
@@ -182,6 +183,3 @@ index 4d2afbc712e..5b05dcc1e6d 100644
  };
  
  struct _egl_display
--- 
-2.25.1
-

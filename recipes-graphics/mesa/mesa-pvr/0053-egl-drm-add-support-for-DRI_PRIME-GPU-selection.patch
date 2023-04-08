@@ -1,7 +1,7 @@
-From 8de0535741ce8d126da4d9b0b0eb8c46dd4810b5 Mon Sep 17 00:00:00 2001
+From f92304242d7656cf296e978eb9e4a5fc09050b75 Mon Sep 17 00:00:00 2001
 From: Brendan King <Brendan.King@imgtec.com>
 Date: Thu, 20 May 2021 14:43:29 +0100
-Subject: [PATCH 53/67] egl/drm: add support for DRI_PRIME GPU selection
+Subject: [PATCH] egl/drm: add support for DRI_PRIME GPU selection
 
 Add support for selecting the GPU to be used for rendering using
 the DRI_PRIME environment variable. If a different GPU is selected,
@@ -17,6 +17,7 @@ been selected. It may be that the driver can still support
 PRIME; for example, by making use of the original (default)
 file descriptor. The driver can indicate it supports PRIME
 via the getCapabilities function in the DRI Image extension.
+
 ---
  include/GL/internal/dri_interface.h |  2 ++
  src/egl/drivers/dri2/egl_dri2.c     | 10 ++++++++
@@ -26,7 +27,7 @@ via the getCapabilities function in the DRI Image extension.
  5 files changed, 66 insertions(+), 11 deletions(-)
 
 diff --git a/include/GL/internal/dri_interface.h b/include/GL/internal/dri_interface.h
-index 2fb440feb50..080d191b0a3 100644
+index 2fb440f..080d191 100644
 --- a/include/GL/internal/dri_interface.h
 +++ b/include/GL/internal/dri_interface.h
 @@ -1548,6 +1548,8 @@ enum __DRIChromaSiting {
@@ -39,7 +40,7 @@ index 2fb440feb50..080d191b0a3 100644
  
  /**
 diff --git a/src/egl/drivers/dri2/egl_dri2.c b/src/egl/drivers/dri2/egl_dri2.c
-index 1df53ef011c..ec4ac602a84 100644
+index 1df53ef..ec4ac60 100644
 --- a/src/egl/drivers/dri2/egl_dri2.c
 +++ b/src/egl/drivers/dri2/egl_dri2.c
 @@ -1368,6 +1368,7 @@ dri2_display_destroy(_EGLDisplay *disp)
@@ -67,7 +68,7 @@ index 1df53ef011c..ec4ac602a84 100644
     dri2_dpy->wl_server_drm =
             wayland_drm_init(wl_dpy, device_name,
 diff --git a/src/egl/drivers/dri2/platform_drm.c b/src/egl/drivers/dri2/platform_drm.c
-index 258e8b6593e..f160ad1175e 100644
+index 258e8b6..f160ad1 100644
 --- a/src/egl/drivers/dri2/platform_drm.c
 +++ b/src/egl/drivers/dri2/platform_drm.c
 @@ -595,7 +595,7 @@ dri2_drm_authenticate(_EGLDisplay *disp, uint32_t id)
@@ -131,7 +132,7 @@ index 258e8b6593e..f160ad1175e 100644
     dri2_set_WL_bind_wayland_display(disp);
  
 diff --git a/src/gbm/backends/dri/gbm_dri.c b/src/gbm/backends/dri/gbm_dri.c
-index 5acb15b516f..c1586f42e46 100644
+index 5acb15b..c1586f4 100644
 --- a/src/gbm/backends/dri/gbm_dri.c
 +++ b/src/gbm/backends/dri/gbm_dri.c
 @@ -51,6 +51,7 @@
@@ -239,7 +240,7 @@ index 5acb15b516f..c1586f42e46 100644
     dri->base.v0.backend_version = gbm_backend_version;
     dri->base.v0.bo_create = gbm_dri_bo_create;
 diff --git a/src/gbm/backends/dri/gbm_driint.h b/src/gbm/backends/dri/gbm_driint.h
-index 9e77ba5887c..e33a96edb0b 100644
+index 9e77ba5..e33a96e 100644
 --- a/src/gbm/backends/dri/gbm_driint.h
 +++ b/src/gbm/backends/dri/gbm_driint.h
 @@ -61,6 +61,8 @@ struct gbm_dri_visual {
@@ -262,6 +263,3 @@ index 9e77ba5887c..e33a96edb0b 100644
 +}
 +
  #endif
--- 
-2.25.1
-

@@ -1,11 +1,12 @@
-From b38c4118c7a3a060ef1c8b8477200f5a73305397 Mon Sep 17 00:00:00 2001
+From 4e92d56ba91f5bedc51881bddbe47f665eddca48 Mon Sep 17 00:00:00 2001
 From: Frank Binns <frank.binns@imgtec.com>
 Date: Thu, 18 Aug 2016 15:52:28 +0100
-Subject: [PATCH 13/67] wayland-drm: install wayland-drm.xml to the configured
+Subject: [PATCH] wayland-drm: install wayland-drm.xml to the configured
  pkgdatadir
 
 Add a pkg-config file as well so that it can be located without hardcoding the
 path.
+
 ---
  src/egl/wayland/wayland-drm/meson.build       | 15 +++++++++++++++
  src/egl/wayland/wayland-drm/wayland-drm.pc.in |  7 +++++++
@@ -13,7 +14,7 @@ path.
  create mode 100644 src/egl/wayland/wayland-drm/wayland-drm.pc.in
 
 diff --git a/src/egl/wayland/wayland-drm/meson.build b/src/egl/wayland/wayland-drm/meson.build
-index b4782a013c9..f291ef9f55e 100644
+index b4782a0..f291ef9 100644
 --- a/src/egl/wayland/wayland-drm/meson.build
 +++ b/src/egl/wayland/wayland-drm/meson.build
 @@ -49,6 +49,21 @@ libwayland_drm = static_library(
@@ -40,7 +41,7 @@ index b4782a013c9..f291ef9f55e 100644
  # of EGL and Vulkan WSI, and b) guaranteed to be included before both,
 diff --git a/src/egl/wayland/wayland-drm/wayland-drm.pc.in b/src/egl/wayland/wayland-drm/wayland-drm.pc.in
 new file mode 100644
-index 00000000000..d08ccdaf6ce
+index 0000000..d08ccda
 --- /dev/null
 +++ b/src/egl/wayland/wayland-drm/wayland-drm.pc.in
 @@ -0,0 +1,7 @@
@@ -52,6 +53,3 @@ index 00000000000..d08ccdaf6ce
 +Description: @PACKAGE_NAME@ Wayland protocol files
 +Version: @PACKAGE_VERSION@
 \ No newline at end of file
--- 
-2.25.1
-

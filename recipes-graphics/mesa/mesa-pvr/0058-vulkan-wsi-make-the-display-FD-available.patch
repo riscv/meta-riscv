@@ -1,10 +1,11 @@
-From afcfb076e89365ff1f33c658a6a615d2108d97f5 Mon Sep 17 00:00:00 2001
+From d370e0dc9a60f70abe7d150837a2f816be2f1dee Mon Sep 17 00:00:00 2001
 From: Brendan King <Brendan.King@imgtec.com>
 Date: Thu, 17 Jun 2021 17:17:07 +0100
-Subject: [PATCH 58/67] vulkan/wsi: make the display FD available
+Subject: [PATCH] vulkan/wsi: make the display FD available
 
 Pass the display FD to the Vulkan image create and memory
 allocation functions when allocating swapchain images.
+
 ---
  src/vulkan/wsi/wsi_common.h         |  14 +++
  src/vulkan/wsi/wsi_common_display.c |   2 +-
@@ -15,7 +16,7 @@ allocation functions when allocating swapchain images.
  6 files changed, 169 insertions(+), 40 deletions(-)
 
 diff --git a/src/vulkan/wsi/wsi_common.h b/src/vulkan/wsi/wsi_common.h
-index d5367db3a94..c2563c677e6 100644
+index d5367db..c2563c6 100644
 --- a/src/vulkan/wsi/wsi_common.h
 +++ b/src/vulkan/wsi/wsi_common.h
 @@ -37,6 +37,8 @@
@@ -47,7 +48,7 @@ index d5367db3a94..c2563c677e6 100644
     VkDevice                     device;
     const struct wsi_device      *wsi_device;
 diff --git a/src/vulkan/wsi/wsi_common_display.c b/src/vulkan/wsi/wsi_common_display.c
-index 71a84e54079..f135b4e38de 100644
+index 71a84e5..f135b4e 100644
 --- a/src/vulkan/wsi/wsi_common_display.c
 +++ b/src/vulkan/wsi/wsi_common_display.c
 @@ -1032,7 +1032,7 @@ wsi_display_image_init(VkDevice device_h,
@@ -60,7 +61,7 @@ index 71a84e54079..f135b4e38de 100644
        return result;
  
 diff --git a/src/vulkan/wsi/wsi_common_drm.c b/src/vulkan/wsi/wsi_common_drm.c
-index aabb761908c..6201891ca80 100644
+index aabb761..6201891 100644
 --- a/src/vulkan/wsi/wsi_common_drm.c
 +++ b/src/vulkan/wsi/wsi_common_drm.c
 @@ -113,6 +113,7 @@ wsi_create_native_image(const struct wsi_swapchain *chain,
@@ -125,7 +126,7 @@ index aabb761908c..6201891ca80 100644
     };
     const VkMemoryDedicatedAllocateInfo prime_memory_dedicated_info = {
 diff --git a/src/vulkan/wsi/wsi_common_private.h b/src/vulkan/wsi/wsi_common_private.h
-index 5ad087b32e0..e46328156dc 100644
+index 5ad087b..e463281 100644
 --- a/src/vulkan/wsi/wsi_common_private.h
 +++ b/src/vulkan/wsi/wsi_common_private.h
 @@ -95,12 +95,14 @@ wsi_create_native_image(const struct wsi_swapchain *chain,
@@ -144,7 +145,7 @@ index 5ad087b32e0..e46328156dc 100644
  
  void
 diff --git a/src/vulkan/wsi/wsi_common_wayland.c b/src/vulkan/wsi/wsi_common_wayland.c
-index 983833e880b..1109d3f07b6 100644
+index 983833e..1109d3f 100644
 --- a/src/vulkan/wsi/wsi_common_wayland.c
 +++ b/src/vulkan/wsi/wsi_common_wayland.c
 @@ -32,6 +32,8 @@
@@ -344,7 +345,7 @@ index 983833e880b..1109d3f07b6 100644
     if (result != VK_SUCCESS)
        return result;
 diff --git a/src/vulkan/wsi/wsi_common_x11.c b/src/vulkan/wsi/wsi_common_x11.c
-index eb639d6c265..ba64e260932 100644
+index eb639d6..ba64e26 100644
 --- a/src/vulkan/wsi/wsi_common_x11.c
 +++ b/src/vulkan/wsi/wsi_common_x11.c
 @@ -1303,7 +1303,8 @@ x11_image_init(VkDevice device_h, struct x11_swapchain *chain,
@@ -414,6 +415,3 @@ index eb639d6c265..ba64e260932 100644
     }
  
     if ((chain->base.present_mode == VK_PRESENT_MODE_FIFO_KHR ||
--- 
-2.25.1
-

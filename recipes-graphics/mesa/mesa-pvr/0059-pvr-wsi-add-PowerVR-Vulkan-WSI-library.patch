@@ -1,7 +1,7 @@
-From 650cbfe1007a3f9dd4ef8a3bbe829bbfed4ab1cc Mon Sep 17 00:00:00 2001
+From 65c47424e2dd558d2c79ef5f1b9008fe38b3b0bf Mon Sep 17 00:00:00 2001
 From: Brendan King <Brendan.King@imgtec.com>
 Date: Thu, 18 Mar 2021 13:44:57 +0000
-Subject: [PATCH 59/67] pvr/wsi: add PowerVR Vulkan WSI library
+Subject: [PATCH] pvr/wsi: add PowerVR Vulkan WSI library
 
 PowerVR Vulkan will load the WSI library, libpvr_mesa_wsi.so,
 and lookup the symbol pvr_mesa_wsi_sym_addr, which is a used to
@@ -14,6 +14,7 @@ by the WSI library to lookup symbols in Vulkan.
 The interface between PVR Vulkan and the WSI library is defined in
 pvr_mesa_wsi_interface.h. Most of the functions defined on the WSI
 side are wrappers around Mesa WSI functions.
+
 ---
  meson.build                          |   1 +
  meson_options.txt                    |   2 +-
@@ -37,7 +38,7 @@ side are wrappers around Mesa WSI functions.
  create mode 100644 src/pvr/wsi/pvr_wsi_x11.c
 
 diff --git a/meson.build b/meson.build
-index 8db1699729a..9341e5500fc 100644
+index c0b6264..3f6ddb6 100644
 --- a/meson.build
 +++ b/meson.build
 @@ -296,6 +296,7 @@ with_swrast_vk = _vulkan_drivers.contains('swrast')
@@ -49,7 +50,7 @@ index 8db1699729a..9341e5500fc 100644
  
  with_any_broadcom = with_gallium_vc4 or with_gallium_v3d or with_broadcom_vk
 diff --git a/meson_options.txt b/meson_options.txt
-index d36e714ea4c..e0c25a5b15b 100644
+index d36e714..e0c25a5 100644
 --- a/meson_options.txt
 +++ b/meson_options.txt
 @@ -194,7 +194,7 @@ option(
@@ -62,7 +63,7 @@ index d36e714ea4c..e0c25a5b15b 100644
  )
  option(
 diff --git a/src/meson.build b/src/meson.build
-index f6eede56648..36fec262020 100644
+index f6eede5..36fec26 100644
 --- a/src/meson.build
 +++ b/src/meson.build
 @@ -90,6 +90,9 @@ endif
@@ -77,7 +78,7 @@ index f6eede56648..36fec262020 100644
  endif
 diff --git a/src/pvr/meson.build b/src/pvr/meson.build
 new file mode 100644
-index 00000000000..09a6986a4c9
+index 0000000..09a6986
 --- /dev/null
 +++ b/src/pvr/meson.build
 @@ -0,0 +1,23 @@
@@ -106,7 +107,7 @@ index 00000000000..09a6986a4c9
 +endif
 diff --git a/src/pvr/wsi/meson.build b/src/pvr/wsi/meson.build
 new file mode 100644
-index 00000000000..57c7623c4bb
+index 0000000..57c7623
 --- /dev/null
 +++ b/src/pvr/wsi/meson.build
 @@ -0,0 +1,75 @@
@@ -187,7 +188,7 @@ index 00000000000..57c7623c4bb
 +)
 diff --git a/src/pvr/wsi/pvr_mesa_wsi_interface.h b/src/pvr/wsi/pvr_mesa_wsi_interface.h
 new file mode 100644
-index 00000000000..b4b1bcb0c9d
+index 0000000..b4b1bcb
 --- /dev/null
 +++ b/src/pvr/wsi/pvr_mesa_wsi_interface.h
 @@ -0,0 +1,306 @@
@@ -499,7 +500,7 @@ index 00000000000..b4b1bcb0c9d
 +#endif /* PVR_MESA_WSI_INTERFACE_H */
 diff --git a/src/pvr/wsi/pvr_wsi.c b/src/pvr/wsi/pvr_wsi.c
 new file mode 100644
-index 00000000000..a1fcdfd6164
+index 0000000..a1fcdfd
 --- /dev/null
 +++ b/src/pvr/wsi/pvr_wsi.c
 @@ -0,0 +1,333 @@
@@ -838,7 +839,7 @@ index 00000000000..a1fcdfd6164
 +}
 diff --git a/src/pvr/wsi/pvr_wsi.h b/src/pvr/wsi/pvr_wsi.h
 new file mode 100644
-index 00000000000..142358db3de
+index 0000000..142358d
 --- /dev/null
 +++ b/src/pvr/wsi/pvr_wsi.h
 @@ -0,0 +1,78 @@
@@ -922,7 +923,7 @@ index 00000000000..142358db3de
 +#endif
 diff --git a/src/pvr/wsi/pvr_wsi_display.c b/src/pvr/wsi/pvr_wsi_display.c
 new file mode 100644
-index 00000000000..65a1c99507c
+index 0000000..65a1c99
 --- /dev/null
 +++ b/src/pvr/wsi/pvr_wsi_display.c
 @@ -0,0 +1,293 @@
@@ -1221,7 +1222,7 @@ index 00000000000..65a1c99507c
 +
 diff --git a/src/pvr/wsi/pvr_wsi_wayland.c b/src/pvr/wsi/pvr_wsi_wayland.c
 new file mode 100644
-index 00000000000..5b052667ac9
+index 0000000..5b05266
 --- /dev/null
 +++ b/src/pvr/wsi/pvr_wsi_wayland.c
 @@ -0,0 +1,45 @@
@@ -1272,7 +1273,7 @@ index 00000000000..5b052667ac9
 +}
 diff --git a/src/pvr/wsi/pvr_wsi_x11.c b/src/pvr/wsi/pvr_wsi_x11.c
 new file mode 100644
-index 00000000000..0a69e92ac9e
+index 0000000..0a69e92
 --- /dev/null
 +++ b/src/pvr/wsi/pvr_wsi_x11.c
 @@ -0,0 +1,62 @@
@@ -1338,6 +1339,3 @@ index 00000000000..0a69e92ac9e
 +				  pCreateInfo,
 +				  pSurface);
 +}
--- 
-2.25.1
-

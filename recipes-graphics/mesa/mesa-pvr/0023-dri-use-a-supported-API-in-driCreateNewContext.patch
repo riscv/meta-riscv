@@ -1,16 +1,17 @@
-From 1f4a1a21384b00e28b8a9dd2c29f9c261f201c6f Mon Sep 17 00:00:00 2001
+From bad7401b26d84646293aef242c710af5f2addf06 Mon Sep 17 00:00:00 2001
 From: Brendan King <Brendan.King@imgtec.com>
 Date: Thu, 23 Nov 2017 15:50:21 +0000
-Subject: [PATCH 23/67] dri: use a supported API in driCreateNewContext
+Subject: [PATCH] dri: use a supported API in driCreateNewContext
 
 Don't assume the screen supports OpenGL when creating a new context,
 use an API that the screen supports.
+
 ---
  src/mesa/drivers/dri/common/dri_util.c | 14 +++++++++++++-
  1 file changed, 13 insertions(+), 1 deletion(-)
 
 diff --git a/src/mesa/drivers/dri/common/dri_util.c b/src/mesa/drivers/dri/common/dri_util.c
-index caed5fa6a68..6c45eb007fc 100644
+index caed5fa..6c45eb0 100644
 --- a/src/mesa/drivers/dri/common/dri_util.c
 +++ b/src/mesa/drivers/dri/common/dri_util.c
 @@ -50,6 +50,7 @@
@@ -49,6 +50,3 @@ index caed5fa6a68..6c45eb007fc 100644
                                       config, shared, data);
  }
  
--- 
-2.25.1
-
