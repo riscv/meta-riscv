@@ -18,5 +18,5 @@ part uboot --source rawcopy --sourceparams="file=visionfive2_fw_payload.img" --p
 
 part /boot --source bootimg-partition --ondisk mmcblk --fstype=vfat --label boot --use-uuid --part-name boot --part-type EBD0A0A2-B9E5-4433-87C0-68B6B72699C7 --align 4096 --size 292M
 
-part /root --source rootfs --ondisk mmcblk --fstype=ext4 --part-name boot --part-type 0FC63DAF-8483-4772-8E79-3D69D8477DE4 --active --label root --align 4096
+part /root --source rootfs --ondisk mmcblk --fstype=ext4 --part-name root --part-type 0FC63DAF-8483-4772-8E79-3D69D8477DE4 --active --label root --align 4096
 bootloader  --ptable gpt
