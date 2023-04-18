@@ -4,7 +4,7 @@ DESCRIPTION = "CODAJ12 performs JPEG encoding/decoding and is a chipset from Chi
 LICENSE = "ChipsMedia_VisionFive2"
 LIC_FILES_CHKSUM = "file://../../../LICENSE.txt;md5=16bead7cc56b053f5da0061ce0637ad2"
 
-COMPATIBLE_MACHINE = "visionfive2"
+COMPATIBLE_MACHINE = "jh7110"
 
 JPU_MODULE_SRC = "git/codaj12/jdi/linux/driver"
 

@@ -1,1 +1,1 @@
-PACKAGECONFIG:append:visionfive2 = " kms"
+PACKAGECONFIG:append:jh7110 = " kms"

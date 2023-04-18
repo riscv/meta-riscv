@@ -1,7 +1,7 @@
 LICENSE="CLOSED"
 
 PROVIDES = "virtual/libgles2"
-COMPATIBLE_MACHINE = "visionfive2"
+COMPATIBLE_MACHINE = "jh7110"
 
 require recipes-bsp/common/visionfive2-firmware.inc
 inherit update-rc.d

@@ -1,2 +1,2 @@
 # provide visionfive2 specific X11 config
-FILESEXTRAPATHS:prepend:visionfive2 := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS:prepend:jh7110 := "${THISDIR}/${PN}:"

@@ -21,7 +21,7 @@
 		default = "config-1";
 
 		config-1 {
-			description = "U-boot-spl FIT config for JH7110 VisionFive2";
+			description = "U-boot-spl FIT config for JH7110 SOC";
 			firmware = "firmware";
 		};
 	};
