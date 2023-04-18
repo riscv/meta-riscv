@@ -5,7 +5,7 @@ encoding FHD/UHD HEVC/H.265 main profile L4.1. WAVE420L was also call *VPU Enc*"
 LICENSE = "ChipsMedia_VisionFive2"
 LIC_FILES_CHKSUM = "file://../../../LICENSE.txt;md5=16bead7cc56b053f5da0061ce0637ad2"
 
-COMPATIBLE_MACHINE = "visionfive2"
+COMPATIBLE_MACHINE = "jh7110"
 
 WAVE420L_MODULE_SRC = "git/wave420l/code/vdi/linux/driver"
 

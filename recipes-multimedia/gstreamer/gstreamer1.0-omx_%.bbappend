@@ -1,6 +1,6 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-SRC_URI:append:visionfive2 = "\
+SRC_URI:append:jh7110 = "\
     file://0001-add-starfive-support.patch \
     file://0002-Fix-gst-omx-Enable-the-gst-omx-VPU-decoding-and-enco.patch \
     file://0003-add-video-scale-support.patch \
@@ -21,7 +21,7 @@ SRC_URI:append:visionfive2 = "\
     file://0018-support-cut-for-gstomxmjpegdec.patch \
     file://0019-Add-Interlaced-mode-judgment.patch \
 "
-GSTREAMER_1_0_OMX_TARGET:visionfive2 = "stf"
-GSTREAMER_1_0_OMX_CORE_NAME:visionfive2 = "${libdir}/libsf-omx-il.so"
-EXTRA_OEMESON:append:visionfive2 = " -Dheader_path=${STAGING_DIR_TARGET}/usr/include/khronos"
-VIRTUAL-RUNTIME_libomxil:visionfive2 = "libsf-omxil"
+GSTREAMER_1_0_OMX_TARGET:jh7110 = "stf"
+GSTREAMER_1_0_OMX_CORE_NAME:jh7110 = "${libdir}/libsf-omx-il.so"
+EXTRA_OEMESON:append:jh7110 = " -Dheader_path=${STAGING_DIR_TARGET}/usr/include/khronos"
+VIRTUAL-RUNTIME_libomxil:jh7110 = "libsf-omxil"
