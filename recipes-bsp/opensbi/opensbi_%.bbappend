@@ -8,12 +8,11 @@ SRC_URI:append:jh7110 = "\
 	file://visionfive2-uboot-fit-image.its \
 	"
 
-DEPENDS:jh7110:append = " u-boot-tools-native dtc-native"
-EXTRA_OEMAKE:append = " FW_TEXT_START=0x40000000"
+DEPENDS:append:jh7110 = " u-boot-tools-native dtc-native"
+EXTRA_OEMAKE:jh7110:append = " FW_TEXT_START=0x40000000"
 
 do_deploy:append:jh7110() {
 	install -m 0644 ${WORKDIR}/visionfive2-uboot-fit-image.its ${DEPLOYDIR}/visionfive2-uboot-fit-image.its
 	cd ${DEPLOYDIR}
 	mkimage -f visionfive2-uboot-fit-image.its -A riscv -O u-boot -T firmware visionfive2_fw_payload.img
 }
-
