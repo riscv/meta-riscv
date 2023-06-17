@@ -8,8 +8,8 @@ KERNEL_VERSION_SANITY_SKIP = "1"
 SRCREV = "${AUTOREV}"
 
 # pin srcrev for now to have a fixed target
-# release VF2_v2.11.5
-SRCREV:visionfive2 = "a87c6861c6d96621026ee53b94f081a1a00a4cc7"
+# release VF2_v3.0.4
+SRCREV:visionfive2 = "d9eee31aaec51ade1641391836c1f07dd2151a4a"
 SRCREV:star64 = "e4c0928f1e42ed82ab9fa8918bc7094d3c0414d8"
 
 BRANCH = "visionfive"
@@ -34,6 +34,7 @@ SRC_URI:append:visionfive = " \
 
 SRC_URI:append:jh7110 = " \
            file://visionfive2-graphics.cfg \
+           file://0001-Allow-building-of-PVR-GPU-driver-as-module.patch \
 "
 
 LINUX_VERSION ?= "6.2.0"

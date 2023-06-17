@@ -35,11 +35,13 @@ SERIAL_CONSOLES = "115200;ttyS0"
 
 MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS += " \
     kernel-modules \
+    linux-firmware-visionfive2-imggpu \
     vdec-module \
     venc-module \
     jpu-module \
-    linux-firmware-visionfive2-imggpu \
 "
+
+KERNEL_MODULE_AUTOLOAD += "pvrsrvkm"
 
 IMAGE_FSTYPES += "wic.gz wic.bmap ext4"
 

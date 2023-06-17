@@ -1,0 +1,23 @@
+From f27fa21b1536cf29a5ce829a57e92d4c70e88f8c Mon Sep 17 00:00:00 2001
+From: Andreas Cord-Landwehr <cordlandwehr@kde.org>
+Date: Sat, 17 Jun 2023 09:15:48 +0200
+Subject: [PATCH] Allow building of PVR GPU driver as module
+
+---
+ drivers/gpu/drm/img/img-rogue/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/img/img-rogue/Kconfig b/drivers/gpu/drm/img/img-rogue/Kconfig
+index 5b793bb9da0e..6f84a2643e02 100644
+--- a/drivers/gpu/drm/img/img-rogue/Kconfig
++++ b/drivers/gpu/drm/img/img-rogue/Kconfig
+@@ -1,5 +1,5 @@
+ config DRM_IMG_ROGUE
+-	bool "DRM support for PowerVR GPU"
++	tristate "DRM support for PowerVR GPU"
+ 	select DRM_IMG
+ 	default n
+ 	help
+-- 
+2.39.2
+
