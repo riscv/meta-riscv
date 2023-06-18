@@ -25,7 +25,8 @@ do_install () {
     cp -r ${D}/${IMG_GPU_POWERVR_VERSION}/staging/usr/include/GLES3/ ${D}/usr/include/
     install -d ${D}/usr/lib/pkgconfig/
     cp -r ${D}/${IMG_GPU_POWERVR_VERSION}/staging/usr/lib/pkgconfig/* ${D}/usr/lib/pkgconfig/
-
+    # let vulkan-loader from core layer provide libvulkan
+    rm -rf ${D}${libdir}/libvulkan*.so* ${D}${libdir}/pkgconfig/vulkan.pc
     # provided via separate arch-independent firmware package
     rm -rf ${D}/lib/firmware
     rmdir ${D}/lib
