@@ -126,7 +126,7 @@ ifeq ($(USE_RTL_SIM), yes)
 DECTEST: CREATE_DIR $(OBJECTPATHS_COMMON)
 else
 DECTEST: CREATE_DIR $(OBJECTPATHS_COMMON)
-	$(LINKER) -g -fPIC -shared -o $(DECTEST) $(LDFLAGS) -Wl,-gc-section -Wl,--start-group $(OBJECTPATHS_COMMON) $(LDLIBS) -Wl,--end-group
+	$(LINKER) -g -fPIC -shared -o $(DECTEST) $(LDFLAGS) -Wl,-gc-sections -Wl,--start-group $(OBJECTPATHS_COMMON) $(LDLIBS) -Wl,--end-group
 endif
 
 

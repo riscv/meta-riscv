@@ -131,7 +131,7 @@ OBJECTNAMES=$(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(SOURCES)))
 OBJECTPATHS=$(addprefix $(OBJDIR)/,$(notdir $(OBJECTNAMES)))
 
 $(TARGET): create_dir $(OBJECTPATHS) #libtheoraparser.a
-	$(LINKING) -fPIC -shared -o $@ $(LDFLAGS) -Wl,-gc-section -Wl,--start-group $(OBJECTPATHS) $(LDLIBS) -Wl,--end-group
+	$(LINKING) -fPIC -shared -o $@ $(LDFLAGS) -Wl,-gc-sections -Wl,--start-group $(OBJECTPATHS) $(LDLIBS) -Wl,--end-group
 
 -include $(OBJECTPATHS:.o=.dep)
 
