@@ -1,6 +1,6 @@
 SUMMARY = "WAVE420l Firmware Binary Blob"
 
-LICENSE = "ChipsMedia_VisionFive2"
+LICENSE = "ChipsMedia-VisionFive2"
 LIC_FILES_CHKSUM = " \
     file://code/LICENSE.txt;md5=16bead7cc56b053f5da0061ce0637ad2 \
     file://firmware/LICENSE.txt;md5=16bead7cc56b053f5da0061ce0637ad2 \
