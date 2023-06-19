@@ -6,6 +6,9 @@ COMPATIBLE_MACHINE = "jh7110"
 require recipes-bsp/common/visionfive2-firmware.inc
 inherit update-rc.d
 
+SRC_URI += "\
+        file://glesv1_cm.pc \
+"
 S = "${WORKDIR}/git"
 
 IMG_GPU_POWERVR_VERSION = "img-gpu-powervr-bin-1.17.6210866"
@@ -25,6 +28,7 @@ do_install () {
     cp -r ${D}/${IMG_GPU_POWERVR_VERSION}/staging/usr/include/GLES3/ ${D}/usr/include/
     install -d ${D}/usr/lib/pkgconfig/
     cp -r ${D}/${IMG_GPU_POWERVR_VERSION}/staging/usr/lib/pkgconfig/* ${D}/usr/lib/pkgconfig/
+    install -Dm0644 ${WORKDIR}/glesv1_cm.pc ${D}${libdir}/pkgconfig/glesv1_cm.pc
     # let vulkan-loader from core layer provide libvulkan
     rm -rf ${D}${libdir}/libvulkan*.so* ${D}${libdir}/pkgconfig/vulkan.pc
     # provided via separate arch-independent firmware package
