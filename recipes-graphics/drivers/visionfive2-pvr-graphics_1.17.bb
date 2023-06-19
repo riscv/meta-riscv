@@ -1,6 +1,6 @@
 LICENSE="CLOSED"
 
-PROVIDES = "virtual/libgles2"
+PROVIDES += "virtual/libgles1 virtual/libgles2 virtual/libgles3"
 COMPATIBLE_MACHINE = "jh7110"
 
 require recipes-bsp/common/visionfive2-firmware.inc
@@ -59,6 +59,8 @@ RDEPENDS:${PN} += " \
 RDEPENDS:${PN}-tools += " \
     python3 \
 "
+
+RPROVIDES:${PN} += "libgles3 libgles2 libgles1"
 
 INSANE_SKIP:${PN} += "already-stripped dev-so"
 # ignore dependency check for python scripting

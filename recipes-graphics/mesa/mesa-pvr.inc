@@ -301,11 +301,11 @@ python __anonymous() {
     suffix = ""
     if "-native" in d.getVar("PN"):
         suffix = "-native"
-    for p in (("egl", "libegl", "libegl1"),
+    for p in (("vulkan", "libvk",),
+              ("egl", "libegl", "libegl1"),
               ("opengl", "libgl", "libgl1"),
               ("gles", "libgles1", "libglesv1-cm1"),
               ("gles", "libgles2", "libglesv2-2"),
-              ("gles", "libgles3",),
               ("opencl", "libopencl",)):
         if not p[0] in pkgconfig:
             continue
