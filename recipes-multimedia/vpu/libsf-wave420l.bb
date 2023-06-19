@@ -1,7 +1,7 @@
 SUMMARY = "WAVE420l encoding library for VisionFive2"
 DESCRIPTION = "Library provides API to venc Kernel module for using the WAVE420l chip for AVC/H.264 encoding."
 
-LICENSE = "ChipsMedia_VisionFive2"
+LICENSE = "ChipsMedia-VisionFive2"
 LIC_FILES_CHKSUM = "file://LICENSE.txt;md5=16bead7cc56b053f5da0061ce0637ad2"
 
 COMPATIBLE_MACHINE = "jh7110"
