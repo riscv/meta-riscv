@@ -23,6 +23,7 @@ REPO ?= "linux"
 REPO:star64 ?= "Star64_linux"
 
 SRC_URI = "git://github.com/${FORK}/${REPO}.git;protocol=https;branch=${BRANCH} \
+           file://0001-riscv-disable-generation-of-unwind-tables.patch \
            file://modules.cfg \
           "
 SRC_URI:append:beaglev-starlight-jh7100 = " \
