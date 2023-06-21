@@ -8,6 +8,7 @@ This reverts commit 1b3668284b76569c3add4db14524fa5ad60cbc4e.
 
 The SiFive CLINT driver is supposed to work in M-mode only.
 
+Upstream-Status: Pending
 Signed-off-by: Bin Meng <bmeng.cn@gmail.com>
 ---
  arch/riscv/Kconfig | 3 ++-

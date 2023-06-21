@@ -13,6 +13,7 @@ The patch was imported from the U-boot git server
 (https://source.denx.de/u-boot/u-boot.git) as of commit id
 bdb238355c37ac175520577fd2355f01db29714b.
 
+Upstream-Status: Backport [https://github.com/u-boot/u-boot/commit/bdb238355c37ac175520577fd2355f01db29714b]
 Signed-off-by: Yu Chien Peter Lin <peterlin@andestech.com>
 ---
  arch/riscv/lib/andes_plic.c | 7 ++++---
