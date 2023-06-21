@@ -1,3 +1,8 @@
+Define __NR_futex for rv32
+
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
+
 --- a/src/xshmfence_futex.h
 +++ b/src/xshmfence_futex.h
 @@ -47,6 +47,10 @@ static inline int futex_wait(int32_t *ad
