@@ -40,6 +40,7 @@ MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS += " \
     vdec-module \
     venc-module \
     jpu-module \
+    visionfive2-pvr-graphics-tools \
 "
 
 KERNEL_MODULE_AUTOLOAD += "pvrsrvkm"
