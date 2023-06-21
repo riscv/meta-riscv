@@ -1,0 +1,66 @@
+From 4a6e5e4ac0a2c63eb78e442bc34a0ee6a0f470d4 Mon Sep 17 00:00:00 2001
+From: Brendan King <Brendan.King@imgtec.com>
+Date: Thu, 15 Apr 2021 19:30:02 +0100
+Subject: [PATCH 3/3] libweston: reduce checks for dmabufs with DRM modifiers
+
+If the buffer associated with a dmabuf has a DRM modifier, then
+checking the stride and stride*height against the size of the
+dambuf may not make sense, so skip the check.
+
+IMG lossy framebuffers have a smaller size than that of the
+equivalent linear framebuffer.
+
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
+---
+ libweston/linux-dmabuf.c | 33 ++++++++++++++++++---------------
+ 1 file changed, 18 insertions(+), 15 deletions(-)
+
+diff --git a/libweston/linux-dmabuf.c b/libweston/linux-dmabuf.c
+index 796e9826..0bbfe480 100644
+--- a/libweston/linux-dmabuf.c
++++ b/libweston/linux-dmabuf.c
+@@ -240,22 +240,25 @@ params_create_common(struct wl_client *client,
+ 			goto err_out;
+ 		}
+ 
+-		if (buffer->attributes.offset[i] + buffer->attributes.stride[i] > size) {
+-			wl_resource_post_error(params_resource,
+-				ZWP_LINUX_BUFFER_PARAMS_V1_ERROR_OUT_OF_BOUNDS,
+-				"invalid stride %i for plane %i",
+-				buffer->attributes.stride[i], i);
+-			goto err_out;
+-		}
++		if (buffer->attributes.modifier[i] == DRM_FORMAT_MOD_INVALID ||
++		    buffer->attributes.modifier[i] == DRM_FORMAT_MOD_LINEAR) {
++			if (buffer->attributes.offset[i] + buffer->attributes.stride[i] > size) {
++				wl_resource_post_error(params_resource,
++					ZWP_LINUX_BUFFER_PARAMS_V1_ERROR_OUT_OF_BOUNDS,
++					"invalid stride %i for plane %i",
++					buffer->attributes.stride[i], i);
++				goto err_out;
++			}
+ 
+-		/* Only valid for first plane as other planes might be
+-		 * sub-sampled according to fourcc format */
+-		if (i == 0 &&
+-		    buffer->attributes.offset[i] + buffer->attributes.stride[i] * height > size) {
+-			wl_resource_post_error(params_resource,
+-				ZWP_LINUX_BUFFER_PARAMS_V1_ERROR_OUT_OF_BOUNDS,
+-				"invalid buffer stride or height for plane %i", i);
+-			goto err_out;
++			/* Only valid for first plane as other planes might be
++			 * sub-sampled according to fourcc format */
++			if (i == 0 &&
++			    buffer->attributes.offset[i] + buffer->attributes.stride[i] * height > size) {
++				wl_resource_post_error(params_resource,
++					ZWP_LINUX_BUFFER_PARAMS_V1_ERROR_OUT_OF_BOUNDS,
++					"invalid buffer stride or height for plane %i", i);
++				goto err_out;
++			}
+ 		}
+ 	}
+ 
+-- 
+2.17.1
+
