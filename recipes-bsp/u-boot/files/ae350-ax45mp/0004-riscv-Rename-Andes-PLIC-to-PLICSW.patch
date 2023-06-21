@@ -15,6 +15,7 @@ The patch was imported from the U-boot git server
 (https://source.denx.de/u-boot/u-boot.git) as of commit id
 a5dfa3b8a0f7ad555495bad1386613d2de4ba619.
 
+Upstream-Status: Backport [https://github.com/u-boot/u-boot/commit/a5dfa3b8a0f7ad555495bad1386613d2de4ba619]
 Signed-off-by: Yu Chien Peter Lin <peterlin@andestech.com>
 ---
  arch/riscv/Kconfig                            |  6 ++---

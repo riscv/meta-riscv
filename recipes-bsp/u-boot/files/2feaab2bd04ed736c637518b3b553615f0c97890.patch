@@ -7,6 +7,7 @@ Subject: [PATCH] starfive: beaglev: Disable SIFIVE_CLINT and enable
 As we are running in S-mode, RISCV_TIMER has to be used.
 Adjust the config file accordingly.
 
+Upstream-Status: Pending
 Signed-off-by: Bin Meng <bmeng.cn@gmail.com>
 ---
  board/starfive/vic7100/Kconfig                    | 1 -

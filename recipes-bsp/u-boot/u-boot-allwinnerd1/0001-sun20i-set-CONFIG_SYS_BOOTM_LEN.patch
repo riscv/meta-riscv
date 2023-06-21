@@ -3,6 +3,7 @@ From: Cezary Sobczak <cezary.sobczak@3mdeb.com>
 Date: Sun, 14 Nov 2021 00:04:45 +0100
 Subject: [PATCH] sun20i: set CONFIG_SYS_BOOTM_LEN
 
+Upstream-Status: Pending
 Signed-off-by: Cezary Sobczak <cezary.sobczak@3mdeb.com>
 ---
  include/configs/sun20i.h | 4 ++++

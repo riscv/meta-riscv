@@ -15,6 +15,7 @@ The fix is to specify those extensions explicitely in -march. However as
 older binutils version do not support this, we first need to detect
 that.
 
+Upstream-Status: Backport [https://lore.kernel.org/all/YhCvlHomlT2js3uO@ubuntu01/T/]
 Signed-off-by: Andreas Cord-Landwehr <cordlandwehr@kde.org>
 ---
  arch/riscv/Makefile | 10 ++++++++++
