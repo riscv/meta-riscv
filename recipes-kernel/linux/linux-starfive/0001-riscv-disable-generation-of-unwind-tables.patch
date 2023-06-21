@@ -9,6 +9,7 @@ More importantly, the .eh_frame section brings relocations
 (R_RISC_32_PCREL, R_RISCV_SET{6,8,16}, R_RISCV_SUB{6,8,16}) into modules
 that we are not prepared to handle.
 
+Upstream-Status: Backport [https://lore.kernel.org/r/mvmzg9xybqu.fsf@suse.de]
 Signed-off-by: Andreas Schwab <schwab@suse.de>
 Link: https://lore.kernel.org/r/mvmzg9xybqu.fsf@suse.de
 Cc: stable@vger.kernel.org
