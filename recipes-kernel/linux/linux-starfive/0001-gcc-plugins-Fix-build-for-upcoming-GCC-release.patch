@@ -1,0 +1,49 @@
+From 8e12e70503b23d2bfe430e8e81c737aa8f2b81c1 Mon Sep 17 00:00:00 2001
+From: Palmer Dabbelt <palmer@rivosinc.com>
+Date: Fri, 13 Jan 2023 09:30:33 -0800
+Subject: [PATCH] gcc-plugins: Fix build for upcoming GCC release
+
+The upcoming GCC release has refactored the gimple plugin interface a
+bit and unless gimple-iterator.h is included before gimple-fold.h I end
+up with a bunch of missing declarations when building the stack
+protector plugin.
+
+Upstream-Status: Backport [https://lore.kernel.org/all/20230113173033.4380-1-palmer@rivosinc.com/]
+Reported-by: Palmer Dabbelt <palmer@rivosinc.com>
+Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
+Link: https://lore.kernel.org/all/20230113173033.4380-1-palmer@rivosinc.com/
+Cc: linux-hardening@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+---
+ scripts/gcc-plugins/gcc-common.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/scripts/gcc-plugins/gcc-common.h b/scripts/gcc-plugins/gcc-common.h
+index 0c087614fc3e..3f3c37bc14e8 100644
+--- a/scripts/gcc-plugins/gcc-common.h
++++ b/scripts/gcc-plugins/gcc-common.h
+@@ -77,7 +77,9 @@
+ #include "varasm.h"
+ #include "stor-layout.h"
+ #include "internal-fn.h"
++#include "gimple.h"
+ #include "gimple-expr.h"
++#include "gimple-iterator.h"
+ #include "gimple-fold.h"
+ #include "context.h"
+ #include "tree-ssa-alias.h"
+@@ -91,11 +93,9 @@
+ #include "tree-eh.h"
+ #include "stmt.h"
+ #include "gimplify.h"
+-#include "gimple.h"
+ #include "tree-ssa-operands.h"
+ #include "tree-phinodes.h"
+ #include "tree-cfg.h"
+-#include "gimple-iterator.h"
+ #include "gimple-ssa.h"
+ #include "ssa-iterators.h"
+ 
+-- 
+2.41.0
+
