@@ -18,5 +18,3 @@ SRC_URI += " \
 S = "${WORKDIR}/${JPU_MODULE_SRC}"
 
 RPROVIDES:${PN} += "kernel-module-jpu"
-
-PARALLEL_MAKE = ""
