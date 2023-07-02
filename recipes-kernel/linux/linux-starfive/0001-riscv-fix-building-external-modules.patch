@@ -1,0 +1,38 @@
+From 5a19c7e06236a9c55dfc001bb4d1a8f1950d23e7 Mon Sep 17 00:00:00 2001
+From: Andreas Schwab <schwab@suse.de>
+Date: Tue, 2 Nov 2021 16:51:43 +0100
+Subject: [PATCH] riscv: fix building external modules
+
+When building external modules, vdso_prepare should not be run.  If the
+kernel sources are read-only, it will fail.
+
+Fixes: fde9c59aebaf ("riscv: explicitly use symbol offsets for VDSO")
+Signed-off-by: Andreas Schwab <schwab@suse.de>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Tested-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+---
+ arch/riscv/Makefile | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
+index 5927c94302b8..8a107ed18b0d 100644
+--- a/arch/riscv/Makefile
++++ b/arch/riscv/Makefile
+@@ -107,11 +107,13 @@ PHONY += vdso_install
+ vdso_install:
+ 	$(Q)$(MAKE) $(build)=arch/riscv/kernel/vdso $@
+ 
++ifeq ($(KBUILD_EXTMOD),)
+ ifeq ($(CONFIG_MMU),y)
+ prepare: vdso_prepare
+ vdso_prepare: prepare0
+ 	$(Q)$(MAKE) $(build)=arch/riscv/kernel/vdso include/generated/vdso-offsets.h
+ endif
++endif
+ 
+ ifneq ($(CONFIG_XIP_KERNEL),y)
+ ifeq ($(CONFIG_RISCV_M_MODE)$(CONFIG_SOC_CANAAN),yy)
+-- 
+2.41.0
+
