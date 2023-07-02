@@ -10,84 +10,79 @@ HOMEPAGE = "http://mesa3d.org"
 BUGTRACKER = "https://bugs.freedesktop.org"
 SECTION = "x11"
 LICENSE = "MIT"
-LIC_FILES_CHKSUM = "file://docs/license.rst;md5=17a4ea65de7a9ab42437f3131e616a7f"
+LIC_FILES_CHKSUM = "file://docs/license.rst;md5=9a383ee9f65a4e939d6630e9b067ff58"
 
 PE = "2"
 
 SRC_URI = "https://mesa.freedesktop.org/archive/mesa-${PV}.tar.xz \
-        file://0001-Add-pvr-dri-driver.patch \
+        file://0001-Add-PVR-Gallium-driver.patch \
+        file://0002-dri-Add-some-new-DRI-formats-and-fourccs.patch \
         file://0002-Force-Mesa-to-use-the-PVR-driver-for-platform-device.patch \
-        file://0003-dri-Add-some-new-DRI-formats-and-fourccs.patch \
-        file://0004-GL_EXT_sparse_texture-entry-points.patch \
-        file://0005-Add-support-for-various-GLES-extensions.patch \
-        file://0006-Add-EGL_IMG_cl_image-extension.patch \
-        file://0007-egl-Be-stricter-when-making-a-context-current-withou.patch \
-        file://0008-egl-optimise-eglMakeCurrent-for-the-case-where-nothi.patch \
-        file://0009-GL_EXT_shader_pixel_local_storage2-entry-points.patch \
-        file://0010-GL_IMG_framebuffer_downsample-entry-points.patch \
-        file://0011-GL_OVR_multiview-entry-points.patch \
-        file://0012-Add-OVR_multiview_multisampled_render_to_texture.patch \
-        file://0013-wayland-drm-install-wayland-drm.xml-to-the-configure.patch \
-        file://0014-Enable-buffer-sharing-in-the-kms_swrast-driver.patch \
-        file://0015-egl-wayland-add-support-for-RGB565-back-buffers.patch \
-        file://0016-egl-dri3-fix-segfault-in-eglCopyBuffers.patch \
-        file://0017-egl-automatically-call-eglReleaseThread-on-thread-te.patch \
-        file://0018-egl-add-Tizen-platform-support.patch \
-        file://0019-egl-add-support-for-EGL_TIZEN_image_native_surface.patch \
-        file://0020-egl-wayland-post-maximum-damage-when-blitting.patch \
-        file://0021-egl-wayland-flush-the-drawable-before-blitting.patch \
-        file://0022-egl-tizen-create-an-internal-_EGLImage-for-each-tbm-.patch \
-        file://0023-dri-use-a-supported-API-in-driCreateNewContext.patch \
-        file://0024-gbm-add-gbm_bo_blit.patch \
-        file://0025-gbm-don-t-assert-if-DRI-context-creation-fails.patch \
-        file://0026-egl-wayland-add-pbuffer-support.patch \
-        file://0027-egl-tizen-support-DRI-driver-handling-of-swap-preser.patch \
-        file://0028-egl-eglBindAPI-workaround-for-dEQP-bug.patch \
-        file://0029-GL_EXT_multi_draw_indirect-entry-points.patch \
-        file://0030-dri-add-support-for-YUV-DRI-config.patch \
-        file://0031-egl-add-support-for-EXT_yuv_surface.patch \
-        file://0032-dri-add-missing-__DRI_IMAGE_COMPONENTS-define-for-EG.patch \
-        file://0033-egl-wayland-expose-EXT_yuv_surface-support.patch \
-        file://0034-egl-tizen-expose-EXT_yuv_surface-support.patch \
-        file://0035-gbm-add-some-new-GBM-formats.patch \
-        file://0036-egl-add-null-platform.patch \
-        file://0037-egl-add-config-debug-printout.patch \
-        file://0038-egl-add-support-for-EXT_image_gl_colorspace.patch \
-        file://0039-meson-force-C-2011-for-thread_local.patch \
-        file://0040-dri2-add-support-for-swap-intervals-other-than-1.patch \
-        file://0041-null_platform-add-support-for-explicit-synchronisati.patch \
-        file://0042-egl-null-add-support-for-DRM-image-format-modifiers.patch \
-        file://0043-egl-query-the-supported-ES2-context-version.patch \
-        file://0044-meson-allow-libGL-to-be-built-without-GLX.patch \
-        file://0045-egl-wayland-process-non-resized-window-movement.patch \
-        file://0046-Separate-EXT_framebuffer_object-from-ARB-version.patch \
-        file://0047-egl-null-add-support-for-async-flip-with-front-buffe.patch \
-        file://0048-gbm-add-pbuffer-support.patch \
-        file://0049-egl-null-expose-EXT_yuv_surface-support.patch \
-        file://0050-dri-preserve-the-original-FD-for-driver-use.patch \
-        file://0051-egl-wayland-a-linear-buffer-is-not-needed-with-DRM-f.patch \
-        file://0052-dri3-a-linear-buffer-is-not-needed-with-DRM-format-m.patch \
-        file://0053-egl-drm-add-support-for-DRI_PRIME-GPU-selection.patch \
-        file://0054-egl-null-add-support-for-DRI_PRIME-GPU-selection.patch \
-        file://0055-egl-null-introduce-NULL_DRM_DISPLAY.patch \
-        file://0056-vulkan-wsi-check-the-DRI3-and-Present-XCB-reply-poin.patch \
-        file://0057-vulkan-wsi-Allow-host-visible-memory-to-be-requested.patch \
-        file://0058-vulkan-wsi-make-the-display-FD-available.patch \
-        file://0059-pvr-wsi-add-PowerVR-Vulkan-WSI-library.patch \
-        file://0060-vulkan-wsi-Disable-use-of-VK_EXT_pci_bus_info.patch \
-        file://0061-vulkan-wsi-default-to-force_bgra8_unorm_first-true.patch \
-        file://0062-vulkan-wsi-enable-additional-formats-for-Wayland.patch \
-        file://0063-vulkan-wsi-enable-additional-formats-for-Display.patch \
-        file://0064-mesa-main-dri-add-YUV420_3PLANE-and-YVU420_3PLANE.patch \
-        file://0065-egl-null-add-support-for-YU12-and-YV12.patch \
-        file://0066-mesa-partially-revert-pbuffer-attribute-removal.patch \
-        file://0067-egl_dri2-set-pbuffer-config-attribs-to-0-for-non-pbu.patch \
-        file://0068-GL_ARB_geometry_shader4-entry-points.patch \
+        file://0003-GL_EXT_sparse_texture-entry-points.patch \
+        file://0004-Add-support-for-various-GLES-extensions.patch \
+        file://0005-Add-EGL_IMG_cl_image-extension.patch \
+        file://0006-egl-optimise-eglMakeCurrent-for-the-case-where-nothi.patch \
+        file://0007-GL_EXT_shader_pixel_local_storage2-entry-points.patch \
+        file://0008-GL_IMG_framebuffer_downsample-entry-points.patch \
+        file://0009-GL_OVR_multiview-entry-points.patch \
+        file://0010-Add-OVR_multiview_multisampled_render_to_texture.patch \
+        file://0011-wayland-drm-install-wayland-drm.xml-to-the-configure.patch \
+        file://0012-Enable-buffer-sharing-in-the-kms_swrast-driver.patch \
+        file://0013-egl-wayland-add-support-for-RGB565-back-buffers.patch \
+        file://0014-egl-automatically-call-eglReleaseThread-on-thread-te.patch \
+        file://0015-egl-wayland-post-maximum-damage-when-blitting.patch \
+        file://0016-egl-wayland-flush-the-drawable-before-blitting.patch \
+        file://0017-dri-use-a-supported-API-in-driCreateNewContext.patch \
+        file://0018-gbm-add-gbm_bo_blit.patch \
+        file://0019-gbm-don-t-assert-if-DRI-context-creation-fails.patch \
+        file://0020-egl-wayland-add-pbuffer-support.patch \
+        file://0021-egl-eglBindAPI-workaround-for-dEQP-bug.patch \
+        file://0022-GL_EXT_multi_draw_indirect-entry-points.patch \
+        file://0023-dri-add-support-for-YUV-DRI-config.patch \
+        file://0024-egl-add-support-for-EXT_yuv_surface.patch \
+        file://0025-dri-add-missing-__DRI_IMAGE_COMPONENTS-define-for-EG.patch \
+        file://0026-egl-wayland-expose-EXT_yuv_surface-support.patch \
+        file://0027-gbm-add-some-new-GBM-formats.patch \
+        file://0028-egl-add-null-platform.patch \
+        file://0029-egl-add-support-for-EXT_image_gl_colorspace.patch \
+        file://0030-meson-force-C-2011-for-thread_local.patch \
+        file://0031-dri2-add-support-for-swap-intervals-other-than-1.patch \
+        file://0032-null_platform-add-support-for-explicit-synchronisati.patch \
+        file://0033-egl-null-add-support-for-DRM-image-format-modifiers.patch \
+        file://0034-egl-query-the-supported-ES2-context-version.patch \
+        file://0035-meson-allow-libGL-to-be-built-without-GLX.patch \
+        file://0036-egl-wayland-process-non-resized-window-movement.patch \
+        file://0037-Separate-EXT_framebuffer_object-from-ARB-version.patch \
+        file://0038-egl-null-add-support-for-async-flip-with-front-buffe.patch \
+        file://0039-gbm-add-pbuffer-support.patch \
+        file://0040-egl-null-expose-EXT_yuv_surface-support.patch \
+        file://0041-dri-preserve-the-original-FD-for-driver-use.patch \
+        file://0042-egl-wayland-a-linear-buffer-is-not-needed-with-DRM-f.patch \
+        file://0043-dri3-a-linear-buffer-is-not-needed-with-DRM-format-m.patch \
+        file://0044-egl-drm-add-support-for-DRI_PRIME-GPU-selection.patch \
+        file://0045-egl-null-add-support-for-DRI_PRIME-GPU-selection.patch \
+        file://0046-egl-null-introduce-NULL_DRM_DISPLAY.patch \
+        file://0047-vulkan-wsi-check-the-DRI3-and-Present-XCB-reply-poin.patch \
+        file://0048-vulkan-wsi-make-the-display-FD-available.patch \
+        file://0049-pvr-wsi-add-PowerVR-Vulkan-WSI-library.patch \
+        file://0050-vulkan-wsi-Disable-use-of-VK_EXT_pci_bus_info.patch \
+        file://0051-vulkan-wsi-default-to-force_bgra8_unorm_first-true.patch \
+        file://0052-vulkan-wsi-enable-additional-formats-for-Display.patch \
+        file://0053-mesa-partially-revert-pbuffer-attribute-removal.patch \
+        file://0054-egl_dri2-set-pbuffer-config-attribs-to-0-for-non-pbu.patch \
+        file://0055-GL_ARB_geometry_shader4-entry-points.patch \
+        file://0056-egl-wayland-add-EGL_BUFFER_PRESERVED-support.patch \
+        file://0057-glapi-restore-exec-dynamic.patch \
+        file://0058-Revert-meson-check-mtls-if-has_exe_wrapper.patch \
+        file://0059-gbm-add-GBM_FORMAT_AXBXGXRX106106106106.patch \
+        file://0060-gallium-pvr-Add-DRM_FORMAT_AXBXGXRX106106106106.patch \
+        file://0061-gallium-pvr-add-the-DRIconfigOptions-extension.patch \
+        file://0062-gallium-pvr-support-DRI-Image-extension-v21.patch \
            "
 
 S = "${WORKDIR}/mesa-${PV}"
 
-SRC_URI[sha256sum] = "2c65e6710b419b67456a48beefd0be827b32db416772e0e363d5f7d54dc01787"
+SRC_URI[sha256sum] = "b98f32ba7aa2a1ff5725fb36eb999c693079f0ca16f70aa2f103e2b6c3f093e3"
 
 UPSTREAM_CHECK_GITTAGREGEX = "mesa-(?P<pver>\d+(\.\d+)+)"
 
@@ -144,7 +139,6 @@ EXTRA_OEMESON = " \
     -Dshared-glapi=enabled \
     -Dglx-read-only-text=true \
     -Dplatforms='${@",".join("${PLATFORMS}".split())}' \
-    -Ddri-drivers=pvr \
     -Dgles1=disabled \
     -Dgles2=enabled \
 "
@@ -154,7 +148,7 @@ def strip_comma(s):
 
 # note: this is the exact config as needed and usable for the VisionFive2 board
 #       upstream Mesa provides much more flexibility which is ignored for sake of simplicity
-PACKAGECONFIG = "gallium x11 wayland opengl egl gbm dri3 "
+PACKAGECONFIG = "gallium x11 wayland opengl egl gbm dri3 pvr "
 
 # "gbm" requires "opengl"
 PACKAGECONFIG[gbm] = "-Dgbm=enabled,-Dgbm=disabled"
@@ -277,6 +271,22 @@ PACKAGES =+ "libegl-mesa libegl-mesa-dev \
              mesa-megadriver mesa-vulkan-drivers \
              mesa-vdpau-drivers \
             "
+
+# file src/mesa/main/formats.csv in mesa-22.1.3 tarball is in dos format, leading
+# patch 0023-dri-add-support-for-YUV-DRI-config.patch to fail:
+#      Hunk #1 FAILED at 92 (different line endings).
+# following script replaces dos with unix endings for this file
+do_unpack:append(){
+    bb.build.exec_func('enforce_unix_lineending_formats_cvs', d)
+}
+enforce_unix_lineending_formats_cvs() {
+    echo "A"
+    if [ -f ${S}/src/mesa/main/formats.csv ]; then
+        echo "B"
+        sed -i 's/\r$//' ${S}/src/mesa/main/formats.csv;
+    fi
+    echo "C"
+}
 
 do_install:append () {
     # Drivers never need libtool .la files
