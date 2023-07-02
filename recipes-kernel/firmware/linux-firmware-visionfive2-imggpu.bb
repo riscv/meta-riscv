@@ -9,7 +9,7 @@ S = "${WORKDIR}/git"
 
 CLEANBROKEN = "1"
 
-IMG_GPU_POWERVR_VERSION = "img-gpu-powervr-bin-1.17.6210866"
+IMG_GPU_POWERVR_VERSION = "img-gpu-powervr-bin-1.19.6345021"
 
 do_install () {
     tar xz --no-same-owner -f ${S}/IMG_GPU/out/${IMG_GPU_POWERVR_VERSION}.tar.gz -C ${B}
