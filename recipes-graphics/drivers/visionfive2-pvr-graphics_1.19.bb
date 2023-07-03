@@ -11,8 +11,6 @@ SRC_URI += "\
 "
 S = "${WORKDIR}/git"
 
-IMG_GPU_POWERVR_VERSION = "img-gpu-powervr-bin-1.17.6210866"
-
 PACKAGES += " \
     ${PN}-firmware \
     ${PN}-tools \
