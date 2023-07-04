@@ -1,6 +1,8 @@
 Changed Y444 for correct format
 Add VYUY v308 NV61 format for omxmjpegdec
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 Signed-off-by: Leo Lu <leo.lu@starfivetech.com>
 
 diff -purN a/omx/gstomxbufferpool.c b/omx/gstomxbufferpool.c

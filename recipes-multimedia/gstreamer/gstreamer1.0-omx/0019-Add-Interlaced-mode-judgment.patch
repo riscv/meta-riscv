@@ -1,6 +1,8 @@
 Add Interlaced-mode judgment for gstomxvideodec class 
 Fix compiler warnings
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 Signed-off-by: Leo Lu <leo.lu@starfivetech.com>
 
 diff -purN a/omx/gstomxvideodec.c b/omx/gstomxvideodec.c

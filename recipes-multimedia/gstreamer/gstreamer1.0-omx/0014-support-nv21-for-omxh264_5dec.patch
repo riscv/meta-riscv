@@ -1,5 +1,7 @@
 Add NV21 for omxh264dec omxh265dec 
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 Signed-off-by: Leo Lu <leo.lu@starfivetech.com>
 
 diff -purN a/omx/gstomxvideo.h b/omx/gstomxvideo.h

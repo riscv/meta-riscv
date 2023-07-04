@@ -1,3 +1,5 @@
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 --- a/omx/gstomxvideodec.c
 +++ b/omx/gstomxvideodec.c
 @@ -718,6 +718,15 @@

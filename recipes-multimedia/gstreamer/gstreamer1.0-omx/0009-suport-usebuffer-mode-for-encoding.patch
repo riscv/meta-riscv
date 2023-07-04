@@ -1,3 +1,5 @@
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 diff -Naur a/omx/gstomx.h b/omx/gstomx.h
 --- a/omx/gstomx.h	2020-10-26 19:17:03.488452200 +0800
 +++ b/omx/gstomx.h	2022-04-24 18:50:01.353690234 +0800
