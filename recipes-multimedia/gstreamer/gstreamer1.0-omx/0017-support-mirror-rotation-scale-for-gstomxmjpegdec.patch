@@ -1,5 +1,7 @@
 Support mirror rotation scale for omxmjpegdec
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 Signed-off-by: Leo Lu <leo.lu@starfivetech.com>
 
 diff -purN a/omx/gstomxmjpegdec.c b/omx/gstomxmjpegdec.c

@@ -1,3 +1,5 @@
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 --- a/config/stf/gstomx.conf
 +++ b/config/stf/gstomx.conf
 @@ -33,3 +33,12 @@

@@ -1,3 +1,5 @@
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 --- a/omx/gstomxmjpegdec.h
 +++ b/omx/gstomxmjpegdec.h
 @@ -45,6 +45,16 @@

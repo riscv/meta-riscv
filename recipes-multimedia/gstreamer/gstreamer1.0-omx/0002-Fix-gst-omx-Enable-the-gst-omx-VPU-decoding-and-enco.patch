@@ -4,6 +4,8 @@ Date: Tue, 10 Aug 2021 19:18:00 +0800
 Subject: [PATCH] Fix(gst-omx): Enable the gst-omx VPU decoding and encoding
  support h264 High L5.2
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
 
 --- a/meson.build

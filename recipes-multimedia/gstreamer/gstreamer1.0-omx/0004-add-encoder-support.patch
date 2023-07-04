@@ -1,3 +1,5 @@
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 --- a/config/stf/gstomx.conf	2021-08-18 14:51:51.384176799 +0800
 +++ b/config/stf/gstomx.conf	2021-08-18 14:50:58.972186447 +0800
 @@ -15,3 +15,21 @@

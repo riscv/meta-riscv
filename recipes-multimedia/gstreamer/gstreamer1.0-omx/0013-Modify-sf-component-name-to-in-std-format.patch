@@ -3,6 +3,8 @@ From: Som Qin <som.qin@starfivetech.com>
 Date: Mon, 25 Jul 2022 09:45:44 +0800
 Subject: [PATCH] Modify sf component name to adapt omx
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 Signed-off-by: Som Qin <som.qin@starfivetech.com>
 ---
  config/stf/gstomx.conf | 10 +++++-----

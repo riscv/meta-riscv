@@ -1,3 +1,5 @@
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 --- a/omx/gstomxvideodec.c	2020-10-26 19:17:03.000000000 +0800
 +++ b/omx/gstomxvideodec.c	2021-08-16 16:23:08.082113380 +0800
 @@ -2185,6 +2185,7 @@

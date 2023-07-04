@@ -1,3 +1,6 @@
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
+
 --- a/config/meson.build
 +++ b/config/meson.build
 @@ -6,6 +6,8 @@ elif omx_target == 'zynqultrascaleplus'

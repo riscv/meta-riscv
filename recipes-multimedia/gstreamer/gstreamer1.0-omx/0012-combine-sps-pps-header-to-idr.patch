@@ -1,5 +1,7 @@
 Combine SPS/PPS header to IDR frame.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 Signed-off-by: Windsome Zeng <windsome.zeng@starfivetech.com>
 
 --- a/meson.build

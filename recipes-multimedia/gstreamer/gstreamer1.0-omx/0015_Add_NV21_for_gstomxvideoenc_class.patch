@@ -1,5 +1,7 @@
 Add NV21 for omxvideoenc class
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 Signed-off-by: Leo Lu <leo.lu@starfivetech.com>
 
 diff -purN a/omx/gstomxvideoenc.c b/omx/gstomxvideoenc.c
