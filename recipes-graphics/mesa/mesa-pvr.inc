@@ -148,7 +148,8 @@ def strip_comma(s):
 
 # note: this is the exact config as needed and usable for the VisionFive2 board
 #       upstream Mesa provides much more flexibility which is ignored for sake of simplicity
-PACKAGECONFIG = "gallium x11 wayland opengl egl gbm dri3 pvr "
+PACKAGECONFIG = "${@bb.utils.filter('DISTRO_FEATURES', 'x11 wayland opengl', d)} \
+                 gallium egl gbm pvr"
 
 # "gbm" requires "opengl"
 PACKAGECONFIG[gbm] = "-Dgbm=enabled,-Dgbm=disabled"
