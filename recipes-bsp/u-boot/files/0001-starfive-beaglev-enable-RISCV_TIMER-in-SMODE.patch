@@ -1,0 +1,27 @@
+From a9e1d8f3ba2ce0c1eaaf5254043b8682be7b02af Mon Sep 17 00:00:00 2001
+From: Stephen L Arnold <nerdboy@gentoo.org>
+Date: Sun, 30 Jul 2023 12:09:59 -0700
+Subject: [PATCH] starfive: beaglev: enable RISCV_TIMER in SMODE
+
+* replicates previous Bin Meng u-boot patch in .04
+
+Signed-off-by: Stephen L Arnold <nerdboy@gentoo.org>
+---
+ configs/starfive_jh7100_beagle_v_smode_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/configs/starfive_jh7100_beagle_v_smode_defconfig b/configs/starfive_jh7100_beagle_v_smode_defconfig
+index 43afc4f8c3..3d7b871d54 100644
+--- a/configs/starfive_jh7100_beagle_v_smode_defconfig
++++ b/configs/starfive_jh7100_beagle_v_smode_defconfig
+@@ -12,6 +12,7 @@ CONFIG_SIFIVE_FU540_L2CC_WAYENABLE_DIY=y
+ CONFIG_SIFIVE_FU540_L2CC_WAYENABLE_DIY_NUM=16
+ CONFIG_ARCH_RV64I=y
+ CONFIG_RISCV_SMODE=y
++CONFIG_RISCV_TIMER=y
+ CONFIG_SHOW_REGS=y
+ # CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+ CONFIG_DISTRO_DEFAULTS=y
+-- 
+2.40.1
+
