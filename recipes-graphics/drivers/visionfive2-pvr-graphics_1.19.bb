@@ -6,6 +6,8 @@ COMPATIBLE_MACHINE = "jh7110"
 require recipes-bsp/common/visionfive2-firmware.inc
 inherit update-rc.d
 
+DEPENDS:append:libc-musl = " gcompat"
+
 SRC_URI += "\
         file://glesv1_cm.pc \
 "
@@ -68,3 +70,6 @@ INSANE_SKIP:${PN} += "already-stripped dev-so"
 # ignore dependency check for python scripting
 INSANE_SKIP:${PN}-tools += "already-stripped file-rdeps"
 INSANE_SKIP:${PN}-firmware += "arch"
+# It will use gcompat at runtime therefore checking for these at compile time wont be useful as
+# they dont match musl/gcompat but it should run fine
+INSANE_SKIP:append:libc-musl = " file-rdeps"
