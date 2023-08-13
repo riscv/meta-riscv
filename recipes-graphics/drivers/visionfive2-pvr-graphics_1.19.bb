@@ -4,7 +4,9 @@ PROVIDES += "virtual/libgles1 virtual/libgles2 virtual/libgles3"
 COMPATIBLE_MACHINE = "jh7110"
 
 require recipes-bsp/common/visionfive2-firmware.inc
-inherit update-rc.d
+inherit update-rc.d systemd
+
+SRC_URI += "file://rc.pvr.service"
 
 DEPENDS:append:libc-musl = " gcompat"
 
@@ -21,7 +23,7 @@ PACKAGES += " \
 do_install () {
     tar xz --no-same-owner -f ${S}/IMG_GPU/out/${IMG_GPU_POWERVR_VERSION}.tar.gz -C ${D}
     mv ${D}/${IMG_GPU_POWERVR_VERSION}/target/* ${D}
-    install -d ${D}/usr/include/
+    install -d ${D}${includedir} ${D}${bindir}
     cp -r ${D}/${IMG_GPU_POWERVR_VERSION}/staging/usr/include/drv/ ${D}/usr/include/
     cp -r ${D}/${IMG_GPU_POWERVR_VERSION}/staging/usr/include/GLES/ ${D}/usr/include/
     cp -r ${D}/${IMG_GPU_POWERVR_VERSION}/staging/usr/include/GLES2/ ${D}/usr/include/
@@ -29,6 +31,12 @@ do_install () {
     install -d ${D}/usr/lib/pkgconfig/
     cp -r ${D}/${IMG_GPU_POWERVR_VERSION}/staging/usr/lib/pkgconfig/* ${D}/usr/lib/pkgconfig/
     install -Dm0644 ${WORKDIR}/glesv1_cm.pc ${D}${libdir}/pkgconfig/glesv1_cm.pc
+    sed -i -e 's|^#!/bin/bash|#!/usr/bin/env sh|g' ${D}${sysconfdir}/init.d/rc.pvr
+    if [ ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)} ]; then
+        mv ${D}${sysconfdir}/init.d/rc.pvr ${D}${bindir}
+        rmdir ${D}${sysconfdir}/init.d
+        install -Dm 644 ${WORKDIR}/rc.pvr.service ${D}/${systemd_unitdir}/system/rc.pvr.service
+    fi
     # let vulkan-loader from core layer provide libvulkan
     rm -rf ${D}${libdir}/libvulkan*.so* ${D}${libdir}/pkgconfig/vulkan.pc
     # provided via separate arch-independent firmware package
@@ -40,6 +48,7 @@ do_install () {
 }
 
 INITSCRIPT_NAME = "rc.pvr"
+SYSTEMD_SERVICE:${PN} = "rc.pvr.service"
 
 FILES_SOLIBSDEV = ""
 FILES:${PN} += " \
