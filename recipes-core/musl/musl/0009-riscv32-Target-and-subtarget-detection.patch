@@ -3,6 +3,8 @@ From: Stefan O'Rear <sorear@fastmail.com>
 Date: Thu, 3 Sep 2020 05:26:50 -0400
 Subject: [PATCH 09/16] riscv32: Target and subtarget detection
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  configure | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)

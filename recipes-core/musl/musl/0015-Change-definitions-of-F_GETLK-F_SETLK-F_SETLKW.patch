@@ -20,6 +20,7 @@ Subject: [PATCH 15/16] Change definitions of F_GETLK, F_SETLK, F_SETLKW
 * riscv32 _does_ provide both F_GETLK and F_GETLK32; make sure we use
   the right one.
 
+Upstream-Status: Pending
 Signed-off-by: Stefan O'Rear <sorear@fastmail.com>
 Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---

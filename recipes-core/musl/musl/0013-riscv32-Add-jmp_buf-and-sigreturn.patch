@@ -4,6 +4,8 @@ Date: Thu, 3 Sep 2020 05:54:44 -0400
 Subject: [PATCH 13/16] riscv32: Add jmp_buf and sigreturn
 
 Largely copied from riscv64 but required recalculation of offsets.
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/setjmp/riscv32/longjmp.S   | 42 ++++++++++++++++++++++++++++++++++
  src/setjmp/riscv32/setjmp.S    | 41 +++++++++++++++++++++++++++++++++

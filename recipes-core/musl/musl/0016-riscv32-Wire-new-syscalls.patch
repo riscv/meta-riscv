@@ -7,6 +7,7 @@ Subject: [PATCH 16/16] riscv32: Wire new syscalls
 - add pidfd_getfd and openat2 syscall numbers from linux v5.6
 - add clone3 syscall number from linux v5.3
 
+Upstream-Status: Pending
 Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  arch/riscv32/bits/syscall.h.in | 5 ++++-

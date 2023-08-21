@@ -7,6 +7,7 @@ ucontext.h depends on the internal struct tag name for namespacing
 reasons, and the intent was always for it to be consistent across
 archs anyway.
 
+Upstream-Status: Pending
 Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  arch/riscv32/bits/signal.h | 4 ++--
