@@ -5,6 +5,8 @@ Subject: [PATCH 08/16] riscv: Fall back to syscall __riscv_flush_icache
 
 Matches glibc behavior and fixes a case where we could fall off the
 function without returning a value.
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/linux/cache.c | 1 +
  1 file changed, 1 insertion(+)

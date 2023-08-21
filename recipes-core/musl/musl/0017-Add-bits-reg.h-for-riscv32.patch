@@ -3,6 +3,7 @@ From: Khem Raj <raj.khem@gmail.com>
 Date: Thu, 31 Dec 2020 16:07:38 -0800
 Subject: [PATCH] Add bits/reg.h for riscv32
 
+Upstream-Status: Pending
 Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  arch/riscv32/bits/reg.h | 3 +++

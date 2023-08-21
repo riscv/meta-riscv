@@ -4,6 +4,8 @@ Date: Thu, 3 Sep 2020 05:56:46 -0400
 Subject: [PATCH 14/16] riscv32: Add thread support
 
 Identical to riscv64 except for stack offsets in clone.
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/thread/riscv32/__set_thread_area.s |  6 +++++
  src/thread/riscv32/__unmapself.s       |  7 ++++++

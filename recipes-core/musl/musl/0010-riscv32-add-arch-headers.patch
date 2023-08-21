@@ -16,6 +16,8 @@ names depending on __BITS_PER_LONG, notably mmap2 and _llseek.
 
 futex was added as an alias to futex_time64 since it is widely used by
 software which does not pass time arguments.
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  arch/riscv32/atomic_arch.h      |  21 +++
  arch/riscv32/bits/alltypes.h.in |  18 ++

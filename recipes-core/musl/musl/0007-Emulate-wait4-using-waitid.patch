@@ -17,6 +17,9 @@ a small cost in code size.
 
 wait4 is historically not a cancellation point in musl; we retain that
 since we need the non-cancellable version of __wait4 anyway.
+
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/internal/__wait4.c | 55 ++++++++++++++++++++++++++++++++++++++++++
  src/internal/syscall.h | 12 +++++++++
