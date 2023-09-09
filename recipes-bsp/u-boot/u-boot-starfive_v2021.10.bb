@@ -27,8 +27,8 @@ SRC_URI:append:star64 = " \
 "
 
 
-# tag VF2_v2.11.5
-SRCREV:visionfive2 = "688befadf1d337dee3593e6cc0fe1c737cc150bd"
+# tag VF2_v3.6.1
+SRCREV:visionfive2 = "7f96b15e26f14df56fa9d480c0cc6f7434997360"
 SRCREV:star64 = "c71fa7376f4eaf29e2dc20e5a68418d79201290a"
 
 
