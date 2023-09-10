@@ -36,12 +36,17 @@ do_install () {
         mv ${D}${sysconfdir}/init.d/rc.pvr ${D}${bindir}
         rmdir ${D}${sysconfdir}/init.d
         install -Dm 644 ${WORKDIR}/rc.pvr.service ${D}/${systemd_unitdir}/system/rc.pvr.service
+    else
+        rm -rf ${D}/lib/systemd
     fi
     # let vulkan-loader from core layer provide libvulkan
     rm -rf ${D}${libdir}/libvulkan*.so* ${D}${libdir}/pkgconfig/vulkan.pc
     # provided via separate arch-independent firmware package
     rm -rf ${D}/lib/firmware
-    rmdir ${D}/lib
+    # Check directory empty before trying to delete
+    if [ -z "$(ls -A ${D}/lib)" ]; then
+        rmdir ${D}/lib
+    fi
 
     # cleanup unused
     rm -rf ${D}/${IMG_GPU_POWERVR_VERSION}
