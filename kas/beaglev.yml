@@ -1,9 +1,6 @@
 header:
   version: 14
+  includes:
+    - base-riscv.yml
 
 machine: beaglev-starlight-jh7100
-
-local_conf_header:
-  standard: |
-    # Override CONF_VERSION #
-    CONF_VERSION = "1"
