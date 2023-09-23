@@ -21,9 +21,6 @@ local_conf_header:
     SDKMACHINE = "x86_64"
     CONF_VERSION = "2"
 
-    DL_DIR = "/home/talel/Desktop/YoctoShare/downloads"
-    SSTATE_DIR = "/home/talel/Desktop/YoctoShare/sstate-cache"
-
 bblayers_conf_header:
   standard: |
     POKY_BBLAYERS_CONF_VERSION = "2"
