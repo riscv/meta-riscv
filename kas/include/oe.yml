@@ -1,0 +1,21 @@
+header:
+  version: 14
+
+repos:
+  poky:
+    url: https://git.yoctoproject.org/git/poky
+    path: layers/poky
+    branch: kirkstone
+    layers:
+      meta:
+      meta-poky:
+      meta-yocto-bsp:
+
+  meta-openembedded:
+    url: https://git.openembedded.org/meta-openembedded
+    path: layers/meta-openembedded
+    branch: kirkstone
+    layers:
+      meta-oe:
+      meta-networking:
+      meta-python:

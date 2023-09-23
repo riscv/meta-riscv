@@ -1,0 +1,7 @@
+header:
+  version: 14
+  includes:
+    - base-riscv.yml
+
+machine: nezha-allwinner-d1
+target: riscv-nezha-image

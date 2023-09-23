@@ -56,6 +56,69 @@ repo rebase
 . ./meta-riscv/setup.sh
 ```
 
+### Kas Support
+
+Kas build is supported, you can run the following commands:
+
+```text
+git clone https://github.com/riscv/meta-riscv.git -b kirkstone
+cd meta-riscv
+```
+
+* For basic `qemuriscv64` build run:
+
+```text
+kas build kas/base-riscv.yml
+```
+
+**base-riscv.yml** will build `core-image-minimal`, you can then boot it with:
+
+```text
+runqemu core-image-minimal nographic
+```
+
+**NOTE** `nographic` is needed for this image, because it has no graphical support for graphical Qemu run.
+
+* For `nezha` build:
+
+```text
+kas build kas/nezha.yml
+```
+
+* For `beaglev` build:
+
+```text
+kas build kas/beaglev.yml
+```
+
+* For `plamo` build:
+
+```text
+kas build kas/plamo.yml
+```
+
+## Custom Project
+
+If you have your own layer that depends on this layer, you can create a kas `yml` file in your layer with the following content (`nezha` build as an example):
+
+```yml
+head:
+  version: 8
+  includes:
+    - repo: meta-riscv
+      file: kas/nezha.yml
+
+repos:
+  meta-riscv:
+    url: https://github.com/riscv/meta-riscv.git
+    path: layers
+    refspec: kirkstone
+
+target: custom-image # Or nezha default image: riscv-nezha-image
+```
+
+For more details on `nezha`, `beaglev` and other boards steps check `doc` folder.
+
 ## Available Machines
 
 The different machines you can build for are:
