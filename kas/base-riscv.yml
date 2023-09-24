@@ -6,7 +6,7 @@ header:
 
 machine: qemuriscv64
 distro: poky
-target: core-image-minimal
+target: core-image-base
 
 repos:
   meta-riscv:
