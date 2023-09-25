@@ -2,13 +2,12 @@
 
 <manifest>
   <remote name="openembedded" fetch="https://github.com/openembedded/" />
+  <remote name="yocto" fetch="https://github.com/yoctoproject/" />
   <remote name="riscv" fetch="https://github.com/riscv/" />
   <default remote="openembedded" revision="master" />
 
   <project name="meta-riscv" remote="riscv" path="meta-riscv" revision="master" />
-  <project name="openembedded-core" remote="openembedded" path="openembedded-core" revision="master" />
-  <project name="bitbake" remote="openembedded" path="openembedded-core/bitbake" revision="master" />
+  <project name="poky" remote="yocto" path="poky" revision="master" />
   <project name="meta-openembedded" remote="openembedded" path="meta-openembedded" revision="master" />
 
 </manifest>
-

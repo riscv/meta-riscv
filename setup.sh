@@ -3,7 +3,9 @@
 
 DIR="build"
 MACHINE="qemuriscv64"
+DISTRO="poky-altcfg"
 CONFFILE="conf/auto.conf"
+# core-image-sato, corea-image-sato-sdk
 BITBAKEIMAGE="core-image-full-cmdline"
 
 # make sure sstate is there
@@ -27,8 +29,8 @@ elif [ "${0##*/}" = "dash" ]; then
 fi
 # bootstrap OE
 echo "Init OE"
-export BASH_SOURCE="openembedded-core/oe-init-build-env"
-. ./openembedded-core/oe-init-build-env $DIR
+export BASH_SOURCE="poky/oe-init-build-env"
+. ./poky/oe-init-build-env $DIR
 
 # Symlink the cache
 #echo "Setup symlink for sstate"
@@ -50,33 +52,21 @@ if [ -e $CONFFILE ]; then
 fi
 cat <<EOF > $CONFFILE
 MACHINE ?= "${MACHINE}"
+DISTRO = "${DISTRO}"
 #IMAGE_FEATURES += "tools-debug"
 #IMAGE_FEATURES += "tools-tweaks"
 #IMAGE_FEATURES += "dbg-pkgs"
 # rootfs for debugging
 #IMAGE_GEN_DEBUGFS = "1"
 #IMAGE_FSTYPES_DEBUGFS = "tar.gz"
-EXTRA_IMAGE_FEATURES:append = " ssh-server-dropbear"
-EXTRA_IMAGE_FEATURES:append = " package-management"
 PACKAGECONFIG:append:pn-qemu-native = " sdl"
 PACKAGECONFIG:append:pn-nativesdk-qemu = " sdl"
-USER_CLASSES ?= "buildstats buildhistory buildstats-summary"
-
-require conf/distro/include/no-static-libs.inc
-require conf/distro/include/yocto-uninative.inc
-require conf/distro/include/security_flags.inc
-
-INHERIT += "uninative"
-
-DISTRO_FEATURES:append = " opengl ptest multiarch wayland pam systemd usrmerge "
-# Use systemd for system initialization
-INIT_MANAGER = "systemd"
-HOSTTOOLS_NONFATAL:append = " ssh"
+USER_CLASSES:append = " buildstats buildhistory buildstats-summary"
 EOF
 
 echo "To build an image run"
 echo "---------------------------------------------------"
-echo "MACHINE=qemuriscv64 bitbake core-image-full-cmdline"
+echo "bitbake core-image-full-cmdline"
 echo "---------------------------------------------------"
 echo ""
 echo "Buildable machine info"
