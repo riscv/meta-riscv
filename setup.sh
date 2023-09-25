@@ -68,9 +68,9 @@ require conf/distro/include/security_flags.inc
 
 INHERIT += "uninative"
 
-DISTRO_FEATURES:append = " opengl ptest multiarch wayland pam  systemd "
-DISTRO_FEATURES_BACKFILL_CONSIDERED += "sysvinit"
-VIRTUAL-RUNTIME_init_manager = "systemd"
+DISTRO_FEATURES:append = " opengl ptest multiarch wayland pam systemd usrmerge "
+# Use systemd for system initialization
+INIT_MANAGER = "systemd"
 HOSTTOOLS_NONFATAL:append = " ssh"
 EOF
 
