@@ -8,8 +8,8 @@ KERNEL_VERSION_SANITY_SKIP = "1"
 SRCREV = "${AUTOREV}"
 
 # pin srcrev for now to have a fixed target
-# release VF2_v3.6.1
-SRCREV:visionfive2 = "05533e9c31d6f0da20efc2d436a3b0f6d516ed4b"
+# release VF2_v3.7.5
+SRCREV:visionfive2 = "cd3629d462ee08405b02a490400f06fa314161f9"
 SRCREV:star64 = "e4c0928f1e42ed82ab9fa8918bc7094d3c0414d8"
 
 BRANCH = "visionfive"
