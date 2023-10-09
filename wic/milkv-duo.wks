@@ -1,0 +1,4 @@
+# short-description: Create SD card image for Milk-V Duo development board
+
+part /boot --source bootimg-partition --ondisk mmcblk0 --fstype=vfat --label boot --active --fixed-size 64M --align 4096
+part / --source rootfs --ondisk mmcblk0 --fstype=ext4 --label root --align 4096 --size 128M
