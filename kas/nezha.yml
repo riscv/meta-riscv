@@ -1,0 +1,19 @@
+header:
+  version: 14
+  includes:
+    - base-riscv.yml
+
+machine: nezha-allwinner-d1
+target: core-image-minimal
+
+local_conf_header:
+  nezha: |
+    # Use 'haveged' instead 'rng-tools' due to 'SIGSEGV' error during start 'rngd'
+    PACKAGE_EXCLUDE:append = "rng-tools"
+
+    IMAGE_INSTALL:append = "haveged"
+
+    IMAGE_FEATURES += " \
+        ssh-server-openssh \
+        debug-tweaks \
+    "

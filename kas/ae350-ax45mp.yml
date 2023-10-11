@@ -1,0 +1,6 @@
+header:
+  version: 14
+  includes:
+    - base-riscv.yml
+
+machine: ae350-ax45mp
