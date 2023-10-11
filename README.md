@@ -56,6 +56,66 @@ repo rebase
 . ./meta-riscv/setup.sh
 ```
 
+### Kas Support
+
+Kas build is supported, you can run the following commands:
+
+```text
+git clone https://github.com/riscv/meta-riscv.git -b kirkstone
+cd meta-riscv
+```
+
+* For basic `qemuriscv64` build run:
+
+```text
+kas build kas/base-riscv.yml
+```
+
+**base-riscv.yml** will build `core-image-minimal`, you can then boot it with:
+
+```text
+runqemu core-image-minimal nographic
+```
+
+**NOTE** `nographic` is needed for this image, because it has no graphical support for graphical Qemu run.
+
+* For `nezha` build:
+
+```text
+kas build kas/nezha.yml
+```
+
+* For `beaglev` build:
+
+```text
+kas build kas/beaglev.yml
+```
+
+* For more machines check `kas` folder.
+
+
+## Custom Project
+
+If you have your own layer that depends on this layer, you can create a kas `yml` file in your layer with the following content (`nezha` build as an example):
+
+```yml
+head:
+  version: 8
+  includes:
+    - repo: meta-riscv
+      file: kas/nezha.yml
+
+repos:
+  meta-riscv:
+    url: https://github.com/riscv/meta-riscv.git
+    path: layers
+    refspec: kirkstone
+
+target: custom-image # Or nezha default image: riscv-nezha-image
+```
+
+For more details on `nezha`, `beaglev` and other boards steps check `doc` folder.
+
 ## Available Machines
 
 The different machines you can build for are:
@@ -138,17 +198,10 @@ $ sudo bmaptool copy --bmap image.bmap ./freedom-u540-opensbi-201812181337-mmcbl
 
 ### dding wic.gz
 
-The output of a ```freedom-u540```, ```beaglev-starlight-jh7100``` or ```mangopi-mq-pro```  build will be a ```<image>.wic.gz``` file. You can write this file to an sd card using:
+The output of a ```freedom-u540``` or ```beaglev-starlight-jh7100```  build will be a ```<image>.wic.gz``` file. You can write this file to an sd card using:
 
 ```text
 $ zcat <image>-<machine>.wic.gz | sudo dd of=/dev/sdX bs=4M iflag=fullblock oflag=direct conv=fsync status=progress
-```
-
-### Using bmaptoop to write the image
-
-Instead of dding wic.gz image ```bmaptool``` (available in most Linux distributions and/or pip)  can be used for more reliable and faster flashing. You can write this file to an sd card using:
-```text
-$ sudo bmaptool copy <image>-<machine>.wic.gz /dev/sdX
 ```
 
 ## Maintainer(s)

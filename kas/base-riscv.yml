@@ -1,0 +1,12 @@
+header:
+  version: 14
+  includes:
+    - include/local.yml
+    - include/oe.yml
+
+machine: qemuriscv64
+distro: poky
+target: core-image-base
+
+repos:
+  meta-riscv:
