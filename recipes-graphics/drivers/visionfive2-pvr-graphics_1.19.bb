@@ -8,7 +8,7 @@ inherit update-rc.d systemd
 
 SRC_URI += "file://rc.pvr.service"
 
-DEPENDS:append:libc-musl = " gcompat"
+DEPENDS:append:libc-musl = " gcompat patchelf-native"
 
 SRC_URI += "\
         file://glesv1_cm.pc \
@@ -50,6 +50,14 @@ do_install () {
 
     # cleanup unused
     rm -rf ${D}/${IMG_GPU_POWERVR_VERSION}
+}
+
+do_install:append:libc-musl() {
+    # libs
+    for f in `find ${D}${libdir} -name '*.so*' -type f`
+    do
+        patchelf --add-needed libgcompat.so.0 $f
+    done
 }
 
 INITSCRIPT_NAME = "rc.pvr"
