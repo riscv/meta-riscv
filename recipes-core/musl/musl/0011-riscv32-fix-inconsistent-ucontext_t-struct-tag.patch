@@ -1,7 +1,7 @@
-From d6cdbadb028f6b5bba46b2b223519ab372b42b42 Mon Sep 17 00:00:00 2001
+From 7d61a0c227ce1486de45f0a8b01a35e2345107dc Mon Sep 17 00:00:00 2001
 From: Khem Raj <raj.khem@gmail.com>
 Date: Wed, 16 Mar 2022 10:57:18 -0700
-Subject: [PATCH] riscv32: fix inconsistent ucontext_t struct tag
+Subject: [PATCH 11/12] riscv32: fix inconsistent ucontext_t struct tag
 
 ucontext.h depends on the internal struct tag name for namespacing
 reasons, and the intent was always for it to be consistent across
@@ -31,5 +31,5 @@ index b006334f..287367db 100644
  	sigset_t uc_sigmask;
  	mcontext_t uc_mcontext;
 -- 
-2.35.1
+2.42.0
 

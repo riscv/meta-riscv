@@ -1,7 +1,7 @@
-From 707914898f9b5a2738ad188942c3c730889f8f16 Mon Sep 17 00:00:00 2001
+From 86f469b5db2ce621602c21ee7c106ef856ecfac9 Mon Sep 17 00:00:00 2001
 From: Khem Raj <raj.khem@gmail.com>
 Date: Thu, 31 Dec 2020 16:07:38 -0800
-Subject: [PATCH] Add bits/reg.h for riscv32
+Subject: [PATCH 10/12] Add bits/reg.h for riscv32
 
 Upstream-Status: Pending
 Signed-off-by: Khem Raj <raj.khem@gmail.com>
@@ -20,5 +20,5 @@ index 00000000..0c7bffca
 +#define __WORDSIZE 32
 +/* FIXME */
 -- 
-2.30.0
+2.42.0
 

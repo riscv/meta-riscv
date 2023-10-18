@@ -1,7 +1,7 @@
-From bf15d3589b0bc2bcbe9bf1c49bc993ca77e20951 Mon Sep 17 00:00:00 2001
+From 5d89b87310502c9226a7c23bbb5da7f02cf3b852 Mon Sep 17 00:00:00 2001
 From: Stefan O'Rear <sorear@fastmail.com>
 Date: Thu, 3 Sep 2020 05:40:29 -0400
-Subject: [PATCH 10/16] riscv32: add arch headers
+Subject: [PATCH 04/12] riscv32: add arch headers
 
 These are mostly copied from riscv64.  _Addr and _Reg had to become int
 to avoid errors in libstdc++ when size_t and std::size_t mismatch.
@@ -16,6 +16,7 @@ names depending on __BITS_PER_LONG, notably mmap2 and _llseek.
 
 futex was added as an alias to futex_time64 since it is widely used by
 software which does not pass time arguments.
+
 Upstream-Status: Pending
 Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
@@ -847,5 +848,5 @@ index 00000000..9e916c76
 +#define VDSO_CGT_SYM "__vdso_clock_gettime"
 +#define VDSO_CGT_VER "LINUX_2.6" */
 -- 
-2.29.2
+2.42.0
 

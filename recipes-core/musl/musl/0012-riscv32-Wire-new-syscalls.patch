@@ -1,8 +1,11 @@
-From 9fb8b132642520042ab4734ac1f0abce688bbea9 Mon Sep 17 00:00:00 2001
+From a6c49977772a200216bd3a63b490d467663384b6 Mon Sep 17 00:00:00 2001
 From: Khem Raj <raj.khem@gmail.com>
 Date: Fri, 30 Oct 2020 12:16:29 -0700
-Subject: [PATCH 16/16] riscv32: Wire new syscalls
+Subject: [PATCH 12/12] riscv32: Wire new syscalls
 
+- add mount_setattr from linux v5.12
+- add epoll_pwait2 from linux v5.11
+- add process_madvise from linux v5.10
 - add __NR_faccessat2 from linux v5.8
 - add pidfd_getfd and openat2 syscall numbers from linux v5.6
 - add clone3 syscall number from linux v5.3
@@ -10,14 +13,14 @@ Subject: [PATCH 16/16] riscv32: Wire new syscalls
 Upstream-Status: Pending
 Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
- arch/riscv32/bits/syscall.h.in | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/riscv32/bits/syscall.h.in | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
 diff --git a/arch/riscv32/bits/syscall.h.in b/arch/riscv32/bits/syscall.h.in
-index 852d2aaa..4b145fa3 100644
+index 852d2aaa..910b82c8 100644
 --- a/arch/riscv32/bits/syscall.h.in
 +++ b/arch/riscv32/bits/syscall.h.in
-@@ -279,7 +279,10 @@
+@@ -279,7 +279,16 @@
  #define __NR_fsmount		432
  #define __NR_fspick		433
  #define __NR_pidfd_open		434
@@ -26,9 +29,15 @@ index 852d2aaa..4b145fa3 100644
 +#define __NR_openat2		437
 +#define __NR_pidfd_getfd	438
 +#define __NR_faccessat2		439
++#define __NR_process_madvise	440
++#define __NR_epoll_pwait2	441
++#define __NR_mount_setattr	442
++#define __NR_landlock_create_ruleset	444
++#define __NR_landlock_add_rule	445
++#define __NR_landlock_restrict_self	446
  #define __NR_futex __NR_futex_time64
  
  #define __NR_sysriscv __NR_arch_specific_syscall
 -- 
-2.29.2
+2.42.0
 
