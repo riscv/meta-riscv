@@ -1,9 +1,10 @@
-From 748bf9c7b74ee056d4d4346f49ea6f824d845f08 Mon Sep 17 00:00:00 2001
+From c650e636442b086b7ab62f3785b5f439085138cb Mon Sep 17 00:00:00 2001
 From: Stefan O'Rear <sorear@fastmail.com>
 Date: Thu, 3 Sep 2020 05:45:44 -0400
-Subject: [PATCH 11/16] riscv32: Add fenv and math
+Subject: [PATCH 05/12] riscv32: Add fenv and math
 
 These are identical to riscv64.
+
 Upstream-Status: Pending
 Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
@@ -361,5 +362,5 @@ index 00000000..610c2cf8
 +
 +#endif
 -- 
-2.29.2
+2.42.0
 

@@ -1,7 +1,7 @@
-From 1a8f65f2b8d33dc09f6ccb6a7bd6ca85760cf720 Mon Sep 17 00:00:00 2001
+From c3941d7f5a1dba3a10f1d232a81841b4640462c4 Mon Sep 17 00:00:00 2001
 From: Stefan O'Rear <sorear@fastmail.com>
 Date: Thu, 3 Sep 2020 05:20:45 -0400
-Subject: [PATCH 07/16] Emulate wait4 using waitid
+Subject: [PATCH 01/12] Emulate wait4 using waitid
 
 riscv32 and future architectures lack wait4.
 
@@ -92,7 +92,7 @@ index 00000000..04d7dc64
 +}
 +#endif
 diff --git a/src/internal/syscall.h b/src/internal/syscall.h
-index 4f41e1dc..27642938 100644
+index 4a446157..28315a1f 100644
 --- a/src/internal/syscall.h
 +++ b/src/internal/syscall.h
 @@ -5,6 +5,8 @@
@@ -120,7 +120,7 @@ index 4f41e1dc..27642938 100644
 +
  #endif
 diff --git a/src/linux/wait4.c b/src/linux/wait4.c
-index 83650e34..32652dc2 100644
+index ff2e3e66..43428153 100644
 --- a/src/linux/wait4.c
 +++ b/src/linux/wait4.c
 @@ -26,7 +26,7 @@ pid_t wait4(pid_t pid, int *status, int options, struct rusage *ru)
@@ -182,5 +182,5 @@ index 557503eb..8e8689c1 100644
  	__restore_sigs(&set);
  
 -- 
-2.29.2
+2.42.0
 

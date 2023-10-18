@@ -1,7 +1,7 @@
-From 798f6231faa7f684962b6ff72d22aa9e268840ed Mon Sep 17 00:00:00 2001
+From 69832b58df5af38a1c65f8466be87ccc88b2040c Mon Sep 17 00:00:00 2001
 From: Stefan O'Rear <sorear@fastmail.com>
 Date: Thu, 3 Sep 2020 05:26:50 -0400
-Subject: [PATCH 09/16] riscv32: Target and subtarget detection
+Subject: [PATCH 03/12] riscv32: Target and subtarget detection
 
 Upstream-Status: Pending
 Signed-off-by: Khem Raj <raj.khem@gmail.com>
@@ -10,7 +10,7 @@ Signed-off-by: Khem Raj <raj.khem@gmail.com>
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/configure b/configure
-index acbfa8f2..2e217c7e 100755
+index 6b9d70bd..3343d0cf 100755
 --- a/configure
 +++ b/configure
 @@ -336,6 +336,7 @@ or1k*) ARCH=or1k ;;
@@ -21,7 +21,7 @@ index acbfa8f2..2e217c7e 100755
  sh[1-9bel-]*|sh|superh*) ARCH=sh ;;
  s390x*) ARCH=s390x ;;
  unknown) fail "$0: unable to detect target arch; try $0 --target=..." ;;
-@@ -696,7 +697,7 @@ trycppif __LITTLE_ENDIAN__ "$t" && SUBARCH=${SUBARCH}le
+@@ -713,7 +714,7 @@ trycppif __LITTLE_ENDIAN__ "$t" && SUBARCH=${SUBARCH}le
  trycppif _SOFT_FLOAT "$t" && fail "$0: error: soft-float not supported on powerpc64"
  fi
  
@@ -31,5 +31,5 @@ index acbfa8f2..2e217c7e 100755
  trycppif __riscv_float_abi_single "$t" && SUBARCH=${SUBARCH}-sp
  fi
 -- 
-2.29.2
+2.42.0
 
