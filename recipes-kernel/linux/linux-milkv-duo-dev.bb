@@ -8,9 +8,6 @@ DEPENDS = "u-boot-mkimage-native dtc-native"
 BRANCH ?= "main"
 FORK ?= "xyq1113723547"
 
-#  git://git.yoctoproject.org/yocto-kernel-cache;type=kmeta;name=meta;branch=master;destsuffix=${KMETA} \
-#
-
 SRC_URI = "git://github.com/${FORK}/cvitek-linux-5.10.git;protocol=https;branch=${BRANCH} \
            "
 
