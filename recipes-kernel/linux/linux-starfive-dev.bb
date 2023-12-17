@@ -8,12 +8,12 @@ KERNEL_VERSION_SANITY_SKIP = "1"
 SRCREV = "${AUTOREV}"
 
 # pin srcrev for now to have a fixed target
-# release VF2_v3.7.5
-SRCREV:visionfive2 = "cd3629d462ee08405b02a490400f06fa314161f9"
+# release VF2_v3.9.3
+SRCREV:visionfive2 = "39daafe74ea5e5c56c56af673e7488783873d810"
 SRCREV:star64 = "e4c0928f1e42ed82ab9fa8918bc7094d3c0414d8"
 
 BRANCH = "visionfive"
-BRANCH:visionfive2 = "JH7110_VisionFive2_devel"
+BRANCH:visionfive2 = "JH7110_VisionFive2_6.1.y_devel"
 BRANCH:star64 = "Star64_devel"
 
 FORK ?= "starfive-tech"
@@ -35,13 +35,17 @@ SRC_URI:append:visionfive = " \
            file://extra.cfg \
 "
 
-SRC_URI:append:jh7110 = " \
-           file://visionfive2-graphics.cfg \
+SRC_URI:jh7110 = " \
+           git://github.com/${FORK}/${REPO}.git;protocol=https;branch=${BRANCH} \
+           file://0001-riscv-disable-generation-of-unwind-tables.patch \
+           file://0001-gcc-plugins-Fix-build-for-upcoming-GCC-release-kernel61.patch \
            file://0001-Allow-building-of-PVR-GPU-driver-as-module.patch \
+           file://visionfive2-graphics.cfg \
+           file://modules.cfg \
 "
 
 LINUX_VERSION ?= "6.2.0"
-LINUX_VERSION:jh7110 = "5.15.0"
+LINUX_VERSION:jh7110 = "6.1.0"
 LINUX_VERSION_EXTENSION:append:beaglev-starlight-jh7100 = "-starlight"
 
 KBUILD_DEFCONFIG:beaglev-starlight-jh7100 = "starfive_jh7100_fedora_defconfig"
