@@ -1,0 +1,29 @@
+From 2c8314089a1c504c802dde67b79fa2ed926f3106 Mon Sep 17 00:00:00 2001
+From: Andreas Cord-Landwehr <cordlandwehr@kde.org>
+Date: Sun, 7 Jan 2024 14:10:07 +0100
+Subject: [PATCH] Set sec_library path to source location
+
+The sec_library is provided as static library as part of the u-boot
+repository.
+
+Signed-off-by: Andreas Cord-Landwehr <cordlandwehr@kde.org>
+---
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index bdc6f3698e..19de9d868a 100644
+--- a/Makefile
++++ b/Makefile
+@@ -811,7 +811,7 @@ PLATFORM_LIBGCC := -L $(shell dirname `$(CC) $(c_flags) -print-libgcc-file-name`
+ endif
+ PLATFORM_LIBS += $(PLATFORM_LIBGCC)
+ ifeq ($(CONFIG_TARGET_LIGHT_C910),y)
+-PLATFORM_LIBS += -L $(shell pwd)/lib/sec_library -lsec_library
++PLATFORM_LIBS += -L $(srctree)/lib/sec_library -lsec_library
+ endif
+ 
+ ifdef CONFIG_CC_COVERAGE
+-- 
+2.40.1
+
