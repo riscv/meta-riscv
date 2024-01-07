@@ -1,0 +1,34 @@
+From 3c18a47a0b7df04e8f849255d05b65e6510cc49f Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Wed, 7 Feb 2024 18:10:16 -0600
+Subject: [PATCH 7/7] v6.8-rc3: fix: reset-th1520.c build
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ drivers/reset/reset-th1520.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/reset/reset-th1520.c b/drivers/reset/reset-th1520.c
+index 4c781377ac23..d0ba8351ea20 100644
+--- a/drivers/reset/reset-th1520.c
++++ b/drivers/reset/reset-th1520.c
+@@ -1,7 +1,7 @@
+ // SPDX-License-Identifier: GPL-2.0-only
+ 
+ #include <linux/mfd/syscon.h>
+-#include <linux/of_device.h>
++#include <linux/of.h>
+ #include <linux/platform_device.h>
+ #include <linux/reset-controller.h>
+ #include <linux/regmap.h>
+@@ -98,6 +98,7 @@ static const struct of_device_id th1520_reset_dt_ids[] = {
+ 	{ .compatible = "thead,th1520-reset" },
+ 	{ /* sentinel */ },
+ };
++MODULE_DEVICE_TABLE(of, th1520_reset_dt_ids);
+ 
+ static struct platform_driver th1520_reset_driver = {
+ 	.probe	= th1520_reset_probe,
+-- 
+2.40.1
+

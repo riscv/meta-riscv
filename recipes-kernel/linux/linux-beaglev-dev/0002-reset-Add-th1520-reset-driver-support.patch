@@ -1,0 +1,183 @@
+From 5c1814cc56e72fca03c7cd66c487ada95cf4cf6a Mon Sep 17 00:00:00 2001
+From: Kwanghoon Son <k.son@samsung.com>
+Date: Mon, 4 Sep 2023 04:25:58 +0000
+Subject: [PATCH 2/7] reset: Add th1520 reset driver support
+
+This driver supports th1520 T-HEAD SoC reset platform device.
+
+Signed-off-by: Kwanghoon Son <k.son@samsung.com>
+---
+ drivers/reset/Kconfig                    |  10 +++
+ drivers/reset/Makefile                   |   1 +
+ drivers/reset/reset-th1520.c             | 109 +++++++++++++++++++++++
+ include/dt-bindings/reset/th1520-reset.h |   9 ++
+ 4 files changed, 129 insertions(+)
+ create mode 100644 drivers/reset/reset-th1520.c
+ create mode 100644 include/dt-bindings/reset/th1520-reset.h
+
+diff --git a/drivers/reset/Kconfig b/drivers/reset/Kconfig
+index 85b27c42cf65..d88b15d4aa4c 100644
+--- a/drivers/reset/Kconfig
++++ b/drivers/reset/Kconfig
+@@ -263,6 +263,16 @@ config RESET_SUNXI
+ 	help
+ 	  This enables the reset driver for Allwinner SoCs.
+ 
++config RESET_TH1520
++	bool "TH1520 Reset Driver"
++	depends on (ARCH_THEAD || COMPILE_TEST) && OF
++	select MFD_SYSCON
++	default ARCH_THEAD
++	help
++	  Support for the T-HEAD 1520 RISC-V SoC reset controller.
++	  Say Y if you want to control reset signals provided by this
++	  controller.
++
+ config RESET_TI_SCI
+ 	tristate "TI System Control Interface (TI-SCI) reset driver"
+ 	depends on TI_SCI_PROTOCOL || (COMPILE_TEST && TI_SCI_PROTOCOL=n)
+diff --git a/drivers/reset/Makefile b/drivers/reset/Makefile
+index fd8b49fa46fc..e945d1327588 100644
+--- a/drivers/reset/Makefile
++++ b/drivers/reset/Makefile
+@@ -34,6 +34,7 @@ obj-$(CONFIG_RESET_SIMPLE) += reset-simple.o
+ obj-$(CONFIG_RESET_SOCFPGA) += reset-socfpga.o
+ obj-$(CONFIG_RESET_SUNPLUS) += reset-sunplus.o
+ obj-$(CONFIG_RESET_SUNXI) += reset-sunxi.o
++obj-$(CONFIG_RESET_TH1520) += reset-th1520.o
+ obj-$(CONFIG_RESET_TI_SCI) += reset-ti-sci.o
+ obj-$(CONFIG_RESET_TI_SYSCON) += reset-ti-syscon.o
+ obj-$(CONFIG_RESET_TI_TPS380X) += reset-tps380x.o
+diff --git a/drivers/reset/reset-th1520.c b/drivers/reset/reset-th1520.c
+new file mode 100644
+index 000000000000..4c781377ac23
+--- /dev/null
++++ b/drivers/reset/reset-th1520.c
+@@ -0,0 +1,109 @@
++// SPDX-License-Identifier: GPL-2.0-only
++
++#include <linux/mfd/syscon.h>
++#include <linux/of_device.h>
++#include <linux/platform_device.h>
++#include <linux/reset-controller.h>
++#include <linux/regmap.h>
++#include <dt-bindings/reset/th1520-reset.h>
++
++struct th1520_rst_signal {
++	unsigned int offset, bit;
++};
++
++struct th1520_rst {
++	struct reset_controller_dev rcdev;
++	struct regmap *regmap;
++	const struct th1520_rst_signal *signals;
++};
++
++enum th1520_rst_registers {
++	RST_WDT0 = 0x0034,
++	RST_WDT1 = 0x0038,
++};
++
++static int th1520_reset_update(struct th1520_rst *rst, unsigned long id,
++			       unsigned int value)
++{
++	const struct th1520_rst_signal *signal = &rst->signals[id];
++
++	return regmap_update_bits(rst->regmap, signal->offset, signal->bit,
++				  value);
++}
++
++static const struct th1520_rst_signal th1520_rst_signals[] = {
++	[TH1520_RESET_WDT0] = { RST_WDT0, BIT(0) },
++	[TH1520_RESET_WDT1] = { RST_WDT1, BIT(0) },
++};
++
++static struct th1520_rst *to_th1520_rst(struct reset_controller_dev *rcdev)
++{
++	return container_of(rcdev, struct th1520_rst, rcdev);
++}
++
++static int th1520_reset_set(struct reset_controller_dev *rcdev,
++			    unsigned long id, bool assert)
++{
++	struct th1520_rst *rst = to_th1520_rst(rcdev);
++	const unsigned int bit = rst->signals[id].bit;
++	unsigned int value = assert ? bit : 0;
++
++	return th1520_reset_update(rst, id, value);
++}
++
++static int th1520_reset_assert(struct reset_controller_dev *rcdev,
++			       unsigned long id)
++{
++	return th1520_reset_set(rcdev, id, false);
++}
++
++static int th1520_reset_deassert(struct reset_controller_dev *rcdev,
++				 unsigned long id)
++{
++	return th1520_reset_set(rcdev, id, true);
++}
++
++static const struct reset_control_ops th1520_rst_ops = {
++	.assert = th1520_reset_assert,
++	.deassert = th1520_reset_deassert,
++};
++
++static int th1520_reset_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct th1520_rst *rst;
++	struct regmap_config config = { .name = "rst" };
++
++	rst = devm_kzalloc(dev, sizeof(*rst), GFP_KERNEL);
++	if (!rst)
++		return -ENOMEM;
++
++	rst->signals = th1520_rst_signals;
++	rst->regmap = syscon_node_to_regmap(dev->of_node);
++	if (IS_ERR(rst->regmap))
++		return PTR_ERR(rst->regmap);
++
++	regmap_attach_dev(dev, rst->regmap, &config);
++
++	rst->rcdev.owner = THIS_MODULE;
++	rst->rcdev.dev = dev;
++	rst->rcdev.of_node = dev->of_node;
++	rst->rcdev.ops = &th1520_rst_ops;
++	rst->rcdev.nr_resets = ARRAY_SIZE(th1520_rst_signals);
++
++	return devm_reset_controller_register(dev, &rst->rcdev);
++}
++
++static const struct of_device_id th1520_reset_dt_ids[] = {
++	{ .compatible = "thead,th1520-reset" },
++	{ /* sentinel */ },
++};
++
++static struct platform_driver th1520_reset_driver = {
++	.probe	= th1520_reset_probe,
++	.driver = {
++		.name		= "th1520-reset",
++		.of_match_table	= th1520_reset_dt_ids,
++	},
++};
++builtin_platform_driver(th1520_reset_driver);
+diff --git a/include/dt-bindings/reset/th1520-reset.h b/include/dt-bindings/reset/th1520-reset.h
+new file mode 100644
+index 000000000000..ec10751814e5
+--- /dev/null
++++ b/include/dt-bindings/reset/th1520-reset.h
+@@ -0,0 +1,9 @@
++/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
++
++#ifndef DT_BINDING_RESET_TH1520_H
++#define DT_BINDING_RESET_TH1520_H
++
++#define TH1520_RESET_WDT0 0
++#define TH1520_RESET_WDT1 1
++
++#endif
+-- 
+2.40.1
+

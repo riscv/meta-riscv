@@ -1,0 +1,44 @@
+From 7f1e7a9eb88aa37b51a33ef586535c7bd61cf015 Mon Sep 17 00:00:00 2001
+From: "https://lore.kernel.org/all/20230518184541.2627-7-jszhang@kernel.org/"
+ <https://lore.kernel.org/all/20230518184541.2627-7-jszhang@kernel.org/>
+Date: Thu, 21 Sep 2023 16:47:50 +0800
+Subject: [PATCH 5/7] th1520: add cpu reset node
+
++		cpurst: cpurst {
++			compatible = "thead,reset-th1520"; -> "thead,reset-sample";
++			entry-reg = <0xff 0xff019050>;
++			entry-cnt = <4>;
++			control-reg = <0xff 0xff015004>;
++			control-val = <0x1c>;
++			csr-copy = <0x7f3 0x7c0 0x7c1 0x7c2 0x7c3 0x7c5 0x7cc>;
++		};
++
+
+Signed-off-by: Han Gao <gaohan@iscas.ac.cn>
+---
+ arch/riscv/boot/dts/thead/th1520.dtsi | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/arch/riscv/boot/dts/thead/th1520.dtsi b/arch/riscv/boot/dts/thead/th1520.dtsi
+index 360b9eb4e13a..34a429c378ad 100644
+--- a/arch/riscv/boot/dts/thead/th1520.dtsi
++++ b/arch/riscv/boot/dts/thead/th1520.dtsi
+@@ -173,6 +173,15 @@ soc {
+ 		dma-noncoherent;
+ 		ranges;
+ 
++		cpurst: cpurst {
++			compatible = "thead,reset-sample";
++			entry-reg = <0xff 0xff019050>;
++			entry-cnt = <4>;
++			control-reg = <0xff 0xff015004>;
++			control-val = <0x1c>;
++			csr-copy = <0x7f3 0x7c0 0x7c1 0x7c2 0x7c3 0x7c5 0x7cc>;
++		};
++
+ 		plic: interrupt-controller@ffd8000000 {
+ 			compatible = "thead,th1520-plic", "thead,c900-plic";
+ 			reg = <0xff 0xd8000000 0x0 0x01000000>;
+-- 
+2.40.1
+

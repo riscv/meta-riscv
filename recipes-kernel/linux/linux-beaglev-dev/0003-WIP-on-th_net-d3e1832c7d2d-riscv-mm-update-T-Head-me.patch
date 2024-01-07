@@ -1,0 +1,184 @@
+From 1e7bbc9e6cbefef9f5cb6b585597124afa6afd28 Mon Sep 17 00:00:00 2001
+From: Han Gao <gaohan@iscas.ac.cn>
+Date: Tue, 26 Sep 2023 10:11:19 +0800
+Subject: [PATCH 3/7] WIP on th_net: d3e1832c7d2d riscv: mm: update T-Head
+ memory type definitions
+
+The patch from Jisheng Zhang <jszhang@kernel.org>
+
+Signed-off-by: Han Gao <gaohan@iscas.ac.cn>
+---
+ .../dts/thead/th1520-lichee-module-4a.dtsi    |  8 ++
+ .../boot/dts/thead/th1520-lichee-pi-4a.dts    | 25 ++++++
+ arch/riscv/boot/dts/thead/th1520.dtsi         | 79 +++++++++++++++++++
+ 3 files changed, 112 insertions(+)
+
+diff --git a/arch/riscv/boot/dts/thead/th1520-lichee-module-4a.dtsi b/arch/riscv/boot/dts/thead/th1520-lichee-module-4a.dtsi
+index 1365d3a512a3..ad670c09bdfb 100644
+--- a/arch/riscv/boot/dts/thead/th1520-lichee-module-4a.dtsi
++++ b/arch/riscv/boot/dts/thead/th1520-lichee-module-4a.dtsi
+@@ -37,6 +37,14 @@ &uart_sclk {
+ 	clock-frequency = <100000000>;
+ };
+ 
++&gmac_clk {
++	clock-frequency = <500000000>;
++};
++
++&gmac_axi_clk {
++	clock-frequency = <100000000>;
++};
++
+ &dmac0 {
+ 	status = "okay";
+ };
+diff --git a/arch/riscv/boot/dts/thead/th1520-lichee-pi-4a.dts b/arch/riscv/boot/dts/thead/th1520-lichee-pi-4a.dts
+index 9a3884a73e13..ccdcb580b274 100644
+--- a/arch/riscv/boot/dts/thead/th1520-lichee-pi-4a.dts
++++ b/arch/riscv/boot/dts/thead/th1520-lichee-pi-4a.dts
+@@ -10,6 +10,8 @@ / {
+ 	compatible = "sipeed,lichee-pi-4a", "sipeed,lichee-module-4a", "thead,th1520";
+ 
+ 	aliases {
++		ethernet0 = &gmac0;
++		ethernet1 = &gmac1;
+ 		gpio0 = &gpio0;
+ 		gpio1 = &gpio1;
+ 		gpio2 = &gpio2;
+@@ -27,6 +29,29 @@ chosen {
+ 	};
+ };
+ 
++&mdio0 {
++	phy0: ethernet-phy@1 {
++		reg = <1>;
++	};
++};
++
++&gmac0 {
++	phy-handle = <&phy0>;
++	phy-mode = "rgmii-id";
++	status = "okay";
++};
++
++&mdio1 {
++	phy1: ethernet-phy@2 {
++		reg = <2>;
++	};
++};
++
++&gmac1 {
++	phy-handle = <&phy1>;
++	phy-mode = "rgmii-id";
++};
++
+ &uart0 {
+ 	status = "okay";
+ };
+diff --git a/arch/riscv/boot/dts/thead/th1520.dtsi b/arch/riscv/boot/dts/thead/th1520.dtsi
+index 8b915e206f3a..360b9eb4e13a 100644
+--- a/arch/riscv/boot/dts/thead/th1520.dtsi
++++ b/arch/riscv/boot/dts/thead/th1520.dtsi
+@@ -153,6 +153,18 @@ sdhci_clk: sdhci-clock {
+ 		#clock-cells = <0>;
+ 	};
+ 
++	gmac_axi_clk: gmac-axi-clock {
++		compatible = "fixed-clock";
++		clock-output-names = "gmac_axi_clk";
++		#clock-cells = <0>;
++	};
++
++	gmac_clk: gmac-clock {
++		compatible = "fixed-clock";
++		clock-output-names = "gmac_clk";
++		#clock-cells = <0>;
++	};
++
+ 	soc {
+ 		compatible = "simple-bus";
+ 		interrupt-parent = <&plic>;
+@@ -183,6 +195,62 @@ clint: timer@ffdc000000 {
+ 					      <&cpu3_intc 3>, <&cpu3_intc 7>;
+ 		};
+ 
++		gmac0: ethernet@ffe7070000 {
++			compatible = "thead,th1520-dwmac", "snps,dwmac-3.70a";
++			reg = <0xff 0xe7070000 0x0 0x2000>;
++			interrupts = <66 IRQ_TYPE_LEVEL_HIGH>;
++			interrupt-names = "macirq";
++			clocks = <&gmac_clk>, <&gmac_axi_clk>;
++			clock-names = "stmmaceth", "pclk";
++			snps,pbl = <32>;
++			snps,fixed-burst;
++			snps,multicast-filter-bins = <64>;
++			snps,perfect-filter-entries = <32>;
++			snps,axi-config = <&gmac0_stmmac_axi_setup>;
++			thead,gmacapb = <&gmacapb_syscon0>;
++			status = "disabled";
++
++			mdio0: mdio {
++				compatible = "snps,dwmac-mdio";
++				#address-cells = <1>;
++				#size-cells = <0>;
++			};
++
++			gmac0_stmmac_axi_setup: stmmac-axi-config {
++				snps,wr_osr_lmt = <0xf>;
++				snps,rd_osr_lmt = <0xf>;
++				snps,blen = <0 0 64 32 0 0 0>;
++			};
++		};
++
++		gmac1: ethernet@ffe7060000 {
++			compatible = "thead,th1520-dwmac", "snps,dwmac-3.70a";
++			reg = <0xff 0xe7060000 0x0 0x2000>;
++			interrupts = <67 IRQ_TYPE_LEVEL_HIGH>;
++			interrupt-names = "macirq";
++			clocks = <&gmac_clk>, <&gmac_axi_clk>;
++			clock-names = "stmmaceth", "pclk";
++			snps,pbl = <32>;
++			snps,fixed-burst;
++			snps,multicast-filter-bins = <64>;
++			snps,perfect-filter-entries = <32>;
++			snps,axi-config = <&gmac1_stmmac_axi_setup>;
++			thead,gmacapb = <&gmacapb_syscon1>;
++			status = "disabled";
++
++			mdio1: mdio {
++				compatible = "snps,dwmac-mdio";
++				#address-cells = <1>;
++				#size-cells = <0>;
++			};
++
++			gmac1_stmmac_axi_setup: stmmac-axi-config {
++				snps,wr_osr_lmt = <0xf>;
++				snps,rd_osr_lmt = <0xf>;
++				snps,blen = <0 0 64 32 0 0 0>;
++			};
++		};
++
+ 		uart0: serial@ffe7014000 {
+ 			compatible = "snps,dw-apb-uart";
+ 			reg = <0xff 0xe7014000 0x0 0x100>;
+@@ -249,6 +317,17 @@ portd: gpio-controller@0 {
+ 			};
+ 		};
+ 
++
++		gmacapb_syscon0: syscon@ffec003000 {
++			compatible = "thead,th1520-gmacapb-syscon", "syscon";
++			reg = <0xff 0xec003000 0x0 0x1000>;
++		};
++
++		gmacapb_syscon1: syscon@ffec004000 {
++			compatible = "thead,th1520-gmacapb-syscon", "syscon";
++			reg = <0xff 0xec004000 0x0 0x1000>;
++		};
++
+ 		gpio0: gpio@ffec005000 {
+ 			compatible = "snps,dw-apb-gpio";
+ 			reg = <0xff 0xec005000 0x0 0x1000>;
+-- 
+2.40.1
+
