@@ -10,7 +10,7 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 BRANCH:visionfive2 = "JH7110_VisionFive2_devel"
 BRANCH:star64 = "Star64"
 
-SRC_URI = "git://github.com/starfive-tech/u-boot.git;protocol=https;branch=${BRANCH} \
+SRC_URI = "git://github.com/starfive-tech/u-boot.git;protocol=https;nobranch=1 \
            file://tftp-mmc-boot.txt \
           "
 
@@ -27,8 +27,8 @@ SRC_URI:append:star64 = " \
 "
 
 
-# tag VF2_v3.6.1
-SRCREV:visionfive2 = "7f96b15e26f14df56fa9d480c0cc6f7434997360"
+# tag JH7110_VF2_6.1_v5.10.3
+SRCREV:visionfive2 = "8c7b3f31fb546f829bbce9ee52435342314fabbf"
 SRCREV:star64 = "c71fa7376f4eaf29e2dc20e5a68418d79201290a"
 
 
