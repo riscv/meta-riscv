@@ -13,9 +13,7 @@ SRC_URI = " \
     file://uEnv-nezha.txt \
     file://0001-sun20i-set-CONFIG_SYS_BOOTM_LEN.patch \
 "
-SRC_URI:append:mangopi-mq-pro = "file://0001-Sync-with-d1-wip.patch"
-
-SRCREV = "528ae9bc6c55edd3ffe642734b4132a8246ea777"
+SRCREV = "2e89b706f5c956a70c989cd31665f1429e9a0b48"
 
 DEPENDS:append = " \
     u-boot-tools-native \
@@ -37,6 +35,7 @@ do_configure:prepend() {
 do_compile:prepend() {
     cp ${DEPLOY_DIR_IMAGE}/fw_dynamic.bin ${B}/fw_dynamic.bin
     export OPENSBI=${B}/fw_dynamic.bin
+    ln -rfs ${S}/arch/arm/include/asm/arch-sunxi ${S}/arch/riscv/include/asm/arch-sunxi
 }
 
 do_deploy:append() {
