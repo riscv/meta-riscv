@@ -6,7 +6,7 @@ SRCREV_machine ?= "ca67838d84af4c9f85d06311c9e98e1adf46308f"
 FORK ?= "smaeul"
 BRANCH ?= "riscv/d1-wip"
 KMETA = "kernel-meta"
-
+export KCFLAGS="-fno-asynchronous-unwind-tables -fno-unwind-tables"
 # It is necessary to add to SRC_URI link to the 'yocto-kernel-cache' due to
 # override of the original SRC_URI:
 # "do_kernel_metadata: Check the SRC_URI for meta-data repositories or
