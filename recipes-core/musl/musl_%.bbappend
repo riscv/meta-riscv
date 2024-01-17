@@ -14,3 +14,5 @@ SRC_URI:append:riscv32 = "\
     file://0011-riscv32-fix-inconsistent-ucontext_t-struct-tag.patch \
     file://0012-riscv32-Wire-new-syscalls.patch \
 "
+# RISCV-32 is supported via meta-riscv until musl port lands upstream
+COMPATIBLE_HOST:riscv32 = "(*)"
