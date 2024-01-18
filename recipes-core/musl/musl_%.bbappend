@@ -15,4 +15,4 @@ SRC_URI:append:riscv32 = "\
     file://0012-riscv32-Wire-new-syscalls.patch \
 "
 # RISCV-32 is supported via meta-riscv until musl port lands upstream
-COMPATIBLE_HOST:riscv32 = "(*)"
+COMPATIBLE_HOST:riscv32 = ".*-musl.*"
