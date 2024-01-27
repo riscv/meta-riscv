@@ -11,6 +11,9 @@ BRANCH:visionfive2 = "JH7110_VisionFive2_devel"
 BRANCH:star64 = "Star64"
 
 SRC_URI = "git://github.com/starfive-tech/u-boot.git;protocol=https;nobranch=1 \
+           file://0001-cdns3-starfive-Include-dm-lists.h-for-device_bind_dr.patch \
+           file://0002-net-rtl8169-Fix-compile-warning-in-rtl8169.patch \
+           file://0003-video-dw_hdmi-Fix-compiler-warnings-with-gcc-14.patch \
            file://tftp-mmc-boot.txt \
           "
 
