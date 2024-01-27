@@ -1,0 +1,31 @@
+From dbf81d4e7a7a12eb1716750cf0ae5aa1acbc699d Mon Sep 17 00:00:00 2001
+From: Kees Cook <keescook@chromium.org>
+Date: Mon, 7 Aug 2023 09:41:19 -0700
+Subject: [PATCH] gcc-plugins: Rename last_stmt() for GCC 14+
+
+In GCC 14, last_stmt() was renamed to last_nondebug_stmt(). Add a helper
+macro to handle the renaming.
+
+Upstream-Status: Backport [https://github.com/torvalds/linux/commit/2e3f65ccfe6b0778b261ad69c9603ae85f210334]
+Cc: linux-hardening@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+---
+ scripts/gcc-plugins/gcc-common.h | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/scripts/gcc-plugins/gcc-common.h b/scripts/gcc-plugins/gcc-common.h
+index 84c730da36dd..1ae39b9f4a95 100644
+--- a/scripts/gcc-plugins/gcc-common.h
++++ b/scripts/gcc-plugins/gcc-common.h
+@@ -440,4 +440,8 @@ static inline void debug_gimple_stmt(const_gimple s)
+ #define SET_DECL_MODE(decl, mode)	DECL_MODE(decl) = (mode)
+ #endif
+ 
++#if BUILDING_GCC_VERSION >= 14000
++#define last_stmt(x)			last_nondebug_stmt(x)
++#endif
++
+ #endif
+-- 
+2.43.0
+

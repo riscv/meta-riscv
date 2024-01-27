@@ -26,6 +26,8 @@ SRC_URI = "git://github.com/${FORK}/${REPO}.git;protocol=https;branch=${BRANCH} 
            file://0001-riscv-disable-generation-of-unwind-tables.patch \
            file://0001-gcc-plugins-Fix-build-for-upcoming-GCC-release.patch \
            file://0001-riscv-fix-building-external-modules.patch \
+           file://0001-gcc-plugins-Rename-last_stmt-for-GCC-14.patch \
+           file://0001-eswin-Repace-NULL-with-0-where-it-is-converted-from-.patch \
            file://modules.cfg \
           "
 SRC_URI:append:beaglev-starlight-jh7100 = " \
@@ -40,6 +42,8 @@ SRC_URI:jh7110 = " \
            file://0001-riscv-disable-generation-of-unwind-tables.patch \
            file://0001-gcc-plugins-Fix-build-for-upcoming-GCC-release-kernel61.patch \
            file://0001-Allow-building-of-PVR-GPU-driver-as-module.patch \
+           file://0001-gcc-plugins-Rename-last_stmt-for-GCC-14.patch \
+           file://0001-eswin-Repace-NULL-with-0-where-it-is-converted-from-.patch \
            file://visionfive2-graphics.cfg \
            file://modules.cfg \
 "
