@@ -28,6 +28,7 @@ SRC_URI = "git://github.com/${FORK}/${REPO}.git;protocol=https;branch=${BRANCH} 
            file://0001-riscv-fix-building-external-modules.patch \
            file://0001-gcc-plugins-Rename-last_stmt-for-GCC-14.patch \
            file://0001-eswin-Repace-NULL-with-0-where-it-is-converted-from-.patch \
+           file://0001-perf-cpumap-Make-counter-as-unsigned-ints.patch \
            file://modules.cfg \
           "
 SRC_URI:append:beaglev-starlight-jh7100 = " \
