@@ -23,7 +23,7 @@ WIC_CREATE_EXTRA_ARGS ?= "--no-fstab-update"
 WKS_FILE_DEPENDS ?= " \
     opensbi \
     e2fsprogs-native \
-    bmap-tools-native \
+    bmaptool-native \
 "
 IMAGE_FSTYPES += "wic.gz wic.bmap ext4"
 IMAGE_BOOT_FILES ??= " \
