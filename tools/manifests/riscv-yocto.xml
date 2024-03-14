@@ -5,10 +5,10 @@
   <remote name="riscv" fetch="https://github.com/riscv/" />
   <default remote="openembedded" revision="master" />
 
-  <project name="meta-riscv" remote="riscv" path="meta-riscv" revision="master" />
-  <project name="openembedded-core" remote="openembedded" path="openembedded-core" revision="master" />
-  <project name="bitbake" remote="openembedded" path="openembedded-core/bitbake" revision="master" />
-  <project name="meta-openembedded" remote="openembedded" path="meta-openembedded" revision="master" />
+  <project name="meta-riscv" remote="riscv" path="meta-riscv" revision="gatesgarth" />
+  <project name="openembedded-core" remote="openembedded" path="openembedded-core" revision="gatesgarth" />
+  <project name="bitbake" remote="openembedded" path="openembedded-core/bitbake" revision="gatesgarth" />
+  <project name="meta-openembedded" remote="openembedded" path="meta-openembedded" revision="gatesgarth" />
 
 </manifest>
 
