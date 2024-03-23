@@ -8,13 +8,13 @@ KERNEL_VERSION_SANITY_SKIP = "1"
 SRCREV = "${AUTOREV}"
 
 # pin srcrev for now to have a fixed target
-# release JH7110_VF2_6.1_v5.10.3
-SRCREV:visionfive2 = "a77eaf219c34156e52298a6ab2357aaa4251df8b"
+# release JH7110_VF2_6.1_v5.11.3
+SRCREV:visionfive2 = "18425cfe66cef584b243fba4966d8e0322880c7a"
 SRCREV:star64 = "e4c0928f1e42ed82ab9fa8918bc7094d3c0414d8"
 
-BRANCH = "visionfive"
-BRANCH:visionfive2 = "JH7110_VisionFive2_6.1.y_devel"
-BRANCH:star64 = "Star64_devel"
+BRANCH = "branch=visionfive"
+BRANCH:visionfive2 = "nobranch=1"
+BRANCH:star64 = "branch=Star64_devel"
 
 FORK ?= "starfive-tech"
 FORK:star64 ?= "Fishwaldo"
@@ -22,7 +22,7 @@ FORK:star64 ?= "Fishwaldo"
 REPO ?= "linux"
 REPO:star64 ?= "Star64_linux"
 
-SRC_URI = "git://github.com/${FORK}/${REPO}.git;protocol=https;branch=${BRANCH} \
+SRC_URI = "git://github.com/${FORK}/${REPO}.git;protocol=https;${BRANCH} \
            file://0001-riscv-disable-generation-of-unwind-tables.patch \
            file://0001-gcc-plugins-Fix-build-for-upcoming-GCC-release.patch \
            file://0001-riscv-fix-building-external-modules.patch \
@@ -39,7 +39,7 @@ SRC_URI:append:visionfive = " \
 "
 
 SRC_URI:jh7110 = " \
-           git://github.com/${FORK}/${REPO}.git;protocol=https;branch=${BRANCH} \
+           git://github.com/${FORK}/${REPO}.git;protocol=https;${BRANCH} \
            file://0001-riscv-disable-generation-of-unwind-tables.patch \
            file://0001-gcc-plugins-Fix-build-for-upcoming-GCC-release-kernel61.patch \
            file://0001-Allow-building-of-PVR-GPU-driver-as-module.patch \
