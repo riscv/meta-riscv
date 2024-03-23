@@ -30,8 +30,8 @@ SRC_URI:append:star64 = " \
 "
 
 
-# tag JH7110_VF2_6.1_v5.10.3
-SRCREV:visionfive2 = "8c7b3f31fb546f829bbce9ee52435342314fabbf"
+# tag JH7110_VF2_6.1_v5.11.3
+SRCREV:visionfive2 = "223ac8b1e907924d3891b3be1b2f6620b56bff31"
 SRCREV:star64 = "c71fa7376f4eaf29e2dc20e5a68418d79201290a"
 
 
