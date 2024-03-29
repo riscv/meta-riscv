@@ -26,9 +26,8 @@ SRC_URI:milkv-duo = " \
             file://uEnv-milkv-duo.txt \
             file://milkv-duo-support-files.patch \
             "
+
 UBOOT_MACHINE:milkv-duo ?= "milkv-duo_defconfig"
-UBOOT_ENTRYPOINT:milkv-duo ?= "0x80200000"
-UBOOT_LOADADDRESS:milkv-duo ?= "0x80200000"
 
 SRCREV:milkv-duo = "4345a29c08e67044021f74139b4ff307019e9932"
 LIC_FILES_CHKSUM:milkv-duo = "file://Licenses/README;md5=5a7450c57ffe5ae63fd732446b988025"
