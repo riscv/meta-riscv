@@ -22,23 +22,16 @@ LINUX_VERSION_EXTENSION:append:milkv-duo = "-milkv-duo"
 KERNEL_VERSION_SANITY_SKIP = "1"
 
 KERNEL_DEVICETREE ?= "cvitek/cv1800b_milkv_duo_sd.dtb"
-LINUXDEPLOYDIR = "${WORKDIR}/deploy-${PN}"
+SDIR = "${B}/arch/riscv/boot"
+
+do_deploy[depends] = "milkv-duo-fsbl:do_deploy"
 
 do_deploy:append() {
-	# Generate and deploy kernel.itb (boot.sd)
-	# linux.dtb
-	cp ${LINUXDEPLOYDIR}/cv1800b_milkv_duo_sd.dtb ${B}
-	# kernel.its
+	cp ${SDIR}/Image.gz ${B}
 	cp ${WORKDIR}/multi.its ${B}
-	# Image
-	cp ${LINUXDEPLOYDIR}/Image ${B}
-	# Compress Image to lzma format
-	lzma -c -5 -f -k Image > Image.lzma
-	# Generate kernel.itb
-	mkimage -f ${B}/multi.its ${B}/kernel.itb
-	# Deploy kernel.itb and Image.lzma
-	install -m 744 ${B}/kernel.itb ${DEPLOYDIR}
-	install -m 744 ${B}/Image.lzma ${DEPLOYDIR}
+	mkimage -f ${B}/multi.its ${B}/uImage.fit
+	install -m 744 ${B}/uImage.fit ${DEPLOYDIR}
+	install -m 744 ${SDIR}/dts/${KERNEL_DEVICETREE} ${DEPLOYDIR}/default.dtb
 }
 
 COMPATIBLE_MACHINE = "(milkv-duo)"
