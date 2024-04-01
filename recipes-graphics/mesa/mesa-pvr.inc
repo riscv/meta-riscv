@@ -241,6 +241,10 @@ PACKAGECONFIG[unwind] = "-Dlibunwind=enabled,-Dlibunwind=disabled,libunwind"
 
 PACKAGECONFIG[lmsensors] = "-Dlmsensors=enabled,-Dlmsensors=disabled,lmsensors"
 
+# it might conflict with other RISCV builds of mesa e.g. qemuriscv64 which uses
+# Upstream mesa
+PACKAGE_ARCH = "${MACHINE_ARCH}"
+
 # llvmpipe is slow if compiled with -fomit-frame-pointer (e.g. -O2)
 FULL_OPTIMIZATION:append = " -fno-omit-frame-pointer"
 
