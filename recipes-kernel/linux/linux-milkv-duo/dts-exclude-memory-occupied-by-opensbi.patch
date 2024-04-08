@@ -1,0 +1,39 @@
+From 29cee68fb5602865d95b9cc92eb117e9855ccf9f Mon Sep 17 00:00:00 2001
+From: GP Orcullo <kinsamanka@gmail.com>
+Date: Thu, 4 Apr 2024 15:39:01 +0000
+Subject: [PATCH] dts: exclude memory occupied by opensbi
+
+Signed-off-by: GP Orcullo <kinsamanka@gmail.com>
+
+Upstream-Status: Pending
+
+---
+ arch/riscv/boot/dts/sophgo/cv1800b-milkv-duo.dts | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/arch/riscv/boot/dts/sophgo/cv1800b-milkv-duo.dts b/arch/riscv/boot/dts/sophgo/cv1800b-milkv-duo.dts
+index 6944f3c1c6c6..b44de708e7d7 100644
+--- a/arch/riscv/boot/dts/sophgo/cv1800b-milkv-duo.dts
++++ b/arch/riscv/boot/dts/sophgo/cv1800b-milkv-duo.dts
+@@ -27,6 +27,18 @@ memory@80000000 {
+ 		device_type = "memory";
+ 		reg = <0x80000000 0x3f40000>;
+ 	};
++
++	reserved-memory {
++		#size-cells = <0x1>;
++		#address-cells = <0x1>;
++		ranges;
++
++		opensbi {
++			compatible = "removed-dma-pool";
++			reg = <0x80000000 0x60000>;
++			no-map;
++		};
++	};
+ };
+ 
+ &osc {
+-- 
+2.25.1
+

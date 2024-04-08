@@ -1,0 +1,30 @@
+/dts-v1/;
+
+/ {
+	description = "Simple image with single Linux kernel";
+	#address-cells = <1>;
+
+	images {
+		kernel {
+			description = "Milk-V Duo Linux kernel";
+			data = /incbin/("./Image.gz");
+			type = "kernel";
+			arch = "riscv";
+			os = "linux";
+			compression = "gzip";
+			load = <0x80200000>;
+			entry = <0x80200000>;
+			hash-1 {
+				algo = "crc32";
+			};
+		};
+	};
+
+	configurations {
+		default = "config-1";
+		config-1 {
+			description = "Boot Linux kernel";
+			kernel = "kernel";
+		};
+	};
+};
