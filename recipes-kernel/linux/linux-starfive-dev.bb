@@ -15,6 +15,7 @@ SRCREV:star64 = "e4c0928f1e42ed82ab9fa8918bc7094d3c0414d8"
 BRANCH = "branch=visionfive"
 BRANCH:visionfive2 = "nobranch=1"
 BRANCH:star64 = "branch=Star64_devel"
+BRANCH:beaglev-starlight-jh7100 = "branch=visionfive-6.4.y"
 
 FORK ?= "starfive-tech"
 FORK:star64 ?= "Fishwaldo"
@@ -31,9 +32,7 @@ SRC_URI = "git://github.com/${FORK}/${REPO}.git;protocol=https;${BRANCH} \
            file://0001-perf-cpumap-Make-counter-as-unsigned-ints.patch \
            file://modules.cfg \
           "
-SRC_URI:append:beaglev-starlight-jh7100 = " \
-           file://extra.cfg \
-"
+
 SRC_URI:append:visionfive = " \
            file://extra.cfg \
 "
@@ -49,14 +48,21 @@ SRC_URI:jh7110 = " \
            file://modules.cfg \
 "
 
+SRC_URI:beaglev-starlight-jh7100 = " \
+           git://github.com/${FORK}/${REPO}.git;protocol=https;${BRANCH} \
+           file://0001-gcc-plugins-Rename-last_stmt-for-GCC-14.patch \
+           file://modules.cfg \
+           file://extra.cfg \
+"
+
 LINUX_VERSION ?= "6.2.0"
 LINUX_VERSION:jh7110 = "6.1.0"
+LINUX_VERSION:beaglev-starlight-jh7100 = "6.4.4"
 LINUX_VERSION_EXTENSION:append:beaglev-starlight-jh7100 = "-starlight"
 
 KBUILD_DEFCONFIG:beaglev-starlight-jh7100 = "starfive_jh7100_fedora_defconfig"
 KBUILD_DEFCONFIG:visionfive = "visionfive_defconfig"
 KBUILD_DEFCONFIG:visionfive2 = "starfive_visionfive2_defconfig"
 KBUILD_DEFCONFIG:star64 = "pine64_star64_defconfig"
-
 
 COMPATIBLE_MACHINE = "(beaglev-starlight-jh7100|visionfive|jh7110)"
