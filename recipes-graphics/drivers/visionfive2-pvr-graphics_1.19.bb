@@ -23,7 +23,7 @@ PACKAGES += " \
 do_install () {
     tar xz --no-same-owner -f ${S}/IMG_GPU/out/${IMG_GPU_POWERVR_VERSION}.tar.gz -C ${D}
     mv ${D}/${IMG_GPU_POWERVR_VERSION}/target/* ${D}
-    install -d ${D}${includedir} ${D}${bindir}
+    install -d ${D}${includedir} ${D}${sysconfdir}/init.d
     cp -r ${D}/${IMG_GPU_POWERVR_VERSION}/staging/usr/include/drv/ ${D}/usr/include/
     cp -r ${D}/${IMG_GPU_POWERVR_VERSION}/staging/usr/include/GLES/ ${D}/usr/include/
     cp -r ${D}/${IMG_GPU_POWERVR_VERSION}/staging/usr/include/GLES2/ ${D}/usr/include/
@@ -32,7 +32,8 @@ do_install () {
     cp -r ${D}/${IMG_GPU_POWERVR_VERSION}/staging/usr/lib/pkgconfig/* ${D}/usr/lib/pkgconfig/
     install -Dm0644 ${WORKDIR}/glesv1_cm.pc ${D}${libdir}/pkgconfig/glesv1_cm.pc
     sed -i -e 's|^#!/bin/bash|#!/usr/bin/env sh|g' ${D}${sysconfdir}/init.d/rc.pvr
-    if [ ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)} ]; then
+    if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
+        install -d ${D}${bindir}
         mv ${D}${sysconfdir}/init.d/rc.pvr ${D}${bindir}
         rmdir ${D}${sysconfdir}/init.d
         install -Dm 644 ${WORKDIR}/rc.pvr.service ${D}/${systemd_unitdir}/system/rc.pvr.service
