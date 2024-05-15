@@ -25,7 +25,8 @@ SRC_URI[brcmfmac43430-clm.sha256sum] = "3ce2e8884dbd37d63ca8bae07bf7ea17c110070f
 SRC_URI[AP6212.sha256sum] = "fdef0603345dd023ad28c0eff2d5167915c617bee2d6944da9a6da1c4ac87ca5"
 SRC_URI[license.sha256sum] = "b16056fc91b82a0e3e8de8f86c2dac98201aa9dc3cbd33e8d38f1b087fcec30d"
 
-S = "${WORKDIR}"
+S = "${WORKDIR}/sources"
+UNPACKDIR = "${S}"
 
 inherit allarch
 
