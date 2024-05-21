@@ -43,20 +43,20 @@ DEPENDS:append:jh7110 = " jh7110-spl-tool-native"
 TFTP_SERVER_IP ?= "127.0.0.1"
 
 do_configure:prepend() {
-    sed -i -e 's,@SERVERIP@,${TFTP_SERVER_IP},g' ${WORKDIR}/tftp-mmc-boot.txt
+    sed -i -e 's,@SERVERIP@,${TFTP_SERVER_IP},g' ${UNPACKDIR}/tftp-mmc-boot.txt
     mkimage -O linux -T script -C none -n "U-Boot boot script" \
-        -d ${WORKDIR}/tftp-mmc-boot.txt ${WORKDIR}/${UBOOT_ENV_BINARY}
+        -d ${UNPACKDIR}/tftp-mmc-boot.txt ${WORKDIR}/${UBOOT_ENV_BINARY}
 }
 
 do_deploy:append:visionfive2() {
-    install -m 644 ${WORKDIR}/uEnv-visionfive2.txt ${DEPLOYDIR}/vf2_uEnv.txt
+    install -m 644 ${UNPACKDIR}/uEnv-visionfive2.txt ${DEPLOYDIR}/vf2_uEnv.txt
     spl_tool -c -f ${DEPLOYDIR}/${SPL_IMAGE}
     ln -sf ${SPL_IMAGE}.normal.out ${DEPLOYDIR}/${SPL_BINARYNAME}.normal.out
     ln -sf ${SPL_IMAGE}.normal.out ${DEPLOYDIR}/${SPL_SYMLINK}.normal.out
 }
 
 do_deploy:append:star64() {
-    install -m 644 ${WORKDIR}/uEnv-star64.txt ${DEPLOYDIR}/vf2_uEnv.txt
+    install -m 644 ${UNPACKDIR}/uEnv-star64.txt ${DEPLOYDIR}/vf2_uEnv.txt
     spl_tool -c -f ${DEPLOYDIR}/${SPL_IMAGE}
     ln -sf ${SPL_IMAGE}.normal.out ${DEPLOYDIR}/${SPL_BINARYNAME}.normal.out
     ln -sf ${SPL_IMAGE}.normal.out ${DEPLOYDIR}/${SPL_SYMLINK}.normal.out

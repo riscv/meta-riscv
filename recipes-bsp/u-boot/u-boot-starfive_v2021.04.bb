@@ -33,17 +33,17 @@ DEPENDS:append = " u-boot-tools-native"
 TFTP_SERVER_IP ?= "127.0.0.1"
 
 do_configure:prepend() {
-    sed -i -e 's,@SERVERIP@,${TFTP_SERVER_IP},g' ${WORKDIR}/tftp-mmc-boot.txt
+    sed -i -e 's,@SERVERIP@,${TFTP_SERVER_IP},g' ${UNPACKDIR}/tftp-mmc-boot.txt
     mkimage -O linux -T script -C none -n "U-Boot boot script" \
-        -d ${WORKDIR}/tftp-mmc-boot.txt ${WORKDIR}/${UBOOT_ENV_BINARY}
+        -d ${UNPACKDIR}/tftp-mmc-boot.txt ${WORKDIR}/${UBOOT_ENV_BINARY}
 }
 
 do_deploy:append:visionfive() {
-    install -m 644 ${WORKDIR}/uEnv-visionfive.txt ${DEPLOYDIR}/uEnv.txt
+    install -m 644 ${UNPACKDIR}/uEnv-visionfive.txt ${DEPLOYDIR}/uEnv.txt
 }
 
 do_deploy:append:visionfive2() {
-    install -m 644 ${WORKDIR}/uEnv-visionfive2.txt ${DEPLOYDIR}/uEnv.txt
+    install -m 644 ${UNPACKDIR}/uEnv-visionfive2.txt ${DEPLOYDIR}/uEnv.txt
 }
 
 COMPATIBLE_MACHINE = "(visionfive|visionfive2)"
@@ -52,4 +52,3 @@ TOOLCHAIN = "gcc"
 
 # U-boot sets O=... which needs it to build outside of S
 B = "${WORKDIR}/build"
-

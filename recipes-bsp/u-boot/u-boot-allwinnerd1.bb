@@ -27,9 +27,9 @@ TFTP_SERVER_IP ?= "127.0.0.1"
 do_compile[depends] = "opensbi:do_deploy"
 
 do_configure:prepend() {
-    sed -i -e 's,@SERVERIP@,${TFTP_SERVER_IP},g' ${WORKDIR}/tftp-mmc-boot.txt
+    sed -i -e 's,@SERVERIP@,${TFTP_SERVER_IP},g' ${UNPACKDIR}/tftp-mmc-boot.txt
     mkimage -O linux -T script -C none -n "U-Boot boot script" \
-        -d ${WORKDIR}/tftp-mmc-boot.txt ${WORKDIR}/${UBOOT_ENV_BINARY}
+        -d ${UNPACKDIR}/tftp-mmc-boot.txt ${UNPACKDIR}/${UBOOT_ENV_BINARY}
 }
 
 do_compile:prepend() {
@@ -40,7 +40,7 @@ do_compile:prepend() {
 
 do_deploy:append() {
     install -m 644 ${B}/u-boot-sunxi-with-spl.bin ${DEPLOYDIR}
-    install -m 644 ${WORKDIR}/uEnv-nezha.txt ${DEPLOYDIR}/uEnv.txt
+    install -m 644 ${UNPACKDIR}/uEnv-nezha.txt ${DEPLOYDIR}/uEnv.txt
 }
 
 TOOLCHAIN = "gcc"

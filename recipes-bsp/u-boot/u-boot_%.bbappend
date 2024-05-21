@@ -39,23 +39,23 @@ DEPENDS:append:milkv-duo = " xxd-native"
 TFTP_SERVER_IP ?= "127.0.0.1"
 
 do_configure:prepend:freedom-u540() {
-    sed -i -e 's,@SERVERIP@,${TFTP_SERVER_IP},g' ${WORKDIR}/tftp-mmc-boot.txt
+    sed -i -e 's,@SERVERIP@,${TFTP_SERVER_IP},g' ${UNPACKDIR}/tftp-mmc-boot.txt
 
-    if [ -f "${WORKDIR}/${UBOOT_ENV}.txt" ]; then
+    if [ -f "${UNPACKDIR}/${UBOOT_ENV}.txt" ]; then
         mkimage -O linux -T script -C none -n "U-Boot boot script" \
-            -d ${WORKDIR}/${UBOOT_ENV}.txt ${WORKDIR}/boot.scr.uimg
+            -d ${UNPACKDIR}/${UBOOT_ENV}.txt ${UNPACKDIR}/boot.scr.uimg
     fi
 }
 
 do_deploy:append:freedom-u540() {
-    if [ -f "${WORKDIR}/boot.scr.uimg" ]; then
+    if [ -f "${UNPACKDIR}/boot.scr.uimg" ]; then
         install -d ${DEPLOY_DIR_IMAGE}
-        install -m 755 ${WORKDIR}/boot.scr.uimg ${DEPLOY_DIR_IMAGE}
+        install -m 755 ${UNPACKDIR}/boot.scr.uimg ${DEPLOY_DIR_IMAGE}
     fi
 
-    if [ -f "${WORKDIR}/uEnv.txt" ]; then
+    if [ -f "${UNPACKDIR}/uEnv.txt" ]; then
         install -d ${DEPLOY_DIR_IMAGE}
-        install -m 755 ${WORKDIR}/uEnv.txt ${DEPLOY_DIR_IMAGE}
+        install -m 755 ${UNPACKDIR}/uEnv.txt ${DEPLOY_DIR_IMAGE}
     fi
 }
 
@@ -76,34 +76,34 @@ do_compile:prepend:freedom-u540() {
 }
 
 do_configure:prepend:ae350-ax45mp() {
-    if [ -f "${WORKDIR}/tftp-mmc-boot.txt" ]; then
-        sed -i -e 's,@SERVERIP@,${TFTP_SERVER_IP},g' ${WORKDIR}/tftp-mmc-boot.txt
+    if [ -f "${UNPACKDIR}/tftp-mmc-boot.txt" ]; then
+        sed -i -e 's,@SERVERIP@,${TFTP_SERVER_IP},g' ${UNPACKDIR}/tftp-mmc-boot.txt
         mkimage -A riscv -O linux -T script -C none -n "U-Boot boot script" \
-            -d ${WORKDIR}/tftp-mmc-boot.txt ${WORKDIR}/boot.scr.uimg
+            -d ${UNPACKDIR}/tftp-mmc-boot.txt ${UNPACKDIR}/boot.scr.uimg
     fi
 }
 
 do_deploy:append:ae350-ax45mp() {
-    if [ -f "${WORKDIR}/boot.scr.uimg" ]; then
+    if [ -f "${UNPACKDIR}/boot.scr.uimg" ]; then
         install -d ${DEPLOY_DIR_IMAGE}
-        install -m 755 ${WORKDIR}/boot.scr.uimg ${DEPLOYDIR}
+        install -m 755 ${UNPACKDIR}/boot.scr.uimg ${DEPLOYDIR}
     fi
 
-    if [ -f "${WORKDIR}/uEnv-ae350.txt" ]; then
+    if [ -f "${UNPACKDIR}/uEnv-ae350.txt" ]; then
         install -d ${DEPLOY_DIR_IMAGE}
-        install -m 644 ${WORKDIR}/uEnv-ae350.txt ${DEPLOYDIR}/uEnv.txt
+        install -m 644 ${UNPACKDIR}/uEnv-ae350.txt ${DEPLOYDIR}/uEnv.txt
     fi
 }
 
 do_configure:prepend:milkv-duo() {
-    if [ -f "${WORKDIR}/uboot-milkv-duo.env" ]; then
-        cp ${WORKDIR}/uboot-milkv-duo.env ${S}/include/milkv-duo.env
+    if [ -f "${UNPACKDIR}/uboot-milkv-duo.env" ]; then
+        cp ${UNPACKDIR}/uboot-milkv-duo.env ${S}/include/milkv-duo.env
     fi
 }
 
 do_deploy:append:milkv-duo() {
-    if [ -f "${WORKDIR}/uEnv-milkv-duo.txt" ]; then
-        cp ${WORKDIR}/uEnv-milkv-duo.txt ${DEPLOYDIR}/uEnv.txt
+    if [ -f "${UNPACKDIR}/uEnv-milkv-duo.txt" ]; then
+        cp ${UNPACKDIR}/uEnv-milkv-duo.txt ${DEPLOYDIR}/uEnv.txt
     fi
     install -m 0644 ${B}/u-boot.dtb ${DEPLOYDIR}
 }
