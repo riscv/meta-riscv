@@ -24,7 +24,7 @@ _DEPS:milkv-duo = "u-boot:do_deploy"
 do_compile[depends] += "${_DEPS}"
 
 do_deploy:append:jh7110() {
-	install -m 0644 ${WORKDIR}/visionfive2-uboot-fit-image.its ${DEPLOYDIR}/visionfive2-uboot-fit-image.its
+	install -m 0644 ${UNPACKDIR}/visionfive2-uboot-fit-image.its ${DEPLOYDIR}/visionfive2-uboot-fit-image.its
 	cd ${DEPLOYDIR}
 	mkimage -f visionfive2-uboot-fit-image.its -A riscv -O u-boot -T firmware visionfive2_fw_payload.img
 }

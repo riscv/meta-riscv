@@ -20,9 +20,9 @@ DEPENDS:append = " u-boot-tools-native"
 TFTP_SERVER_IP ?= "127.0.0.1"
 
 do_configure:prepend() {
-    sed -i -e 's,@SERVERIP@,${TFTP_SERVER_IP},g' ${WORKDIR}/tftp-mmc-boot.txt
+    sed -i -e 's,@SERVERIP@,${TFTP_SERVER_IP},g' ${UNPACKDIR}/tftp-mmc-boot.txt
     mkimage -O linux -T script -C none -n "U-Boot boot script" \
-        -d ${WORKDIR}/tftp-mmc-boot.txt ${WORKDIR}/${UBOOT_ENV_BINARY}
+        -d ${UNPACKDIR}/tftp-mmc-boot.txt ${WORKDIR}/${UBOOT_ENV_BINARY}
 }
 
 COMPATIBLE_MACHINE = "(beaglev-starlight-jh7100)"

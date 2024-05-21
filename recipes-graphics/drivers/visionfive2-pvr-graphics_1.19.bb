@@ -30,13 +30,13 @@ do_install () {
     cp -r ${D}/${IMG_GPU_POWERVR_VERSION}/staging/usr/include/GLES3/ ${D}/usr/include/
     install -d ${D}/usr/lib/pkgconfig/
     cp -r ${D}/${IMG_GPU_POWERVR_VERSION}/staging/usr/lib/pkgconfig/* ${D}/usr/lib/pkgconfig/
-    install -Dm0644 ${WORKDIR}/glesv1_cm.pc ${D}${libdir}/pkgconfig/glesv1_cm.pc
+    install -Dm0644 ${UNPACKDIR}/glesv1_cm.pc ${D}${libdir}/pkgconfig/glesv1_cm.pc
     sed -i -e 's|^#!/bin/bash|#!/usr/bin/env sh|g' ${D}${sysconfdir}/init.d/rc.pvr
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
         install -d ${D}${bindir}
         mv ${D}${sysconfdir}/init.d/rc.pvr ${D}${bindir}
         rmdir ${D}${sysconfdir}/init.d
-        install -Dm 644 ${WORKDIR}/rc.pvr.service ${D}/${systemd_unitdir}/system/rc.pvr.service
+        install -Dm 644 ${UNPACKDIR}/rc.pvr.service ${D}/${systemd_unitdir}/system/rc.pvr.service
     else
         rm -rf ${D}/lib/systemd
     fi
