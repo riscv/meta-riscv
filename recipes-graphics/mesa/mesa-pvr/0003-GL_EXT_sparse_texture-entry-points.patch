@@ -3,6 +3,8 @@ From: Frank Binns <frank.binns@imgtec.com>
 Date: Wed, 12 Aug 2015 09:11:51 +0100
 Subject: [PATCH] GL_EXT_sparse_texture entry points
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/mapi/glapi/gen/EXT_sparse_texture.xml | 44 +++++++++++++++++++++++
  src/mapi/glapi/gen/es_EXT.xml             |  3 ++

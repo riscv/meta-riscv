@@ -5,6 +5,8 @@ Subject: [PATCH] egl: add support for EXT_yuv_surface
 
 This implements EXT_yuv_surface but doesn't expose it for any platform.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  include/GL/internal/dri_interface.h |   1 +
  src/egl/drivers/dri2/egl_dri2.c     |  83 +++++++++

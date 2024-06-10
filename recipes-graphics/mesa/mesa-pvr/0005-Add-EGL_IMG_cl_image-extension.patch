@@ -6,6 +6,8 @@ Subject: [PATCH] Add EGL_IMG_cl_image extension
 Add support for the experimental EGL_IMG_cl_image extension to EGL, and
 the DRI2 EGL driver.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  include/EGL/eglmesaext.h            |  5 +++
  include/GL/internal/dri_interface.h | 13 +++++++

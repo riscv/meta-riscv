@@ -7,6 +7,8 @@ Add ARGB4444 DRI format and fourcc.
 Add YVU444_PACK10_IMG DRI format and fourcc.
 Add BGR888 DRI format and fourcc.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  include/GL/internal/dri_interface.h  | 4 ++++
  include/drm-uapi/drm_fourcc.h        | 1 +

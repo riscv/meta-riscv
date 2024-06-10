@@ -9,6 +9,8 @@ allocation functions when allocating swapchain images.
 The wl_drm interface code has been partially restored, in order
 to obtain the display FD from the compositor.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/vulkan/wsi/meson.build          |   2 +
  src/vulkan/wsi/wsi_common.c         |  24 +++++-

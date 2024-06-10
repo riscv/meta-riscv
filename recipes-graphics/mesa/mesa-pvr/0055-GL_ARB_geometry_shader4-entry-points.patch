@@ -3,6 +3,8 @@ From: Brendan King <Brendan.King@imgtec.com>
 Date: Thu, 11 Nov 2021 12:09:38 +0000
 Subject: [PATCH] GL_ARB_geometry_shader4 entry points.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/mapi/glapi/gen/ARB_geometry_shader4.xml | 97 +++++++++++++++++++++
  src/mapi/glapi/gen/gl_API.xml               |  2 +-

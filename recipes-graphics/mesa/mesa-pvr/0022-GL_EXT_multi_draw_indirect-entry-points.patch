@@ -3,6 +3,8 @@ From: Brendan King <Brendan.King@imgtec.com>
 Date: Tue, 30 Jan 2018 10:25:11 +0000
 Subject: [PATCH] GL_EXT_multi_draw_indirect entry points
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/mapi/glapi/gen/es_EXT.xml     | 19 +++++++++++++++++++
  src/mapi/glapi/gen/static_data.py |  2 ++

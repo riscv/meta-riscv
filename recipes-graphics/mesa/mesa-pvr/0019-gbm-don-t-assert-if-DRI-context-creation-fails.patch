@@ -6,6 +6,8 @@ Subject: [PATCH] gbm: don't assert if DRI context creation fails
 If the DRI backend fails to create a DRI context, return an error,
 rather than asserting.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/gbm/backends/dri/gbm_dri.c | 10 ++++++++--
  1 file changed, 8 insertions(+), 2 deletions(-)

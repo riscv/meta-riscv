@@ -16,6 +16,8 @@ option null-dri-driver-name. This feature is to prevent failure
 on PC based test systems, that may have display and GPU hardware
 other than that being tested.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  meson.build                          |   4 +
  meson_options.txt                    |   6 ++

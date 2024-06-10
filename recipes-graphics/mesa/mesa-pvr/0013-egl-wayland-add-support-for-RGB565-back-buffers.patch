@@ -3,6 +3,8 @@ From: James Glanville <James.Glanville@imgtec.com>
 Date: Tue, 28 Feb 2017 16:08:47 +0000
 Subject: [PATCH] egl/wayland: add support for RGB565 back buffers
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/egl/drivers/dri2/platform_wayland.c | 13 +++++++++++--
  1 file changed, 11 insertions(+), 2 deletions(-)

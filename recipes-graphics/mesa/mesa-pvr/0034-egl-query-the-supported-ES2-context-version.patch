@@ -29,6 +29,8 @@ if an attempt is made to push this patch upstream. The value of the new
 query should be adjusted to be the next one in sequence, rather than the
 large value it currently has.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  include/GL/internal/dri_interface.h |  2 ++
  src/egl/drivers/dri2/egl_dri2.c     | 21 +++++++++++++++++++++

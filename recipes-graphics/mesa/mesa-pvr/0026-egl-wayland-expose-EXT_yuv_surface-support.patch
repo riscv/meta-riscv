@@ -5,6 +5,8 @@ Subject: [PATCH] egl/wayland: expose EXT_yuv_surface support
 
 This adds support for YUYV configs.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/egl/drivers/dri2/egl_dri2.c         |  1 +
  src/egl/drivers/dri2/platform_wayland.c | 15 ++++++++++++++-

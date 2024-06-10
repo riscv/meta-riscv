@@ -3,6 +3,8 @@ From: Brendan King <Brendan.King@imgtec.com>
 Date: Mon, 11 Jul 2016 12:45:30 +0100
 Subject: [PATCH] GL_OVR_multiview entry points
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/mapi/glapi/gen/gl_API.xml     | 17 +++++++++++++++++
  src/mapi/glapi/gen/static_data.py |  1 +

@@ -24,6 +24,8 @@ with the current buffer always being preserved with a blit.
 EGL_BUFFER_PRESERVED support has not been added for the Mesa software
 rasteriser.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  include/GL/internal/dri_interface.h     |  4 ++
  src/egl/drivers/dri2/platform_wayland.c | 94 +++++++++++++++++++++----

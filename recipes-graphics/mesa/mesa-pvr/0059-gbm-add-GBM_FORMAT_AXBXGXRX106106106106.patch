@@ -3,6 +3,8 @@ From: Brendan King <Brendan.King@imgtec.com>
 Date: Mon, 18 Jul 2022 13:00:31 +0100
 Subject: [PATCH] gbm: add GBM_FORMAT_AXBXGXRX106106106106
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  include/GL/internal/dri_interface.h | 1 +
  src/egl/drivers/dri2/egl_dri2.c     | 1 +

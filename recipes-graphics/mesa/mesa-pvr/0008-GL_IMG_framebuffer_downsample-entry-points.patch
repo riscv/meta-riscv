@@ -3,6 +3,8 @@ From: Rufus Hamade <rufus.hamade@imgtec.com>
 Date: Thu, 4 Feb 2016 14:09:26 +0000
 Subject: [PATCH] GL_IMG_framebuffer_downsample entry points
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  .../glapi/gen/IMG_framebuffer_downsample.xml  | 37 +++++++++++++++++++
  src/mapi/glapi/gen/es_EXT.xml                 |  3 ++

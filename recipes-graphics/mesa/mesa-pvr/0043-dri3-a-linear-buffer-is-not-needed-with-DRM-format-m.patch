@@ -7,6 +7,8 @@ If the X Server supports DRM format modifiers, there is no need
 for an additional linear buffer, as the client can allocate buffers
 with attributes known to the Server.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/egl/drivers/dri2/platform_x11_dri3.c |   7 +-
  src/glx/dri3_glx.c                       | 137 +++++++++++++++--------

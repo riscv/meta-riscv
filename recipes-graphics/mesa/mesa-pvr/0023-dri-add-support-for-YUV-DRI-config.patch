@@ -7,6 +7,8 @@ This is prerequisite for adding support for EGL_EXT_yuv_surface.
 
 This also adds support for NV12 and NV21 EGL configs.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  include/GL/internal/dri_interface.h     |  48 ++++++++-
  src/gallium/frontends/dri/dri_screen.c  |   8 +-

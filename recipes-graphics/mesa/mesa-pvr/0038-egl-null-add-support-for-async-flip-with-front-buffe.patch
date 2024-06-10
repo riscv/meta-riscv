@@ -40,6 +40,8 @@ than 1.
 Change-Id: I3930cfcdb30bfb5358166911bcf84a78bdb4548d
 Signed-off-by: Luigi Santivetti <luigi.santivetti@imgtec.com>
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/egl/drivers/dri2/egl_dri2.h      |   8 +-
  src/egl/drivers/dri2/platform_null.c | 153 +++++++++++++++++++++------

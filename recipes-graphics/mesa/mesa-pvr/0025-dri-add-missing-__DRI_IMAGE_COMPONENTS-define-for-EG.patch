@@ -8,6 +8,8 @@ The __DRI_IMAGE_COMPONENTS defines have been re-ordered, to make it
 less likely that new defines will be added with the same values as
 existing ones.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  include/GL/internal/dri_interface.h | 5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)

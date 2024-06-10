@@ -11,6 +11,8 @@ VK_FORMAT_B8G8R8A8_UNORM and VK_FORMAT_B8G8R8A8_SRGB formats.
 With this change, the IMG Vulkan unit test, vkbonjour, will default
 to VK_FORMAT_B8G8R8A8_UNORM rather than VK_FORMAT_B8G8R8A8_SRGB.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/vulkan/wsi/wsi_common.c | 4 ++++
  1 file changed, 4 insertions(+)

@@ -8,6 +8,8 @@ successfully be used to create contexts, which the spec does not
 require.
 Until dEQP is fixed, just disable GL on non-X11 platforms.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/egl/main/eglcurrent.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)

@@ -21,6 +21,8 @@ meson.has_exe_wrapper returns true, but Meson fails with:
 
 See also https://github.com/mesonbuild/meson/issues/9845
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  meson.build | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
