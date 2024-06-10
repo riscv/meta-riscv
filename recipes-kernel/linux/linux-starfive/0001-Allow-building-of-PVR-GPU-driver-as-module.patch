@@ -3,6 +3,8 @@ From: Andreas Cord-Landwehr <cordlandwehr@kde.org>
 Date: Sat, 17 Jun 2023 09:15:48 +0200
 Subject: [PATCH] Allow building of PVR GPU driver as module
 
+Upstream-Status: Pending
+Signed-off-by: Andreas Cord-Landwehr <cordlandwehr@kde.org>
 ---
  drivers/gpu/drm/img/img-rogue/Kconfig | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
