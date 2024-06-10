@@ -14,6 +14,7 @@ include/linux/stddef.h:8:14: error: passing argument 3 of 'ecrnx_cfg80211_add_ke
 /mnt/b/yoe/master/build/tmp/work-shared/visionfive2/kernel-source/drivers/net/wireless/eswin/fullmac/ecrnx_main.c:1715:44: note: in expansion of macro 'NULL'
  1715 |         ecrnx_cfg80211_add_key(wiphy, dev, NULL, sme->key_idx, false, NULL, &key_params);
 
+Upstream-Status: Pending
 Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  drivers/net/wireless/eswin/fullmac/ecrnx_main.c | 4 ++--
