@@ -6,6 +6,8 @@ Subject: [PATCH] gbm: add gbm_bo_blit
 For the GBM DRI backend, gbm_bo_blit is a wrapper around blitImage in
 the DRI Image extension.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/gbm/backends/dri/gbm_dri.c | 33 +++++++++++++++++++++++++++++++++
  src/gbm/main/gbm.c             | 31 +++++++++++++++++++++++++++++++

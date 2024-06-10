@@ -3,6 +3,8 @@ From: Luigi Santivetti <luigi.santivetti@imgtec.com>
 Date: Thu, 2 Sep 2021 22:47:54 +0100
 Subject: [PATCH] egl/null: expose EXT_yuv_surface support
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/egl/drivers/dri2/platform_null.c | 247 +++++++++++++++++++++++++--
  1 file changed, 233 insertions(+), 14 deletions(-)

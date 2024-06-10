@@ -12,6 +12,8 @@ the card number (i.e. minor number) of the DRM device representing
 the display. For example, NULL_DRM_DISPLAY=2 will select
 /dev/dri/card2.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/egl/drivers/dri2/platform_null.c | 65 ++++++++++++++++++++--------
  1 file changed, 46 insertions(+), 19 deletions(-)

@@ -10,6 +10,8 @@ Not all platforms support the VK_EXT_pci_bus_info extension.
 A better fix might be to pass another parameter to wsi_device_init,
 to indicate that the device is a PCI one.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/vulkan/wsi/wsi_common.c     | 4 ++++
  src/vulkan/wsi/wsi_common.h     | 2 ++

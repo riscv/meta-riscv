@@ -7,6 +7,8 @@ Subject: [PATCH] wayland-drm: install wayland-drm.xml to the configured
 Add a pkg-config file as well so that it can be located without hardcoding the
 path.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/egl/wayland/wayland-drm/meson.build       | 15 +++++++++++++++
  src/egl/wayland/wayland-drm/wayland-drm.pc.in |  7 +++++++

@@ -7,6 +7,8 @@ Add VK_FORMAT_R5G6B5_UNORM_PACK16.
 
 This is for compatibility with IMG WSI.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/vulkan/wsi/wsi_common_display.c | 1 +
  1 file changed, 1 insertion(+)

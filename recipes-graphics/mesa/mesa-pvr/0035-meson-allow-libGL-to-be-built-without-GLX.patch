@@ -12,6 +12,8 @@ modified to use a new EGL_WITH_OPENGL define, which indicates
 whether OpenGL is present or not. This allows EGL to be used
 with OpenGL on platforms other than X11.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  meson.build               | 10 +++++++---
  meson_options.txt         |  2 +-

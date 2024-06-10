@@ -6,6 +6,8 @@ Subject: [PATCH] vulkan/wsi: check the DRI3 and Present XCB reply pointers
 Check that the DRI3 and Present version replies are not NULL
 before accessing the version fields.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/vulkan/wsi/wsi_common_x11.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)

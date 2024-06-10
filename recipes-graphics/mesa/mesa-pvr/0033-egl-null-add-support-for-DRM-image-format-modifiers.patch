@@ -26,6 +26,8 @@ Internal notes:
 Change-Id: I0f7b030f6e1943690692674bf18daabfc153208a
 Signed-off-by: Luigi Santivetti <luigi.santivetti@imgtec.com>
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/egl/drivers/dri2/egl_dri2.h      |   3 +
  src/egl/drivers/dri2/platform_null.c | 221 +++++++++++++++++++++++----

@@ -9,6 +9,8 @@ This partially reverts commit 5ffd1ebe6b3c8c7dd316dd47fac088044222e6ef
 The IMG PowerVR driver sets meaningful values for the maximum
 pbuffer width, height and pixels.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/gallium/frontends/dri/utils.c | 7 ++++---
  src/mesa/main/glconfig.h          | 5 +++++

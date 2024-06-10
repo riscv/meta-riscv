@@ -8,6 +8,8 @@ Add support for:
 	IMG_multisampled_render_to_texture
 	OES_matrix_palette
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/mapi/glapi/gen/es_EXT.xml     | 41 ++++++++++++++++++++++++-------
  src/mapi/glapi/gen/static_data.py |  6 +++++

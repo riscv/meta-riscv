@@ -3,6 +3,8 @@ From: Brendan King <Brendan.King@imgtec.com>
 Date: Mon, 11 Jul 2016 13:29:51 +0100
 Subject: [PATCH] Add OVR_multiview_multisampled_render_to_texture
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  ...ltiview_multisampled_render_to_texture.xml | 21 +++++++++++++++++++
  src/mapi/glapi/gen/es_EXT.xml                 |  3 +++

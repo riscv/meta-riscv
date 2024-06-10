@@ -7,6 +7,8 @@ The dx and dy parameters to the wl_egl_window_resize function were
 not being processed unless the window width or height were being
 changed.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/egl/drivers/dri2/platform_wayland.c | 5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)

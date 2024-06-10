@@ -10,6 +10,8 @@ want Mesa to deal with the display driver and the name of this won't match
 that of the DRI driver. For the time being, take the easy approach and just
 force it to use the PVR DRI driver.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/loader/loader.c | 4 ++++
  1 file changed, 4 insertions(+)

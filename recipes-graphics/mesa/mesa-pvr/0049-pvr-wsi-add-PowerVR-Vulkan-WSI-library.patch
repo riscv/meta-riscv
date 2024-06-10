@@ -25,6 +25,8 @@ The interface between PowerVR Vulkan and Mesa WSI is defined in
 pvr_mesa_wsi_interface.h. Most of the functions defined on the WSI
 side are wrappers around Mesa WSI functions.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  meson.build                          |   1 +
  meson_options.txt                    |   2 +-

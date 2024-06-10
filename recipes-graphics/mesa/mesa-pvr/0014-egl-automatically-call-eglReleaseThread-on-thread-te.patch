@@ -18,6 +18,8 @@ Fixes:
 dEQP-EGL.functional.thread_cleanup.multi_context_*
 dEQP-EGL.functional.robustness.create_context.query_robust_access
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/egl/main/eglcurrent.c | 27 ++++++++++++++++++++++++++-
  1 file changed, 26 insertions(+), 1 deletion(-)

@@ -3,6 +3,8 @@ From: Frank Binns <frank.binns@imgtec.com>
 Date: Tue, 29 Jan 2019 14:36:25 +0000
 Subject: [PATCH] egl: add support for EXT_image_gl_colorspace
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/egl/drivers/dri2/egl_dri2.c | 52 +++++++++++++++++++++++++++++++--
  src/egl/main/eglapi.c           |  1 +

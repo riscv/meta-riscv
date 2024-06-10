@@ -18,6 +18,8 @@ PRIME; for example, by making use of the original (default)
 file descriptor. The driver can indicate it supports PRIME
 via the getCapabilities function in the DRI Image extension.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  include/GL/internal/dri_interface.h |  2 ++
  src/egl/drivers/dri2/egl_dri2.c     | 10 ++++++++

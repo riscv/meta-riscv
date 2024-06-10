@@ -7,6 +7,8 @@ IMG NOTE: This patch should be merged into the "Add PVR Gallium
 driver" patch the next time the Mesa version is upgraded in the
 IMG DDK.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/gallium/frontends/pvr/pvrutil.c | 4 ++++
  1 file changed, 4 insertions(+)

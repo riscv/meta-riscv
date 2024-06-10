@@ -10,6 +10,8 @@ C++ 2011 feature). If the C++ compiler doesn't understand the
 "thread_local" keyword by default, add '-std=c++11' to the compiler
 command line arguments.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  meson.build | 6 ++++++
  1 file changed, 6 insertions(+)

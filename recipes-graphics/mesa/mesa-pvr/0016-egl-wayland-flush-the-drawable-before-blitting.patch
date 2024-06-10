@@ -13,6 +13,8 @@ associated with the blit source. The blit will result in a new native
 fence for the source, and make the one in the drawable parameters
 invalid.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/egl/drivers/dri2/platform_wayland.c | 5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)

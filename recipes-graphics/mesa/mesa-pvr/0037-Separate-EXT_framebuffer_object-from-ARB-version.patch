@@ -17,6 +17,8 @@ just the above functions, as it may be more upstreamable.
 
 We may need to implement the EXT restrictions if we want to upstream.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/mapi/glapi/gen/EXT_framebuffer_object.xml | 30 +++----
  src/mapi/glapi/gen/static_data.py             | 15 ++++

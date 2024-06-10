@@ -8,6 +8,8 @@ If the compositor supports DRM format modifiers, there is no
 need for an additional linear buffer, as the client can allocate
 buffers with attributes known to the compositor.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/egl/drivers/dri2/platform_wayland.c | 36 ++++++++++++++-----------
  1 file changed, 21 insertions(+), 15 deletions(-)

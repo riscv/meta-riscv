@@ -3,6 +3,8 @@ From: Frank Binns <francisbinns@gmail.com>
 Date: Sun, 5 Jun 2016 12:04:40 +0100
 Subject: [PATCH] egl: add "null" platform
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  meson.build                          |   10 +-
  meson_options.txt                    |    2 +-

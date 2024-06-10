@@ -6,6 +6,8 @@ Subject: [PATCH] dri: use a supported API in driCreateNewContext
 Don't assume the screen supports OpenGL when creating a new context,
 use an API that the screen supports.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/gallium/frontends/dri/dri_util.c | 14 +++++++++++++-
  1 file changed, 13 insertions(+), 1 deletion(-)

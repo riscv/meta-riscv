@@ -8,6 +8,8 @@ GBM_FORMAT_BGR888
 GBM_FORMAT_YUYV
 GBM_FORMAT_YVU444_PACK10_IMG
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/gbm/backends/dri/gbm_dri.c | 16 ++++++++++++++++
  src/gbm/main/gbm.h             |  2 ++

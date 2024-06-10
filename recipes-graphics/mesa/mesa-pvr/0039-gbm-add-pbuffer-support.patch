@@ -13,6 +13,8 @@ Although support for creating pbuffers has been added, this isn't
 required when using the EGL backend GLX provider, as indirect GLX
 isn't supported.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/egl/drivers/dri2/egl_dri2.h     |   3 +
  src/egl/drivers/dri2/platform_drm.c | 110 +++++++++++++++++++++++++---

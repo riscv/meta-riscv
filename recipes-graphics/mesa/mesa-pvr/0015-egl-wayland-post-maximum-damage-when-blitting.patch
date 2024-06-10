@@ -11,6 +11,8 @@ on screen. Workaround this by posting maximum damage when blitting.
 A better fix would be to limit the blit to the damaged region, at least
 when the number of damage rectangles is 1.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/egl/drivers/dri2/platform_wayland.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)

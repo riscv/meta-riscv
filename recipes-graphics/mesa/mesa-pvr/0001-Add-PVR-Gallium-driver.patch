@@ -13,6 +13,8 @@ part of this change. The indirection removed by the commit is
 needed by the PVR Gallium frontend, which does not use the same
 context related code as dri2 and drisw.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  meson.build                                |  18 +-
  meson_options.txt                          |   8 +-

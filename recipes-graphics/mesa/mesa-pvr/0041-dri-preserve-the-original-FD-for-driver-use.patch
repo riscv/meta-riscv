@@ -23,6 +23,8 @@ driver, and the platform is responsible for closing it.
 The feature is currently supported by the Wayland, and DRI3 based
 X11 EGL and GLX platforms.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  include/GL/internal/dri_interface.h      | 26 +++++++++++++++++--
  src/egl/drivers/dri2/egl_dri2.c          | 12 ++++++++-

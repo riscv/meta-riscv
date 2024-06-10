@@ -17,6 +17,8 @@ regardless of the timing of subsequent calls to swap buffers.
 Change-Id: If7c0495df7ddfaa08583a14f820c46e1b97da788
 Signed-off-by: Luigi Santivetti <luigi.santivetti@imgtec.com>
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/egl/drivers/dri2/egl_dri2.h      |  42 ++-
  src/egl/drivers/dri2/platform_null.c | 541 +++++++++++++++++++++++----

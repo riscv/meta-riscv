@@ -3,6 +3,8 @@ From: Rufus Hamade <rufus.hamade@imgtec.com>
 Date: Thu, 4 Feb 2016 14:09:26 +0000
 Subject: [PATCH] GL_EXT_shader_pixel_local_storage2 entry points
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  .../gen/EXT_shader_pixel_local_storage2.xml   | 35 +++++++++++++++++++
  src/mapi/glapi/gen/es_EXT.xml                 |  3 ++

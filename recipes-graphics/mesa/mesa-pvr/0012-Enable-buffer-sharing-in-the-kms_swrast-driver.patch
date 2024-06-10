@@ -6,6 +6,8 @@ Subject: [PATCH] Enable buffer sharing in the kms_swrast driver
 Enable buffer sharing, so that a DRI driver can be loaded by a
 Wayland client when kms_swrast is being used by the compositor.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/gallium/frontends/dri/dri2.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)

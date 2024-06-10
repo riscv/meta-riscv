@@ -8,6 +8,8 @@ When an application calls eglMakeCurrent with a context, draw surface and
 read surface that match those that are currently bound to the calling
 thread don't perform a flush as this is an expensive operation.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/egl/main/eglapi.c | 12 +++++++++++-
  1 file changed, 11 insertions(+), 1 deletion(-)

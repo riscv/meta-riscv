@@ -8,6 +8,8 @@ Rogue DDK driver, which have no implementation in Mesa. Using
 exec="dynamic" avoids the need to create stubs in Mesa for the
 unimplemented functions.
 
+Upstream-Status: Pending
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
  src/mapi/glapi/gen/api_exec_init.py | 1 +
  1 file changed, 1 insertion(+)
