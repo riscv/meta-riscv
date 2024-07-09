@@ -16,7 +16,6 @@ SRC_URI:append:jh7110 = "\
 SRC_URI:milkv-duo = "git://github.com/riscv-software-src/opensbi.git;branch=master;protocol=https"
 
 DEPENDS:append:jh7110 = " u-boot-tools-native dtc-native"
-EXTRA_OEMAKE:append:jh7110 = " FW_TEXT_START=0x40000000"
 
 EXTRA_OEMAKE:append:milkv-duo = "FW_FDT_PATH=${DEPLOY_DIR_IMAGE}/u-boot.dtb"
 

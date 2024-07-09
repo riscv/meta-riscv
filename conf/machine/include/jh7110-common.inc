@@ -37,6 +37,9 @@ MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS += " \
 KERNEL_MODULE_AUTOLOAD += "pvrsrvkm"
 #============================================
 
+# opensbi config
+RISCV_SBI_FW_TEXT_START = "0x40000000"
+
 #============================================
 # Common Uboot Configuration
 EXTRA_IMAGEDEPENDS += "virtual/bootloader"
