@@ -75,6 +75,10 @@ do_compile:prepend:freedom-u540() {
     export OPENSBI=${DEPLOY_DIR_IMAGE}/fw_dynamic.bin
 }
 
+do_compile:prepend:visionfive2() {
+    export OPENSBI=${DEPLOY_DIR_IMAGE}/fw_dynamic.bin
+}
+
 do_configure:prepend:ae350-ax45mp() {
     if [ -f "${UNPACKDIR}/tftp-mmc-boot.txt" ]; then
         sed -i -e 's,@SERVERIP@,${TFTP_SERVER_IP},g' ${UNPACKDIR}/tftp-mmc-boot.txt
