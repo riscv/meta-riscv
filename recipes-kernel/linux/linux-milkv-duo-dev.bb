@@ -28,7 +28,7 @@ do_deploy[depends] = "milkv-duo-fsbl:do_deploy"
 
 do_deploy:append() {
 	cp ${SDIR}/Image.gz ${B}
-	cp ${WORKDIR}/multi.its ${B}
+	cp ${UNPACKDIR}/multi.its ${B}
 	mkimage -f ${B}/multi.its ${B}/uImage.fit
 	install -m 744 ${B}/uImage.fit ${DEPLOYDIR}
 	install -m 744 ${SDIR}/dts/${KERNEL_DEVICETREE} ${DEPLOYDIR}/default.dtb
