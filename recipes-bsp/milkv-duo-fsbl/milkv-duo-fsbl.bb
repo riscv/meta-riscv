@@ -5,49 +5,69 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Proprietary;md5=0557f9d92cf58f2
 inherit nopackages deploy
 
 SRC_URI = " \
-    git://github.com/milkv-duo/milkv-duo-buildroot-libraries;protocol=https;branch=main \
-    file://0001-milkv-duo-fsbl-fix-build-with-newer-binutils.patch;patchdir=${UNPACKDIR}/${BP} \
+    git://github.com/milkv-duo/duo-buildroot-sdk-v2;protocol=https;branch=main \
+    file://0001-milkv-duo-fsbl-fix-build-with-newer-binutils.patch \
+    file://0002-cpu-riscv-do-not-use-vendor-specific-extension.patch \
 "
-SRCREV = "f359994bd497f942bb67734280d81f6640c7c168"
+SRCREV = "6f8962c394dd0a05729abb089f0feb7d5cc4aa5e"
 
-COMPATIBLE_MACHINE = "milkv-duo"
+COMPATIBLE_MACHINE = "milkv-(duo|duo256m|duos)"
 
-S = "${UNPACKDIR}/${BP}/firmware"
+S = "${UNPACKDIR}/${BP}/fsbl"
 B = "${S}/build"
+
+EXTRA_OEMAKE = " \
+  CFLAGS=-Wno-error \
+  LDFLAGS=--no-fatal-warnings \
+"
 
 TARGET_LDFLAGS = ""
 SECURITY_LDFLAGS = ""
 
 do_compile[depends] += "opensbi:do_deploy virtual/bootloader:do_deploy"
 
+CHIP_ARCH:milkv-duo = "cv180x"
+CHIP_ARCH:milkv-duo256m = "cv181x"
+CHIP_ARCH:milkv-duos = "cv181x"
+
+DDR_CFG:milkv-duo = "ddr2_1333_x16"
+DDR_CFG:milkv-duo256m = "ddr3_1866_x16"
+DDR_CFG:milkv-duos = "ddr3_1866_x16"
+
+DEFINES  = " \
+            -DBOARD_${@'${MACHINE}'.upper().replace('-', '_')} \
+            -DRTOS_DUMP_PRINT_ENABLE=1 \
+            -DRTOS_DUMP_PRINT_SZ_IDX=17 \
+            -DRTOS_ENABLE_FREERTOS=y \
+            -DRTOS_FAST_IMAGE_TYPE=0 \
+           "
+
 do_compile () {
-	unset LDFLAGS
-	oe_runmake -C ${S} CROSS_COMPILE=${HOST_PREFIX} ARCH=riscv BOOT_CPU=riscv CHIP_ARCH=cv180x PROJECT_FULLNAME=cv1800b_milkv_duo_sd FREE_RAM_SIZE=64mb bl2
+    cp ${DEPLOY_DIR_IMAGE}/cvi_board_memmap.h ${S}/include/cvi_board_memmap.h
 
-	# this is a risc-v bin that contains a busy loop instruction
-	# using wfi instruction, this is needed to initialize the
-	# secondary core.
+    # this is a risc-v bin that contains a busy loop instruction
+    # using wfi instruction, this is needed to initialize the
+    # secondary core.
 
-	printf '\163\000\120\020\157\360\337\377' > ${B}/blank.bin
+    printf '\163\000\120\020\157\360\337\377' > ${B}/blank.bin
 
-	# generate fip.bin
-	python3 ${S}/plat/cv180x/fiptool.py genfip ${B}/fip.bin \
-		--MONITOR_RUNADDR=0x80000000 \
-		--CHIP_CONF=${S}/plat/cv180x/chip_conf.bin \
-		--NOR_INFO=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF \
-		--NAND_INFO=00000000 \
-		--BL2=${B}/cv180x/bl2.bin \
-		--BLCP_IMG_RUNADDR=0x05200200 \
-		--BLCP_PARAM_LOADADDR=0 \
-		--BLCP_2ND=${B}/blank.bin \
-		--BLCP_2ND_RUNADDR=0x83f40000 \
-		--DDR_PARAM=${S}/test/cv181x/ddr_param.bin \
-		--MONITOR=${DEPLOY_DIR_IMAGE}/fw_dynamic.bin \
-		--LOADER_2ND=${DEPLOY_DIR_IMAGE}/u-boot.bin
+    unset LDFLAGS
+
+    export DEFINES='${DEFINES}'
+    export ARCH=riscv
+    export BOOT_CPU=riscv
+    export CHIP_ARCH=${CHIP_ARCH}
+    export DDR_CFG=${DDR_CFG}
+
+    oe_runmake -C ${S} \
+        CROSS_COMPILE=${HOST_PREFIX} \
+        BLCP_2ND_PATH=${B}/blank.bin \
+        LOADER_2ND_PATH=${DEPLOY_DIR_IMAGE}/u-boot.bin \
+        MONITOR_PATH=${DEPLOY_DIR_IMAGE}/fw_dynamic.bin
 }
 
 do_deploy () {
-	install -m 0644 ${B}/fip.bin ${DEPLOYDIR}
+    install -m 0644 ${B}/${CHIP_ARCH}/fip.bin ${DEPLOYDIR}
 }
 
 addtask deploy after do_compile
