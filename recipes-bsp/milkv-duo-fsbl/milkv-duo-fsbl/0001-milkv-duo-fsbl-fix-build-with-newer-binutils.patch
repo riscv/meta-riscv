@@ -1,4 +1,4 @@
-From 26f3cbb8c0dfbf4f0fe759c142e0633394888181 Mon Sep 17 00:00:00 2001
+From 772b60af5c6b34840e91d95d05a892e86d0e9c2f Mon Sep 17 00:00:00 2001
 From: Max Krummenacher <max.oss.09@gmail.com>
 Date: Thu, 30 Jul 2026 13:39:11 +0000
 Subject: [PATCH] milkv-duo-fsbl: fix build with newer binutils
@@ -14,21 +14,22 @@ Drop the commandline option '-Os' and depend on the ld's default.
 Upstream-Status: Pending
 Signed-off-by: Max Krummenacher <max.oss.09@gmail.com>
 ---
- firmware/lib/cpu/riscv/cpu.mk | 2 +-
+ fsbl/lib/cpu/riscv/cpu.mk | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/firmware/lib/cpu/riscv/cpu.mk b/firmware/lib/cpu/riscv/cpu.mk
-index eab03601b77f..357acc347f9e 100644
---- a/firmware/lib/cpu/riscv/cpu.mk
-+++ b/firmware/lib/cpu/riscv/cpu.mk
-@@ -20,7 +20,6 @@ TF_CFLAGS += \
+diff --git a/lib/cpu/riscv/cpu.mk b/lib/cpu/riscv/cpu.mk
+index 0c1fcc239..5977f3a75 100644
+--- a/lib/cpu/riscv/cpu.mk
++++ b/lib/cpu/riscv/cpu.mk
+@@ -21,7 +21,7 @@ TF_CFLAGS += \
  	-fno-delete-null-pointer-checks
  
  TF_LDFLAGS += \
--	 -Os \
+-	--fatal-warnings -Os \
++	--fatal-warnings \
  	--gc-sections \
  	${TF_LDFLAGS_aarch64}
  
 -- 
-2.51.0
+2.43.0
 

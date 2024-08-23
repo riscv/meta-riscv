@@ -1,0 +1,104 @@
+From d9cf46d6f78ee7f4d28ae38d14845ba6d070bbf2 Mon Sep 17 00:00:00 2001
+From: Andrei Lalaev <andrey.lalaev@gmail.com>
+Date: Tue, 14 Jul 2026 06:11:33 +0200
+Subject: [PATCH] cpu: riscv: do not use vendor-specific extension
+
+XThead is a vendor specific extension which is not supported by mainline
+compilers. So to compile it we need to replace vendor-specific registers
+(such as mxstatus, mhcr, mcor) by numeric values. And the same applies
+to vendor-specific instructions.
+
+The values of instructions are taken from [1]. And registers are from [2]
+
+1 - https://docs.alexrp.com/riscv/thead_xthead_v2_2_0.pdf
+    Page 22, 3.1.15 "icache.iall" and Page 33, 4.1.4 "sync.i"
+2 - https://occ-intl-prod.oss-ap-southeast-1.aliyuncs.com/resource/XuanTie-OpenC906-UserManual.pdf
+    Page 16, Table 3.4 "Extended M-mode control registers of C906"
+
+Upstream-Status: Pending
+
+Signed-off-by: GP Orcullo <kinsamanka@gmail.com>
+Signed-off-by: Andrei Lalaev <andrey.lalaev@gmail.com>
+---
+ lib/cpu/riscv/bl2_entrypoint.S | 4 ++++
+ lib/cpu/riscv/cache.c          | 4 ++--
+ lib/cpu/riscv/cpu.mk           | 4 ++--
+ lib/cpu/riscv/cpu_helper.c     | 4 ++--
+ 4 files changed, 10 insertions(+), 6 deletions(-)
+
+diff --git a/lib/cpu/riscv/bl2_entrypoint.S b/lib/cpu/riscv/bl2_entrypoint.S
+index 73443871e..2d3c53d0e 100644
+--- a/lib/cpu/riscv/bl2_entrypoint.S
++++ b/lib/cpu/riscv/bl2_entrypoint.S
+@@ -2,6 +2,10 @@
+ #include "csr.h"
+ #include <riscv/asm_macros.S>
+ 
++#define mxstatus 0x7c0
++#define mhcr 0x7c1
++#define mcor 0x7c2
++
+   .option norvc
+   .section .text.init,"ax",@progbits
+   .globl bl2_entrypoint
+diff --git a/lib/cpu/riscv/cache.c b/lib/cpu/riscv/cache.c
+index 54828f833..192f0403a 100644
+--- a/lib/cpu/riscv/cache.c
++++ b/lib/cpu/riscv/cache.c
+@@ -57,14 +57,14 @@ void flush_dcache_range(uintptr_t start, size_t size)
+ void enable_dcache(void)
+ {
+ 	asm volatile(
+-		"csrs mhcr, %0;" ::"rI"(0x2)
++		"csrs 0x7c1, %0;" ::"rI"(0x2)
+ 	);
+ }
+ 
+ void disable_dcache(void)
+ {
+ 	asm volatile(
+-		"csrc mhcr, %0;" ::"rI"(0x2)
++		"csrc 0x7c1, %0;" ::"rI"(0x2)
+ 	);
+ }
+ 
+diff --git a/lib/cpu/riscv/cpu.mk b/lib/cpu/riscv/cpu.mk
+index bffa5f82a..fab39c41f 100644
+--- a/lib/cpu/riscv/cpu.mk
++++ b/lib/cpu/riscv/cpu.mk
+@@ -4,7 +4,7 @@ ASFLAGS +=\
+ 	$(CPPFLAGS) \
+ 	-DRISCV \
+ 	-D__ASSEMBLY__ \
+-	-march=rv64imafdcvxthead -mstrict-align \
++	-march=rv64imafdc -mstrict-align \
+ 	-mcmodel=medany \
+ 	-mabi=lp64d \
+ 	-ffreestanding  \
+@@ -13,7 +13,7 @@ ASFLAGS +=\
+ TF_CFLAGS += \
+ 	$(CPPFLAGS) \
+ 	-DRISCV \
+-	-march=rv64imafdcvxthead \
++	-march=rv64imafdc \
+ 	-mcmodel=medany \
+ 	-mabi=lp64d \
+ 	-ffreestanding -fno-builtin -Wall -std=gnu99 \
+diff --git a/lib/cpu/riscv/cpu_helper.c b/lib/cpu/riscv/cpu_helper.c
+index 7e093fa0b..7e8cc914d 100644
+--- a/lib/cpu/riscv/cpu_helper.c
++++ b/lib/cpu/riscv/cpu_helper.c
+@@ -11,8 +11,8 @@
+ void sync_cache(void)
+ {
+ 	asm volatile(
+-			"icache.iall\n"
+-			"sync.i\n"
++			".insn   4, 0x0100000b\n"
++			".insn   4, 0x01a0000b\n"
+ 			:
+ 			:
+ 			: "memory");
+-- 
+2.43.0
+
