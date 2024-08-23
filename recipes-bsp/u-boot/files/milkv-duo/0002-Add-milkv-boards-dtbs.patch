@@ -1,0 +1,71 @@
+From 0b27761e7a387e4313cd61d0c29a844c24c0fd5e Mon Sep 17 00:00:00 2001
+From: GP Orcullo <kinsamanka@gmail.com>
+Date: Tue, 20 Aug 2024 12:09:42 +0000
+Subject: [PATCH] add Duo-256M & Duo-S dtbs
+
+Upstream-Status: Inappropriate [oe-specific]
+Signed-off-by: GP Orcullo <kinsamanka@gmail.com>
+---
+ arch/riscv/dts/Makefile          |  2 ++
+ arch/riscv/dts/milkv-duo256m.dts | 14 ++++++++++++++
+ arch/riscv/dts/milkv-duos.dts    | 14 ++++++++++++++
+ 3 files changed, 30 insertions(+)
+ create mode 100644 arch/riscv/dts/milkv-duo256m.dts
+ create mode 100644 arch/riscv/dts/milkv-duos.dts
+
+diff --git a/arch/riscv/dts/Makefile b/arch/riscv/dts/Makefile
+index cec479b299..71cff2aa0c 100644
+--- a/arch/riscv/dts/Makefile
++++ b/arch/riscv/dts/Makefile
+@@ -9,6 +9,8 @@ dtb-$(CONFIG_TARGET_SIFIVE_UNMATCHED) += hifive-unmatched-a00.dtb
+ dtb-$(CONFIG_TARGET_SIPEED_MAIX) += k210-maix-bit.dtb
+ 
+ dtb-$(CONFIG_TARGET_CVITEK) += milkv-duo.dtb
++dtb-$(CONFIG_TARGET_CVITEK) += milkv-duos.dtb
++dtb-$(CONFIG_TARGET_CVITEK) += milkv-duo256m.dtb
+ 
+ targets += $(dtb-y)
+ 
+diff --git a/arch/riscv/dts/milkv-duo256m.dts b/arch/riscv/dts/milkv-duo256m.dts
+new file mode 100644
+index 0000000000..19ba903e69
+--- /dev/null
++++ b/arch/riscv/dts/milkv-duo256m.dts
+@@ -0,0 +1,14 @@
++#include <milkv-duo.dts>
++
++/ {
++	model = "Milk-V Duo 256M";
++
++        memory@80000000 {
++                device_type = "memory";
++                reg = <0x80000000 0xFE00000>;
++        };
++};
++
++&sdhci0{
++	compatible = "cvitek,cv181x-sd";
++};
+diff --git a/arch/riscv/dts/milkv-duos.dts b/arch/riscv/dts/milkv-duos.dts
+new file mode 100644
+index 0000000000..13f0fd8913
+--- /dev/null
++++ b/arch/riscv/dts/milkv-duos.dts
+@@ -0,0 +1,14 @@
++#include <milkv-duo.dts>
++
++/ {
++	model = "Milk-V Duo S";
++
++        memory@80000000 {
++                device_type = "memory";
++                reg = <0x80000000 0x1FE00000>;
++        };
++};
++
++&sdhci0{
++	compatible = "cvitek,cv181x-sd";
++};
+-- 
+2.43.0
+

@@ -36,7 +36,18 @@ SRC_URI:milkv-duo = " \
             file://uboot-milkv-duo.env \
             file://uEnv-milkv-duo.txt \
             file://milkv-duo-support-files.patch \
+            file://0001-skip-cvitek-board-init.patch \
+            file://0002-Add-milkv-boards-dtbs.patch \
             "
+
+SRC_URI:append:milkv-duo256m = " \
+    file://milkv-duo256m.cfg \
+"
+
+SRC_URI:append:milkv-duos = " \
+    file://milkv-duos.cfg \
+"
+
 SRCREV:milkv-duo = "4345a29c08e67044021f74139b4ff307019e9932"
 LIC_FILES_CHKSUM:milkv-duo = "file://Licenses/README;md5=5a7450c57ffe5ae63fd732446b988025"
 
