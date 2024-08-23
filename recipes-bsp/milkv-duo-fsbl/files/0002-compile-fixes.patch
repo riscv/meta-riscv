@@ -1,0 +1,218 @@
+From fcf6c1759a68839e44612d1c2f65ffeb5d2131d6 Mon Sep 17 00:00:00 2001
+From: GP Orcullo <kinsamanka@gmail.com>
+Date: Sun, 18 Aug 2024 23:30:00 +0000
+Subject: [PATCH 1/1] compile fixes
+
+Upstream-Status: Inappropriate [oe specific]
+---
+ firmware/Makefile                       |  4 +++
+ firmware/include/oe_memmap.h            | 48 +++++++++++++++++++++++++
+ firmware/lib/cpu/riscv/bl2_entrypoint.S |  4 +++
+ firmware/lib/cpu/riscv/cache.c          |  4 +--
+ firmware/lib/cpu/riscv/cpu.mk           |  9 +++--
+ firmware/lib/cpu/riscv/cpu_helper.c     |  4 +--
+ firmware/make_helpers/fip.mk            |  6 ----
+ firmware/plat/cv180x/include/mmap.h     |  2 +-
+ firmware/plat/cv181x/include/mmap.h     |  2 +-
+ 9 files changed, 66 insertions(+), 17 deletions(-)
+ create mode 100644 firmware/include/oe_memmap.h
+
+diff --git a/firmware/Makefile b/firmware/Makefile
+index c193060..bf58f7a 100644
+--- a/firmware/Makefile
++++ b/firmware/Makefile
+@@ -179,6 +179,10 @@ endif
+ $(eval $(call add_define,FSBL_SECURE_BOOT_SUPPORT))
+ $(eval $(call add_define, USB_DL_BY_FSBL))
+ 
++CFLAGS += $(CFLAGS-$@)
++CFLAGS-build/cv180x/bl2/bigdigits.o += -Wno-maybe-uninitialized
++CFLAGS-build/cv181x/bl2/bigdigits.o += -Wno-maybe-uninitialized
++
+ ################################################################################
+ # Build targets
+ ################################################################################
+diff --git a/firmware/include/oe_memmap.h b/firmware/include/oe_memmap.h
+new file mode 100644
+index 0000000..ef17d67
+--- /dev/null
++++ b/firmware/include/oe_memmap.h
+@@ -0,0 +1,48 @@
++#ifndef __OE_MMAP_H__
++#define __OE_MMAP_H__
++
++#if defined(BOARD_MILKV_DUO)
++#define CVIMMAP_DRAM_SIZE			0x4000000
++#define CVIMMAP_FSBL_C906L_START_ADDR		0x83f40000
++#define CVIMMAP_FSBL_UNZIP_ADDR			0x81400000
++#define CVIMMAP_FSBL_UNZIP_SIZE			0xf00000
++#define CVIMMAP_H26X_BITSTREAM_ADDR		0x82473000
++#define CVIMMAP_H26X_BITSTREAM_SIZE		0x0
++#define CVIMMAP_H26X_ENC_BUFF_ADDR		0x82473000
++#define CVIMMAP_H26X_ENC_BUFF_SIZE		0x0
++#define CVIMMAP_ISP_MEM_BASE_ADDR		0x82473000
++#define CVIMMAP_ISP_MEM_BASE_SIZE		0x0
++
++#elif defined(BOARD_MILKV_DUO256M)
++#define CVIMMAP_DRAM_SIZE			0x10000000
++#define CVIMMAP_FSBL_C906L_START_ADDR		0x8fe00000
++#define CVIMMAP_FSBL_UNZIP_ADDR			0x81800000
++#define CVIMMAP_FSBL_UNZIP_SIZE			0x1000000
++#define CVIMMAP_H26X_BITSTREAM_ADDR		0x8b300000
++#define CVIMMAP_H26X_BITSTREAM_SIZE		0x200000
++#define CVIMMAP_H26X_ENC_BUFF_ADDR		0x8b500000
++#define CVIMMAP_H26X_ENC_BUFF_SIZE		0x0
++#define CVIMMAP_ISP_MEM_BASE_ADDR		0x8b500000
++#define CVIMMAP_ISP_MEM_BASE_SIZE		0x1400000
++
++#elif defined(BOARD_MILKV_DUOS)
++#define CVIMMAP_DRAM_SIZE			0x20000000
++#define CVIMMAP_FSBL_C906L_START_ADDR		0x9fe00000
++#define CVIMMAP_FSBL_UNZIP_ADDR			0x81800000
++#define CVIMMAP_FSBL_UNZIP_SIZE			0x1000000
++#define CVIMMAP_H26X_BITSTREAM_ADDR		0x95400000
++#define CVIMMAP_H26X_BITSTREAM_SIZE		0x200000
++#define CVIMMAP_H26X_ENC_BUFF_ADDR		0x95600000
++#define CVIMMAP_H26X_ENC_BUFF_SIZE		0x0
++#define CVIMMAP_ISP_MEM_BASE_ADDR		0x95600000
++#define CVIMMAP_ISP_MEM_BASE_SIZE		0x1400000
++
++#else
++#error "No BOARD_XXX defined!"
++#endif
++
++#define CVIMMAP_DRAM_BASE			0x80000000
++#define CVIMMAP_MONITOR_ADDR			0x80000000
++#define CVIMMAP_OPENSBI_FDT_ADDR		0x80080000
++
++#endif
+diff --git a/firmware/lib/cpu/riscv/bl2_entrypoint.S b/firmware/lib/cpu/riscv/bl2_entrypoint.S
+index 7344387..2d3c53d 100644
+--- a/firmware/lib/cpu/riscv/bl2_entrypoint.S
++++ b/firmware/lib/cpu/riscv/bl2_entrypoint.S
+@@ -2,6 +2,10 @@
+ #include "csr.h"
+ #include <riscv/asm_macros.S>
+ 
++#define mxstatus 0x7c0
++#define mhcr 0x7c1
++#define mcor 0x7c2
++
+   .option norvc
+   .section .text.init,"ax",@progbits
+   .globl bl2_entrypoint
+diff --git a/firmware/lib/cpu/riscv/cache.c b/firmware/lib/cpu/riscv/cache.c
+index 54828f8..192f040 100644
+--- a/firmware/lib/cpu/riscv/cache.c
++++ b/firmware/lib/cpu/riscv/cache.c
+@@ -57,14 +57,14 @@ void flush_dcache_range(uintptr_t start, size_t size)
+ void enable_dcache(void)
+ {
+ 	asm volatile(
+-		"csrs mhcr, %0;" ::"rI"(0x2)
++		"csrs 0x7c1, %0;" ::"rI"(0x2)
+ 	);
+ }
+ 
+ void disable_dcache(void)
+ {
+ 	asm volatile(
+-		"csrc mhcr, %0;" ::"rI"(0x2)
++		"csrc 0x7c1, %0;" ::"rI"(0x2)
+ 	);
+ }
+ 
+diff --git a/firmware/lib/cpu/riscv/cpu.mk b/firmware/lib/cpu/riscv/cpu.mk
+index bffa5f8..f0dca4a 100644
+--- a/firmware/lib/cpu/riscv/cpu.mk
++++ b/firmware/lib/cpu/riscv/cpu.mk
+@@ -4,16 +4,15 @@ ASFLAGS +=\
+ 	$(CPPFLAGS) \
+ 	-DRISCV \
+ 	-D__ASSEMBLY__ \
+-	-march=rv64imafdcvxthead -mstrict-align \
++	-march=rv64imafdc -mstrict-align \
+ 	-mcmodel=medany \
+ 	-mabi=lp64d \
+-	-ffreestanding  \
+-	-Wa,--fatal-warnings
++	-ffreestanding
+ 
+ TF_CFLAGS += \
+ 	$(CPPFLAGS) \
+ 	-DRISCV \
+-	-march=rv64imafdcvxthead \
++	-march=rv64imafdc \
+ 	-mcmodel=medany \
+ 	-mabi=lp64d \
+ 	-ffreestanding -fno-builtin -Wall -std=gnu99 \
+@@ -21,7 +20,7 @@ TF_CFLAGS += \
+ 	-fno-delete-null-pointer-checks
+ 
+ TF_LDFLAGS += \
+-	--fatal-warnings -Os \
++	-Os \
+ 	--gc-sections \
+ 	${TF_LDFLAGS_aarch64}
+ 
+diff --git a/firmware/lib/cpu/riscv/cpu_helper.c b/firmware/lib/cpu/riscv/cpu_helper.c
+index 7e093fa..7e8cc91 100644
+--- a/firmware/lib/cpu/riscv/cpu_helper.c
++++ b/firmware/lib/cpu/riscv/cpu_helper.c
+@@ -11,8 +11,8 @@
+ void sync_cache(void)
+ {
+ 	asm volatile(
+-			"icache.iall\n"
+-			"sync.i\n"
++			".insn   4, 0x0100000b\n"
++			".insn   4, 0x01a0000b\n"
+ 			:
+ 			:
+ 			: "memory");
+diff --git a/firmware/make_helpers/fip.mk b/firmware/make_helpers/fip.mk
+index 67a038e..b39c00c 100644
+--- a/firmware/make_helpers/fip.mk
++++ b/firmware/make_helpers/fip.mk
+@@ -6,12 +6,6 @@ FIP_COMPRESS ?= lzma
+ 
+ CHIP_CONF_PATH = ${BUILD_PLAT}/chip_conf.bin
+ 
+-ifeq (${BOOT_CPU},aarch64)
+-MONITOR_PATH = plat/${CHIP_ARCH}/prebuilt/bl31.bin
+-else ifeq (${BOOT_CPU},riscv)
+-MONITOR_PATH = ../opensbi/build/platform/generic/firmware/fw_dynamic.bin
+-endif
+-
+ fip%: export BLCP_IMG_RUNADDR=0x05200200
+ fip%: export BLCP_PARAM_LOADADDR=0
+ fip%: export NAND_INFO=00000000
+diff --git a/firmware/plat/cv180x/include/mmap.h b/firmware/plat/cv180x/include/mmap.h
+index 2e8deb5..2cff994 100644
+--- a/firmware/plat/cv180x/include/mmap.h
++++ b/firmware/plat/cv180x/include/mmap.h
+@@ -1,7 +1,7 @@
+ #ifndef __MMAP_H__
+ #define __MMAP_H__
+ 
+-#include "cvi_board_memmap.h"
++#include <oe_memmap.h>
+ 
+ /*
+  * BL1 read-only specific defines.
+diff --git a/firmware/plat/cv181x/include/mmap.h b/firmware/plat/cv181x/include/mmap.h
+index 89d34e3..ca66176 100644
+--- a/firmware/plat/cv181x/include/mmap.h
++++ b/firmware/plat/cv181x/include/mmap.h
+@@ -1,7 +1,7 @@
+ #ifndef __MMAP_H__
+ #define __MMAP_H__
+ 
+-#include "cvi_board_memmap.h"
++#include <oe_memmap.h>
+ 
+ /*
+  * BL1 read-only specific defines.
+-- 
+2.34.1
+
