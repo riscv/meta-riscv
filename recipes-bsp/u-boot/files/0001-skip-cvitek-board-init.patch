@@ -1,0 +1,55 @@
+From c53ad7ce17f4daca0f2746c0377bc537f08c6cc2 Mon Sep 17 00:00:00 2001
+From: GP Orcullo <kinsamanka@gmail.com>
+Date: Tue, 20 Aug 2024 10:59:21 +0000
+Subject: [PATCH] skip cvitek board init
+
+perform init in kernel
+
+Upstream-Status: Inappropriate [oe specific]
+---
+ board/cvitek/cv180x/board.c | 3 ---
+ board/cvitek/cv181x/board.c | 3 ---
+ 2 files changed, 6 deletions(-)
+
+diff --git a/board/cvitek/cv180x/board.c b/board/cvitek/cv180x/board.c
+index bfd1061b13..d553db2a4f 100644
+--- a/board/cvitek/cv180x/board.c
++++ b/board/cvitek/cv180x/board.c
+@@ -155,8 +155,6 @@ void pinmux_config(int io_type)
+ 	}
+ }
+ 
+-#include "../cvi_board_init.c"
+-
+ #if defined(CONFIG_PHY_CVITEK)
+ static void cv180x_ephy_id_init(void)
+ {
+@@ -228,7 +226,6 @@ int board_init(void)
+ 	pinmux_config(PINMUX_USB);
+ 	//pinmux_config(PINMUX_SPI0);
+ 	//pinmux_config(PINMUX_SPI2);
+-	cvi_board_init();
+ 
+ 	return 0;
+ }
+diff --git a/board/cvitek/cv181x/board.c b/board/cvitek/cv181x/board.c
+index f3ad355772..932d02cf70 100644
+--- a/board/cvitek/cv181x/board.c
++++ b/board/cvitek/cv181x/board.c
+@@ -152,8 +152,6 @@ void pinmux_config(int io_type)
+ 	}
+ }
+ 
+-#include "../cvi_board_init.c"
+-
+ #if defined(CONFIG_PHY_CVITEK) /* config cvitek cv181x eth internal phy on ASIC board */
+ static void cv181x_ephy_id_init(void)
+ {
+@@ -242,7 +240,6 @@ int board_init(void)
+ 	pinmux_config(PINMUX_LVDS);
+ #endif
+ 	pinmux_config(PINMUX_SDIO1);
+-	cvi_board_init();
+ 	return 0;
+ }
+ 
