@@ -5,7 +5,7 @@ repos:
   poky:
     url: https://git.yoctoproject.org/git/poky
     path: layers/poky
-    branch: master
+    branch: scarthgap
     layers:
       meta:
       meta-poky:
@@ -14,7 +14,7 @@ repos:
   meta-openembedded:
     url: https://git.openembedded.org/meta-openembedded
     path: layers/meta-openembedded
-    branch: master
+    branch: scarthgap
     layers:
       meta-oe:
       meta-networking:
