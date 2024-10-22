@@ -5,6 +5,7 @@ Subject: [PATCH 1/7] dt-bindings: reset: Document th1520 reset control
 
 Add documentation to describe th1520 reset driver
 
+Upstream-Status: Pending
 Signed-off-by: Kwanghoon Son <k.son@samsung.com>
 ---
  .../bindings/reset/thead,th1520-reset.yaml    | 39 +++++++++++++++++++

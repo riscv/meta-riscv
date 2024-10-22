@@ -14,6 +14,7 @@ Subject: [PATCH 5/7] th1520: add cpu reset node
 +		};
 +
 
+Upstream-Status: Pending
 Signed-off-by: Han Gao <gaohan@iscas.ac.cn>
 ---
  arch/riscv/boot/dts/thead/th1520.dtsi | 9 +++++++++

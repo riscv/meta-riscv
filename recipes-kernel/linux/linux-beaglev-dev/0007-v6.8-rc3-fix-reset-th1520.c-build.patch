@@ -3,6 +3,7 @@ From: Robert Nelson <robertcnelson@gmail.com>
 Date: Wed, 7 Feb 2024 18:10:16 -0600
 Subject: [PATCH 7/7] v6.8-rc3: fix: reset-th1520.c build
 
+Upstream-Status: Pending
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  drivers/reset/reset-th1520.c | 3 ++-

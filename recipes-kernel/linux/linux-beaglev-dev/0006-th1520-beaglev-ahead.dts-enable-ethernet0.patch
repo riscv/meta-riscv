@@ -3,6 +3,7 @@ From: Robert Nelson <robertcnelson@gmail.com>
 Date: Wed, 27 Sep 2023 17:25:30 -0500
 Subject: [PATCH 6/7] th1520-beaglev-ahead.dts enable ethernet0
 
+Upstream-Status: Pending
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  .../boot/dts/thead/th1520-beaglev-ahead.dts   | 21 +++++++++++++++++++
