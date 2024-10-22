@@ -5,6 +5,7 @@ Subject: [PATCH 2/7] reset: Add th1520 reset driver support
 
 This driver supports th1520 T-HEAD SoC reset platform device.
 
+Upstream-Status: Pending
 Signed-off-by: Kwanghoon Son <k.son@samsung.com>
 ---
  drivers/reset/Kconfig                    |  10 +++

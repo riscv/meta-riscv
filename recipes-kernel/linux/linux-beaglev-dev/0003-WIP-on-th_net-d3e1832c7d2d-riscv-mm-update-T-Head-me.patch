@@ -6,6 +6,7 @@ Subject: [PATCH 3/7] WIP on th_net: d3e1832c7d2d riscv: mm: update T-Head
 
 The patch from Jisheng Zhang <jszhang@kernel.org>
 
+Upstream-Status: Pending
 Signed-off-by: Han Gao <gaohan@iscas.ac.cn>
 ---
  .../dts/thead/th1520-lichee-module-4a.dtsi    |  8 ++

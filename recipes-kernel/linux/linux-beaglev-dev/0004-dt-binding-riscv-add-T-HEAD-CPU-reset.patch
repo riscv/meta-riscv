@@ -10,6 +10,7 @@ a SoC specific control reg. The last one is to clone some CSRs for
 secondary CPUs to ensure these CSRs' values are the same as the
 main boot CPU. This DT node is mainly used by opensbi firmware.
 
+Upstream-Status: Pending
 Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
 ---
  .../bindings/riscv/thead,cpu-reset.yaml       | 69 +++++++++++++++++++
