@@ -6,6 +6,8 @@ Subject: [PATCH] Set sec_library path to source location
 The sec_library is provided as static library as part of the u-boot
 repository.
 
+Upstream-Status: Pending
+
 Signed-off-by: Andreas Cord-Landwehr <cordlandwehr@kde.org>
 ---
  Makefile | 2 +-
