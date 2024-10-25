@@ -3,6 +3,8 @@ From: Andreas Cord-Landwehr <cordlandwehr@kde.org>
 Date: Mon, 3 Jun 2024 20:18:40 +0200
 Subject: [PATCH] Fix errors for GCC 14 compatibility
 
+Upstream-Status: Pending
+
 ---
  arch/riscv/include/asm/dma-mapping.h                    | 1 +
  board/thead/light-c910/lpddr4/include/ddr_common_func.h | 2 ++
