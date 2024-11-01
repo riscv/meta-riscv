@@ -1,10 +1,10 @@
 require recipes-kernel/linux/linux-mainline-common.inc
 
-LINUX_VERSION ?= "6.2+"
+LINUX_VERSION ?= "5.13.5"
 KERNEL_VERSION_SANITY_SKIP="1"
 PV = "${LINUX_VERSION}+git${SRCPV}"
 
-BRANCH = "linux-6.2.y"
+BRANCH = "linux-5.13.y"
 SRCREV = "${AUTOREV}"
 SRCPV = "${@bb.fetch2.get_srcrev(d)}"
 SRC_URI = " \

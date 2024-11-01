@@ -17,6 +17,3 @@ KBUILD_DEFCONFIG:qemuriscv64 = "defconfig"
 KBUILD_DEFCONFIG:freedom-u540 = "defconfig"
 
 COMPATIBLE_MACHINE = "(qemuriscv32|qemuriscv64|freedom-u540)"
-
-KERNEL_FEATURES:remove = "features/debug/printk.scc"
-KERNEL_FEATURES:remove = "features/kernel-sample/kernel-sample.scc"
