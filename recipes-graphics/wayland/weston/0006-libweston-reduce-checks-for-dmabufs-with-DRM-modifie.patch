@@ -16,11 +16,9 @@ Signed-off-by: Khem Raj <raj.khem@gmail.com>
  libweston/linux-dmabuf.c | 33 ++++++++++++++++++---------------
  1 file changed, 18 insertions(+), 15 deletions(-)
 
-diff --git a/libweston/linux-dmabuf.c b/libweston/linux-dmabuf.c
-index 796e9826..0bbfe480 100644
 --- a/libweston/linux-dmabuf.c
 +++ b/libweston/linux-dmabuf.c
-@@ -240,22 +240,25 @@ params_create_common(struct wl_client *client,
+@@ -255,22 +255,25 @@ params_create_common(struct wl_client *c
  			goto err_out;
  		}
  
@@ -31,8 +29,8 @@ index 796e9826..0bbfe480 100644
 -				buffer->attributes.stride[i], i);
 -			goto err_out;
 -		}
-+		if (buffer->attributes.modifier[i] == DRM_FORMAT_MOD_INVALID ||
-+		    buffer->attributes.modifier[i] == DRM_FORMAT_MOD_LINEAR) {
++		if (buffer->attributes.modifier == DRM_FORMAT_MOD_INVALID ||
++		    buffer->attributes.modifier == DRM_FORMAT_MOD_LINEAR) {
 +			if (buffer->attributes.offset[i] + buffer->attributes.stride[i] > size) {
 +				wl_resource_post_error(params_resource,
 +					ZWP_LINUX_BUFFER_PARAMS_V1_ERROR_OUT_OF_BOUNDS,
@@ -61,6 +59,3 @@ index 796e9826..0bbfe480 100644
  		}
  	}
  
--- 
-2.17.1
-
