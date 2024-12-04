@@ -8,8 +8,8 @@ KERNEL_VERSION_SANITY_SKIP = "1"
 SRCREV = "${AUTOREV}"
 
 # pin srcrev for now to have a fixed target
-# release JH7110_VF2_6.1_v5.11.3
-SRCREV:visionfive2 = "18425cfe66cef584b243fba4966d8e0322880c7a"
+# release JH7110_VF2_6.6_v5.13.1
+SRCREV:visionfive2 = "d0e7c0486d768a294f4f2b390d00dab8bee5d726"
 SRCREV:star64 = "e4c0928f1e42ed82ab9fa8918bc7094d3c0414d8"
 
 BRANCH = "branch=visionfive"
@@ -40,10 +40,10 @@ SRC_URI:append:visionfive = " \
 SRC_URI:jh7110 = " \
            git://github.com/${FORK}/${REPO}.git;protocol=https;${BRANCH} \
            file://0001-riscv-disable-generation-of-unwind-tables.patch \
-           file://0001-gcc-plugins-Fix-build-for-upcoming-GCC-release-kernel61.patch \
            file://0001-Allow-building-of-PVR-GPU-driver-as-module.patch \
            file://0001-gcc-plugins-Rename-last_stmt-for-GCC-14.patch \
            file://0001-eswin-Repace-NULL-with-0-where-it-is-converted-from-.patch \
+           file://0001-kbuild-Do-not-use-NOTIMMEDIATE.patch \
            file://visionfive2-graphics.cfg \
            file://modules.cfg \
 "
@@ -56,7 +56,7 @@ SRC_URI:beaglev-starlight-jh7100 = " \
 "
 
 LINUX_VERSION ?= "6.2.0"
-LINUX_VERSION:jh7110 = "6.1.0"
+LINUX_VERSION:jh7110 = "6.6.20"
 LINUX_VERSION:beaglev-starlight-jh7100 = "6.4.4"
 LINUX_VERSION_EXTENSION:append:beaglev-starlight-jh7100 = "-starlight"
 

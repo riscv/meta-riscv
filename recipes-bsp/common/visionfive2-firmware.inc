@@ -1,6 +1,6 @@
-VISIONFIVE2FW_DATE ?= "20231221^"
-# JH7110_VF2_6.1_v5.11.3
-SRC_URI += "git://github.com/starfive-tech/soft_3rdpart.git;protocol=https;lfs=1;nobranch=1;rev=5eca20d2ce6fb7b18044bfe30c5bfd7f8f47958d"
+VISIONFIVE2FW_DATE ?= "20240826^"
+# JH7110_VF2_6.6_v5.13.1
+SRC_URI += "git://github.com/starfive-tech/soft_3rdpart.git;protocol=https;lfs=1;nobranch=1;rev=4918bd0772edbfd9ccf26e97b55091f72053ec81"
 HOMEPAGE ?= "https://github.com/starfive-tech/soft_3rdpart"
 
 IMG_GPU_POWERVR_VERSION = "img-gpu-powervr-bin-1.19.6345021"

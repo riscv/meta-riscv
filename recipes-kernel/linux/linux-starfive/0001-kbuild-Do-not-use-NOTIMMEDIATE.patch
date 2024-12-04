@@ -1,0 +1,29 @@
+From 7b26a194fc649c579f558a0df51b8672866d26bb Mon Sep 17 00:00:00 2001
+From: Khem Raj <raj.khem@gmail.com>
+Date: Tue, 3 Dec 2024 12:17:13 -0800
+Subject: [PATCH] kbuild: Do not use NOTIMMEDIATE
+
+This fixes the build race seen with 6.6 kernel build
+
+| make[7]: *** .NOTINTERMEDIATE and .SECONDARY are mutually exclusive.  Stop.
+
+Upstream-Status: Inappropriate [Fix imagination driver]
+
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
+---
+ scripts/Kbuild.include | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/scripts/Kbuild.include b/scripts/Kbuild.include
+index 7778cc97a4e0..5ab17f2c39e6 100644
+--- a/scripts/Kbuild.include
++++ b/scripts/Kbuild.include
+@@ -272,8 +272,4 @@ endif
+ # global .NOTINTERMEDIATE does not work. We can use it on Make > 4.4.
+ # Use .SECONDARY for older Make versions, but "newer-prereq" cannot detect
+ # deleted files.
+-ifneq ($(and $(filter notintermediate, $(.FEATURES)),$(filter-out 4.4,$(MAKE_VERSION))),)
+-.NOTINTERMEDIATE:
+-else
+ .SECONDARY:
+-endif
