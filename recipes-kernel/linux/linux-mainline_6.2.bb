@@ -8,5 +8,5 @@ BRANCH = "linux-6.2.y"
 SRCREV = "${AUTOREV}"
 SRCPV = "${@bb.fetch2.get_srcrev(d)}"
 SRC_URI = " \
-    git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git;branch=${BRANCH} \
+    git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git;protocol=https;branch=${BRANCH} \
 "

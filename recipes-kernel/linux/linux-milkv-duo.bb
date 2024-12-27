@@ -10,7 +10,7 @@ BRANCH = "linux-6.8.y"
 SRCREV = "v6.8.5"
 SRCPV = "${@bb.fetch2.get_srcrev(d)}"
 SRC_URI = " \
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git;branch=${BRANCH} \
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git;protocol=https;branch=${BRANCH} \
 	file://017199c2849c3d6d417791ec1cf5521005d663a1.patch \
 	file://riscv-dts-sophgo-add-sdcard-support-for-milkv-duo.patch \
 	file://sophgo-add-reboot-shutdown-driver.patch \
