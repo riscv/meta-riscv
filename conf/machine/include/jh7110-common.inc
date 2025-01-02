@@ -39,7 +39,7 @@ KERNEL_MODULE_AUTOLOAD += "pvrsrvkm"
 
 #============================================
 # Common Uboot Configuration
-EXTRA_IMAGEDEPENDS += "u-boot-starfive"
+EXTRA_IMAGEDEPENDS += "virtual/bootloader"
 UBOOT_ENTRYPOINT = "0x40200000"
 UBOOT_DTB_LOADADDRESS = "0x46000000"
 UBOOT_RD_LOADADDRESS = "0x46100000"
