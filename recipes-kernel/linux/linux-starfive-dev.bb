@@ -54,6 +54,9 @@ SRC_URI:beaglev-starlight-jh7100 = " \
            file://modules.cfg \
            file://extra.cfg \
 "
+SRCREV_yocto-kernel-cache = "99c5ec65d21cd824d26ee9eb8bca7d2e59311e5f"
+
+SRC_URI:append:visionfive2 = " git://git.yoctoproject.org/yocto-kernel-cache;type=kmeta;name=yocto-kernel-cache;branch=yocto-6.6;destsuffix=kernel-meta;protocol=https"
 
 LINUX_VERSION ?= "6.2.0"
 LINUX_VERSION:jh7110 = "6.6.20"
