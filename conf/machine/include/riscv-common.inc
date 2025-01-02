@@ -4,8 +4,8 @@ require conf/machine/include/riscv/tune-riscv.inc
 
 #============================================
 # Common Linux Kernel & Uboot Configuration
-KERNEL_CLASSES = "kernel-fitimage"
-KERNEL_IMAGETYPE = "fitImage"
+KERNEL_CLASSES ?= "kernel-fitimage"
+KERNEL_IMAGETYPE ?= "fitImage"
 UBOOT_ENV ?= "boot"
 UBOOT_ENV_SUFFIX = "scr.uimg"
 #============================================
