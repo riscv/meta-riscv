@@ -1,0 +1,211 @@
+From d0edf7f81d6ad43ed54484a7d855ef9b66d7353c Mon Sep 17 00:00:00 2001
+From: Kanak Shilledar <kanakshilledar111@protonmail.com>
+Date: Sun, 16 Mar 2025 13:40:00 +0530
+Subject: [PATCH 4/4] reset: thead: Add TH1520 reset controller driver
+
+Add reset controller driver for the T-HEAD TH1520 SoC that manages
+hardware reset lines for various subsystems. The driver currently
+implements support for GPU reset control, with infrastructure in place
+to extend support for NPU and Watchdog Timer resets in future updates.
+
+Upstream-Status: Submitted
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Michal Wilczynski <m.wilczynski@samsung.com>
+Signed-off-by: Kanak Shilledar <kanakshilledar111@protonmail.com>
+---
+ MAINTAINERS                  |   1 +
+ drivers/reset/Kconfig        |  10 +++
+ drivers/reset/Makefile       |   1 +
+ drivers/reset/reset-th1520.c | 135 +++++++++++++++++++++++++++++++++++
+ 4 files changed, 147 insertions(+)
+ create mode 100644 drivers/reset/reset-th1520.c
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index d3b9be9e7b50..13473f124876 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -20454,6 +20454,7 @@ F:	drivers/clk/thead/clk-th1520-ap.c
+ F:	drivers/mailbox/mailbox-th1520.c
+ F:	drivers/net/ethernet/stmicro/stmmac/dwmac-thead.c
+ F:	drivers/pinctrl/pinctrl-th1520.c
++F:	drivers/reset/reset-th1520.c
+ F:	include/dt-bindings/clock/thead,th1520-clk-ap.h
+ F:	include/dt-bindings/reset/thead,th1520-reset.h
+ 
+diff --git a/drivers/reset/Kconfig b/drivers/reset/Kconfig
+index 5b3abb6db248..fa0943c3d1de 100644
+--- a/drivers/reset/Kconfig
++++ b/drivers/reset/Kconfig
+@@ -272,6 +272,16 @@ config RESET_SUNXI
+ 	help
+ 	  This enables the reset driver for Allwinner SoCs.
+ 
++config RESET_TH1520
++	tristate "T-HEAD 1520 reset controller"
++	depends on ARCH_THEAD || COMPILE_TEST
++	select REGMAP_MMIO
++	help
++	  This driver provides support for the T-HEAD TH1520 SoC reset controller,
++	  which manages hardware reset lines for SoC components such as the GPU.
++	  Enable this option if you need to control hardware resets on TH1520-based
++	  systems.
++
+ config RESET_TI_SCI
+ 	tristate "TI System Control Interface (TI-SCI) reset driver"
+ 	depends on TI_SCI_PROTOCOL || (COMPILE_TEST && TI_SCI_PROTOCOL=n)
+diff --git a/drivers/reset/Makefile b/drivers/reset/Makefile
+index 677c4d1e2632..d6c2774407ae 100644
+--- a/drivers/reset/Makefile
++++ b/drivers/reset/Makefile
+@@ -35,6 +35,7 @@ obj-$(CONFIG_RESET_SIMPLE) += reset-simple.o
+ obj-$(CONFIG_RESET_SOCFPGA) += reset-socfpga.o
+ obj-$(CONFIG_RESET_SUNPLUS) += reset-sunplus.o
+ obj-$(CONFIG_RESET_SUNXI) += reset-sunxi.o
++obj-$(CONFIG_RESET_TH1520) += reset-th1520.o
+ obj-$(CONFIG_RESET_TI_SCI) += reset-ti-sci.o
+ obj-$(CONFIG_RESET_TI_SYSCON) += reset-ti-syscon.o
+ obj-$(CONFIG_RESET_TI_TPS380X) += reset-tps380x.o
+diff --git a/drivers/reset/reset-th1520.c b/drivers/reset/reset-th1520.c
+new file mode 100644
+index 000000000000..7874f0693e1b
+--- /dev/null
++++ b/drivers/reset/reset-th1520.c
+@@ -0,0 +1,135 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
++ * Author: Michal Wilczynski <m.wilczynski@samsung.com>
++ */
++
++#include <linux/of.h>
++#include <linux/platform_device.h>
++#include <linux/reset-controller.h>
++#include <linux/regmap.h>
++
++#include <dt-bindings/reset/thead,th1520-reset.h>
++
++ /* register offset in VOSYS_REGMAP */
++#define TH1520_GPU_RST_CFG		0x0
++#define TH1520_GPU_RST_CFG_MASK		GENMASK(1, 0)
++
++/* register values */
++#define TH1520_GPU_SW_GPU_RST		BIT(0)
++#define TH1520_GPU_SW_CLKGEN_RST	BIT(1)
++
++struct th1520_reset_priv {
++	struct reset_controller_dev rcdev;
++	struct regmap *map;
++};
++
++struct th1520_reset_map {
++	u32 bit;
++	u32 reg;
++};
++
++static const struct th1520_reset_map th1520_resets[] = {
++	[TH1520_RESET_ID_GPU] = {
++		.bit = TH1520_GPU_SW_GPU_RST,
++		.reg = TH1520_GPU_RST_CFG,
++	},
++	[TH1520_RESET_ID_GPU_CLKGEN] = {
++		.bit = TH1520_GPU_SW_CLKGEN_RST,
++		.reg = TH1520_GPU_RST_CFG,
++	}
++};
++
++static inline struct th1520_reset_priv *
++to_th1520_reset(struct reset_controller_dev *rcdev)
++{
++	return container_of(rcdev, struct th1520_reset_priv, rcdev);
++}
++
++static int th1520_reset_assert(struct reset_controller_dev *rcdev,
++			       unsigned long id)
++{
++	struct th1520_reset_priv *priv = to_th1520_reset(rcdev);
++	const struct th1520_reset_map *reset;
++
++	reset = &th1520_resets[id];
++
++	return regmap_update_bits(priv->map, reset->reg, reset->bit, 0);
++}
++
++static int th1520_reset_deassert(struct reset_controller_dev *rcdev,
++				 unsigned long id)
++{
++	struct th1520_reset_priv *priv = to_th1520_reset(rcdev);
++	const struct th1520_reset_map *reset;
++
++	reset = &th1520_resets[id];
++
++	return regmap_update_bits(priv->map, reset->reg, reset->bit,
++				  reset->bit);
++}
++
++static const struct reset_control_ops th1520_reset_ops = {
++	.assert	= th1520_reset_assert,
++	.deassert = th1520_reset_deassert,
++};
++
++static const struct regmap_config th1520_reset_regmap_config = {
++	.reg_bits = 32,
++	.val_bits = 32,
++	.reg_stride = 4,
++	.fast_io = true,
++};
++
++static int th1520_reset_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct th1520_reset_priv *priv;
++	void __iomem *base;
++	int ret;
++
++	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	base = devm_platform_ioremap_resource(pdev, 0);
++	if (IS_ERR(base))
++		return PTR_ERR(base);
++
++	priv->map = devm_regmap_init_mmio(dev, base,
++					  &th1520_reset_regmap_config);
++	if (IS_ERR(priv->map))
++		return PTR_ERR(priv->map);
++
++	/* Initialize GPU resets to asserted state */
++	ret = regmap_update_bits(priv->map, TH1520_GPU_RST_CFG,
++				 TH1520_GPU_RST_CFG_MASK, 0);
++	if (ret)
++		return ret;
++
++	priv->rcdev.owner = THIS_MODULE;
++	priv->rcdev.nr_resets = ARRAY_SIZE(th1520_resets);
++	priv->rcdev.ops = &th1520_reset_ops;
++	priv->rcdev.of_node = dev->of_node;
++
++	return devm_reset_controller_register(dev, &priv->rcdev);
++}
++
++static const struct of_device_id th1520_reset_match[] = {
++	{ .compatible = "thead,th1520-reset" },
++	{ /* sentinel */ }
++};
++MODULE_DEVICE_TABLE(of, th1520_reset_match);
++
++static struct platform_driver th1520_reset_driver = {
++	.driver = {
++		.name = "th1520-reset",
++		.of_match_table = th1520_reset_match,
++	},
++	.probe = th1520_reset_probe,
++};
++module_platform_driver(th1520_reset_driver);
++
++MODULE_AUTHOR("Michal Wilczynski <m.wilczynski@samsung.com>");
++MODULE_DESCRIPTION("T-HEAD TH1520 SoC reset controller");
++MODULE_LICENSE("GPL");
+-- 
+2.43.0
+

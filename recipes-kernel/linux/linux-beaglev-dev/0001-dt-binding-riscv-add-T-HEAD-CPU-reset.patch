@@ -1,7 +1,7 @@
-From abbb160440dfb5019cd2a8c055413507e43b6789 Mon Sep 17 00:00:00 2001
+From faacf672e3201969c78f3fdbe5a1595e77bb5db1 Mon Sep 17 00:00:00 2001
 From: Jisheng Zhang <jszhang@kernel.org>
 Date: Fri, 19 May 2023 02:45:36 +0800
-Subject: [PATCH 4/7] dt-binding: riscv: add T-HEAD CPU reset
+Subject: [PATCH 1/4] dt-binding: riscv: add T-HEAD CPU reset
 
 The secondary CPUs in T-HEAD SMP capable platforms need some special
 handling. The first one is to write the warm reset entry to entry
@@ -12,6 +12,7 @@ main boot CPU. This DT node is mainly used by opensbi firmware.
 
 Upstream-Status: Pending
 Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
+Signed-off-by: Kanak Shilledar <kanakshilledar111@protonmail.com>
 ---
  .../bindings/riscv/thead,cpu-reset.yaml       | 69 +++++++++++++++++++
  1 file changed, 69 insertions(+)
@@ -93,5 +94,5 @@ index 000000000000..ba8c87583b6b
 +      csr-copy = <0x7f3 0x7c0 0x7c1 0x7c2 0x7c3 0x7c5 0x7cc>;
 +    };
 -- 
-2.40.1
+2.43.0
 
