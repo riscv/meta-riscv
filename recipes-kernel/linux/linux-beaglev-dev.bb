@@ -6,28 +6,25 @@ KERNEL_VERSION_SANITY_SKIP = "1"
 
 SRCREV = "${AUTOREV}"
 
-#v6.9-rc2
+#v6.13.0
 # downstream patches are taken from Beagle's Kernel fork: https://openbeagle.org/beaglev-ahead/linux
 # network stability is not good enough for Yocto checkout
-SRCREV[kernel] = "39cd87c4eb2b893354f3b850f916353f2658ae6f"
-SRCREV[dts] = "aacd2722f029c588c8ce0c758e296caa56f8b947"
+SRCREV[kernel] = "ffd294d346d185b70e28b1a28abe367bbfe53c04"
+SRCREV[dts] = "62943572e043726f7357d8f36cfbc5dfcba7ed3b"
 
 BRANCH_kernel = "master"
-BRANCH_dts = "v6.9.x"
-LINUX_VERSION ?= "6.9.0"
+BRANCH_dts = "v6.13.x"
+LINUX_VERSION ?= "6.13.0"
 
 SRC_URI = " \
     git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git;protocol=https;branch=${BRANCH_kernel};name=kernel \
     git://git.beagleboard.org/beagleboard/BeagleBoard-DeviceTrees.git;protocol=https;subdir=beaglev_devicetrees;branch=${BRANCH_dts};name=dts \
     file://defconfig \
     file://extlinux.conf \
-    file://0001-dt-bindings-reset-Document-th1520-reset-control.patch \
-    file://0002-reset-Add-th1520-reset-driver-support.patch \
-    file://0003-WIP-on-th_net-d3e1832c7d2d-riscv-mm-update-T-Head-me.patch \
-    file://0004-dt-binding-riscv-add-T-HEAD-CPU-reset.patch \
-    file://0005-th1520-add-cpu-reset-node.patch \
-    file://0006-th1520-beaglev-ahead.dts-enable-ethernet0.patch \
-    file://0007-v6.8-rc3-fix-reset-th1520.c-build.patch \
+    file://0001-dt-binding-riscv-add-T-HEAD-CPU-reset.patch \
+    file://0002-th1520-add-cpu-reset-node.patch \
+    file://0003-dt-bindings-reset-Add-T-HEAD-TH1520-SoC-Reset-Contro.patch \
+    file://0004-reset-thead-Add-TH1520-reset-controller-driver.patch \
     "
 
 COMPATIBLE_MACHINE = "(beaglev-ahead)"
@@ -52,6 +49,8 @@ do_beaglev_img_deploy() {
     if [ ! -d ${DEPLOY_DIR_IMAGE}/.boot/extlinux ]; then
         mkdir -p ${DEPLOY_DIR_IMAGE}/.boot/extlinux
     fi
+
+    sleep 1
 
     cp ${DEPLOY_DIR_IMAGE}/fw_dynamic.bin ${DEPLOY_DIR_IMAGE}/.boot/fw_dynamic.bin
     cp -f ${DEPLOY_DIR_IMAGE}/th1520-beaglev-ahead.dtb ${DEPLOY_DIR_IMAGE}/.boot/

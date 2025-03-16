@@ -1,8 +1,8 @@
-From 7f1e7a9eb88aa37b51a33ef586535c7bd61cf015 Mon Sep 17 00:00:00 2001
+From 86c4d9d0fd044a17f5be442ad2875c9d8681a261 Mon Sep 17 00:00:00 2001
 From: "https://lore.kernel.org/all/20230518184541.2627-7-jszhang@kernel.org/"
  <https://lore.kernel.org/all/20230518184541.2627-7-jszhang@kernel.org/>
 Date: Thu, 21 Sep 2023 16:47:50 +0800
-Subject: [PATCH 5/7] th1520: add cpu reset node
+Subject: [PATCH 2/4] th1520: add cpu reset node
 
 +		cpurst: cpurst {
 +			compatible = "thead,reset-th1520"; -> "thead,reset-sample";
@@ -16,15 +16,16 @@ Subject: [PATCH 5/7] th1520: add cpu reset node
 
 Upstream-Status: Pending
 Signed-off-by: Han Gao <gaohan@iscas.ac.cn>
+Signed-off-by: Kanak Shilledar <kanakshilledar111@protonmail.com>
 ---
  arch/riscv/boot/dts/thead/th1520.dtsi | 9 +++++++++
  1 file changed, 9 insertions(+)
 
 diff --git a/arch/riscv/boot/dts/thead/th1520.dtsi b/arch/riscv/boot/dts/thead/th1520.dtsi
-index 360b9eb4e13a..34a429c378ad 100644
+index 527336417765..4f8d5bdf396c 100644
 --- a/arch/riscv/boot/dts/thead/th1520.dtsi
 +++ b/arch/riscv/boot/dts/thead/th1520.dtsi
-@@ -173,6 +173,15 @@ soc {
+@@ -237,6 +237,15 @@ soc {
  		dma-noncoherent;
  		ranges;
  
@@ -41,5 +42,5 @@ index 360b9eb4e13a..34a429c378ad 100644
  			compatible = "thead,th1520-plic", "thead,c900-plic";
  			reg = <0xff 0xd8000000 0x0 0x01000000>;
 -- 
-2.40.1
+2.43.0
 
