@@ -15,5 +15,8 @@ local_conf_header:
 
     IMAGE_FEATURES += " \
         ssh-server-openssh \
-        debug-tweaks \
+        allow-empty-password \
+        allow-root-login \
+        empty-root-password \
+        post-install-logging \
     "
