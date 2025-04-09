@@ -1,6 +1,6 @@
-From a22ea13858b37b0f02aa4c42ea45a521a9417c27 Mon Sep 17 00:00:00 2001
-From: Kanak Shilledar <kanakshilledar111@protonmail.com>
-Date: Sun, 16 Mar 2025 13:38:38 +0530
+From 445607bf2114e75820f8a2d89643b873e49795e8 Mon Sep 17 00:00:00 2001
+From: RP38 <88386644+RP38@users.noreply.github.com>
+Date: Wed, 9 Apr 2025 13:13:38 +0200
 Subject: [PATCH 3/4] dt-bindings: reset: Add T-HEAD TH1520 SoC Reset
  Controller
 
@@ -71,20 +71,21 @@ index 000000000000..f2e91d0add7a
 +      };
 +    };
 diff --git a/MAINTAINERS b/MAINTAINERS
-index c9763412a508..d3b9be9e7b50 100644
+index 96b827049501..41667c7d94cb 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -20448,12 +20448,14 @@ F:	Documentation/devicetree/bindings/clock/thead,th1520-clk-ap.yaml
+@@ -20825,6 +20825,7 @@ F:	Documentation/devicetree/bindings/firmware/thead,th1520-aon.yaml
  F:	Documentation/devicetree/bindings/mailbox/thead,th1520-mbox.yaml
  F:	Documentation/devicetree/bindings/net/thead,th1520-gmac.yaml
  F:	Documentation/devicetree/bindings/pinctrl/thead,th1520-pinctrl.yaml
 +F:	Documentation/devicetree/bindings/reset/thead,th1520-reset.yaml
  F:	arch/riscv/boot/dts/thead/
  F:	drivers/clk/thead/clk-th1520-ap.c
- F:	drivers/mailbox/mailbox-th1520.c
- F:	drivers/net/ethernet/stmicro/stmmac/dwmac-thead.c
- F:	drivers/pinctrl/pinctrl-th1520.c
+ F:	drivers/firmware/thead,th1520-aon.c
+@@ -20835,6 +20836,7 @@ F:	drivers/pmdomain/thead/
  F:	include/dt-bindings/clock/thead,th1520-clk-ap.h
+ F:	include/dt-bindings/power/thead,th1520-power.h
+ F:	include/linux/firmware/thead/thead,th1520-aon.h
 +F:	include/dt-bindings/reset/thead,th1520-reset.h
  
  RNBD BLOCK DRIVERS
