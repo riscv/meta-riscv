@@ -12,6 +12,7 @@ SRC_URI = " \
     file://tftp-mmc-boot.txt \
     file://uEnv-nezha.txt \
     file://0001-sun20i-set-CONFIG_SYS_BOOTM_LEN.patch \
+    file://0002-Fix-build-with-newer-swig.patch \
 "
 SRCREV = "2e89b706f5c956a70c989cd31665f1429e9a0b48"
 
@@ -29,7 +30,7 @@ do_compile[depends] = "opensbi:do_deploy"
 do_configure:prepend() {
     sed -i -e 's,@SERVERIP@,${TFTP_SERVER_IP},g' ${UNPACKDIR}/tftp-mmc-boot.txt
     mkimage -O linux -T script -C none -n "U-Boot boot script" \
-        -d ${UNPACKDIR}/tftp-mmc-boot.txt ${UNPACKDIR}/${UBOOT_ENV_BINARY}
+        -d ${UNPACKDIR}/tftp-mmc-boot.txt ${B}/${UBOOT_ENV_BINARY}
 }
 
 do_compile:prepend() {
