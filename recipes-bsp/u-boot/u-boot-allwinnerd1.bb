@@ -12,6 +12,7 @@ SRC_URI = " \
     file://tftp-mmc-boot.txt \
     file://uEnv-nezha.txt \
     file://0001-sun20i-set-CONFIG_SYS_BOOTM_LEN.patch \
+    file://0002-Fix-build-with-newer-swig.patch \
 "
 SRCREV = "2e89b706f5c956a70c989cd31665f1429e9a0b48"
 
