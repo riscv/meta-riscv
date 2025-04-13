@@ -112,4 +112,9 @@ do_deploy:append:milkv-duo() {
     install -m 0644 ${B}/u-boot.dtb ${DEPLOYDIR}
 }
 
+do_deploy:append:visionfive2() {
+    if [ -f "${B}/dts/upstream/src/riscv/starfive/${UBOOT_DTB_BINARY}" ]; then
+        install -m 0644 ${B}/dts/upstream/src/riscv/starfive/${UBOOT_DTB_BINARY} ${DEPLOYDIR}
+    fi
+}
 FILES:${PN}:append:freedom-u540 = " /boot/boot.scr.uimg"
