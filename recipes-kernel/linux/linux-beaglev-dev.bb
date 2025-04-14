@@ -4,17 +4,15 @@ SUMMARY = "Beagle-V Ahead dev kernel recipe"
 LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 KERNEL_VERSION_SANITY_SKIP = "1"
 
-SRCREV = "${AUTOREV}"
-
-#v6.13.0
+#v6.14.2
 # downstream patches are taken from Beagle's Kernel fork: https://openbeagle.org/beaglev-ahead/linux
 # network stability is not good enough for Yocto checkout
-SRCREV[kernel] = "ffd294d346d185b70e28b1a28abe367bbfe53c04"
-SRCREV[dts] = "62943572e043726f7357d8f36cfbc5dfcba7ed3b"
+SRCREV_kernel = "38fec10eb60d687e30c8c6b5420d86e8149f7557"
+SRCREV_dts = "4396d439d680221bd3e7c3135535bd2cd7d41958"
 
 BRANCH_kernel = "master"
-BRANCH_dts = "v6.13.x"
-LINUX_VERSION ?= "6.13.0"
+BRANCH_dts = "v6.14.x"
+LINUX_VERSION ?= "6.14.2"
 
 SRC_URI = " \
     git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git;protocol=https;branch=${BRANCH_kernel};name=kernel \
@@ -37,7 +35,7 @@ do_configure:prepend() {
 DEPENDS += "e2fsprogs-native"
 
 # package a separate partition boot.ext4 that can be flashed via fastboot to partition boot
-do_beaglev_img_deploy() {
+do_deploy:append() {
     [ -d ${DEPLOY_DIR_IMAGE}/.boot ] && rm -rf ${DEPLOY_DIR_IMAGE}/.boot
 
     if [ ! -d ${DEPLOY_DIR_IMAGE}/.boot ]; then
@@ -53,13 +51,12 @@ do_beaglev_img_deploy() {
     sleep 1
 
     cp ${DEPLOY_DIR_IMAGE}/fw_dynamic.bin ${DEPLOY_DIR_IMAGE}/.boot/fw_dynamic.bin
-    cp -f ${DEPLOY_DIR_IMAGE}/th1520-beaglev-ahead.dtb ${DEPLOY_DIR_IMAGE}/.boot/
-    cp -f ${DEPLOY_DIR_IMAGE}/Image ${DEPLOY_DIR_IMAGE}/.boot/
+    cp -f ${DEPLOYDIR}/th1520-beaglev-ahead.dtb ${DEPLOY_DIR_IMAGE}/.boot/
+    cp -f ${DEPLOYDIR}/Image ${DEPLOY_DIR_IMAGE}/.boot/
     cp -f ${UNPACKDIR}/extlinux.conf ${DEPLOY_DIR_IMAGE}/.boot/extlinux/
 
     dd if=/dev/zero of=${DEPLOY_DIR_IMAGE}/boot.ext4 bs=1 count=0 seek=190M
     mkfs.ext4 -F ${DEPLOY_DIR_IMAGE}/boot.ext4 -d ${DEPLOY_DIR_IMAGE}/.boot
 }
 
-do_beaglev_img_deploy[depends] += "opensbi:do_deploy"
-addtask beaglev_img_deploy after do_populate_sysroot do_packagedata do_bundle_initramfs do_install before do_build
+do_deploy[depends] += "opensbi:do_deploy"
