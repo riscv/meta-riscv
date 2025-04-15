@@ -1,4 +1,5 @@
-# short-description: Create SD card image for BeagleV-ahead: NOTE this does not boot yet via SD
-
-#part /boot --source bootimg-partition --ondisk mmcblk0 --fstype=vfat --label boot --active --size=100M --align 4096
-part / --source rootfs --ondisk mmcblk0 --fstype=ext4 --label root --align 4096 --size 1G
+# short-description: Create SD card image for BeagleV-ahead
+bootloader --ptable gpt
+part                                                --label empty --part-name empty --align 4096 --size=2M 
+part /boot --source bootimg-partition --fstype=ext4 --label boot  --part-name boot  --align 4096 --size=100M
+part /     --source rootfs            --fstype=ext4 --label root  --part-name root  --align 4096 --size 1G

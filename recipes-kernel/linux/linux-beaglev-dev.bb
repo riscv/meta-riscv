@@ -56,6 +56,9 @@ do_beaglev_img_deploy() {
     cp -f ${DEPLOY_DIR_IMAGE}/th1520-beaglev-ahead.dtb ${DEPLOY_DIR_IMAGE}/.boot/
     cp -f ${DEPLOY_DIR_IMAGE}/Image ${DEPLOY_DIR_IMAGE}/.boot/
     cp -f ${UNPACKDIR}/extlinux.conf ${DEPLOY_DIR_IMAGE}/.boot/extlinux/
+    
+    cp -f ${UNPACKDIR}/extlinux.conf ${DEPLOY_DIR_IMAGE}/extlinux_sd.conf
+    sed -i 's/\/dev\/mmcblk0p3/\/dev\/mmcblk1p3/g' ${DEPLOY_DIR_IMAGE}/extlinux_sd.conf
 
     dd if=/dev/zero of=${DEPLOY_DIR_IMAGE}/boot.ext4 bs=1 count=0 seek=190M
     mkfs.ext4 -F ${DEPLOY_DIR_IMAGE}/boot.ext4 -d ${DEPLOY_DIR_IMAGE}/.boot
