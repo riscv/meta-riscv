@@ -1,7 +1,7 @@
 require recipes-kernel/linux/linux-mainline-common.inc
 
 LINUX_VERSION ?= "6.2+"
-KERNEL_VERSION_SANITY_SKIP="1"
+KERNEL_VERSION_SANITY_SKIP = "1"
 PV = "${LINUX_VERSION}+git${SRCPV}"
 
 BRANCH = "linux-6.2.y"

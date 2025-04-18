@@ -1,4 +1,4 @@
-LICENSE="CLOSED"
+LICENSE = "CLOSED"
 
 PROVIDES += "virtual/libgles1 virtual/libgles2 virtual/libgles3"
 COMPATIBLE_MACHINE = "jh7110"

@@ -3,7 +3,7 @@ require linux-mainline-common.inc
 SUMMARY = "Milk-V Duo mainline kernel recipe"
 
 LINUX_VERSION ?= "6.8+"
-KERNEL_VERSION_SANITY_SKIP="1"
+KERNEL_VERSION_SANITY_SKIP = "1"
 PV = "${LINUX_VERSION}+git${SRCPV}"
 
 BRANCH = "linux-6.8.y"

@@ -6,7 +6,9 @@ SRCREV_machine ?= "ca67838d84af4c9f85d06311c9e98e1adf46308f"
 FORK ?= "smaeul"
 BRANCH ?= "riscv/d1-wip"
 KMETA = "kernel-meta"
-export KCFLAGS="-fno-asynchronous-unwind-tables -fno-unwind-tables"
+KCFLAGS = "-fno-asynchronous-unwind-tables -fno-unwind-tables"
+KCFLAGS[export] = "1"
+
 # It is necessary to add to SRC_URI link to the 'yocto-kernel-cache' due to
 # override of the original SRC_URI:
 # "do_kernel_metadata: Check the SRC_URI for meta-data repositories or
@@ -26,7 +28,7 @@ LINUX_VERSION ?= "6.1.0"
 KERNEL_FEATURES += "features/cgroups/cgroups.cfg"
 KERNEL_FEATURES += "ktypes/standard/standard.cfg"
 
-KERNEL_VERSION_SANITY_SKIP="1"
+KERNEL_VERSION_SANITY_SKIP = "1"
 
 COMPATIBLE_MACHINE = "(nezha-allwinner-d1|mangopi-mq-pro)"
 LINUX_VERSION_EXTENSION:append:nezha-allwinner-d1 = "-nezha"
