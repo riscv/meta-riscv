@@ -10,7 +10,7 @@ LINUX_VERSION_EXTENSION = ""
 
 PV = "${LINUX_VERSION}+git${SRCPV}"
 
-KCONFIG_MODE="--alldefconfig"
+KCONFIG_MODE = "--alldefconfig"
 
 KBUILD_DEFCONFIG:qemuriscv32 = "rv32_defconfig"
 KBUILD_DEFCONFIG:qemuriscv64 = "defconfig"

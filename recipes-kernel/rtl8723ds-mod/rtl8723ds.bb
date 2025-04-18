@@ -4,7 +4,8 @@ LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://COPYING;md5=1f6f1c0be32491a0c8d2915607a28f36"
 
 inherit module
-export KCFLAGS="-fno-asynchronous-unwind-tables -fno-unwind-tables"
+KCFLAGS = "-fno-asynchronous-unwind-tables -fno-unwind-tables"
+KCFLAGS[export] = "1"
 
 SRCREV = "ec85dc6b9f72bfe413bff464ed01a272e29c8dbe"
 
