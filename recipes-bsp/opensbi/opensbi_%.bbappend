@@ -6,7 +6,7 @@ SRCREV:jh7100 = "c6a092cd80112529cb2e92e180767ff5341b22a3"
 SRCREV:star64 = "c6a092cd80112529cb2e92e180767ff5341b22a3"
 SRCREV:milkv-duo = "v1.4"
 # recent version after 1.4 release
-SRCREV:c910 = "17e829129d60d7d178d47ecbd8990e705690d352"
+SRCREV:c910 = "61d7484c752a5e4c464d5dc18e21d9ac67fbbefa"
 
 SRC_URI:star64 = "git://github.com/starfive-tech/opensbi;branch=JH7110_VisionFive2_devel;protocol=https"
 SRC_URI:append:star64 = "\
@@ -14,6 +14,7 @@ SRC_URI:append:star64 = "\
 	"
 
 SRC_URI:milkv-duo = "git://github.com/riscv-software-src/opensbi.git;branch=master;protocol=https"
+SRC_URI:c910 = "git://github.com/revyos/thead-opensbi.git;branch=th1520;protocol=https"
 
 DEPENDS:append:jh7110 = " u-boot-tools-native dtc-native"
 
