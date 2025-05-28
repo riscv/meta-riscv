@@ -1,6 +1,6 @@
-From a0df33d9ffcb30c6f6eed262dbc4b9a2ececd927 Mon Sep 17 00:00:00 2001
-From: Kanak Shilledar <kanakshilledar111@protonmail.com>
-Date: Mon, 14 Apr 2025 20:57:42 +0530
+From 8eb85a8e38ddcc9328b7b21bcb4cfe65a5c07657 Mon Sep 17 00:00:00 2001
+From: RP38 <raphael.peyre@smile.fr>
+Date: Tue, 27 May 2025 11:43:09 +0200
 Subject: [PATCH 3/4] dt-bindings: reset: Add T-HEAD TH1520 SoC Reset
  Controller
 
@@ -22,7 +22,7 @@ Signed-off-by: Kanak Shilledar <kanakshilledar111@protonmail.com>
 
 diff --git a/Documentation/devicetree/bindings/reset/thead,th1520-reset.yaml b/Documentation/devicetree/bindings/reset/thead,th1520-reset.yaml
 new file mode 100644
-index 000000000000..f2e91d0add7a
+index 000000000000..cbea1ca23b44
 --- /dev/null
 +++ b/Documentation/devicetree/bindings/reset/thead,th1520-reset.yaml
 @@ -0,0 +1,44 @@
@@ -70,28 +70,30 @@ index 000000000000..f2e91d0add7a
 +        #reset-cells = <1>;
 +      };
 +    };
+\ No newline at end of file
 diff --git a/MAINTAINERS b/MAINTAINERS
-index 00e94bec401e..a9009f9081e6 100644
+index dd844ac8d910..bde8f899a798 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -20457,12 +20457,14 @@ F:	Documentation/devicetree/bindings/clock/thead,th1520-clk-ap.yaml
+@@ -21041,6 +21041,7 @@ L:	linux-riscv@lists.infradead.org
+ S:	Maintained
+ T:	git https://github.com/pdp7/linux.git
+ F:	Documentation/devicetree/bindings/clock/thead,th1520-clk-ap.yaml
++F:	Documentation/devicetree/bindings/reset/thead,th1520-reset.yaml
+ F:	Documentation/devicetree/bindings/firmware/thead,th1520-aon.yaml
  F:	Documentation/devicetree/bindings/mailbox/thead,th1520-mbox.yaml
  F:	Documentation/devicetree/bindings/net/thead,th1520-gmac.yaml
- F:	Documentation/devicetree/bindings/pinctrl/thead,th1520-pinctrl.yaml
-+F:	Documentation/devicetree/bindings/reset/thead,th1520-reset.yaml
- F:	arch/riscv/boot/dts/thead/
- F:	drivers/clk/thead/clk-th1520-ap.c
- F:	drivers/mailbox/mailbox-th1520.c
+@@ -21052,6 +21053,7 @@ F:	drivers/mailbox/mailbox-th1520.c
  F:	drivers/net/ethernet/stmicro/stmmac/dwmac-thead.c
  F:	drivers/pinctrl/pinctrl-th1520.c
- F:	include/dt-bindings/clock/thead,th1520-clk-ap.h
+ F:	drivers/pmdomain/thead/
 +F:	include/dt-bindings/reset/thead,th1520-reset.h
- 
- RNBD BLOCK DRIVERS
- M:	Md. Haris Iqbal <haris.iqbal@ionos.com>
+ F:	include/dt-bindings/clock/thead,th1520-clk-ap.h
+ F:	include/dt-bindings/power/thead,th1520-power.h
+ F:	include/linux/firmware/thead/thead,th1520-aon.h
 diff --git a/include/dt-bindings/reset/thead,th1520-reset.h b/include/dt-bindings/reset/thead,th1520-reset.h
 new file mode 100644
-index 000000000000..00459f160489
+index 000000000000..232ca98a02b0
 --- /dev/null
 +++ b/include/dt-bindings/reset/thead,th1520-reset.h
 @@ -0,0 +1,16 @@
