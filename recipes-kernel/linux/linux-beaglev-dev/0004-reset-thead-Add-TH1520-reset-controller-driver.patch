@@ -1,6 +1,6 @@
-From 97a5781a226c9a6e79dc873b2cc06eeff3ebbd41 Mon Sep 17 00:00:00 2001
-From: Kanak Shilledar <kanakshilledar111@protonmail.com>
-Date: Mon, 14 Apr 2025 21:01:32 +0530
+From f3fc08a7e7ab9527985487746b1a8f33133082c3 Mon Sep 17 00:00:00 2001
+From: RP38 <raphael.peyre@smile.fr>
+Date: Tue, 27 May 2025 11:43:10 +0200
 Subject: [PATCH 4/4] reset: thead: Add TH1520 reset controller driver
 
 Add reset controller driver for the T-HEAD TH1520 SoC that manages
@@ -21,22 +21,22 @@ Signed-off-by: Kanak Shilledar <kanakshilledar111@protonmail.com>
  create mode 100644 drivers/reset/reset-th1520.c
 
 diff --git a/MAINTAINERS b/MAINTAINERS
-index a9009f9081e6..3737c552d1dc 100644
+index bde8f899a798..505bd2626771 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -20463,6 +20463,7 @@ F:	drivers/clk/thead/clk-th1520-ap.c
+@@ -21052,6 +21052,7 @@ F:	drivers/firmware/thead,th1520-aon.c
  F:	drivers/mailbox/mailbox-th1520.c
  F:	drivers/net/ethernet/stmicro/stmmac/dwmac-thead.c
  F:	drivers/pinctrl/pinctrl-th1520.c
 +F:	drivers/reset/reset-th1520.c
- F:	include/dt-bindings/clock/thead,th1520-clk-ap.h
+ F:	drivers/pmdomain/thead/
  F:	include/dt-bindings/reset/thead,th1520-reset.h
- 
+ F:	include/dt-bindings/clock/thead,th1520-clk-ap.h
 diff --git a/drivers/reset/Kconfig b/drivers/reset/Kconfig
-index 5b3abb6db248..fa0943c3d1de 100644
+index 99f6f9784e68..11ce86c8156b 100644
 --- a/drivers/reset/Kconfig
 +++ b/drivers/reset/Kconfig
-@@ -272,6 +272,16 @@ config RESET_SUNXI
+@@ -279,6 +279,16 @@ config RESET_SUNXI
  	help
  	  This enables the reset driver for Allwinner SoCs.
  
@@ -54,10 +54,10 @@ index 5b3abb6db248..fa0943c3d1de 100644
  	tristate "TI System Control Interface (TI-SCI) reset driver"
  	depends on TI_SCI_PROTOCOL || (COMPILE_TEST && TI_SCI_PROTOCOL=n)
 diff --git a/drivers/reset/Makefile b/drivers/reset/Makefile
-index 677c4d1e2632..d6c2774407ae 100644
+index 31f9904d13f9..6322a191e2a8 100644
 --- a/drivers/reset/Makefile
 +++ b/drivers/reset/Makefile
-@@ -35,6 +35,7 @@ obj-$(CONFIG_RESET_SIMPLE) += reset-simple.o
+@@ -36,6 +36,7 @@ obj-$(CONFIG_RESET_SIMPLE) += reset-simple.o
  obj-$(CONFIG_RESET_SOCFPGA) += reset-socfpga.o
  obj-$(CONFIG_RESET_SUNPLUS) += reset-sunplus.o
  obj-$(CONFIG_RESET_SUNXI) += reset-sunxi.o
@@ -67,7 +67,7 @@ index 677c4d1e2632..d6c2774407ae 100644
  obj-$(CONFIG_RESET_TI_TPS380X) += reset-tps380x.o
 diff --git a/drivers/reset/reset-th1520.c b/drivers/reset/reset-th1520.c
 new file mode 100644
-index 000000000000..7874f0693e1b
+index 000000000000..56fdc377bf81
 --- /dev/null
 +++ b/drivers/reset/reset-th1520.c
 @@ -0,0 +1,135 @@
