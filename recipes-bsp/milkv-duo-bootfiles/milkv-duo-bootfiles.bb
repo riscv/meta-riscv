@@ -10,7 +10,6 @@ SRC_URI = "https://github.com/xyq1113723547/milkv-duo-bootfiles/raw/main/fip.bin
 SRC_URI[sha256sum] = "19670afc7c5361fbe81d61f843fe1df633f4ac77bf178c5421c76ddf314047a2"
 
 do_deploy() {
-        cp ${WORKDIR}/fip.bin ${DEPLOYDIR}/
 }
 
 addtask deploy after do_compile

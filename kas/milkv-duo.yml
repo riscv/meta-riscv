@@ -4,3 +4,11 @@ header:
     - base-riscv.yml
 
 machine: milkv-duo 
+target: core-image-base
+
+repos:
+  meta-riscv:
+    url: https://github.com/riscv/meta-riscv.git
+    branch: master
+    layers:
+      - meta-riscv
