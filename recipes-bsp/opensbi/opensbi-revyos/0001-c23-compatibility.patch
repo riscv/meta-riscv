@@ -1,0 +1,50 @@
+From c315f807c0ee23f84ba481c48447e9c6f5a2b6cb Mon Sep 17 00:00:00 2001
+From: Gyorgy Sarvari <skandigraun@gmail.com>
+Date: Wed, 4 Jun 2025 17:28:19 +0200
+Subject: [PATCH]  fix c23 compatibility
+
+Upstream-Status: Backport [https://github.com/riscv-software-src/opensbi/commit/d539d64a23bbd64ba324eed595449bcc9c7be0cb]
+---
+ include/sbi/sbi_types.h | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/include/sbi/sbi_types.h b/include/sbi/sbi_types.h
+index 38e3565..058ee9d 100644
+--- a/include/sbi/sbi_types.h
++++ b/include/sbi/sbi_types.h
+@@ -44,7 +44,12 @@ typedef unsigned long long	uint64_t;
+ #error "Unexpected __riscv_xlen"
+ #endif
+ 
+-typedef int			bool;
++#if __STDC_VERSION__ < 202000L
++typedef _Bool			bool;
++#define true                    1
++#define false                   0
++#endif
++
+ typedef unsigned long		ulong;
+ typedef unsigned long		uintptr_t;
+ typedef unsigned long		size_t;
+@@ -56,8 +61,6 @@ typedef unsigned long		physical_size_t;
+ 
+ #define TRUE			1
+ #define FALSE			0
+-#define true			TRUE
+-#define false			FALSE
+ 
+ #define NULL			((void *)0)
+ 
+diff --git a/lib/sbi/riscv_locks.c b/lib/sbi/riscv_locks.c
+index 75b443b..784530d 100644
+--- a/lib/sbi/riscv_locks.c
++++ b/lib/sbi/riscv_locks.c
+@@ -13,7 +13,7 @@ static inline int spin_lock_unlocked(spinlock_t lock)
+ 	return lock.owner == lock.next;
+ }
+ 
+-bool spin_lock_check(spinlock_t *lock)
++int spin_lock_check(spinlock_t *lock)
+ {
+ 	RISCV_FENCE(r, rw);
+ 	return !spin_lock_unlocked(*lock);
