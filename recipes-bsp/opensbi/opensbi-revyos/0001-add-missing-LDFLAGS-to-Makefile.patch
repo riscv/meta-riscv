@@ -1,0 +1,40 @@
+From e95af3b36b6194f51b485316ad0fefa7c60be4e0 Mon Sep 17 00:00:00 2001
+From: Gyorgy Sarvari <skandigraun@gmail.com>
+Date: Thu, 5 Jun 2025 08:48:41 +0200
+Subject: [PATCH] add missing LDFLAGS to Makefile
+
+CLFAGS and ASFLAGS are not extended by the Makefile, rather they are
+constructed from scratch, omitting some of the important Yocto-specific
+flags (e.g. file-prefix-map) which are causing fatal QA errors.
+
+Pass these flags explicitly in the Makefile.
+
+Upstream-Status: Pending
+
+Signed-off-by: Gyorgy Sarvari <skandigraun@gmail.com>
+---
+ Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 9ad599b..88c736e 100644
+--- a/Makefile
++++ b/Makefile
+@@ -210,7 +210,7 @@ GENFLAGS	+=	$(libsbiutils-genflags-y)
+ GENFLAGS	+=	$(platform-genflags-y)
+ GENFLAGS	+=	$(firmware-genflags-y)
+ 
+-CFLAGS		=	-g -Wall -Werror -ffreestanding -nostdlib -fno-stack-protector -fno-strict-aliasing -O2
++CFLAGS		=	-g -Wall -Werror -ffreestanding -nostdlib -fno-stack-protector -fno-strict-aliasing -O2 $(LDFLAGS)
+ CFLAGS		+=	-fno-omit-frame-pointer -fno-optimize-sibling-calls
+ CFLAGS		+=	-mno-save-restore -mstrict-align
+ CFLAGS		+=	-mabi=$(PLATFORM_RISCV_ABI) -march=$(PLATFORM_RISCV_ISA)
+@@ -224,7 +224,7 @@ CPPFLAGS	+=	$(GENFLAGS)
+ CPPFLAGS	+=	$(platform-cppflags-y)
+ CPPFLAGS	+=	$(firmware-cppflags-y)
+ 
+-ASFLAGS		=	-g -Wall -nostdlib
++ASFLAGS		=	-g -Wall -nostdlib $(LDFLAGS)
+ ASFLAGS		+=	-fno-omit-frame-pointer -fno-optimize-sibling-calls
+ ASFLAGS		+=	-mno-save-restore -mstrict-align
+ ASFLAGS		+=	-mabi=$(PLATFORM_RISCV_ABI) -march=$(PLATFORM_RISCV_ISA)
