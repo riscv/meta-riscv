@@ -18,8 +18,8 @@ PV = "${LINUX_VERSION}+git${SRCPV}"
 SRC_URI = "git://github.com/orangepi-xunlong/linux-orangepi.git;protocol=https;branch=${BRANCH}"
 
 SRC_URI:append:orangepi-rv2 = " file://disable-focaltech-touchscreen.cfg \
-								file://disable-rtl8852bs.cfg \
-								file://bcmdhd-fix-typedefs-header-not-found.patch"
+				file://disable-rtl8852bs.cfg \
+				file://bcmdhd-fix-typedefs-header-not-found.patch"
 
 INITRAMFS_IMAGE:orangepi-rv2 = "core-image-minimal-initramfs"
 
