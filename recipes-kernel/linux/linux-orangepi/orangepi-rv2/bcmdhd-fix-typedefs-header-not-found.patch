@@ -1,0 +1,36 @@
+From ab8814d32f9bde1645dfdf14b411b68e14faec29 Mon Sep 17 00:00:00 2001
+From: Alper Ak <alperyasinak1@gmail.com>
+Date: Thu, 5 Jun 2025 19:34:24 +0300
+Subject: [PATCH] bcmdhd: Ensure typedefs.h is found by using full include path
+
+When building the bcmdhd driver, the build system fail to find "typedefs.h" under the driver's include directory and resulting in
+the following error:
+
+/linux-orangepi/drivers/net/wireless/bcmdhd/aiutils.c:44:10: fatal error: typedefs.h: No such file or directory
+   44 | #include <typedefs.h>
+      |          ^~~~~~~~~~~~
+
+This patch provides full absolute path to the driver's include directory. This ensures that "typedefs.h" is always found.
+
+Upstream-Status: Inappropriate [oe specific]
+
+Signed-off-by: Alper Ak <alperyasinak1@gmail.com>
+---
+ drivers/net/wireless/bcmdhd/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/net/wireless/bcmdhd/Makefile b/drivers/net/wireless/bcmdhd/Makefile
+index b840c3963318..8ab985413070 100644
+--- a/drivers/net/wireless/bcmdhd/Makefile
++++ b/drivers/net/wireless/bcmdhd/Makefile
+@@ -485,6 +485,7 @@ BCMDHD_ROOT = $(src)
+ EXTRA_CFLAGS = $(DHDCFLAGS)
+ EXTRA_CFLAGS += -DDHD_COMPILED=\"$(BCMDHD_ROOT)\"
+ EXTRA_CFLAGS += -I$(BCMDHD_ROOT)/include/ -I$(BCMDHD_ROOT)/
++EXTRA_CFLAGS += -I$(srctree)/$(src)/include
+ ifeq ($(CONFIG_BCMDHD),m)
+ EXTRA_LDFLAGS += --strip-debug
+ endif
+--
+2.43.0
+
