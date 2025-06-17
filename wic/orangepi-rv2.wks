@@ -1,0 +1,7 @@
+# Orange Pi RV2 SD Card Layout
+
+part spl      --offset 256K --fixed-size 256K --fstype=none --source rawcopy --sourceparams="file=u-boot-spl.bin"
+part uboot    --offset 1M 	--fixed-size 3M   --fstype=none --source rawcopy --sourceparams="file=u-boot-opensbi.itb"
+
+part /boot --ondisk mmcblk0 --fstype=vfat --label boot --offset 4M --size 128M --source bootimg-partition --use-uuid --active --align 4096
+part /     --ondisk mmcblk0 --fstype=ext4 --label root --source rootfs --use-uuid --align 4096
