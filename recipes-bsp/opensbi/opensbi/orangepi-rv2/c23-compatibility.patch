@@ -1,0 +1,56 @@
+From 2481b7fdfdc422c439241fd25fcc67cf91280f1b Mon Sep 17 00:00:00 2001
+From: Alper Ak <alperyasinak1@gmail.com>
+Date: Sun, 15 Jun 2025 20:33:33 +0300
+Subject: [PATCH] Fix compiling with C23
+
+With C23 standards, 'bool' is now a built-in keyword and can't be redefined with typedef.
+This patch ensures 'bool' is only typedef'd for pre-C23 standards.
+
+/opensbi/include/sbi/sbi_types.h:47:33: error: 'bool' cannot be defined via 'typedef'
+|    47 | typedef int                     bool;
+|       |                                 ^~~~
+
+/opensbi/include/sbi/sbi_types.h:47:33: note: 'bool' is a keyword with '-std=c23' onwards
+
+/opensbi/include/sbi/sbi_types.h:47:1: error: useless type name in empty declaration [-Werror]
+|    47 | typedef int                     bool;
+|       | ^~~~~~~
+
+Upstream-Status: Backport [https://github.com/riscv-software-src/opensbi/commit/d539d64a23bbd64ba324eed595449bcc9c7be0cb]
+
+Signed-off-by: Alper Ak <alperyasinak1@gmail.com>
+---
+ opensbi/include/sbi/sbi_types.h | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/opensbi/include/sbi/sbi_types.h b/opensbi/include/sbi/sbi_types.h
+index def88bbad2..6ad902e1ba 100644
+--- a/include/sbi/sbi_types.h
++++ b/include/sbi/sbi_types.h
+@@ -44,7 +44,12 @@ typedef unsigned long long	uint64_t;
+ #error "Unexpected __riscv_xlen"
+ #endif
+
+-typedef int			bool;
++#if __STDC_VERSION__ < 202000L
++typedef _Bool			bool;
++#define true			1
++#define false			0
++#endif
++
+ typedef unsigned long		ulong;
+ typedef unsigned long		uintptr_t;
+ typedef unsigned long		size_t;
+@@ -61,9 +66,6 @@ typedef uint32_t		be32_t;
+ typedef uint64_t		le64_t;
+ typedef uint64_t		be64_t;
+
+-#define true			1
+-#define false			0
+-
+ #define NULL			((void *)0)
+
+ #define __packed		__attribute__((packed))
+--
+2.43.0
+
