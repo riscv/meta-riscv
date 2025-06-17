@@ -1,0 +1,58 @@
+From 8cf7729e31b8fc9a596e006101128f09ab18453f Mon Sep 17 00:00:00 2001
+From: Alper Ak <alperyasinak1@gmail.com>
+Date: Sat, 7 Jun 2025 01:16:36 +0300
+Subject: [PATCH] Drop in-tree OpenSBI build and ITB creation logic from Makefile
+
+For the KY_X1 target, building OpenSBI and generating the ITB(Image Tree Blob) will no longer be managed
+within U-Boot's Makefile, but instead by the Yocto/OpenEmbedded build system.
+
+This patch removes the OpenSBI build and ITB creation steps that were previously part of U-Boot’s build process.
+
+From now on, OpenSBI and U-Boot will be built separately.
+
+Upstream-Status: Inappropriate [oe specific]
+
+Signed-off-by: Alper Ak <alperyasinak1@gmail.com>
+---
+ Makefile | 18 ------------------
+ 1 file changed, 18 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 2f77d5b06a..bad77c2be7 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1010,10 +1010,6 @@ INPUTS-y += u-boot.img
+ endif
+ endif
+
+-ifeq ($(CONFIG_TARGET_KY_X1),y)
+-INPUTS-y += u-boot-opensbi.itb
+-endif
+-
+ INPUTS-$(CONFIG_X86) += u-boot-x86-start16.bin u-boot-x86-reset16.bin \
+ 	$(if $(CONFIG_SPL_X86_16BIT_INIT),spl/u-boot-spl.bin) \
+ 	$(if $(CONFIG_TPL_X86_16BIT_INIT),tpl/u-boot-tpl.bin)
+@@ -2138,20 +2134,6 @@ System.map:	u-boot
+
+ #########################################################################
+
+-ifeq ($(CONFIG_TARGET_KY_X1),y)
+-sbi_srcdir := $(CURDIR)/opensbi
+-sbi_wrkdir := $(sbi_srcdir)/build
+-sbi_bin := $(sbi_wrkdir)/platform/generic/firmware/fw_dynamic.bin
+-
+-$(sbi_bin): u-boot.bin
+-	CROSS_COMPILE="$(CROSS_COMPILE)" PLATFORM_DEFCONFIG=k1_defconfig PLATFORM=generic ${MAKE} -C $(sbi_srcdir)
+-	mv $(sbi_bin) .
+-	rm -rf $(sbi_wrkdir)
+-
+-u-boot-opensbi.itb: uboot-opensbi.its $(sbi_bin)
+-	tools/mkimage -f uboot-opensbi.its -r u-boot-opensbi.itb
+-endif
+-
+ # ARM relocations should all be R_ARM_RELATIVE (32-bit) or
+ # R_AARCH64_RELATIVE (64-bit).
+ checkarmreloc: u-boot
+--
+2.43.0
+
