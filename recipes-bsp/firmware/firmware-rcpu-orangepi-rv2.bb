@@ -1,5 +1,3 @@
-FILESEXTRAPATHS:prepend := "${THISDIR}/orangepi-rv2:"
-
 SUMMARY = "Orange Pi RV2 RCPU firmware (esos.elf)"
 DESCRIPTION = "esos.elf is the firmware for the RCPU (Real-Time CPU), responsible for initializing some hardware modules and forwarding HDMI Audio interrupts \
 It is dependent on the Linux kernel and the system will not boot without it. It needs to be installed in the initramfs /lib/firmware directory"
