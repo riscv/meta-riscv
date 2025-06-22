@@ -23,7 +23,7 @@ SRC_URI:append:orangepi-rv2 = " file://disable-focaltech-touchscreen.cfg \
 
 INITRAMFS_IMAGE:orangepi-rv2 = "core-image-minimal-initramfs"
 
-KCONFIG_MODE = "--alldefconfig"
+KCONFIG_MODE = "alldefconfig"
 KBUILD_DEFCONFIG:orangepi-rv2 = "x1_defconfig"
 
 do_install:append:orangepi-rv2() {
