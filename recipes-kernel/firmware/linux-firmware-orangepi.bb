@@ -7,7 +7,6 @@ inherit allarch
 SRC_URI = "git://github.com/orangepi-xunlong/firmware.git;protocol=https;branch=master"
 SRCREV = "db5e86200ae592c467c4cfa50ec0c66cbc40b158"
 
-
 do_install:orangepi-rv2() {
 	install -d ${D}${nonarch_base_libdir}/firmware
 	install -d ${D}${nonarch_base_libdir}/firmware/brcm

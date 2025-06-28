@@ -36,7 +36,6 @@ do_deploy:append() {
     ln -sf ${SPL_IMAGE}.normal.out ${DEPLOYDIR}/${SPL_SYMLINK}.normal.out
 }
 
-
 COMPATIBLE_MACHINE = "star64"
 
 TOOLCHAIN = "gcc"

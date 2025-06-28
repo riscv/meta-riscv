@@ -46,7 +46,6 @@ do_install() {
     install -d ${D}/usr/lib
     install -m 0644 ${S}/libcodadec.so ${D}/usr/lib/
 
-
     install -d ${D}/${base_libdir}/udev/rules.d/
     install -m 0644 ${UNPACKDIR}/20_jpu.rules ${D}/${base_libdir}/udev/rules.d/
 }
