@@ -19,7 +19,7 @@ SRC_URI:milkv-duo = "git://github.com/riscv-software-src/opensbi.git;branch=mast
 SRC_URI:c910 = "git://github.com/revyos/thead-opensbi.git;branch=th1520;protocol=https"
 SRC_URI:orangepi-rv2 = "git://github.com/orangepi-xunlong/u-boot-orangepi.git;protocol=https;branch=${BRANCH}"
 SRC_URI:append:orangepi-rv2 = " file://c23-compatibility.patch"
-S:orangepi-rv2 = "${WORKDIR}/git/opensbi"
+S:orangepi-rv2 = "${UNPACKDIR}/${BP}/opensbi"
 
 DEPENDS:append:jh7110 = " u-boot-tools-native dtc-native"
 DEPENDS:append:orangepi-rv2 = " u-boot-tools-native"

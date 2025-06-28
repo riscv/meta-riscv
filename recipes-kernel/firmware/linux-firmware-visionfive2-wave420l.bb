@@ -9,7 +9,7 @@ LIC_FILES_CHKSUM = " \
 require recipes-bsp/common/visionfive2-firmware.inc
 inherit allarch
 
-S = "${WORKDIR}/git/wave420l"
+S = "${UNPACKDIR}/${BP}/wave420l"
 
 CLEANBROKEN = "1"
 

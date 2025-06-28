@@ -5,7 +5,6 @@ LICENSE = "CLOSED"
 require recipes-bsp/common/visionfive2-firmware.inc
 inherit allarch
 
-S = "${WORKDIR}/git"
 
 CLEANBROKEN = "1"
 

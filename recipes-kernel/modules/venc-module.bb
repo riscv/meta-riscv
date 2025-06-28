@@ -7,16 +7,14 @@ LIC_FILES_CHKSUM = "file://../../../LICENSE.txt;md5=16bead7cc56b053f5da0061ce063
 
 COMPATIBLE_MACHINE = "jh7110"
 
-WAVE420L_MODULE_SRC = "git/wave420l/code/vdi/linux/driver"
-
 inherit module
 require recipes-bsp/common/visionfive2-firmware.inc
 
 SRC_URI += " \
-    file://Makefile;subdir=${WAVE420L_MODULE_SRC} \
+    file://Makefile;subdir=${BB_GIT_DEFAULT_DESTSUFFIX}/wave420l/code/vdi/linux/driver \
 "
 
-S = "${WORKDIR}/${WAVE420L_MODULE_SRC}"
+S = "${UNPACKDIR}/${BP}/wave420l/code/vdi/linux/driver"
 
 RPROVIDES:${PN} += "kernel-module-venc"
 RDEPENDS:${PN} += "linux-firmware-visionfive2-wave420l"

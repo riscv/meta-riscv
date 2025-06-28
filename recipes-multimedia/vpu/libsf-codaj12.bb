@@ -13,11 +13,11 @@ SOLIBS = ".so"
 FILES_SOLIBSDEV = ""
 
 SRC_URI += " \
-    file://codaj12_yocto.mak;subdir=git/codaj12 \
+    file://codaj12_yocto.mak;subdir=${BB_GIT_DEFAULT_DESTSUFFIX}/codaj12 \
     file://20_jpu.rules \
 "
 
-S = "${WORKDIR}/git/codaj12"
+S = "${UNPACKDIR}/${BP}/codaj12"
 
 do_compile() {
     oe_runmake -C ${S} -f codaj12_yocto.mak
