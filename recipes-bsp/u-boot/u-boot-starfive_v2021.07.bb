@@ -22,12 +22,9 @@ TFTP_SERVER_IP ?= "127.0.0.1"
 do_configure:prepend() {
     sed -i -e 's,@SERVERIP@,${TFTP_SERVER_IP},g' ${UNPACKDIR}/tftp-mmc-boot.txt
     mkimage -O linux -T script -C none -n "U-Boot boot script" \
-        -d ${UNPACKDIR}/tftp-mmc-boot.txt ${WORKDIR}/${UBOOT_ENV_BINARY}
+        -d ${UNPACKDIR}/tftp-mmc-boot.txt ${UNPACKDIR}/${UBOOT_ENV_BINARY}
 }
 
 COMPATIBLE_MACHINE = "(beaglev-starlight-jh7100)"
 
 TOOLCHAIN = "gcc"
-
-# U-boot sets O=... which needs it to build outside of S
-B = "${WORKDIR}/build"

@@ -40,7 +40,3 @@ do_deploy:append() {
 COMPATIBLE_MACHINE = "star64"
 
 TOOLCHAIN = "gcc"
-
-
-# U-boot sets O=... which needs it to build outside of S
-B = "${WORKDIR}/build"
