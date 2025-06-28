@@ -12,7 +12,6 @@ inherit autotools gettext cross-canadian
 
 BBCLASSEXTEND = "native nativesdk"
 
-S = "${WORKDIR}/git"
 
 do_configure:prepend () {
         if [ ! -e ${S}/acinclude.m4 ]; then

@@ -11,7 +11,7 @@ SRC_URI += " \
     "
 SRC_URI[wave511_dec_fw.sha256sum] = "398eb201cf4d6c5050856de5660764a743b8879a69b8684d12aadb556409b79c"
 
-S = "${WORKDIR}/git/wave511/firmware"
+S = "${UNPACKDIR}/${BP}/wave511/firmware"
 
 CLEANBROKEN = "1"
 

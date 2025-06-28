@@ -8,7 +8,7 @@ SRCREV = "f359994bd497f942bb67734280d81f6640c7c168"
 
 COMPATIBLE_MACHINE = "milkv-duo"
 
-S = "${WORKDIR}/git/firmware"
+S = "${UNPACKDIR}/${BP}/firmware"
 B = "${S}/build"
 
 TARGET_LDFLAGS = ""

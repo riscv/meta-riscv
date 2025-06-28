@@ -13,7 +13,6 @@ DEPENDS:append:libc-musl = " gcompat patchelf-native"
 SRC_URI += "\
         file://glesv1_cm.pc \
 "
-S = "${WORKDIR}/git"
 
 PACKAGES += " \
     ${PN}-firmware \

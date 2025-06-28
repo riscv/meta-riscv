@@ -6,7 +6,7 @@ SECTION = "bootloaders"
 SRCREV = "0747c0510e090f69bf7d2884f44903b77b3db5c5"
 SRC_URI = "git://github.com/starfive-tech/Tools;protocol=https;branch=master"
 
-S = "${WORKDIR}/git/spl_tool"
+S = "${UNPACKDIR}/${BP}/spl_tool"
 
 do_compile () {
     cd ${S}
