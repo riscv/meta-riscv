@@ -34,6 +34,5 @@ COMPATIBLE_MACHINE = "(nezha-allwinner-d1|mangopi-mq-pro)"
 LINUX_VERSION_EXTENSION:append:nezha-allwinner-d1 = "-nezha"
 LINUX_VERSION_EXTENSION:append:mangopi-mq-pro = "-mangopi"
 
-
 ## Should be oveerriten in machine conf
 KBUILD_DEFCONFIG ?= "allwinner_defconfig"

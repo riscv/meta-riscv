@@ -36,11 +36,6 @@ do_deploy:append() {
     ln -sf ${SPL_IMAGE}.normal.out ${DEPLOYDIR}/${SPL_SYMLINK}.normal.out
 }
 
-
 COMPATIBLE_MACHINE = "star64"
 
 TOOLCHAIN = "gcc"
-
-
-# U-boot sets O=... which needs it to build outside of S
-B = "${WORKDIR}/build"

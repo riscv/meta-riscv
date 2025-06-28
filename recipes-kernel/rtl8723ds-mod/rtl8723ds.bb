@@ -13,7 +13,6 @@ SRC_URI = " \
           git://github.com/lwfinger/rtl8723ds.git;protocol=https;name=rtl8723ds;branch=master \
           file://0001-Makefile-Add-modules_install-chain-and-make-KSRC-ass.patch  \
 	  "
-S = "${WORKDIR}/git"
 
 RPROVIDES:${PN} += "kernel-module-rtl8723ds"
 

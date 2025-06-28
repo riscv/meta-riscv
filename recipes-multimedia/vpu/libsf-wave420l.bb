@@ -13,11 +13,11 @@ SOLIBS = ".so"
 FILES_SOLIBSDEV = ""
 
 SRC_URI += " \
-    file://WaveEncoder_yocto.mak;subdir=git/wave420l/code \
+    file://WaveEncoder_yocto.mak;subdir=${BB_GIT_DEFAULT_DESTSUFFIX}/wave420l/code \
     file://20_venc.rules \
 "
 
-S = "${WORKDIR}/git/wave420l/code"
+S = "${UNPACKDIR}/${BP}/wave420l/code"
 
 do_configure:prepend() {
     # workaround wrong build system/include path assumptions

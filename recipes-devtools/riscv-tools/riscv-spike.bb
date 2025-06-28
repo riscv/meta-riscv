@@ -13,8 +13,6 @@ RDEPENDS:nativesdk-riscv-spike = "nativesdk-riscv-fesvr"
 
 inherit autotools cross-canadian
 
-S = "${WORKDIR}/git"
-
 do_configure:prepend () {
 	touch ${S}/softfloat/softfloat.ac
         if [ ! -e ${S}/acinclude.m4 ]; then

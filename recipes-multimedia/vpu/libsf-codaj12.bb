@@ -13,11 +13,11 @@ SOLIBS = ".so"
 FILES_SOLIBSDEV = ""
 
 SRC_URI += " \
-    file://codaj12_yocto.mak;subdir=git/codaj12 \
+    file://codaj12_yocto.mak;subdir=${BB_GIT_DEFAULT_DESTSUFFIX}/codaj12 \
     file://20_jpu.rules \
 "
 
-S = "${WORKDIR}/git/codaj12"
+S = "${UNPACKDIR}/${BP}/codaj12"
 
 do_compile() {
     oe_runmake -C ${S} -f codaj12_yocto.mak
@@ -45,7 +45,6 @@ do_install() {
 
     install -d ${D}/usr/lib
     install -m 0644 ${S}/libcodadec.so ${D}/usr/lib/
-
 
     install -d ${D}/${base_libdir}/udev/rules.d/
     install -m 0644 ${UNPACKDIR}/20_jpu.rules ${D}/${base_libdir}/udev/rules.d/

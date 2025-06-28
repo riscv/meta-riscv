@@ -6,15 +6,13 @@ LIC_FILES_CHKSUM = "file://../../../LICENSE.txt;md5=16bead7cc56b053f5da0061ce063
 
 COMPATIBLE_MACHINE = "jh7110"
 
-JPU_MODULE_SRC = "git/codaj12/jdi/linux/driver"
-
 inherit module
 require recipes-bsp/common/visionfive2-firmware.inc
 
 SRC_URI += " \
-    file://Makefile;subdir=${JPU_MODULE_SRC} \
+    file://Makefile;subdir=${BB_GIT_DEFAULT_DESTSUFFIX}/codaj12/jdi/linux/driver \
 "
 
-S = "${WORKDIR}/${JPU_MODULE_SRC}"
+S = "${UNPACKDIR}/${BP}/codaj12/jdi/linux/driver"
 
 RPROVIDES:${PN} += "kernel-module-jpu"

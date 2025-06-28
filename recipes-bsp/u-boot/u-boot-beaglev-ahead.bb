@@ -6,7 +6,6 @@ LIC_FILES_CHKSUM = "file://Licenses/README;md5=30503fd321432fc713238f582193b78e"
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-
 SRC_URI = " \
     git://github.com/beagleboard/beaglev-ahead-u-boot.git;protocol=https;branch=beaglev-v2020.01-1.1.2-ubuntu \
     file://0001-Set-sec_library-path-to-source-location.patch \

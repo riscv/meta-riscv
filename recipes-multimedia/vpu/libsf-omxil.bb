@@ -16,10 +16,10 @@ FILES_SOLIBSDEV = ""
 INSANE_SKIP:${PN} += "dev-so"
 
 SRC_URI += " \
-     file://CMakeLists.txt;subdir=git/omx-il \
+     file://CMakeLists.txt;subdir=${BB_GIT_DEFAULT_DESTSUFFIX}/omx-il \
 "
 
-S = "${WORKDIR}/git/omx-il"
+S = "${UNPACKDIR}/${BP}/omx-il"
 
 DEPENDS += " \
     libsf-wave420l \
