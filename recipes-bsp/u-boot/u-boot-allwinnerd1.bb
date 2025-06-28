@@ -6,7 +6,6 @@ LIC_FILES_CHKSUM = "file://Licenses/README;md5=2ca5f2c35c8cc335f0a19756634782f1"
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-
 SRC_URI = " \
     git://github.com/smaeul/u-boot.git;protocol=https;branch=d1-wip \
     file://tftp-mmc-boot.txt \
@@ -20,7 +19,6 @@ DEPENDS:append = " \
     u-boot-tools-native \
     python3-setuptools-native \
 "
-
 
 # Overwrite this for your server
 TFTP_SERVER_IP ?= "127.0.0.1"
