@@ -39,8 +39,12 @@ do_compile () {
 		--BLCP_2ND_RUNADDR=0x83f40000 \
 		--DDR_PARAM=${S}/test/cv181x/ddr_param.bin \
 		--MONITOR=${DEPLOY_DIR_IMAGE}/fw_dynamic.bin \
-		--LOADER_2ND=${DEPLOY_DIR_IMAGE}/u-boot.bin \
-		--NAND_BOOT=1
+		--LOADER_2ND=${DEPLOY_DIR_IMAGE}/u-boot.bin
+
+	# generate rootfs.spinand, boot.spinand, and system.spinand
+	python3 ${S}/common_tools/spinand_tool/mkubiimg.py --ubionly ${S}/common_tools/spinand_tool/flash_partition.xml ROOTFS ${DEPLOY_DIR_IMAGE}/rootfs.sqsh ${DEPLOY_DIR_IMAGE}/rootfs.spinand -b 0x20000 -p 0x800
+	python3 ${S}/common_tools/spinand_tool/mkubiimg.py --ubionly ${S}/common_tools/spinand_tool/flash_partition.xml BOOT ${DEPLOY_DIR_IMAGE}/boot.sqsh ${DEPLOY_DIR_IMAGE}/boot.spinand -b 0x20000 -p 0x800
+	python3 ${S}/common_tools/spinand_tool/mkubiimg.py --ubionly ${S}/common_tools/spinand_tool/flash_partition.xml SYSTEM ${DEPLOY_DIR_IMAGE}/system.sqsh ${DEPLOY_DIR_IMAGE}/system.spinand -b 0x20000 -p 0x800
 }
 
 do_deploy () {
