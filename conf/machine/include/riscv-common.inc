@@ -25,7 +25,7 @@ WKS_FILE_DEPENDS ?= " \
     e2fsprogs-native \
     bmap-tools-native \
 "
-IMAGE_FSTYPES += "wic.gz wic.bmap ext4"
+IMAGE_FSTYPES += "ext4"
 IMAGE_BOOT_FILES ??= " \
     ${KERNEL_IMAGETYPE} \
     boot.scr.uimg \
