@@ -1,0 +1,83 @@
+From d42edba61e2da9f9d0eeabba2d26dab216c6598e Mon Sep 17 00:00:00 2001
+From: Andreas Cord-Landwehr <cordlandwehr@kde.org>
+Date: Mon, 3 Jun 2024 20:18:40 +0200
+Subject: [PATCH] Fix errors for GCC 14 compatibility
+
+Upstream-Status: Pending
+
+---
+ arch/riscv/include/asm/dma-mapping.h                    | 1 +
+ board/thead/light-c910/lpddr4/include/ddr_common_func.h | 2 ++
+ board/thead/light-c910/sys_clk.c                        | 6 +++---
+ cmd/pxe_utils.c                                         | 2 +-
+ drivers/usb/dwc3/ep0.c                                  | 2 +-
+ 5 files changed, 8 insertions(+), 5 deletions(-)
+
+diff --git a/arch/riscv/include/asm/dma-mapping.h b/arch/riscv/include/asm/dma-mapping.h
+index 39b2c06c..1e192d2d 100644
+--- a/arch/riscv/include/asm/dma-mapping.h
++++ b/arch/riscv/include/asm/dma-mapping.h
+@@ -10,6 +10,7 @@
+ #define __ASM_RISCV_DMA_MAPPING_H
+ 
+ #include <linux/dma-direction.h>
++#include <common.h>
+ 
+ #define dma_mapping_error(x, y)	0
+ 
+diff --git a/board/thead/light-c910/lpddr4/include/ddr_common_func.h b/board/thead/light-c910/lpddr4/include/ddr_common_func.h
+index 670477b5..ebc4f910 100644
+--- a/board/thead/light-c910/lpddr4/include/ddr_common_func.h
++++ b/board/thead/light-c910/lpddr4/include/ddr_common_func.h
+@@ -49,4 +49,6 @@ void addrmap(int rank_num, enum DDR_BITWIDTH bits);
+ void ctrl_en(enum DDR_BITWIDTH bits);
+ void enable_auto_refresh(void);
+ 
++void lpddr4_auto_selref();
++
+ #endif // DDR_COMMON_FUNCE_H
+diff --git a/board/thead/light-c910/sys_clk.c b/board/thead/light-c910/sys_clk.c
+index 09c13477..73a27cde 100644
+--- a/board/thead/light-c910/sys_clk.c
++++ b/board/thead/light-c910/sys_clk.c
+@@ -43,9 +43,9 @@ void cpu_clk_config(uint32_t cpu_freq)
+ 	udelay(11);
+ 
+ 	/* config bus: cpu clk ratio to 1:1 */
+-	writel((readl(LIGHT_APCLK_ADDRBASE + 0x100) & (~(0x7<<8))) | (0x0<<8), (void *)(LIGHT_APCLK_ADDRBASE + 0x100)); // ratio=0
+-	writel(readl(LIGHT_APCLK_ADDRBASE + 0x100) & (~(0x1<<11)), (void *)(LIGHT_APCLK_ADDRBASE + 0x100)); // sync=0
+-	writel(readl(LIGHT_APCLK_ADDRBASE + 0x100) | (0x1<<11), (void *)(LIGHT_APCLK_ADDRBASE + 0x100)); // sync=1
++	writel((readl((unsigned long*)(LIGHT_APCLK_ADDRBASE + 0x100)) & (~(0x7<<8))) | (0x0<<8), (void *)(LIGHT_APCLK_ADDRBASE + 0x100)); // ratio=0
++	writel(readl((unsigned long*)(LIGHT_APCLK_ADDRBASE + 0x100)) & (~(0x1<<11)), (void *)(LIGHT_APCLK_ADDRBASE + 0x100)); // sync=0
++	writel(readl((unsigned long*)(LIGHT_APCLK_ADDRBASE + 0x100)) | (0x1<<11), (void *)(LIGHT_APCLK_ADDRBASE + 0x100)); // sync=1
+ 
+ 	/* switch c910_cclk to cpu_pll1_foutpostdiv */
+ 	tmp = readl((void *)LIGHT_APCLK_ADDRBASE + 0x100);
+diff --git a/cmd/pxe_utils.c b/cmd/pxe_utils.c
+index f91b80bf..16ad3cd4 100644
+--- a/cmd/pxe_utils.c
++++ b/cmd/pxe_utils.c
+@@ -335,7 +335,7 @@ static int label_localboot(struct pxe_label *label)
+  * Loads fdt overlays specified in 'fdtoverlays'.
+  */
+ #ifdef CONFIG_OF_LIBFDT_OVERLAY
+-static void label_boot_fdtoverlay(struct cmd_tbl *cmdtp, struct pxe_label *label)
++static void label_boot_fdtoverlay(cmd_tbl_t *cmdtp, struct pxe_label *label)
+ {
+ 	char *fdtoverlay = label->fdtoverlays;
+ 	struct fdt_header *working_fdt;
+diff --git a/drivers/usb/dwc3/ep0.c b/drivers/usb/dwc3/ep0.c
+index e3eb5a6d..1043e2a4 100644
+--- a/drivers/usb/dwc3/ep0.c
++++ b/drivers/usb/dwc3/ep0.c
+@@ -905,7 +905,7 @@ static void dwc3_ep0_xfer_complete(struct dwc3 *dwc,
+ 	dep->flags &= ~DWC3_EP_BUSY;
+ 	dep->resource_index = 0;
+ 	dwc->setup_packet_pending = false;
+-	invalid_dcache_range(dwc->ctrl_req, (dmaaddr_t)dwc->ctrl_req + ROUND(sizeof(*dwc->ctrl_req), CACHELINE_SIZE));
++	invalidate_dcache_range((ulong)dwc->ctrl_req, (dmaaddr_t)dwc->ctrl_req + ROUND(sizeof(*dwc->ctrl_req), CACHELINE_SIZE));
+ 
+ 	switch (dwc->ep0state) {
+ 	case EP0_SETUP_PHASE:
+-- 
+2.43.0
