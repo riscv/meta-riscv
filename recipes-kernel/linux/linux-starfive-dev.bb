@@ -54,7 +54,7 @@ SRC_URI:beaglev-starlight-jh7100 = " \
            file://modules.cfg \
            file://extra.cfg \
 "
-SRCREV_yocto-kernel-cache = "99c5ec65d21cd824d26ee9eb8bca7d2e59311e5f"
+SRCREV_yocto-kernel-cache = "6df14e0eacedd9f025d88e310ef7fcc0bde6f550"
 
 SRC_URI:append:visionfive2 = " git://git.yoctoproject.org/yocto-kernel-cache;type=kmeta;name=yocto-kernel-cache;branch=yocto-6.6;destsuffix=kernel-meta;protocol=https"
 
@@ -67,5 +67,9 @@ KBUILD_DEFCONFIG:beaglev-starlight-jh7100 = "starfive_jh7100_fedora_defconfig"
 KBUILD_DEFCONFIG:visionfive = "visionfive_defconfig"
 KBUILD_DEFCONFIG:visionfive2 = "starfive_visionfive2_defconfig"
 KBUILD_DEFCONFIG:star64 = "pine64_star64_defconfig"
+
+KERNEL_FEATURES:remove:riscv32 = " ${KERNEL_FEATURES_RISCV}"
+KERNEL_FEATURES:remove:riscv64 = " ${KERNEL_FEATURES_RISCV}"
+
 
 COMPATIBLE_MACHINE = "(beaglev-starlight-jh7100|visionfive|jh7110)"
