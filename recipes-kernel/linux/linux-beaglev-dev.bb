@@ -1,4 +1,6 @@
 require linux-mainline-common.inc
+KERNEL_FEATURES_RISCV = ""
+
 SUMMARY = "Beagle-V Ahead dev kernel recipe"
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
