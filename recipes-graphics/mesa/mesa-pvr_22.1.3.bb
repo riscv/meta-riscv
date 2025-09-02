@@ -1,2 +1,2 @@
-require ${BPN}.inc
+require ${BPN}-riscv.inc
 
