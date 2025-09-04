@@ -9,12 +9,12 @@ KERNEL_VERSION_SANITY_SKIP = "1"
 #v6.14.2
 # downstream patches are taken from Beagle's Kernel fork: https://openbeagle.org/beaglev-ahead/linux
 # network stability is not good enough for Yocto checkout
-SRCREV_kernel = "38fec10eb60d687e30c8c6b5420d86e8149f7557"
-SRCREV_dts = "4396d439d680221bd3e7c3135535bd2cd7d41958"
+SRCREV_kernel = "0ff41df1cb268fc69e703a08a57ee14ae967d0ca"
+SRCREV_dts = "7d7d3af50bd6ee451c9b0b9fffd8f24b20c12d8c"
 
 BRANCH_kernel = "master"
-BRANCH_dts = "v6.14.x"
-LINUX_VERSION ?= "6.14.2"
+BRANCH_dts = "v6.15.x"
+LINUX_VERSION ?= "6.15"
 
 SRC_URI = " \
     git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git;protocol=https;branch=${BRANCH_kernel};name=kernel \
@@ -53,6 +53,7 @@ do_deploy:append() {
     sleep 1
 
     cp ${DEPLOY_DIR_IMAGE}/fw_dynamic.bin ${DEPLOY_DIR_IMAGE}/.boot/fw_dynamic.bin
+    cp ${DEPLOY_DIR_IMAGE}/light_aon_fpga.bin ${DEPLOY_DIR_IMAGE}/.boot/
     cp -f ${DEPLOYDIR}/th1520-beaglev-ahead.dtb ${DEPLOY_DIR_IMAGE}/.boot/
     cp -f ${DEPLOYDIR}/Image ${DEPLOY_DIR_IMAGE}/.boot/
     cp -f ${UNPACKDIR}/extlinux.conf ${DEPLOY_DIR_IMAGE}/.boot/extlinux/
