@@ -14,4 +14,3 @@ do_install() {
 
 COMPATIBLE_MACHINE = "(beaglev-ahead)"
 
-LICENSE:${PN} = "th1520-firmwares"
