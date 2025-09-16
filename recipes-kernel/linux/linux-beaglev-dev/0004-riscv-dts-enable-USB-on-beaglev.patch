@@ -1,0 +1,27 @@
+From beeb89c7f5cf2fb2e1d737e6468ef86052144071 Mon Sep 17 00:00:00 2001
+From: Koen Kooi <koen@dominion.thruhere.net>
+Date: Tue, 16 Sep 2025 16:16:40 +0200
+Subject: [PATCH 4/4] riscv: dts: enable USB on beaglev
+
+Upstream-Status: Inappropriate [OE-specific]
+
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+---
+ arch/riscv/boot/dts/thead/th1520-beaglev-ahead.dts | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/arch/riscv/boot/dts/thead/th1520-beaglev-ahead.dts b/arch/riscv/boot/dts/thead/th1520-beaglev-ahead.dts
+index 21c33f165ba9..f1a4cbd67d3c 100644
+--- a/arch/riscv/boot/dts/thead/th1520-beaglev-ahead.dts
++++ b/arch/riscv/boot/dts/thead/th1520-beaglev-ahead.dts
+@@ -241,3 +241,7 @@ &uart0 {
+ 	pinctrl-0 = <&uart0_pins>;
+ 	status = "okay";
+ };
++
++&usb_dwc3 {
++	status = "okay";
++};
+-- 
+2.47.3
+
