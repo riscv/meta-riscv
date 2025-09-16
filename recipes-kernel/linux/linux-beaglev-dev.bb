@@ -34,7 +34,7 @@ do_configure:prepend() {
     cp ${UNPACKDIR}/beaglev_devicetrees/src/riscv/thead/* ${S}/arch/riscv/boot/dts/thead/
 }
 
-DEPENDS += "e2fsprogs-native"
+DEPENDS += "e2fsprogs-native firmware-th1520"
 
 # package a separate partition boot.ext4 that can be flashed via fastboot to partition boot
 do_deploy:append() {
