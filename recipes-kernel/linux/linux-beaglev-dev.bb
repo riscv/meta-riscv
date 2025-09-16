@@ -25,7 +25,10 @@ SRC_URI = " \
     file://0002-th1520-add-cpu-reset-node.patch \
     file://0003-dt-bindings-reset-Add-T-HEAD-TH1520-SoC-Reset-Contro.patch \
     file://0004-reset-thead-Add-TH1520-reset-controller-driver.patch \
-    "
+    file://0001-dt-bindings-usb-Add-T-HEAD-TH1520-USB-controller.patch \
+    file://0002-usb-dwc3-add-T-HEAD-TH1520-usb-driver.patch \
+    file://0003-riscv-dts-thead-Add-TH1520-USB-nodes.patch \
+   "
 
 COMPATIBLE_MACHINE = "(beaglev-ahead)"
 
