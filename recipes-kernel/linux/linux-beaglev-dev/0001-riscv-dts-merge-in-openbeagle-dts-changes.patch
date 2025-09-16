@@ -1,0 +1,279 @@
+From fadac7dd7d567904f0647ca0258e583ba90814c5 Mon Sep 17 00:00:00 2001
+From: Koen Kooi <koen@dominion.thruhere.net>
+Date: Tue, 16 Sep 2025 14:06:24 +0200
+Subject: [PATCH] riscv: dts: merge in openbeagle dts changes
+
+Upstream-Status: Inappropriate [OE-specific]
+
+---
+ .../boot/dts/thead/th1520-beaglev-ahead.dts   | 124 ++++++++++++++++++
+ arch/riscv/boot/dts/thead/th1520.dtsi         |  81 ++++++++++++
+ 2 files changed, 205 insertions(+)
+
+diff --git a/arch/riscv/boot/dts/thead/th1520-beaglev-ahead.dts b/arch/riscv/boot/dts/thead/th1520-beaglev-ahead.dts
+index 21c33f165ba9..291fd44140cd 100644
+--- a/arch/riscv/boot/dts/thead/th1520-beaglev-ahead.dts
++++ b/arch/riscv/boot/dts/thead/th1520-beaglev-ahead.dts
+@@ -136,6 +136,19 @@ led-pins {
+ };
+ 
+ &padctrl0_apsys {
++	i2c2_pins: i2c2-0 {
++		i2c-pins {
++			pins = "I2C2_SDA",
++			       "I2C2_SCL";
++			function = "i2c";
++			bias-pull-up = <48000>;
++			drive-strength = <7>;
++			input-enable;
++			input-schmitt-enable;
++			slew-rate = <0>;
++		};
++	};
++
+ 	gmac0_pins: gmac0-0 {
+ 		tx-pins {
+ 			pins = "GMAC0_TX_CLK",
+@@ -228,6 +241,21 @@ rx-pins {
+ 			slew-rate = <0>;
+ 		};
+ 	};
++
++	wifi_pins: wifi-pins {
++		wifi-host-wake {
++			pins = "SDIO1_DETN";
++			bias-pull-up;
++			input-enable;
++		};
++
++		wifi-reset {
++			pins = "GPIO2_31";
++			bias-pull-up;
++			drive-strength = <8>;
++			output-high;
++		};
++	};
+ };
+ 
+ &sdio0 {
+@@ -236,8 +264,104 @@ &sdio0 {
+ 	status = "okay";
+ };
+ 
++&padctrl1_apsys {
++	i2c0_pins: i2c0-0 {
++		i2c-pins {
++			pins = "I2C0_SDA",
++			       "I2C0_SCL";
++			function = "i2c";
++			bias-pull-up = <48000>;
++			drive-strength = <7>;
++			input-enable;
++			input-schmitt-enable;
++			slew-rate = <0>;
++		};
++	};
++
++	i2c4_pins: i2c4-0 {
++		i2c-pins {
++			pins = "GPIO0_19", /* I2C4_SDA */
++			       "GPIO0_18"; /* I2C4_SCL */
++			function = "i2c";
++			bias-pull-up = <48000>;
++			drive-strength = <7>;
++			input-enable;
++			input-schmitt-enable;
++			slew-rate = <0>;
++		};
++	};
++
++	i2c5_pins: i2c5-0 {
++		i2c-pins {
++			pins = "QSPI1_D0_MOSI", /* I2C5_SDA */
++			       "QSPI1_CSN0";    /* I2C5_SCL */
++			function = "i2c";
++			bias-pull-up = <48000>;
++			drive-strength = <7>;
++			input-enable;
++			input-schmitt-enable;
++			slew-rate = <0>;
++		};
++	};
++};
++
++&sdio1 {
++	bus-width = <4>;
++	max-frequency = <198000000>;
++	status = "okay";
++	pinctrl-names = "default";
++	pinctrl-0 = <&wifi_pins>;
++
++	#address-cells = <1>;
++	#size-cells = <0>;
++
++	brcmf: wifi@1 {
++		status = "okay";
++		compatible = "brcm,bcm43456-fmac", "brcm,bcm4329-fmac";
++		reg = <1>;
++		interrupt-parent = <&gpio2>;
++		interrupts = <29 IRQ_TYPE_EDGE_FALLING>;
++		interrupt-names = "host-wake";
++		reset-gpios = <&gpio2 31 GPIO_ACTIVE_LOW>;
++		brcm,ccode-map = "JP-JP-78", "US-Q2-86";
++	};
++};
++
+ &uart0 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&uart0_pins>;
+ 	status = "okay";
+ };
++
++&i2c0 {
++	clock-frequency = <100000>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c0_pins>;
++	status = "okay";
++
++	eeprom@50 {
++		compatible = "atmel,24c32";
++		reg = <0x50>;
++	};
++};
++
++&i2c2 {
++	clock-frequency = <100000>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c2_pins>;
++	status = "okay";
++};
++
++&i2c4 {
++	clock-frequency = <100000>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c4_pins>;
++	status = "okay";
++};
++
++&i2c5 {
++	clock-frequency = <100000>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c5_pins>;
++	status = "okay";
++};
+diff --git a/arch/riscv/boot/dts/thead/th1520.dtsi b/arch/riscv/boot/dts/thead/th1520.dtsi
+index a53c0f4ede28..067cc3ec6ddf 100644
+--- a/arch/riscv/boot/dts/thead/th1520.dtsi
++++ b/arch/riscv/boot/dts/thead/th1520.dtsi
+@@ -6,6 +6,7 @@
+ 
+ #include <dt-bindings/interrupt-controller/irq.h>
+ #include <dt-bindings/clock/thead,th1520-clk-ap.h>
++#include <dt-bindings/power/thead,th1520-power.h>
+ 
+ / {
+ 	compatible = "thead,th1520";
+@@ -229,6 +230,13 @@ stmmac_axi_config: stmmac-axi-config {
+ 		snps,blen = <0 0 64 32 0 0 0>;
+ 	};
+ 
++	aon: aon {
++		compatible = "thead,th1520-aon";
++		mboxes = <&mbox_910t 1>;
++		mbox-names = "aon";
++		#power-domain-cells = <1>;
++	};
++
+ 	soc {
+ 		compatible = "simple-bus";
+ 		interrupt-parent = <&plic>;
+@@ -382,6 +390,66 @@ uart3: serial@ffe7f04000 {
+ 			status = "disabled";
+ 		};
+ 
++		i2c0: i2c@ffe7f20000 {
++			compatible = "thead,th1520-i2c", "snps,designware-i2c";
++			reg = <0xff 0xe7f20000 0x0 0x4000>;
++			interrupts = <44 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&clk CLK_I2C0>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++		};
++
++		i2c1: i2c@ffe7f24000 {
++			compatible = "thead,th1520-i2c", "snps,designware-i2c";
++			reg = <0xff 0xe7f24000 0x0 0x4000>;
++			interrupts = <45 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&clk CLK_I2C1>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++		};
++
++		i2c2: i2c@ffec00c000 {
++			compatible = "thead,th1520-i2c", "snps,designware-i2c";
++			reg = <0xff 0xec00c000 0x0 0x4000>;
++			interrupts = <46 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&clk CLK_I2C2>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++		};
++
++		i2c3: i2c@ffec014000 {
++			compatible = "thead,th1520-i2c", "snps,designware-i2c";
++			reg = <0xff 0xec014000 0x0 0x4000>;
++			interrupts = <47 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&clk CLK_I2C3>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++		};
++
++		i2c4: i2c@ffe7f28000 {
++			compatible = "thead,th1520-i2c", "snps,designware-i2c";
++			reg = <0xff 0xe7f28000 0x0 0x4000>;
++			interrupts = <48 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&clk CLK_I2C4>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++		};
++
++		i2c5: i2c@fff7f2c000 {
++			compatible = "thead,th1520-i2c", "snps,designware-i2c";
++			reg = <0xff 0xf7f2c000 0x0 0x4000>;
++			interrupts = <49 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&clk CLK_I2C5>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++		};
++
+ 		gpio@ffe7f34000 {
+ 			compatible = "snps,dw-apb-gpio";
+ 			reg = <0xff 0xe7f34000 0x0 0x1000>;
+@@ -503,6 +571,19 @@ misc_sysreg: misc_sysreg@ffec02c000 {
+ 			reg = <0xff 0xec02c000 0x0 0x1000>;
+ 		};
+ 
++		rst: reset-controller@ffef528000 {
++			compatible = "thead,th1520-reset";
++			reg = <0xff 0xef528000 0x0 0x4f>;
++			#reset-cells = <1>;
++		};
++
++		clk_vo: clock-controller@ffef528050 {
++			compatible = "thead,th1520-clk-vo";
++			reg = <0xff 0xef528050 0x0 0xfb0>;
++			clocks = <&clk CLK_VIDEO_PLL>;
++			#clock-cells = <1>;
++		};
++
+ 		usb: usb@ffec03f000 {
+ 			compatible = "thead,th1520-usb";
+ 			reg = <0xff 0xec03f000 0x0 0x1000>;
+-- 
+2.39.5
+

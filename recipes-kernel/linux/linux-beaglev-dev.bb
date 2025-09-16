@@ -6,19 +6,15 @@ SUMMARY = "Beagle-V Ahead dev kernel recipe"
 LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 KERNEL_VERSION_SANITY_SKIP = "1"
 
-#v6.14.2
-# downstream patches are taken from Beagle's Kernel fork: https://openbeagle.org/beaglev-ahead/linux
-# network stability is not good enough for Yocto checkout
+# Downstream patches are taken from Beagle's Kernel fork: https://openbeagle.org/beaglev-ahead/linux
+# Network stability is not good enough for Bitbake fetch+checkout
 SRCREV_kernel = "0ff41df1cb268fc69e703a08a57ee14ae967d0ca"
-SRCREV_dts = "7d7d3af50bd6ee451c9b0b9fffd8f24b20c12d8c"
 
 BRANCH_kernel = "master"
-BRANCH_dts = "v6.15.x"
 LINUX_VERSION ?= "6.15"
 
 SRC_URI = " \
     git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git;protocol=https;branch=${BRANCH_kernel};name=kernel \
-    git://git.beagleboard.org/beagleboard/BeagleBoard-DeviceTrees.git;protocol=https;subdir=beaglev_devicetrees;branch=${BRANCH_dts};name=dts \
     file://defconfig \
     file://extlinux.conf \
     file://0001-dt-binding-riscv-add-T-HEAD-CPU-reset.patch \
@@ -28,14 +24,10 @@ SRC_URI = " \
     file://0001-dt-bindings-usb-Add-T-HEAD-TH1520-USB-controller.patch \
     file://0002-usb-dwc3-add-T-HEAD-TH1520-usb-driver.patch \
     file://0003-riscv-dts-thead-Add-TH1520-USB-nodes.patch \
+    file://0001-riscv-dts-merge-in-openbeagle-dts-changes.patch \
    "
 
 COMPATIBLE_MACHINE = "(beaglev-ahead)"
-
-do_configure:prepend() {
-    mkdir -p ${S}/arch/riscv/boot/dts/thead/
-    cp ${UNPACKDIR}/beaglev_devicetrees/src/riscv/thead/* ${S}/arch/riscv/boot/dts/thead/
-}
 
 DEPENDS += "e2fsprogs-native firmware-th1520"
 
