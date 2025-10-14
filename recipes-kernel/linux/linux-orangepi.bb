@@ -26,6 +26,9 @@ INITRAMFS_IMAGE:orangepi-rv2 = "core-image-minimal-initramfs"
 KCONFIG_MODE = "alldefconfig"
 KBUILD_DEFCONFIG:orangepi-rv2 = "x1_defconfig"
 
+KERNEL_FEATURES:remove:riscv32:orangepi-rv2 = " ${KERNEL_FEATURES_RISCV}"
+KERNEL_FEATURES:remove:riscv64:orangepi-rv2 = " ${KERNEL_FEATURES_RISCV}"
+
 do_install:append:orangepi-rv2() {
 	sed -i -e 's#${S}##g' ${B}/drivers/tty/vt/consolemap_deftbl.c
 }
