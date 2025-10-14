@@ -13,6 +13,9 @@ SRC_URI = "git://github.com/orangepi-xunlong/u-boot-orangepi.git;protocol=https;
 SRC_URI:append:orangepi-rv2 = " file://drop-intree-opensbi-build.patch \
 				file://boot.cmd"
 
+SRC_URI:remove:riscv32:orangepi-rv2 = " ${SRC_URI_RISCV}"
+SRC_URI:remove:riscv64:orangepi-rv2 = " ${SRC_URI_RISCV}"
+
 do_configure:prepend:orangepi-rv2() {
 	mkimage -A riscv -O linux -T script -C none -n "U-Boot boot script" \
 		-d ${UNPACKDIR}/${UBOOT_ENV}.${UBOOT_ENV_SRC_SUFFIX} ${UNPACKDIR}/${UBOOT_ENV_BINARY}
