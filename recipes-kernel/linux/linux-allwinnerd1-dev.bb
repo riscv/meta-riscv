@@ -36,3 +36,6 @@ LINUX_VERSION_EXTENSION:append:mangopi-mq-pro = "-mangopi"
 
 ## Should be oveerriten in machine conf
 KBUILD_DEFCONFIG ?= "allwinner_defconfig"
+
+KERNEL_FEATURES:remove:riscv32 = " ${KERNEL_FEATURES_RISCV}"
+KERNEL_FEATURES:remove:riscv64 = " ${KERNEL_FEATURES_RISCV}"
