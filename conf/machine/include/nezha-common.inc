@@ -42,4 +42,5 @@ unset RISCV_SBI_PAYLOAD
 #-- 'KERNEL_DEVICETREE' isn't used because the DTB is loaded from RAM
 #-- at address ${fdtcontroladdr}
 #KERNEL_DEVICETREE ?= "allwinner/sun20i-d1-nezha.dtb"
+KERNEL_IMAGETYPE = "Image"
 #============================================
