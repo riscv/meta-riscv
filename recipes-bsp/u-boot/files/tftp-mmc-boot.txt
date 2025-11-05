@@ -38,7 +38,13 @@ if tftpboot ${kernel_addr_r} uImage; then
   bootm ${kernel_addr_r} - ${fdt_addr_r}
 fi;
 
-# Finally fallback to a MMC uImage
+# Fallback to a MMC uImage
 if load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_r} uImage; then
   bootm ${kernel_addr_r} - ${fdt_addr_r}
+fi;
+
+# Finally fallback to a MMC Image. Assume that the dtb is loaded into RAM at
+# fdtcontroladdr.
+if load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_r} Image; then
+  booti ${kernel_addr_r} - ${fdtcontroladdr}
 fi;
