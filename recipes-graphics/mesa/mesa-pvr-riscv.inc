@@ -78,7 +78,9 @@ SRC_URI = "https://mesa.freedesktop.org/archive/mesa-${PV}.tar.xz \
         file://0060-gallium-pvr-Add-DRM_FORMAT_AXBXGXRX106106106106.patch \
         file://0061-gallium-pvr-add-the-DRIconfigOptions-extension.patch \
         file://0062-gallium-pvr-support-DRI-Image-extension-v21.patch \
-           "
+        \
+        file://0001-c11-use-glibc-s-once_flag-ONCE_FLAG_INIT-when-presen.patch \
+        "
 
 S = "${UNPACKDIR}/mesa-${PV}"
 
@@ -303,7 +305,7 @@ do_install:append () {
     rm -f ${D}${libdir}/gallium-pipe/*.la
     rm -f ${D}${libdir}/gbm/*.la
 
-    # it was packaged in libdricore9.1.3-1 and preventing upgrades when debian.bbclass was used 
+    # it was packaged in libdricore9.1.3-1 and preventing upgrades when debian.bbclass was used
     chrpath --delete ${D}${libdir}/dri/*_dri.so || true
 
     # libwayland-egl has been moved to wayland 1.15+
