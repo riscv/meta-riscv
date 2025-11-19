@@ -32,7 +32,7 @@ This layer depends on:
 
 **Note: You only need this if you do not have an existing Yocto Project build environment.**
 
-Make sure to [install the `repo` command by Google](https://source.android.com/setup/downloading#installing-repo) first. 
+Make sure to [install the `repo` command by Google](https://source.android.com/setup/downloading#installing-repo) first.
 
 ### Create workspace
 ```text
@@ -61,7 +61,7 @@ repo rebase
 Kas build is supported, you can run the following commands:
 
 ```text
-git clone https://github.com/riscv/meta-riscv.git -b kirkstone
+git clone https://github.com/riscv/meta-riscv.git -b master
 cd meta-riscv
 ```
 
