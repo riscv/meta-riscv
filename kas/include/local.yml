@@ -3,7 +3,7 @@ header:
 
 local_conf_header:
   default: |
-    # -- Default local.conf from meta-poky/conf/local.conf.sample -- #
+    # -- Default local.conf from openembedded-core/conf/local.conf.sample -- #
     EXTRA_IMAGE_FEATURES ?= "\
         allow-empty-password \
         empty-root-password \

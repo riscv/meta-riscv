@@ -2,14 +2,26 @@ header:
   version: 14
 
 repos:
-  poky:
-    url: https://git.yoctoproject.org/git/poky
-    path: layers/poky
+  bitbake:
+    url: https://git.openembedded.org/bitbake
+    path: layers/bitbake
     branch: master
     layers:
-      meta:
-      meta-poky:
-      meta-yocto-bsp:
+      bitbake: disabled
+
+  core:
+    url: https://git.openembedded.org/openembedded-core
+    path: layers/openembedded-core
+    branch: master
+    layers:
+        meta:
+
+  meta-yocto:
+    url: https://git.yoctoproject.org/meta-yocto
+    path: layers/meta-poky
+    branch: master
+    layers:
+       meta-poky:
 
   meta-openembedded:
     url: https://git.openembedded.org/meta-openembedded
