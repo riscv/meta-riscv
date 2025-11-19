@@ -53,7 +53,7 @@ repo rebase
 
 ### Setup Build Environment
 ```text
-. ./meta-riscv/setup.sh
+. ./meta-riscv/tools/setup.sh
 ```
 
 ### Kas Support
