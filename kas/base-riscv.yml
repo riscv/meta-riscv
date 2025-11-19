@@ -5,8 +5,8 @@ header:
     - include/oe.yml
 
 machine: qemuriscv64
-distro: poky
-target: core-image-base
+distro: poky-altcfg
+target: core-image-full-cmdline
 
 repos:
   meta-riscv:
