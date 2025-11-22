@@ -1,0 +1,125 @@
+From e2082fbad538b4fa46828975629206b72fe84699 Mon Sep 17 00:00:00 2001
+From: Nick Owens <mischief@offblast.org>
+Date: Fri, 21 Nov 2025 23:03:15 -0800
+Subject: [PATCH] sophgo: add cv1800 rtcsys reset handler
+
+Upstream-Status: Pending
+
+Co-developed-by: GP Orcullo <kinsamanka@gmail.com>
+---
+ drivers/soc/sophgo/cv1800-rtcsys.c | 82 ++++++++++++++++++++++++++++--
+ 1 file changed, 79 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/soc/sophgo/cv1800-rtcsys.c b/drivers/soc/sophgo/cv1800-rtcsys.c
+index fdae2e2a61c5..ca565325e47e 100644
+--- a/drivers/soc/sophgo/cv1800-rtcsys.c
++++ b/drivers/soc/sophgo/cv1800-rtcsys.c
+@@ -10,10 +10,57 @@
+  *
+  */
+ 
++#include <linux/io.h>
+ #include <linux/mfd/core.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
++#include <linux/of_address.h>
+ #include <linux/property.h>
++#include <linux/notifier.h>
++#include <linux/reboot.h>
++
++#define RTC_CTRL0_UNLOCKKEY		0x4
++#define RTC_CTRL0			0x8
++#define RTC_EN_SHDN_REQ			0xC0
++#define RTC_EN_WARM_RST_REQ		0xCC
++#define RTC_EN_SUSPEND_REQ		0xE4
++#define RSM_STATE			0xD4
++#define ST_ON				0x3
++
++static void __iomem *base;
++
++static void cv1800_reset(void)
++{
++	void __iomem *REG_RTC_CTRL_BASE = base;
++	void __iomem *REG_RTC_BASE = base + 0x1000;
++
++	/* Enable power suspend wakeup source mask */
++	writel(0x1, REG_RTC_BASE + 0x3C); // 1 = select prdata from 32K domain
++
++	writel(0xAB18, REG_RTC_CTRL_BASE + RTC_CTRL0_UNLOCKKEY);
++
++	writel(0x1, REG_RTC_BASE + RTC_EN_WARM_RST_REQ);
++
++	while (readl(REG_RTC_BASE + RTC_EN_WARM_RST_REQ) != 0x01)
++		;
++
++	while (readl(REG_RTC_BASE + RSM_STATE) != ST_ON)
++		;
++
++	writel(0xFFFF0800 | (0x1 << 4), REG_RTC_CTRL_BASE + RTC_CTRL0);
++}
++
++static int cv1800_restart_handler(struct notifier_block *this,
++				unsigned long mode, void *cmd)
++{
++	cv1800_reset();
++	return NOTIFY_DONE;
++}
++
++static struct notifier_block cv1800_restart_nb = {
++	.notifier_call = cv1800_restart_handler,
++	.priority = 128,
++};
+ 
+ static struct resource cv1800_rtcsys_irq_resources[] = {
+ 	DEFINE_RES_IRQ_NAMED(0, "alarm"),
+@@ -29,18 +76,47 @@ static const struct mfd_cell cv1800_rtcsys_subdev[] = {
+ 
+ static int cv1800_rtcsys_probe(struct platform_device *pdev)
+ {
++	struct device_node *np = pdev->dev.of_node;
+ 	int irq;
++	int err;
++
++	base = of_iomap(np, 0);
++	if (!base) {
++		dev_err(&pdev->dev, "failed to map base address\n");
++		return -ENODEV;
++	}
++
++	err = register_restart_handler(&cv1800_restart_nb);
++	if (err) {
++		dev_err(&pdev->dev, "cannot register restart handler (err=%d)\n", err);
++		goto unmap;
++	}
+ 
+ 	irq = platform_get_irq_byname(pdev, "alarm");
+-	if (irq < 0)
+-		return irq;
++	if (irq < 0){
++		err = -ENODEV;
++		goto unmap;
++	}
++
+ 	cv1800_rtcsys_irq_resources[0].start = irq;
+ 	cv1800_rtcsys_irq_resources[0].end = irq;
+ 
+-	return devm_mfd_add_devices(&pdev->dev, PLATFORM_DEVID_AUTO,
++	err = devm_mfd_add_devices(&pdev->dev, PLATFORM_DEVID_AUTO,
+ 				    cv1800_rtcsys_subdev,
+ 				    ARRAY_SIZE(cv1800_rtcsys_subdev),
+ 				    NULL, 0, NULL);
++	if(err < 0){
++		dev_err(&pdev->dev, "cannot register RTCSYS MFD (err=%d)\n", err);
++		goto unmap;
++	}
++
++	pm_power_off = cv1800_reset;
++
++	return 0;
++
++unmap:
++	iounmap(base);
++	return err;
+ }
+ 
+ static const struct of_device_id cv1800_rtcsys_of_match[] = {
