@@ -267,8 +267,9 @@ index 0000000000..5d8ccce059
 +	};
 +};
 diff --git a/configs/milkv-duo_defconfig b/configs/milkv-duo_defconfig
-index 2fcbd2bfea..d3c8f2bfea 100644
---- a/configs/milkv-duo_defconfig
+new file mode 100644
+index 0000000000..2fcbd2bfea
+--- /dev/null
 +++ b/configs/milkv-duo_defconfig
 @@ -0,0 +1,78 @@
 +CONFIG_RISCV=y
@@ -320,6 +321,7 @@ index 2fcbd2bfea..d3c8f2bfea 100644
 +CONFIG_CMD_PART=y
 +# CONFIG_CMD_ITEST is not set
 +# CONFIG_CMD_SOURCE is not set
++# CONFIG_CMD_SETEXPR is not set
 +CONFIG_CMD_DHCP=y
 +# CONFIG_CMD_NFS is not set
 +CONFIG_CMD_PING=y
@@ -348,12 +350,9 @@ index 2fcbd2bfea..d3c8f2bfea 100644
 +CONFIG_LZMA=y
 +# CONFIG_EFI_LOADER is not set
 +# CONFIG_TOOLS_LIBCRYPTO is not set
-+CONFIG_CMD_NAND=y
-+CONFIG_MTD=y
-+CONFIG_MTD_RAW_NAND=y
-+CONFIG_NAND_CVITEK=y
 diff --git a/include/milkv-duo.env b/include/milkv-duo.env
-index 0000000000..7875d99fdc 100644
+new file mode 100644
+index 0000000000..7875d99fdc
 --- /dev/null
 +++ b/include/milkv-duo.env
 @@ -0,0 +1,3 @@

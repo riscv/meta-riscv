@@ -39,8 +39,7 @@ do_compile () {
 		--BLCP_2ND_RUNADDR=0x83f40000 \
 		--DDR_PARAM=${S}/test/cv181x/ddr_param.bin \
 		--MONITOR=${DEPLOY_DIR_IMAGE}/fw_dynamic.bin \
-		--LOADER_2ND=${DEPLOY_DIR_IMAGE}/u-boot.bin \
-		--NAND_BOOT=1
+		--LOADER_2ND=${DEPLOY_DIR_IMAGE}/u-boot.bin
 }
 
 do_deploy () {
