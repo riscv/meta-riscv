@@ -6,7 +6,6 @@ SRCREV:ae350-ax45mp = "22f38ee6c658a660083aa45c4ec6c72f66a17260"
 # JH7110_VF2_6.12_v6.0.0
 SRCREV:jh7100 = "1725bd71080960290fdde4499a58c25c09d5c8ee"
 SRCREV:star64 = "c6a092cd80112529cb2e92e180767ff5341b22a3"
-SRCREV:milkv-duo = "v1.4"
 SRCREV:orangepi-rv2 = "89bff4a7e4cadfb5f130edb1ec44c39bff20a427"
 
 SRC_URI:star64 = "git://github.com/starfive-tech/opensbi;branch=JH7110_VisionFive2_devel;protocol=https"
@@ -14,7 +13,6 @@ SRC_URI:append:star64 = "\
 	file://visionfive2-uboot-fit-image.its \
 	"
 
-SRC_URI:milkv-duo = "git://github.com/riscv-software-src/opensbi.git;branch=master;protocol=https"
 SRC_URI:orangepi-rv2 = "git://github.com/orangepi-xunlong/u-boot-orangepi.git;protocol=https;branch=${BRANCH}"
 SRC_URI:append:orangepi-rv2 = " file://c23-compatibility.patch"
 S:orangepi-rv2 = "${UNPACKDIR}/${BP}/opensbi"
