@@ -1,0 +1,109 @@
+From fb4f7dd0949db3710be6996d4d64aa92b6607ee5 Mon Sep 17 00:00:00 2001
+From: Khem Raj <raj.khem@gmail.com>
+Date: Sat, 22 Nov 2025 15:52:23 -0800
+Subject: [PATCH] util/glx/egl: fix const qualifier warnings found with C23
+ glibc support
+
+glibc master has been C23'fying the functions which is resulting errors
+
+Several functions assigned results of bsearch/strstr/strpbrk/memchr to
+non-const pointers, triggering -Wincompatible-pointer-types-discards-qualifiers
+under clang/gcc with -Werror. Cast bsearch return values where needed and
+propagate const correctness for strstr/strpbrk/memchr results.
+
+Files:
+- egldispatchstubs.c, glxglvnd.c: add const cast to bsearch return
+- clientinfo.c, u_printf.c: use const char * for strstr/strpbrk results
+- blob.c: make nul pointer const
+- gl_enums.py (generated C): cast bsearch return to enum_elt *
+
+Removes build failures with strict warning flags without changing behavior.
+
+Upstream-Status: Submitted [https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/38594]
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
+---
+ src/egl/main/egldispatchstubs.c | 2 +-
+ src/glx/clientinfo.c            | 2 +-
+ src/glx/glxglvnd.c              | 2 +-
+ src/mapi/glapi/gen/gl_enums.py  | 2 +-
+ src/util/blob.c                 | 2 +-
+ src/util/u_printf.c             | 2 +-
+ 6 files changed, 6 insertions(+), 6 deletions(-)
+
+--- a/src/egl/main/egldispatchstubs.c
++++ b/src/egl/main/egldispatchstubs.c
+@@ -46,7 +46,7 @@ static int Compare(const void *l, const
+ 
+ static int FindProcIndex(const char *name)
+ {
+-    const char **match = bsearch(name, __EGL_DISPATCH_FUNC_NAMES,
++    const char **match = (const char **)bsearch(name, __EGL_DISPATCH_FUNC_NAMES,
+             __EGL_DISPATCH_COUNT, sizeof(const char *), Compare);
+ 
+     if (match == NULL)
+--- a/src/glx/clientinfo.c
++++ b/src/glx/clientinfo.c
+@@ -128,7 +128,7 @@ __glX_send_client_info(struct glx_displa
+ 
+       const char *haystack = src->serverGLXexts;
+       while (haystack != NULL) {
+-	 char *match = strstr(haystack, "GLX_ARB_create_context");
++	 const char *match = strstr(haystack, "GLX_ARB_create_context");
+ 
+ 	 if (match == NULL)
+ 	    break;
+--- a/src/glx/glxglvnd.c
++++ b/src/glx/glxglvnd.c
+@@ -28,7 +28,7 @@ static unsigned FindGLXFunction(const GL
+ {
+     const char **match;
+ 
+-    match = bsearch(name, __glXDispatchTableStrings, DI_FUNCTION_COUNT,
++    match = (const char**)bsearch(name, __glXDispatchTableStrings, DI_FUNCTION_COUNT,
+                     sizeof(const char *), compare);
+ 
+     if (match == NULL)
+--- a/src/mapi/glapi/gen/gl_enums.py
++++ b/src/mapi/glapi/gen/gl_enums.py
+@@ -91,7 +91,7 @@ _mesa_enum_to_string(int nr)
+ {
+    enum_elt *elt;
+ 
+-   elt = bsearch(& nr, enum_string_table_offsets,
++   elt = (enum_elt *)bsearch(& nr, enum_string_table_offsets,
+                  ARRAY_SIZE(enum_string_table_offsets),
+                  sizeof(enum_string_table_offsets[0]),
+                  (cfunc) compar_nr);
+--- a/src/util/blob.c
++++ b/src/util/blob.c
+@@ -338,7 +338,7 @@ blob_read_string(struct blob_reader *blo
+ {
+    int size;
+    char *ret;
+-   uint8_t *nul;
++   const uint8_t *nul;
+ 
+    /* If we're already at the end, then this is an overrun. */
+    if (blob->current >= blob->end) {
+--- a/src/util/u_printf.c
++++ b/src/util/u_printf.c
+@@ -59,7 +59,7 @@ size_t util_printf_next_spec_pos(const c
+          continue;
+       }
+ 
+-      char *spec_pos = strpbrk(str_found, "cdieEfFgGaAosuxXp%");
++      const char *spec_pos = strpbrk(str_found, "cdieEfFgGaAosuxXp%");
+       if (spec_pos == NULL) {
+          return -1;
+       } else if (*spec_pos == '%') {
+--- a/src/compiler/spirv/nir_load_libclc.c
++++ b/src/compiler/spirv/nir_load_libclc.c
+@@ -255,7 +255,7 @@ libclc_add_generic_variants(nir_shader *
+       if (strstr(func->name, "async_work_group_strided_copy"))
+          continue;
+ 
+-      char *U3AS1 = strstr(func->name, "U3AS1");
++      const char *U3AS1 = strstr(func->name, "U3AS1");
+       if (U3AS1 == NULL)
+          continue;
+ 

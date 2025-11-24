@@ -80,6 +80,7 @@ SRC_URI = "https://mesa.freedesktop.org/archive/mesa-${PV}.tar.xz \
         file://0062-gallium-pvr-support-DRI-Image-extension-v21.patch \
         \
         file://0001-c11-use-glibc-s-once_flag-ONCE_FLAG_INIT-when-presen.patch \
+        file://0001-util-glx-egl-fix-const-qualifier-warnings-found-with.patch \
         "
 
 S = "${UNPACKDIR}/mesa-${PV}"
