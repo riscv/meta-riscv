@@ -99,8 +99,8 @@ kas build kas/beaglev.yml
 If you have your own layer that depends on this layer, you can create a kas `yml` file in your layer with the following content (`nezha` build as an example):
 
 ```yml
-head:
-  version: 8
+header:
+  version: 20
   includes:
     - repo: meta-riscv
       file: kas/nezha.yml
@@ -108,8 +108,8 @@ head:
 repos:
   meta-riscv:
     url: https://github.com/riscv/meta-riscv.git
-    path: layers
-    refspec: kirkstone
+    path: layers/meta-riscv
+    branch: scarthgap
 
 target: custom-image # Or nezha default image: riscv-nezha-image
 ```
