@@ -1,31 +1,19 @@
 SUMMARY = "Orange Pi Mainline Linux Kernel"
 
-inherit kernel
-require recipes-kernel/linux/linux-yocto.inc
+require recipes-kernel/linux/linux-mainline-common.inc
 
-DEPENDS:append:orangepi-rv2-mainline = " u-boot-tools-native"
+DEPENDS:append = " u-boot-tools-native"
 
-LIC_FILES_CHKSUM:orangepi-rv2-mainline = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
-
-BRANCH:orangepi-rv2-mainline = "master"
-SRCREV:orangepi-rv2-mainline = "9b332cece987ee1790b2ed4c989e28162fa47860"
-
-LINUX_VERSION:orangepi-rv2-mainline = "6.18-rc1"
-LINUX_VERSION_EXTENSION:append:orangepi-rv2-mainline = "-orangepi-rv2"
-
-# Disable do_kernel_configcheck, failing on 6.18+ (not fixed yet on Oct. 15, 2025)
-KMETA_AUDIT = ""
-
-PV = "${LINUX_VERSION}+git${SRCPV}"
-
+BRANCH = "master"
 SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git;protocol=https;branch=${BRANCH}"
+SRCREV = "ac3fd01e4c1efce8f2c054cdeb2ddd2fc0fb150d"
+LINUX_VERSION = "6.18-rc7"
+KERNEL_DANGLING_FEATURES_WARN_ONLY = "1"
 
-INITRAMFS_IMAGE:orangepi-rv2-mainline = "core-image-minimal-initramfs"
+INITRAMFS_IMAGE = "core-image-minimal-initramfs"
+KBUILD_DEFCONFIG = "defconfig"
 
-KCONFIG_MODE = "alldefconfig"
-KBUILD_DEFCONFIG:orangepi-rv2-mainline = "defconfig"
-
-do_deploy:append:orangepi-rv2-mainline() {
+do_deploy:append() {
 	cd ${DEPLOY_DIR_IMAGE}
 	mkimage -A riscv -O linux -T ramdisk -n "Initial Ram Disk" \
 		-d ${INITRAMFS_IMAGE}-${MACHINE}.cpio.gz initramfs.img
