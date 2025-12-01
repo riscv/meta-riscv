@@ -26,7 +26,7 @@ SRC_URI = " \
 
 COMPATIBLE_MACHINE = "(beaglev-ahead)"
 
-DEPENDS += "e2fsprogs-native firmware-th1520"
+DEPENDS += "android-tools-native e2fsprogs-ext4sparse-native e2fsprogs-native firmware-th1520"
 
 # package a separate partition boot.ext4 that can be flashed via fastboot to partition boot
 do_deploy:append() {
@@ -55,6 +55,8 @@ do_deploy:append() {
 
     dd if=/dev/zero of=${DEPLOYDIR}/boot.ext4 bs=1 count=0 seek=190M
     mkfs.ext4 -F ${DEPLOYDIR}/boot.ext4 -d ${DEPLOYDIR}/.boot
+    # Sparse the file so it can be flashed with flastboot without error
+    ext2simg_android ${DEPLOYDIR}/boot.ext4 ${DEPLOYDIR}/boot.ext4.simg
 }
 
 addtask deploy after do_compile before do_build
