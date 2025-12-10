@@ -211,6 +211,10 @@ Instead of dding wic.gz image ```bmaptool``` (available in most Linux distributi
 $ sudo bmaptool copy <image>-<machine>.wic.gz /dev/sdX
 ```
 
+## Contributing
+
+Submit patches via GitHub pull requests, Use GitHub issues to report problems or to send comments.
+
 ## Maintainer(s)
 
-* Khem Raj `<raj dot khem at gmail.com>`
+* Khem Raj `<raj.khem@gmail.com>`
