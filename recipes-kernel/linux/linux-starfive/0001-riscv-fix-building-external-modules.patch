@@ -3,6 +3,8 @@ From: Andreas Schwab <schwab@suse.de>
 Date: Tue, 2 Nov 2021 16:51:43 +0100
 Subject: [PATCH] riscv: fix building external modules
 
+Upstream-Status: Backport [https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=5a19c7e06236a9c55dfc001bb4d1a8f1950d23e7]
+
 When building external modules, vdso_prepare should not be run.  If the
 kernel sources are read-only, it will fail.
 
