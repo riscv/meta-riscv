@@ -7,6 +7,8 @@ SRCREV:ae350-ax45mp = "22f38ee6c658a660083aa45c4ec6c72f66a17260"
 SRCREV:jh7100 = "1725bd71080960290fdde4499a58c25c09d5c8ee"
 SRCREV:star64 = "c6a092cd80112529cb2e92e180767ff5341b22a3"
 SRCREV:orangepi-rv2 = "89bff4a7e4cadfb5f130edb1ec44c39bff20a427"
+# Master branch on Dec 12, 2025, includes SpacemiT K1 fixes
+SRCREV:k1 = "51fe6a8bc958166ff79805cf69bafe5e297776f4"
 
 SRC_URI:star64 = "git://github.com/starfive-tech/opensbi;branch=JH7110_VisionFive2_devel;protocol=https"
 SRC_URI:append:star64 = "\
