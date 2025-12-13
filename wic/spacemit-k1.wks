@@ -1,0 +1,5 @@
+# SD Card Layout for boards wit the SpacemiT K1 SoC
+bootloader --ptable gpt
+part fsbl  --offset 128K --fixed-size 256K --fstype=none --source rawcopy --part-name fsbl --sourceparams="file=FSBL.bin"
+part uboot --fixed-size 64M   --fstype=none --source rawcopy --part-name uboot --sourceparams="file=boot-bundle.itb"
+part /     --ondisk mmcblk0 --fstype=ext4 --label root --source rootfs --use-uuid --align 4096
