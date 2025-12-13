@@ -1,0 +1,72 @@
+/dts-v1/;
+
+/ {
+        description = "Configuration to load OpenSBI before U-Boot";
+        #address-cells = <0x02>;
+
+        images {
+
+                uboot {
+                        description = "U-Boot";
+                        type = "standalone";
+                        os = "U-Boot";
+                        arch = "riscv";
+                        compression = "none";
+                        load = <0x00 0x200000>;
+                        data = /incbin/("u-boot-nodtb.bin");
+                };
+
+                opensbi {
+                        description = "OpenSBI fw_dynamic Firmware";
+                        type = "firmware";
+                        os = "opensbi";
+                        arch = "riscv";
+                        compression = "none";
+                        load = <0x00 0x00>;
+                        entry = <0x00 0x00>;
+                        data = /incbin/("fw_dynamic.bin");
+                };
+
+                fdt-1 {
+                        description = "U-Boot Device Tree";
+                        type = "flat_dt";
+                        compression = "none";
+                        offset = <0x00>;
+                        size = <0x00>;
+                        image-pos = <0x00>;
+                        data = /incbin/("u-boot.dtb");
+                };
+
+                kernel-1 {
+                        description = "Linux kernel";
+                        data = /incbin/("Image");
+                        type = "kernel";
+                        arch = "riscv";
+                        os = "linux";
+                        compression = "none";
+                        load = <0x2000000>;
+                        entry = <0x2000000>;
+                };
+
+                fdt-2 {
+                        description = "Flattened Device Tree blob";
+                        data = /incbin/("KERNEL_DEVICETREE");
+                        type = "flat_dt";
+                        arch = "riscv";
+                        compression = "none";
+                        load = <0x5000000>;
+                };
+
+        };
+
+        configurations {
+                default = "conf-1";
+
+                conf-1 {
+                        description = "SpacemiT K1 based board";
+                        firmware = "opensbi";
+                        loadables = "uboot", "kernel-1", "fdt-2";
+                        fdt = "fdt-1";
+                };
+        };
+};
