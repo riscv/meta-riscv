@@ -26,6 +26,13 @@ SRC_URI:append:freedom-u540 = " \
            "
 SRC_URI:append:freedom-u540_sota = " file://uEnv.txt"
 
+SRC_URI:k1 = " \
+            git://source.denx.de/u-boot/u-boot.git;protocol=https;branch=master \
+            file://bootcommand.cfg \
+            "
+# Master branch as of Dec 11, 2025
+SRCREV:k1 = "ff80e95fed188ec3d4001129445e414c9c811beb"
+
 SRC_URI:milkv-duo = " \
             git://github.com/milkv-duo/milkv-duo-u-boot;protocol=https;branch=duo-64mb \
             file://uboot-milkv-duo.env \
@@ -85,6 +92,10 @@ do_compile:prepend:freedom-u540() {
     export OPENSBI=${DEPLOY_DIR_IMAGE}/fw_dynamic.bin
 }
 
+do_compile:prepend:k1() {
+    export OPENSBI=${DEPLOY_DIR_IMAGE}/fw_dynamic.bin
+}
+
 do_compile:prepend:visionfive2() {
     export OPENSBI=${DEPLOY_DIR_IMAGE}/fw_dynamic.bin
 }
@@ -115,6 +126,13 @@ do_deploy:append:freedom-u540() {
         install -d ${DEPLOY_DIR_IMAGE}
         install -m 644 ${UNPACKDIR}/uEnv.txt ${DEPLOY_DIR_IMAGE}
     fi
+}
+
+do_deploy:append:k1() {
+    install -d ${DEPLOYDIR}
+    install -m 644 ${B}/u-boot.itb ${DEPLOYDIR}/
+    install -m 644 ${B}/u-boot-nodtb.bin ${DEPLOYDIR}/
+    install -m 644 ${B}/u-boot.dtb ${DEPLOYDIR}/
 }
 
 do_deploy:append:milkv-duo() {
