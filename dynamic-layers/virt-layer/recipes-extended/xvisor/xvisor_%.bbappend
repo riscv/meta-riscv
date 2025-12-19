@@ -61,24 +61,24 @@ do_compile:append:riscv64() {
 
 do_install:append:riscv32() {
   install -d ${D}
-  install -m 755 ${B}/vmm-disk-basic.img ${D}/
-  install -m 755 ${B}/vmm-disk-linux.img ${D}/
+  install -m 644 ${B}/vmm-disk-basic.img ${D}/
+  install -m 644 ${B}/vmm-disk-linux.img ${D}/
 }
 
 do_install:append:riscv64() {
   install -d ${D}
-  install -m 755 ${B}/vmm-disk-basic.img ${D}/
-  install -m 755 ${B}/vmm-disk-linux.img ${D}/
+  install -m 644 ${B}/vmm-disk-basic.img ${D}/
+  install -m 644 ${B}/vmm-disk-linux.img ${D}/
 }
 
 do_deploy:append:riscv32() {
-  install -m 755 ${D}/vmm-disk-basic.img ${DEPLOY_DIR_IMAGE}
-  install -m 755 ${D}/vmm-disk-linux.img ${DEPLOY_DIR_IMAGE}
+  install -m 644 ${D}/vmm-disk-basic.img ${DEPLOY_DIR_IMAGE}
+  install -m 644 ${D}/vmm-disk-linux.img ${DEPLOY_DIR_IMAGE}
 }
 
 do_deploy:append:riscv64() {
-  install -m 755 ${D}/vmm-disk-basic.img ${DEPLOY_DIR_IMAGE}
-  install -m 755 ${D}/vmm-disk-linux.img ${DEPLOY_DIR_IMAGE}
+  install -m 644 ${D}/vmm-disk-basic.img ${DEPLOY_DIR_IMAGE}
+  install -m 644 ${D}/vmm-disk-linux.img ${DEPLOY_DIR_IMAGE}
 }
 
 FILES:${PN}:riscv32 += "/vmm.*"
