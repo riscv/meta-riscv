@@ -1,0 +1,37 @@
+From 3704c0dc893576f5f0a363825bee646594a01936 Mon Sep 17 00:00:00 2001
+Message-ID: <3704c0dc893576f5f0a363825bee646594a01936.1767365724.git.marcel@ziswiler.com>
+In-Reply-To: <cover.1767365724.git.marcel@ziswiler.com>
+References: <cover.1767365724.git.marcel@ziswiler.com>
+From: Marcel Ziswiler <marcel@ziswiler.com>
+Date: Fri, 2 Jan 2026 15:25:58 +0100
+Subject: [PATCH 2/6] net/wireless/ap12275: fix building out-of-tree
+
+linux-stable/drivers/net/wireless/ap12275/aiutils.c:25:10: fatal error: typedefs.h: No such file or directory
+   25 | #include <typedefs.h>
+      |          ^~~~~~~~~~~~
+compilation terminated.
+make[7]: *** [linux-stable/scripts/Makefile.build:243: drivers/net/wireless/ap12275/aiutils.o] Error 1
+
+Upstream-Status: Inappropriate [Downstream-specific]
+
+Signed-off-by: Marcel Ziswiler <marcel@ziswiler.com>
+---
+ drivers/net/wireless/ap12275/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/wireless/ap12275/Makefile b/drivers/net/wireless/ap12275/Makefile
+index cb41a87bc81e..5c620aa3e8a2 100644
+--- a/drivers/net/wireless/ap12275/Makefile
++++ b/drivers/net/wireless/ap12275/Makefile
+@@ -460,7 +460,7 @@ endif
+ endif
+ 
+ ARCH ?= riscv
+-BCMDHD_ROOT = $(src)
++BCMDHD_ROOT = $(srctree)/$(src)
+ #$(warning "BCMDHD_ROOT=$(BCMDHD_ROOT)")
+ EXTRA_CFLAGS = $(DHDCFLAGS)
+ EXTRA_CFLAGS += -DDHD_COMPILED=\"$(BCMDHD_ROOT)\"
+-- 
+2.49.0
+

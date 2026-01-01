@@ -1,0 +1,33 @@
+From 30d1c19135be6417a71ea0564a6bf896a8c30a49 Mon Sep 17 00:00:00 2001
+Message-ID: <30d1c19135be6417a71ea0564a6bf896a8c30a49.1767365724.git.marcel@ziswiler.com>
+In-Reply-To: <cover.1767365724.git.marcel@ziswiler.com>
+References: <cover.1767365724.git.marcel@ziswiler.com>
+From: Marcel Ziswiler <marcel@ziswiler.com>
+Date: Fri, 2 Jan 2026 15:25:28 +0100
+Subject: [PATCH 5/6] memory/eswin: fix building out-of-tree
+
+cp: cannot stat 'drivers/memory/eswin//*.h': No such file or directory
+
+Upstream-Status: Inappropriate [Downstream-specific]
+
+Signed-off-by: Marcel Ziswiler <marcel@ziswiler.com>
+---
+ drivers/memory/eswin/Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/memory/eswin/Makefile b/drivers/memory/eswin/Makefile
+index 9f256dc64dad..0ebc119970d7 100644
+--- a/drivers/memory/eswin/Makefile
++++ b/drivers/memory/eswin/Makefile
+@@ -11,6 +11,6 @@ obj-$(CONFIG_ESWIN_IOMMU_RSV)			+= es_iommu_rsv/
+ obj-$(CONFIG_ESWIN_DMA_MEMCP)           += es_dma_memcp/
+ obj-$(CONFIG_ESWIN_MALLOC_DMABUF)       += es_malloc_dmabuf/
+ 
+-ES_MEM_HEADER := drivers/memory/eswin/
++ES_MEM_HEADER := $(srctree)/drivers/memory/eswin
+ 
+-COPY_HEADERS := $(shell cp $(ES_MEM_HEADER)/*.h include/linux)
++COPY_HEADERS := $(shell cp $(ES_MEM_HEADER)/*.h $(srctree)/include/linux)
+-- 
+2.49.0
+

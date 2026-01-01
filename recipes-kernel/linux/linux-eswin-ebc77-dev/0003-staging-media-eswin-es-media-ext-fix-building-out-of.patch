@@ -1,0 +1,73 @@
+From 8e06b71642f689870cd324c65a802dafee9acce9 Mon Sep 17 00:00:00 2001
+Message-ID: <8e06b71642f689870cd324c65a802dafee9acce9.1767365724.git.marcel@ziswiler.com>
+In-Reply-To: <cover.1767365724.git.marcel@ziswiler.com>
+References: <cover.1767365724.git.marcel@ziswiler.com>
+From: Marcel Ziswiler <marcel@ziswiler.com>
+Date: Fri, 2 Jan 2026 15:26:30 +0100
+Subject: [PATCH 3/6] staging/media/eswin/es-media-ext: fix building
+ out-of-tree
+
+In file included from linux-stable/drivers/staging/media/eswin/es-media-ext/./chn/dev_channel.c:1:
+linux-stable/drivers/staging/media/eswin/es-media-ext/./chn/dev_channel.h:3:10: fatal error: dev_common.h: No such file or directory
+    3 | #include "dev_common.h"
+      |          ^~~~~~~~~~~~~~
+compilation terminated.
+  CC      drivers/staging/media/eswin/es-media-ext/./chn/class_chn_mgr.o
+make[8]: *** [linux-stable/scripts/Makefile.build:243: drivers/staging/media/eswin/es-media-ext/./chn/dev_channel.o] Error 1
+make[8]: *** Waiting for unfinished jobs....
+cp: cannot stat 'drivers/memory/eswin/es_dev_buf/include/linux/*.h': No such file or directory
+In file included from linux-stable/drivers/staging/media/eswin/es-media-ext/./chn/class_chn_mgr.c:1:
+linux-stable/drivers/staging/media/eswin/es-media-ext/./chn/class_chn_mgr.h:4:10: fatal error: dev_common.h: No such file or directory
+    4 | #include "dev_common.h"
+      |          ^~~~~~~~~~~~~~
+compilation terminated.
+make[8]: *** [linux-stable/scripts/Makefile.build:243: drivers/staging/media/eswin/es-media-ext/./chn/class_chn_mgr.o] Error 1
+  CC      drivers/memory/eswin/es_dev_buf/es_dev_buf.o
+In file included from linux-stable/drivers/staging/media/eswin/es-media-ext/es_media_ext_drv_main.c:13:
+linux-stable/drivers/staging/media/eswin/es-media-ext/./module/dev_module.h:4:10: fatal error: dev_common.h: No such file or directory
+    4 | #include "dev_common.h"
+      |          ^~~~~~~~~~~~~~
+compilation terminated.
+make[8]: *** [linux-stable/scripts/Makefile.build:243: drivers/staging/media/eswin/es-media-ext/es_media_ext_drv_main.o] Error 1
+make[7]: *** [linux-stable/scripts/Makefile.build:480: drivers/staging/media/eswin/es-media-ext] Error 2
+make[6]: *** [linux-stable/scripts/Makefile.build:480: drivers/staging/media/eswin] Error 2
+make[5]: *** [linux-stable/scripts/Makefile.build:480: drivers/staging/media] Error 2
+make[4]: *** [linux-stable/scripts/Makefile.build:480: drivers/staging] Error 2
+make[4]: *** Waiting for unfinished jobs....
+linux-stable/drivers/memory/eswin/es_dev_buf/es_dev_buf.c:10:10: fatal error: linux/dsp_dma_buf.h: No such file or directory
+   10 | #include <linux/dsp_dma_buf.h>
+      |          ^~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+make[7]: *** [linux-stable/scripts/Makefile.build:243: drivers/memory/eswin/es_dev_buf/es_dev_buf.o] Error 1
+
+Upstream-Status: Inappropriate [Downstream-specific]
+
+Signed-off-by: Marcel Ziswiler <marcel@ziswiler.com>
+---
+ drivers/staging/media/eswin/es-media-ext/Makefile | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/staging/media/eswin/es-media-ext/Makefile b/drivers/staging/media/eswin/es-media-ext/Makefile
+index 326e4316fbd3..aa7ffe338c34 100644
+--- a/drivers/staging/media/eswin/es-media-ext/Makefile
++++ b/drivers/staging/media/eswin/es-media-ext/Makefile
+@@ -1,10 +1,10 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+-ccflags-y := -I$(src)
+-ccflags-y += -I$(src)/common/
+-ccflags-y += -I$(src)/module/
+-ccflags-y += -I$(src)/chn/
+-ccflags-y += -I$(src)/proc/
+-ccflags-y += -I$(src)/include/
++ccflags-y := -I$(srctree)/$(src)
++ccflags-y += -I$(srctree)/$(src)/common/
++ccflags-y += -I$(srctree)/$(src)/module/
++ccflags-y += -I$(srctree)/$(src)/chn/
++ccflags-y += -I$(srctree)/$(src)/proc/
++ccflags-y += -I$(srctree)/$(src)/include/
+ 
+ es_media_ext_drv-objs := es_media_ext_drv_main.o \
+ 						./chn/dev_channel.o	\
+-- 
+2.49.0
+

@@ -1,0 +1,36 @@
+From 8b11489b8fb23db335c468e63461a8807002c609 Mon Sep 17 00:00:00 2001
+Message-ID: <8b11489b8fb23db335c468e63461a8807002c609.1767365724.git.marcel@ziswiler.com>
+In-Reply-To: <cover.1767365724.git.marcel@ziswiler.com>
+References: <cover.1767365724.git.marcel@ziswiler.com>
+From: Marcel Ziswiler <marcel@ziswiler.com>
+Date: Fri, 2 Jan 2026 15:25:45 +0100
+Subject: [PATCH 4/6] memory/eswin/es_dev_buf: fix building out-of-tree
+
+linux-stable/drivers/memory/eswin/es_dev_buf/es_dev_buf.c:10:10: fatal error: linux/dsp_dma_buf.h: No such file or directory
+   10 | #include <linux/dsp_dma_buf.h>
+      |          ^~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+make[7]: *** [linux-stable/scripts/Makefile.build:243: drivers/memory/eswin/es_dev_buf/es_dev_buf.o] Error 1
+
+Upstream-Status: Inappropriate [Downstream-specific]
+
+Signed-off-by: Marcel Ziswiler <marcel@ziswiler.com>
+---
+ drivers/memory/eswin/es_dev_buf/Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/memory/eswin/es_dev_buf/Makefile b/drivers/memory/eswin/es_dev_buf/Makefile
+index 3ba183ff62bd..3c65ec4c1fae 100644
+--- a/drivers/memory/eswin/es_dev_buf/Makefile
++++ b/drivers/memory/eswin/es_dev_buf/Makefile
+@@ -1,5 +1,5 @@
+ obj-$(CONFIG_ESWIN_DEV_DMA_BUF) += es_dev_buf.o
+ 
+-ES_DEV_DMA_BUF_HEADER := drivers/memory/eswin/es_dev_buf/include/linux
+-COPY_HEADERS:=$(shell cp $(ES_DEV_DMA_BUF_HEADER)/*.h include/linux)
++ES_DEV_DMA_BUF_HEADER := $(srctree)/drivers/memory/eswin/es_dev_buf/include/linux
++COPY_HEADERS:=$(shell cp $(ES_DEV_DMA_BUF_HEADER)/*.h $(srctree)/include/linux)
+ 
+-- 
+2.49.0
+
