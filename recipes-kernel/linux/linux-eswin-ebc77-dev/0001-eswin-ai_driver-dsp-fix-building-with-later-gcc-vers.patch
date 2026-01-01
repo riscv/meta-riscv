@@ -1,0 +1,74 @@
+From 3fdfb21becdf542989cd97e36c4f3fa1ae3bd2fa Mon Sep 17 00:00:00 2001
+Message-ID: <3fdfb21becdf542989cd97e36c4f3fa1ae3bd2fa.1767365724.git.marcel@ziswiler.com>
+In-Reply-To: <cover.1767365724.git.marcel@ziswiler.com>
+References: <cover.1767365724.git.marcel@ziswiler.com>
+From: Marcel Ziswiler <marcel@ziswiler.com>
+Date: Fri, 2 Jan 2026 15:26:15 +0100
+Subject: [PATCH 1/6] eswin/ai_driver/dsp: fix building with later gcc version
+
+linux-stable/drivers/soc/eswin/ai_driver/dsp/mloader/xt_mld_relocate.c: In function 'relocate_relative':
+linux-stable/drivers/soc/eswin/ai_driver/dsp/mloader/xt_mld_relocate.c:348:37: error: passing argument 3 of 'reloc_addr_value' from incompatible pointer type [-Wincompatible-pointer-types]
+  348 |                                     &raddr);
+      |                                     ^~~~~~
+      |                                     |
+      |                                     void **
+linux-stable/drivers/soc/eswin/ai_driver/dsp/mloader/xt_mld_relocate.c:310:57: note: expected 'unsigned int *' but argument is of type 'void **'
+  310 |                                             Elf32_Addr *relocation)
+linux-stable/drivers/soc/eswin/ai_driver/dsp/mloader/xt_mld_relocate.c:359:38: error: passing argument 3 of 'reloc_addr_value' from incompatible pointer type [-Wincompatible-pointer-types]
+  359 |                                     ((xtmld_ptr *)&val));
+      |                                     ~^~~~~~~~~~~~~~~~~~
+      |                                      |
+      |                                      void **
+linux-stable/drivers/soc/eswin/ai_driver/dsp/mloader/xt_mld_relocate.c:310:57: note: expected 'unsigned int *' but argument is of type 'void **'
+  310 |                                             Elf32_Addr *relocation)
+linux-stable/drivers/soc/eswin/ai_driver/dsp/mloader/xt_mld_relocate.c: In function 'relocate_32_pcrel':
+linux-stable/drivers/soc/eswin/ai_driver/dsp/mloader/xt_mld_relocate.c:383:61: error: passing argument 3 of 'reloc_addr_value' from incompatible pointer type [-Wincompatible-pointer-types]
+  383 |         status = reloc_addr_value(lib_info, rela->r_addend, &raddr);
+      |                                                             ^~~~~~
+      |                                                             |
+      |                                                             void **
+linux-stable/drivers/soc/eswin/ai_driver/dsp/mloader/xt_mld_relocate.c:310:57: note: expected 'unsigned int *' but argument is of type 'void **'
+  310 |                                             Elf32_Addr *relocation)
+make[8]: *** [linux-stable/scripts/Makefile.build:243: drivers/soc/eswin/ai_driver/dsp/mloader/xt_mld_relocate.o] Error 1
+
+Upstream-Status: Inappropriate [Downstream-specific]
+
+Signed-off-by: Marcel Ziswiler <marcel@ziswiler.com>
+---
+ drivers/soc/eswin/ai_driver/dsp/mloader/xt_mld_relocate.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/soc/eswin/ai_driver/dsp/mloader/xt_mld_relocate.c b/drivers/soc/eswin/ai_driver/dsp/mloader/xt_mld_relocate.c
+index 4861af639471..9a76fe729a30 100644
+--- a/drivers/soc/eswin/ai_driver/dsp/mloader/xt_mld_relocate.c
++++ b/drivers/soc/eswin/ai_driver/dsp/mloader/xt_mld_relocate.c
+@@ -345,7 +345,7 @@ static xtmld_result_code_t relocate_relative(xtmld_state_t *lib_info,
+ 	if (a_ofs == 0) {
+ 		xtmld_ptr raddr;
+ 		status = reloc_addr_value(lib_info, load_32(addr) + rela->r_addend,
+-				    &raddr);
++				    (unsigned int *)&raddr);
+ 		if (status != xtmld_success)
+ 			return status;
+ 		store_32(addr, (uint32_t)raddr);
+@@ -356,7 +356,7 @@ static xtmld_result_code_t relocate_relative(xtmld_state_t *lib_info,
+ 		hi = load_32((uint32_t *)a_ptr + 1);
+ 		val = extract(lo, hi, a_ofs);
+ 		status = reloc_addr_value(lib_info, val + rela->r_addend,
+-				    ((xtmld_ptr *)&val));
++				    (unsigned int *)&val);
+ 		if (status != xtmld_success)
+ 			return status;
+ 		combine(&lo, &hi, val, a_ofs);
+@@ -380,7 +380,7 @@ static xtmld_result_code_t relocate_32_pcrel(xtmld_state_t *lib_info,
+ 	Elf32_Word a_ofs = (Elf32_Word)addr % 4;
+ 	// r_addend is the location of target in PIL
+ 	// get loaded address of target
+-	status = reloc_addr_value(lib_info, rela->r_addend, &raddr);
++	status = reloc_addr_value(lib_info, rela->r_addend, (unsigned int *)&raddr);
+ 	if (status != xtmld_success)
+ 		return status;
+ 	// check if it's 4 byte aligned, C++ exception tables may have
+-- 
+2.49.0
+

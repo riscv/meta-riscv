@@ -1,0 +1,37 @@
+From 85386d63824b53bc90af1c8e0ef0da21f5d475e7 Mon Sep 17 00:00:00 2001
+Message-ID: <85386d63824b53bc90af1c8e0ef0da21f5d475e7.1767365724.git.marcel@ziswiler.com>
+In-Reply-To: <cover.1767365724.git.marcel@ziswiler.com>
+References: <cover.1767365724.git.marcel@ziswiler.com>
+From: Marcel Ziswiler <marcel@ziswiler.com>
+Date: Fri, 2 Jan 2026 15:25:07 +0100
+Subject: [PATCH 6/6] media/i2c: fix missing rk628
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+⬢ [user@host linux-stable]$ make mrproper
+scripts/Makefile.clean:12: drivers/media/i2c/rk628/Makefile: No such file or directory
+make[6]: *** No rule to make target 'drivers/media/i2c/rk628/Makefile'.  Stop.
+
+Upstream-Status: Inappropriate [Downstream-specific]
+
+Signed-off-by: Marcel Ziswiler <marcel@ziswiler.com>
+---
+ drivers/media/i2c/Makefile | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/media/i2c/Makefile b/drivers/media/i2c/Makefile
+index 64624c43150a..4cedbe491c39 100644
+--- a/drivers/media/i2c/Makefile
++++ b/drivers/media/i2c/Makefile
+@@ -24,7 +24,6 @@ obj-$(CONFIG_VIDEO_BT819) += bt819.o
+ obj-$(CONFIG_VIDEO_BT856) += bt856.o
+ obj-$(CONFIG_VIDEO_BT866) += bt866.o
+ obj-$(CONFIG_VIDEO_CCS) += ccs/
+-obj-$(CONFIG_VIDEO_RK628) += rk628/
+ obj-$(CONFIG_VIDEO_CCS_PLL) += ccs-pll.o
+ obj-$(CONFIG_VIDEO_CS3308) += cs3308.o
+ obj-$(CONFIG_VIDEO_CS5345) += cs5345.o
+-- 
+2.49.0
+
