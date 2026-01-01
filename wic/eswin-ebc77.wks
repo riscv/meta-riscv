@@ -1,0 +1,5 @@
+# short-description: Create SD card image for ESWIN Computing EBC77 development board
+
+bootloader --ptable gpt
+part /boot --source bootimg-partition --sourceparams="loader=u-boot" --ondisk mmcblk1 --fstype=vfat --label boot --active --fixed-size 128M --align 4096
+part / --source rootfs --ondisk mmcblk1 --fstype=ext4 --label root --align 4096 --part-type 72ec70a6-cf74-40e6-bd49-4bda08e8f224 --uuid de0b253f-02fb-4d70-ad0e-6742db4a3883
