@@ -1,0 +1,82 @@
+From 254fd0920e7f3cf63f13d236cb1c3e0dfc8e4d01 Mon Sep 17 00:00:00 2001
+Message-ID: <254fd0920e7f3cf63f13d236cb1c3e0dfc8e4d01.1767650435.git.marcel@ziswiler.com>
+In-Reply-To: <cover.1767650435.git.marcel@ziswiler.com>
+References: <cover.1767650435.git.marcel@ziswiler.com>
+From: Samuel Holland <samuel.holland@sifive.com>
+Date: Wed, 12 Nov 2025 17:45:25 -0800
+Subject: [PATCH 09/24] riscv: mm: Deduplicate _PAGE_CHG_MASK definition
+
+The two existing definitions are equivalent because _PAGE_MTMASK is
+defined as 0 on riscv32.
+
+Reviewed-by: Alexandre Ghiti <alexghiti@rivosinc.com>
+Signed-off-by: Samuel Holland <samuel.holland@sifive.com>
+
+Upstream-Status: Submitted [https://lore.kernel.org/all/20251113014656.2605447-1-samuel.holland@sifive.com]
+---
+ arch/riscv/include/asm/pgtable-32.h | 5 -----
+ arch/riscv/include/asm/pgtable-64.h | 7 -------
+ arch/riscv/include/asm/pgtable.h    | 6 ++++++
+ 3 files changed, 6 insertions(+), 12 deletions(-)
+
+diff --git a/arch/riscv/include/asm/pgtable-32.h b/arch/riscv/include/asm/pgtable-32.h
+index 00f3369570a8..fa6c87015c48 100644
+--- a/arch/riscv/include/asm/pgtable-32.h
++++ b/arch/riscv/include/asm/pgtable-32.h
+@@ -28,11 +28,6 @@
+ #define _PAGE_IO		0
+ #define _PAGE_MTMASK		0
+ 
+-/* Set of bits to preserve across pte_modify() */
+-#define _PAGE_CHG_MASK  (~(unsigned long)(_PAGE_PRESENT | _PAGE_READ |	\
+-					  _PAGE_WRITE | _PAGE_EXEC |	\
+-					  _PAGE_USER | _PAGE_GLOBAL))
+-
+ static const __maybe_unused int pgtable_l4_enabled;
+ static const __maybe_unused int pgtable_l5_enabled;
+ 
+diff --git a/arch/riscv/include/asm/pgtable-64.h b/arch/riscv/include/asm/pgtable-64.h
+index 5532f8515450..093f0f41fd23 100644
+--- a/arch/riscv/include/asm/pgtable-64.h
++++ b/arch/riscv/include/asm/pgtable-64.h
+@@ -66,7 +66,6 @@ typedef struct {
+ 
+ #define pmd_val(x)      ((x).pmd)
+ #define __pmd(x)        ((pmd_t) { (x) })
+-
+ #define PTRS_PER_PMD    (PAGE_SIZE / sizeof(pmd_t))
+ 
+ #define MAX_POSSIBLE_PHYSMEM_BITS 56
+@@ -168,12 +167,6 @@ static inline u64 riscv_page_io(void)
+ #define _PAGE_IO		riscv_page_io()
+ #define _PAGE_MTMASK		riscv_page_mtmask()
+ 
+-/* Set of bits to preserve across pte_modify() */
+-#define _PAGE_CHG_MASK  (~(unsigned long)(_PAGE_PRESENT | _PAGE_READ |	\
+-					  _PAGE_WRITE | _PAGE_EXEC |	\
+-					  _PAGE_USER | _PAGE_GLOBAL |	\
+-					  _PAGE_MTMASK))
+-
+ static inline int pud_present(pud_t pud)
+ {
+ 	return (pud_val(pud) & _PAGE_PRESENT);
+diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
+index f5ed5e64e824..9e536500593a 100644
+--- a/arch/riscv/include/asm/pgtable.h
++++ b/arch/riscv/include/asm/pgtable.h
+@@ -207,6 +207,12 @@ extern struct pt_alloc_ops pt_ops __meminitdata;
+ #define _PAGE_IOREMAP	((_PAGE_KERNEL & ~_PAGE_MTMASK) | _PAGE_IO)
+ #define PAGE_KERNEL_IO		__pgprot(_PAGE_IOREMAP)
+ 
++/* Set of bits to preserve across pte_modify() */
++#define _PAGE_CHG_MASK  (~(unsigned long)(_PAGE_PRESENT | _PAGE_READ |	\
++					  _PAGE_WRITE | _PAGE_EXEC |	\
++					  _PAGE_USER | _PAGE_GLOBAL |	\
++					  _PAGE_MTMASK))
++
+ extern pgd_t swapper_pg_dir[];
+ extern pgd_t trampoline_pg_dir[];
+ extern pgd_t early_pg_dir[];
+-- 
+2.49.0
+

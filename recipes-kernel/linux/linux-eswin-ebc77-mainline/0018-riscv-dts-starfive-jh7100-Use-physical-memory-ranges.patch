@@ -1,0 +1,127 @@
+From 6b964ac606190d52e31f565da37712124871c866 Mon Sep 17 00:00:00 2001
+Message-ID: <6b964ac606190d52e31f565da37712124871c866.1767650435.git.marcel@ziswiler.com>
+In-Reply-To: <cover.1767650435.git.marcel@ziswiler.com>
+References: <cover.1767650435.git.marcel@ziswiler.com>
+From: Samuel Holland <samuel.holland@sifive.com>
+Date: Wed, 12 Nov 2025 17:45:34 -0800
+Subject: [PATCH 18/24] riscv: dts: starfive: jh7100: Use physical memory
+ ranges for DMA
+
+JH7100 provides a physical memory region which is a noncached alias of
+normal cacheable DRAM. Now that Linux can apply PMAs by selecting
+between aliases of a physical memory region, any page of DRAM can be
+marked as noncached for use with DMA, and the preallocated DMA pool is
+no longer needed. This allows portable kernels to boot on JH7100 boards.
+
+Signed-off-by: Samuel Holland <samuel.holland@sifive.com>
+
+Upstream-Status: Submitted [https://lore.kernel.org/all/20251113014656.2605447-1-samuel.holland@sifive.com]
+---
+ arch/riscv/Kconfig.errata                     |  9 +++----
+ arch/riscv/Kconfig.socs                       |  2 ++
+ .../boot/dts/starfive/jh7100-common.dtsi      | 24 -------------------
+ arch/riscv/boot/dts/starfive/jh7100.dtsi      |  4 ++++
+ 4 files changed, 11 insertions(+), 28 deletions(-)
+
+diff --git a/arch/riscv/Kconfig.errata b/arch/riscv/Kconfig.errata
+index 46a353a266e5..be5afec66eaa 100644
+--- a/arch/riscv/Kconfig.errata
++++ b/arch/riscv/Kconfig.errata
+@@ -77,13 +77,11 @@ config ERRATA_SIFIVE_CIP_1200
+ 	  If you don't know what to do here, say "Y".
+ 
+ config ERRATA_STARFIVE_JH7100
+-	bool "StarFive JH7100 support"
++	bool "StarFive JH7100 support for old devicetrees"
+ 	depends on ARCH_STARFIVE
+ 	depends on !DMA_DIRECT_REMAP
+ 	depends on NONPORTABLE
+ 	select DMA_GLOBAL_POOL
+-	select RISCV_DMA_NONCOHERENT
+-	select RISCV_NONSTANDARD_CACHE_OPS
+ 	select SIFIVE_CCACHE
+ 	default n
+ 	help
+@@ -93,7 +91,10 @@ config ERRATA_STARFIVE_JH7100
+ 	  cache operations through the SiFive cache controller.
+ 
+ 	  Say "Y" if you want to support the BeagleV Starlight and/or
+-	  StarFive VisionFive V1 boards.
++	  StarFive VisionFive V1 boards with older devicetrees that reserve
++	  memory for DMA using a "shared-dma-pool". If your devicetree has
++	  the "riscv,physical-memory-regions" property, you should instead
++	  enable RISCV_ISA_XLINUXMEMALIAS and use a portable kernel.
+ 
+ config ERRATA_THEAD
+ 	bool "T-HEAD errata"
+diff --git a/arch/riscv/Kconfig.socs b/arch/riscv/Kconfig.socs
+index d621b85dd63b..b930ac48aad7 100644
+--- a/arch/riscv/Kconfig.socs
++++ b/arch/riscv/Kconfig.socs
+@@ -55,6 +55,8 @@ config SOC_STARFIVE
+ 	bool "StarFive SoCs"
+ 	select PINCTRL
+ 	select RESET_CONTROLLER
++	select RISCV_DMA_NONCOHERENT
++	select RISCV_NONSTANDARD_CACHE_OPS
+ 	select ARM_AMBA
+ 	help
+ 	  This enables support for StarFive SoC platform hardware.
+diff --git a/arch/riscv/boot/dts/starfive/jh7100-common.dtsi b/arch/riscv/boot/dts/starfive/jh7100-common.dtsi
+index ae1a6aeb0aea..47d0cf55bfc0 100644
+--- a/arch/riscv/boot/dts/starfive/jh7100-common.dtsi
++++ b/arch/riscv/boot/dts/starfive/jh7100-common.dtsi
+@@ -42,30 +42,6 @@ led-ack {
+ 		};
+ 	};
+ 
+-	reserved-memory {
+-		#address-cells = <2>;
+-		#size-cells = <2>;
+-		ranges;
+-
+-		dma-reserved@fa000000 {
+-			reg = <0x0 0xfa000000 0x0 0x1000000>;
+-			no-map;
+-		};
+-
+-		linux,dma@107a000000 {
+-			compatible = "shared-dma-pool";
+-			reg = <0x10 0x7a000000 0x0 0x1000000>;
+-			no-map;
+-			linux,dma-default;
+-		};
+-	};
+-
+-	soc {
+-		dma-ranges = <0x00 0x80000000 0x00 0x80000000 0x00 0x7a000000>,
+-			     <0x00 0xfa000000 0x10 0x7a000000 0x00 0x01000000>,
+-			     <0x00 0xfb000000 0x00 0xfb000000 0x07 0x85000000>;
+-	};
+-
+ 	wifi_pwrseq: wifi-pwrseq {
+ 		compatible = "mmc-pwrseq-simple";
+ 		reset-gpios = <&gpio 37 GPIO_ACTIVE_LOW>;
+diff --git a/arch/riscv/boot/dts/starfive/jh7100.dtsi b/arch/riscv/boot/dts/starfive/jh7100.dtsi
+index 7de0732b8eab..c7d7ec9ed8c9 100644
+--- a/arch/riscv/boot/dts/starfive/jh7100.dtsi
++++ b/arch/riscv/boot/dts/starfive/jh7100.dtsi
+@@ -7,11 +7,15 @@
+ /dts-v1/;
+ #include <dt-bindings/clock/starfive-jh7100.h>
+ #include <dt-bindings/reset/starfive-jh7100.h>
++#include <dt-bindings/riscv/physical-memory.h>
+ 
+ / {
+ 	compatible = "starfive,jh7100";
+ 	#address-cells = <2>;
+ 	#size-cells = <2>;
++	riscv,physical-memory-regions =
++		<0x00 0x80000000 0x08 0x00000000 (PMA_RWXA | PMA_NONCOHERENT_MEMORY) 0x0>,
++		<0x10 0x00000000 0x08 0x00000000 (PMA_RWX | PMA_NONCACHEABLE_MEMORY | PMR_ALIAS(0)) 0x0>;
+ 
+ 	cpus: cpus {
+ 		#address-cells = <1>;
+-- 
+2.49.0
+

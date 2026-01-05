@@ -1,0 +1,180 @@
+From 3ad1a7ad5f8f053bcffabc4ed8c2d5d7a2ab6adf Mon Sep 17 00:00:00 2001
+Message-ID: <3ad1a7ad5f8f053bcffabc4ed8c2d5d7a2ab6adf.1767650435.git.marcel@ziswiler.com>
+In-Reply-To: <cover.1767650435.git.marcel@ziswiler.com>
+References: <cover.1767650435.git.marcel@ziswiler.com>
+From: Samuel Holland <samuel.holland@sifive.com>
+Date: Wed, 12 Nov 2025 17:45:32 -0800
+Subject: [PATCH 16/24] dt-bindings: riscv: Describe physical memory regions
+
+Information about physical memory regions is needed by both the kernel
+and M-mode firmware. For example, the kernel needs to know about
+noncacheable aliases of cacheable memory in order to allocate coherent
+memory pages for DMA. M-mode firmware needs to know about those aliases
+so it can protect itself from lower-privileged software.
+
+The RISC-V Privileged Architecture delegates the description of Physical
+Memory Attributes (PMAs) to the platform. On DT-based platforms, it
+makes sense to put this information in the devicetree.
+
+Signed-off-by: Samuel Holland <samuel.holland@sifive.com>
+
+Upstream-Status: Submitted [https://lore.kernel.org/all/20251113014656.2605447-1-samuel.holland@sifive.com]
+---
+ .../bindings/riscv/physical-memory.yaml       | 92 +++++++++++++++++++
+ include/dt-bindings/riscv/physical-memory.h   | 45 +++++++++
+ 2 files changed, 137 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/riscv/physical-memory.yaml
+ create mode 100644 include/dt-bindings/riscv/physical-memory.h
+
+diff --git a/Documentation/devicetree/bindings/riscv/physical-memory.yaml b/Documentation/devicetree/bindings/riscv/physical-memory.yaml
+new file mode 100644
+index 000000000000..8beaa588c71c
+--- /dev/null
++++ b/Documentation/devicetree/bindings/riscv/physical-memory.yaml
+@@ -0,0 +1,92 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/riscv/physical-memory.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: RISC-V Physical Memory Regions
++
++maintainers:
++  - Samuel Holland <samuel.holland@sifive.com>
++
++description:
++  The RISC-V Privileged Architecture defines a number of Physical Memory
++  Attributes (PMAs) which apply to a given region of memory. These include the
++  types of accesses (read, write, execute, LR/SC, and/or AMO) allowed within
++  a region, the supported access widths and alignments, the cacheability and
++  coherence of the region, and whether or not accesses to the region may have
++  side effects.
++
++  Some RISC-V platforms provide multiple physical address mappings for main
++  memory or certain peripherals. Each alias of a region generally has different
++  PMAs (e.g. cacheable vs non-cacheable), which allows software to dynamically
++  select the PMAs for an access by referencing the corresponding alias.
++
++  On DT-based RISC-V platforms, this information is provided by the
++  riscv,physical-memory-regions property of the root node.
++
++properties:
++  $nodename:
++    const: '/'
++
++  riscv,physical-memory-regions:
++    $ref: /schemas/types.yaml#/definitions/uint32-matrix
++    description:
++      Each table entry provides PMAs for a specific physical memory region,
++      which must not overlap with any other table entry.
++    minItems: 1
++    maxItems: 256
++    items:
++      minItems: 4
++      maxItems: 6
++      additionalItems: true
++      items:
++        - description: CPU physical address (#address-cells)
++        - description: >
++            Size (#size-cells). For entry 0, if the size is zero, the size is
++            assumed to be 2^(32 * #size-cells).
++        - description: >
++            Flags describing the most restrictive PMAs for any address within
++            the region.
++
++            The least significant byte indicates the types of accesses allowed
++            for this region. Note that a memory region may support a type of
++            access (e.g. AMOs) even if the CPU does not.
++
++            The next byte describes the cacheability, coherence, idempotency,
++            and ordering PMAs for this region. It also includes a flag to
++            indicate that accesses to a region are unsafe and must be
++            prohibited by software (for example using PMPs or Smmpt).
++
++            The third byte is reserved for future PMAs.
++
++            The most significant byte is the index of the lowest-numbered entry
++            which this entry is an alias of, if any. Aliases need not be the
++            same size, for example if a smaller memory region repeats within a
++            larger alias.
++        - description: Reserved for describing future PMAs
++
++additionalProperties: true
++
++examples:
++  - |
++    #include <dt-bindings/riscv/physical-memory.h>
++
++    / {
++      compatible = "beagle,beaglev-starlight-jh7100-r0", "starfive,jh7100";
++      model = "BeagleV Starlight Beta";
++      #address-cells = <2>;
++      #size-cells = <2>;
++
++      riscv,physical-memory-regions =
++          <0x00 0x18000000 0x00 0x00020000 (PMA_RWX | PMA_NONCACHEABLE_MEMORY) 0x0>,
++          <0x00 0x18080000 0x00 0x00020000 (PMA_RWX | PMA_NONCACHEABLE_MEMORY) 0x0>,
++          <0x00 0x41000000 0x00 0x1f000000 (PMA_RWX | PMA_NONCACHEABLE_MEMORY) 0x0>,
++          <0x00 0x61000000 0x00 0x1f000000 (PMA_RWXA | PMA_NONCOHERENT_MEMORY | PMR_ALIAS(3)) 0x0>,
++          <0x00 0x80000000 0x08 0x00000000 (PMA_RWXA | PMA_NONCOHERENT_MEMORY) 0x0>,
++          <0x10 0x00000000 0x08 0x00000000 (PMA_RWX | PMA_NONCACHEABLE_MEMORY | PMR_ALIAS(5)) 0x0>,
++          <0x20 0x00000000 0x10 0x00000000 (PMA_RWX | PMA_NONCACHEABLE_MEMORY) 0x0>,
++          <0x30 0x00000000 0x10 0x00000000 (PMA_RWXA | PMA_NONCOHERENT_MEMORY | PMR_ALIAS(7)) 0x0>;
++    };
++
++...
+diff --git a/include/dt-bindings/riscv/physical-memory.h b/include/dt-bindings/riscv/physical-memory.h
+new file mode 100644
+index 000000000000..d6ed8015c535
+--- /dev/null
++++ b/include/dt-bindings/riscv/physical-memory.h
+@@ -0,0 +1,45 @@
++/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
++
++#ifndef _DT_BINDINGS_RISCV_PHYSICAL_MEMORY_H
++#define _DT_BINDINGS_RISCV_PHYSICAL_MEMORY_H
++
++#define PMA_READ			(1 << 0)
++#define PMA_WRITE			(1 << 1)
++#define PMA_EXECUTE			(1 << 2)
++#define PMA_AMO_MASK			(3 << 4)
++#define PMA_AMO_NONE			(0 << 4)
++#define PMA_AMO_SWAP			(1 << 4)
++#define PMA_AMO_LOGICAL			(2 << 4)
++#define PMA_AMO_ARITHMETIC		(3 << 4)
++#define PMA_RSRV_MASK			(3 << 6)
++#define PMA_RSRV_NONE			(0 << 6)
++#define PMA_RSRV_NON_EVENTUAL		(1 << 6)
++#define PMA_RSRV_EVENTUAL		(2 << 6)
++
++#define PMA_RW				(PMA_READ | PMA_WRITE)
++#define PMA_RWA				(PMA_RW | PMA_AMO_ARITHMETIC | PMA_RSRV_EVENTUAL)
++#define PMA_RWX				(PMA_RW | PMA_EXECUTE)
++#define PMA_RWXA			(PMA_RWA | PMA_EXECUTE)
++
++#define PMA_ORDER_MASK			(3 << 8)
++#define PMA_ORDER_IO_RELAXED		(0 << 8)
++#define PMA_ORDER_IO_STRONG		(1 << 8)
++#define PMA_ORDER_MEMORY		(2 << 8)
++#define PMA_READ_IDEMPOTENT		(1 << 10)
++#define PMA_WRITE_IDEMPOTENT		(1 << 11)
++#define PMA_CACHEABLE			(1 << 12)
++#define PMA_COHERENT			(1 << 13)
++
++#define PMA_UNSAFE			(1 << 15)
++
++#define PMA_IO				(PMA_ORDER_IO_RELAXED)
++#define PMA_NONCACHEABLE_MEMORY		(PMA_ORDER_MEMORY | PMA_READ_IDEMPOTENT | \
++						PMA_WRITE_IDEMPOTENT)
++#define PMA_NONCOHERENT_MEMORY		(PMA_NONCACHEABLE_MEMORY | PMA_CACHEABLE)
++#define PMA_NORMAL_MEMORY		(PMA_NONCOHERENT_MEMORY | PMA_COHERENT)
++
++#define PMR_ALIAS_MASK			(0x7f << 24)
++#define PMR_IS_ALIAS			(0x80 << 24)
++#define PMR_ALIAS(n)			(PMR_IS_ALIAS | ((n) << 24))
++
++#endif /* _DT_BINDINGS_RISCV_PHYSICAL_MEMORY_H */
+-- 
+2.49.0
+

@@ -1,0 +1,107 @@
+From bb5efb091c9307864dee65f4fc373d4dd37515b2 Mon Sep 17 00:00:00 2001
+Message-ID: <bb5efb091c9307864dee65f4fc373d4dd37515b2.1767650435.git.marcel@ziswiler.com>
+In-Reply-To: <cover.1767650435.git.marcel@ziswiler.com>
+References: <cover.1767650435.git.marcel@ziswiler.com>
+From: Samuel Holland <samuel.holland@sifive.com>
+Date: Wed, 12 Nov 2025 17:45:22 -0800
+Subject: [PATCH 06/24] riscv: hibernate: Replace open-coded pXXp_get()
+
+Use the semantically appropriate accessor function instead of open
+coding the implementation. This will become important once these
+functions start transforming the PTE value on some platforms.
+
+Signed-off-by: Samuel Holland <samuel.holland@sifive.com>
+
+Upstream-Status: Submitted [https://lore.kernel.org/all/20251113014656.2605447-1-samuel.holland@sifive.com]
+---
+ arch/riscv/kernel/hibernate.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/arch/riscv/kernel/hibernate.c b/arch/riscv/kernel/hibernate.c
+index 671b686c0158..2a9bc9d9e776 100644
+--- a/arch/riscv/kernel/hibernate.c
++++ b/arch/riscv/kernel/hibernate.c
+@@ -171,7 +171,7 @@ static int temp_pgtable_map_pte(pmd_t *dst_pmdp, pmd_t *src_pmdp, unsigned long
+ 	pte_t *src_ptep;
+ 	pte_t *dst_ptep;
+ 
+-	if (pmd_none(READ_ONCE(*dst_pmdp))) {
++	if (pmd_none(pmdp_get(dst_pmdp))) {
+ 		dst_ptep = (pte_t *)get_safe_page(GFP_ATOMIC);
+ 		if (!dst_ptep)
+ 			return -ENOMEM;
+@@ -183,7 +183,7 @@ static int temp_pgtable_map_pte(pmd_t *dst_pmdp, pmd_t *src_pmdp, unsigned long
+ 	src_ptep = pte_offset_kernel(src_pmdp, start);
+ 
+ 	do {
+-		pte_t pte = READ_ONCE(*src_ptep);
++		pte_t pte = ptep_get(src_ptep);
+ 
+ 		if (pte_present(pte))
+ 			set_pte(dst_ptep, __pte(pte_val(pte) | pgprot_val(prot)));
+@@ -200,7 +200,7 @@ static int temp_pgtable_map_pmd(pud_t *dst_pudp, pud_t *src_pudp, unsigned long
+ 	pmd_t *src_pmdp;
+ 	pmd_t *dst_pmdp;
+ 
+-	if (pud_none(READ_ONCE(*dst_pudp))) {
++	if (pud_none(pudp_get(dst_pudp))) {
+ 		dst_pmdp = (pmd_t *)get_safe_page(GFP_ATOMIC);
+ 		if (!dst_pmdp)
+ 			return -ENOMEM;
+@@ -212,7 +212,7 @@ static int temp_pgtable_map_pmd(pud_t *dst_pudp, pud_t *src_pudp, unsigned long
+ 	src_pmdp = pmd_offset(src_pudp, start);
+ 
+ 	do {
+-		pmd_t pmd = READ_ONCE(*src_pmdp);
++		pmd_t pmd = pmdp_get(src_pmdp);
+ 
+ 		next = pmd_addr_end(start, end);
+ 
+@@ -239,7 +239,7 @@ static int temp_pgtable_map_pud(p4d_t *dst_p4dp, p4d_t *src_p4dp, unsigned long
+ 	pud_t *dst_pudp;
+ 	pud_t *src_pudp;
+ 
+-	if (p4d_none(READ_ONCE(*dst_p4dp))) {
++	if (p4d_none(p4dp_get(dst_p4dp))) {
+ 		dst_pudp = (pud_t *)get_safe_page(GFP_ATOMIC);
+ 		if (!dst_pudp)
+ 			return -ENOMEM;
+@@ -251,7 +251,7 @@ static int temp_pgtable_map_pud(p4d_t *dst_p4dp, p4d_t *src_p4dp, unsigned long
+ 	src_pudp = pud_offset(src_p4dp, start);
+ 
+ 	do {
+-		pud_t pud = READ_ONCE(*src_pudp);
++		pud_t pud = pudp_get(src_pudp);
+ 
+ 		next = pud_addr_end(start, end);
+ 
+@@ -278,7 +278,7 @@ static int temp_pgtable_map_p4d(pgd_t *dst_pgdp, pgd_t *src_pgdp, unsigned long
+ 	p4d_t *dst_p4dp;
+ 	p4d_t *src_p4dp;
+ 
+-	if (pgd_none(READ_ONCE(*dst_pgdp))) {
++	if (pgd_none(pgdp_get(dst_pgdp))) {
+ 		dst_p4dp = (p4d_t *)get_safe_page(GFP_ATOMIC);
+ 		if (!dst_p4dp)
+ 			return -ENOMEM;
+@@ -290,7 +290,7 @@ static int temp_pgtable_map_p4d(pgd_t *dst_pgdp, pgd_t *src_pgdp, unsigned long
+ 	src_p4dp = p4d_offset(src_pgdp, start);
+ 
+ 	do {
+-		p4d_t p4d = READ_ONCE(*src_p4dp);
++		p4d_t p4d = p4dp_get(src_p4dp);
+ 
+ 		next = p4d_addr_end(start, end);
+ 
+@@ -317,7 +317,7 @@ static int temp_pgtable_mapping(pgd_t *pgdp, unsigned long start, unsigned long
+ 	unsigned long ret;
+ 
+ 	do {
+-		pgd_t pgd = READ_ONCE(*src_pgdp);
++		pgd_t pgd = pgdp_get(src_pgdp);
+ 
+ 		next = pgd_addr_end(start, end);
+ 
+-- 
+2.49.0
+

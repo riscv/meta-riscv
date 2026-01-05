@@ -1,0 +1,65 @@
+From 662dd8d59b4133c53f261a33e93b656c81a401c4 Mon Sep 17 00:00:00 2001
+Message-ID: <662dd8d59b4133c53f261a33e93b656c81a401c4.1767650435.git.marcel@ziswiler.com>
+In-Reply-To: <cover.1767650435.git.marcel@ziswiler.com>
+References: <cover.1767650435.git.marcel@ziswiler.com>
+From: Samuel Holland <samuel.holland@sifive.com>
+Date: Wed, 12 Nov 2025 17:45:31 -0800
+Subject: [PATCH 15/24] riscv: Fix logic for selecting DMA_DIRECT_REMAP
+
+DMA_DIRECT_REMAP allows the kernel to make pages coherent for DMA by
+remapping them in the page tables with a different pgprot_t value. On
+RISC-V, this is supported by the page-based memory type extensions
+(Svpbmt and Xtheadmae). It is independent from the software cache
+maintenance extensions (Zicbom and Xtheadcmo).
+
+Signed-off-by: Samuel Holland <samuel.holland@sifive.com>
+
+Upstream-Status: Submitted [https://lore.kernel.org/all/20251113014656.2605447-1-samuel.holland@sifive.com]
+---
+ arch/riscv/Kconfig        | 2 +-
+ arch/riscv/Kconfig.errata | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 6b39f37f769a..2ec7d78b405d 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -600,6 +600,7 @@ config RISCV_ISA_SVPBMT
+ 	depends on 64BIT && MMU
+ 	depends on RISCV_ALTERNATIVE
+ 	default y
++	select DMA_DIRECT_REMAP
+ 	help
+ 	   Add support for the Svpbmt ISA-extension (Supervisor-mode:
+ 	   page-based memory types) in the kernel when it is detected at boot.
+@@ -813,7 +814,6 @@ config RISCV_ISA_ZICBOM
+ 	depends on RISCV_ALTERNATIVE
+ 	default y
+ 	select RISCV_DMA_NONCOHERENT
+-	select DMA_DIRECT_REMAP
+ 	help
+ 	   Add support for the Zicbom extension (Cache Block Management
+ 	   Operations) and enable its use in the kernel when it is detected
+diff --git a/arch/riscv/Kconfig.errata b/arch/riscv/Kconfig.errata
+index aca9b0cfcfec..46a353a266e5 100644
+--- a/arch/riscv/Kconfig.errata
++++ b/arch/riscv/Kconfig.errata
+@@ -108,6 +108,7 @@ config ERRATA_THEAD
+ config ERRATA_THEAD_MAE
+ 	bool "Apply T-Head's memory attribute extension (XTheadMae) errata"
+ 	depends on ERRATA_THEAD && 64BIT && MMU
++	select DMA_DIRECT_REMAP
+ 	select RISCV_ALTERNATIVE_EARLY
+ 	default y
+ 	help
+@@ -119,7 +120,6 @@ config ERRATA_THEAD_MAE
+ config ERRATA_THEAD_CMO
+ 	bool "Apply T-Head cache management errata"
+ 	depends on ERRATA_THEAD && MMU
+-	select DMA_DIRECT_REMAP
+ 	select RISCV_DMA_NONCOHERENT
+ 	select RISCV_NONSTANDARD_CACHE_OPS
+ 	default y
+-- 
+2.49.0
+

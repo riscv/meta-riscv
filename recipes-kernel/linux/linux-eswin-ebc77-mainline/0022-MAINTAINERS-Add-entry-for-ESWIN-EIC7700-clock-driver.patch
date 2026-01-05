@@ -1,0 +1,39 @@
+From 40152370be6e0000965fa55f2d5f3412d71baddb Mon Sep 17 00:00:00 2001
+Message-ID: <40152370be6e0000965fa55f2d5f3412d71baddb.1767650435.git.marcel@ziswiler.com>
+In-Reply-To: <cover.1767650435.git.marcel@ziswiler.com>
+References: <cover.1767650435.git.marcel@ziswiler.com>
+From: Xuyang Dong <dongxuyang@eswincomputing.com>
+Date: Mon, 29 Dec 2025 19:00:05 +0800
+Subject: [PATCH 22/24] MAINTAINERS: Add entry for ESWIN EIC7700 clock driver
+
+Add myself as maintainer of ESWIN EIC7700 clock driver
+
+Signed-off-by: Xuyang Dong <dongxuyang@eswincomputing.com>
+
+Upstream-Status: Submitted [https://lore.kernel.org/all/20251229105844.1089-1-dongxuyang@eswincomputing.com]
+---
+ MAINTAINERS | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index adbe6a93a392..f24d948ece42 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -9406,6 +9406,14 @@ T:	git https://github.com/eswincomputing/linux-next.git
+ F:	Documentation/devicetree/bindings/riscv/eswin.yaml
+ F:	arch/riscv/boot/dts/eswin/
+ 
++ESWIN EIC7700 CLOCK DRIVER
++M:	Yifeng Huang <huangyifeng@eswincomputing.com>
++M:	Xuyang Dong <dongxuyang@eswincomputing.com>
++S:	Maintained
++F:	Documentation/devicetree/bindings/clock/eswin,eic7700-clock.yaml
++F:	drivers/clk/eswin/
++F:	include/dt-bindings/clock/eswin,eic7700-clock.h
++
+ ET131X NETWORK DRIVER
+ M:	Mark Einon <mark.einon@gmail.com>
+ S:	Odd Fixes
+-- 
+2.49.0
+

@@ -1,0 +1,61 @@
+From 32ed14adb0e37e27a2637535873a2aa205ace3cb Mon Sep 17 00:00:00 2001
+Message-ID: <32ed14adb0e37e27a2637535873a2aa205ace3cb.1767650435.git.marcel@ziswiler.com>
+In-Reply-To: <cover.1767650435.git.marcel@ziswiler.com>
+References: <cover.1767650435.git.marcel@ziswiler.com>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Date: Wed, 12 Nov 2025 17:45:17 -0800
+Subject: [PATCH 01/24] perf/events: replace READ_ONCE() with standard page
+ table accessors
+
+Replace READ_ONCE() with standard page table accessors i.e pxdp_get() which
+anyways default into READ_ONCE() in cases where platform does not override.
+
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: linux-perf-users@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Link: https://lore.kernel.org/r/20251006042622.1743675-1-anshuman.khandual@arm.com/
+Signed-off-by: Samuel Holland <samuel.holland@sifive.com>
+
+Upstream-Status: Submitted [https://lore.kernel.org/all/20251113014656.2605447-1-samuel.holland@sifive.com]
+---
+ kernel/events/core.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 376fb07d869b..2d645dece8e4 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -8400,7 +8400,7 @@ static u64 perf_get_pgtable_size(struct mm_struct *mm, unsigned long addr)
+ 	pte_t *ptep, pte;
+ 
+ 	pgdp = pgd_offset(mm, addr);
+-	pgd = READ_ONCE(*pgdp);
++	pgd = pgdp_get(pgdp);
+ 	if (pgd_none(pgd))
+ 		return 0;
+ 
+@@ -8408,7 +8408,7 @@ static u64 perf_get_pgtable_size(struct mm_struct *mm, unsigned long addr)
+ 		return pgd_leaf_size(pgd);
+ 
+ 	p4dp = p4d_offset_lockless(pgdp, pgd, addr);
+-	p4d = READ_ONCE(*p4dp);
++	p4d = p4dp_get(p4dp);
+ 	if (!p4d_present(p4d))
+ 		return 0;
+ 
+@@ -8416,7 +8416,7 @@ static u64 perf_get_pgtable_size(struct mm_struct *mm, unsigned long addr)
+ 		return p4d_leaf_size(p4d);
+ 
+ 	pudp = pud_offset_lockless(p4dp, p4d, addr);
+-	pud = READ_ONCE(*pudp);
++	pud = pudp_get(pudp);
+ 	if (!pud_present(pud))
+ 		return 0;
+ 
+-- 
+2.49.0
+
