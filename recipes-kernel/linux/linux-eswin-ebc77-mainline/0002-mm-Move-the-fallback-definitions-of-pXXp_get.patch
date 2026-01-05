@@ -1,0 +1,113 @@
+From 49c067830a034d2d22136da83d7741060c3d2ddc Mon Sep 17 00:00:00 2001
+Message-ID: <49c067830a034d2d22136da83d7741060c3d2ddc.1767650435.git.marcel@ziswiler.com>
+In-Reply-To: <cover.1767650435.git.marcel@ziswiler.com>
+References: <cover.1767650435.git.marcel@ziswiler.com>
+From: Samuel Holland <samuel.holland@sifive.com>
+Date: Wed, 12 Nov 2025 17:45:18 -0800
+Subject: [PATCH 02/24] mm: Move the fallback definitions of pXXp_get()
+
+Some platforms need to fix up the values when reading or writing page
+tables. Because of this, the accessors must always be used; it is not
+valid to simply dereference a pXX_t pointer.
+
+Move these definitions up by a few lines, so they will be in scope
+everywhere that currently dereferences a pXX_t pointer.
+
+Signed-off-by: Samuel Holland <samuel.holland@sifive.com>
+
+Upstream-Status: Submitted [https://lore.kernel.org/all/20251113014656.2605447-1-samuel.holland@sifive.com]
+---
+ include/linux/pgtable.h | 70 ++++++++++++++++++++---------------------
+ 1 file changed, 35 insertions(+), 35 deletions(-)
+
+diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
+index eb8aacba3698..1cdb02c9571f 100644
+--- a/include/linux/pgtable.h
++++ b/include/linux/pgtable.h
+@@ -90,6 +90,41 @@ static inline unsigned long pud_index(unsigned long address)
+ #define pgd_index(a)  (((a) >> PGDIR_SHIFT) & (PTRS_PER_PGD - 1))
+ #endif
+ 
++#ifndef ptep_get
++static inline pte_t ptep_get(pte_t *ptep)
++{
++	return READ_ONCE(*ptep);
++}
++#endif
++
++#ifndef pmdp_get
++static inline pmd_t pmdp_get(pmd_t *pmdp)
++{
++	return READ_ONCE(*pmdp);
++}
++#endif
++
++#ifndef pudp_get
++static inline pud_t pudp_get(pud_t *pudp)
++{
++	return READ_ONCE(*pudp);
++}
++#endif
++
++#ifndef p4dp_get
++static inline p4d_t p4dp_get(p4d_t *p4dp)
++{
++	return READ_ONCE(*p4dp);
++}
++#endif
++
++#ifndef pgdp_get
++static inline pgd_t pgdp_get(pgd_t *pgdp)
++{
++	return READ_ONCE(*pgdp);
++}
++#endif
++
+ #ifndef kernel_pte_init
+ static inline void kernel_pte_init(void *addr)
+ {
+@@ -474,41 +509,6 @@ static inline int pudp_set_access_flags(struct vm_area_struct *vma,
+ #endif /* CONFIG_TRANSPARENT_HUGEPAGE */
+ #endif
+ 
+-#ifndef ptep_get
+-static inline pte_t ptep_get(pte_t *ptep)
+-{
+-	return READ_ONCE(*ptep);
+-}
+-#endif
+-
+-#ifndef pmdp_get
+-static inline pmd_t pmdp_get(pmd_t *pmdp)
+-{
+-	return READ_ONCE(*pmdp);
+-}
+-#endif
+-
+-#ifndef pudp_get
+-static inline pud_t pudp_get(pud_t *pudp)
+-{
+-	return READ_ONCE(*pudp);
+-}
+-#endif
+-
+-#ifndef p4dp_get
+-static inline p4d_t p4dp_get(p4d_t *p4dp)
+-{
+-	return READ_ONCE(*p4dp);
+-}
+-#endif
+-
+-#ifndef pgdp_get
+-static inline pgd_t pgdp_get(pgd_t *pgdp)
+-{
+-	return READ_ONCE(*pgdp);
+-}
+-#endif
+-
+ #ifndef __HAVE_ARCH_PTEP_TEST_AND_CLEAR_YOUNG
+ static inline int ptep_test_and_clear_young(struct vm_area_struct *vma,
+ 					    unsigned long address,
+-- 
+2.49.0
+

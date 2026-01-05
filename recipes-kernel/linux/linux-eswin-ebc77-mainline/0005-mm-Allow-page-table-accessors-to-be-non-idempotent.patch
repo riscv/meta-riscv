@@ -1,0 +1,113 @@
+From dbbb73129e10a9c06625de1ae2a146828fcaa1f4 Mon Sep 17 00:00:00 2001
+Message-ID: <dbbb73129e10a9c06625de1ae2a146828fcaa1f4.1767650435.git.marcel@ziswiler.com>
+In-Reply-To: <cover.1767650435.git.marcel@ziswiler.com>
+References: <cover.1767650435.git.marcel@ziswiler.com>
+From: Samuel Holland <samuel.holland@sifive.com>
+Date: Wed, 12 Nov 2025 17:45:21 -0800
+Subject: [PATCH 05/24] mm: Allow page table accessors to be non-idempotent
+
+Currently, some functions such as pte_offset_map() are passed both
+pointers to hardware page tables, and pointers to previously-read PMD
+entries on the stack. To ensure correctness in the first case, these
+functions must use the page table accessor function (pmdp_get()) to
+dereference the supplied pointer. However, this means pmdp_get() is
+called twice in the second case. This double call must be avoided if
+pmdp_get() applies some non-idempotent transformation to the value.
+
+Avoid the double transformation by calling set_pmd() on the stack
+variables where necessary to keep set_pmd()/pmdp_get() calls balanced.
+
+Signed-off-by: Samuel Holland <samuel.holland@sifive.com>
+
+Upstream-Status: Submitted [https://lore.kernel.org/all/20251113014656.2605447-1-samuel.holland@sifive.com]
+---
+ kernel/events/core.c  | 2 ++
+ mm/gup.c              | 3 +++
+ mm/khugepaged.c       | 6 ++++--
+ mm/page_table_check.c | 3 +++
+ mm/pgtable-generic.c  | 2 ++
+ 5 files changed, 14 insertions(+), 2 deletions(-)
+
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 2d645dece8e4..f8496a07a7cf 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -8432,6 +8432,8 @@ static u64 perf_get_pgtable_size(struct mm_struct *mm, unsigned long addr)
+ 	if (pmd_leaf(pmd))
+ 		return pmd_leaf_size(pmd);
+ 
++	/* transform pmd as if &pmd pointed to a hardware page table */
++	set_pmd(&pmd, pmd);
+ 	ptep = pte_offset_map(&pmd, addr);
+ 	if (!ptep)
+ 		goto again;
+diff --git a/mm/gup.c b/mm/gup.c
+index aa0c535d042f..8ef6045ec6d1 100644
+--- a/mm/gup.c
++++ b/mm/gup.c
+@@ -2833,7 +2833,10 @@ static int gup_fast_pte_range(pmd_t pmd, pmd_t *pmdp, unsigned long addr,
+ 	int ret = 0;
+ 	pte_t *ptep, *ptem;
+ 
++	/* transform pmd as if &pmd pointed to a hardware page table */
++	set_pmd(&pmd, pmd);
+ 	ptem = ptep = pte_offset_map(&pmd, addr);
++	pmd = pmdp_get(&pmd);
+ 	if (!ptep)
+ 		return 0;
+ 	do {
+diff --git a/mm/khugepaged.c b/mm/khugepaged.c
+index 5af27fe3aed9..fd8769c3d0ce 100644
+--- a/mm/khugepaged.c
++++ b/mm/khugepaged.c
+@@ -1757,7 +1757,7 @@ static void retract_page_tables(struct address_space *mapping, pgoff_t pgoff)
+ 		struct mmu_notifier_range range;
+ 		struct mm_struct *mm;
+ 		unsigned long addr;
+-		pmd_t *pmd, pgt_pmd;
++		pmd_t *pmd, pgt_pmd, pmdval;
+ 		spinlock_t *pml;
+ 		spinlock_t *ptl;
+ 		bool success = false;
+@@ -1796,7 +1796,9 @@ static void retract_page_tables(struct address_space *mapping, pgoff_t pgoff)
+ 		 */
+ 		if (check_pmd_state(pmd) != SCAN_SUCCEED)
+ 			goto drop_pml;
+-		ptl = pte_lockptr(mm, pmd);
++		/* pte_lockptr() needs a value, not a pointer to a page table */
++		pmdval = pmdp_get(pmd);
++		ptl = pte_lockptr(mm, &pmdval);
+ 		if (ptl != pml)
+ 			spin_lock_nested(ptl, SINGLE_DEPTH_NESTING);
+ 
+diff --git a/mm/page_table_check.c b/mm/page_table_check.c
+index 990045b49612..bc90002b523d 100644
+--- a/mm/page_table_check.c
++++ b/mm/page_table_check.c
+@@ -267,7 +267,10 @@ void __page_table_check_pte_clear_range(struct mm_struct *mm,
+ 		return;
+ 
+ 	if (!pmd_bad(pmd) && !pmd_leaf(pmd)) {
++		/* transform pmd as if &pmd pointed to a hardware page table */
++		set_pmd(&pmd, pmd);
+ 		pte_t *ptep = pte_offset_map(&pmd, addr);
++		pmd = pmdp_get(&pmd);
+ 		unsigned long i;
+ 
+ 		if (WARN_ON(!ptep))
+diff --git a/mm/pgtable-generic.c b/mm/pgtable-generic.c
+index fba4d065abba..ae872a0750e9 100644
+--- a/mm/pgtable-generic.c
++++ b/mm/pgtable-generic.c
+@@ -301,6 +301,8 @@ pte_t *___pte_offset_map(pmd_t *pmd, unsigned long addr, pmd_t *pmdvalp)
+ 		pmd_clear_bad(pmd);
+ 		goto nomap;
+ 	}
++	/* transform pmdval as if &pmdval pointed to a hardware page table */
++	set_pmd(&pmdval, pmdval);
+ 	return __pte_map(&pmdval, addr);
+ nomap:
+ 	rcu_read_unlock();
+-- 
+2.49.0
+

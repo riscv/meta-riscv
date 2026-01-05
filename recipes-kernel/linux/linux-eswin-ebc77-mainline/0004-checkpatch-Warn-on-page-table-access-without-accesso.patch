@@ -1,0 +1,54 @@
+From a2d68025b54acc9a0455930899d246502420785a Mon Sep 17 00:00:00 2001
+Message-ID: <a2d68025b54acc9a0455930899d246502420785a.1767650435.git.marcel@ziswiler.com>
+In-Reply-To: <cover.1767650435.git.marcel@ziswiler.com>
+References: <cover.1767650435.git.marcel@ziswiler.com>
+From: Samuel Holland <samuel.holland@sifive.com>
+Date: Wed, 12 Nov 2025 17:45:20 -0800
+Subject: [PATCH 04/24] checkpatch: Warn on page table access without accessors
+
+Architectures may have special rules for accessing the hardware page
+tables (for example, atomicity/ordering requirements), so the generic MM
+code provides the pXXp_get() and set_pXX() hooks for architectures to
+implement. These accessor functions are often omitted where a raw
+pointer dereference is believed to be safe (i.e. race-free). However,
+RISC-V needs to use these hooks to rewrite the page table values at
+read/write time on some platforms. A raw pointer dereference will no
+longer produce the correct value on those platforms, so the generic code
+must always use the accessor functions.
+
+sparse can only report improper pointer dereferences if every page table
+pointer (variable, function argument, struct member) is individually
+marked with an attribute (similar to __user). So while this is possible,
+it would require invasive changes across all architectures. Instead, as
+an immediate first solution, add a checkpatch warning that will
+generally catch the prohibited pointer dereferences. Architecture code
+is ignored, as the raw dereferences may be safe on some architectures.
+
+Signed-off-by: Samuel Holland <samuel.holland@sifive.com>
+
+Upstream-Status: Submitted [https://lore.kernel.org/all/20251113014656.2605447-1-samuel.holland@sifive.com]
+---
+ scripts/checkpatch.pl | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/scripts/checkpatch.pl b/scripts/checkpatch.pl
+index 362a8d1cd327..5e81094562ac 100755
+--- a/scripts/checkpatch.pl
++++ b/scripts/checkpatch.pl
+@@ -7740,6 +7740,13 @@ sub process {
+ 			ERROR("UNINITIALIZED_PTR_WITH_FREE",
+ 			      "pointer '$1' with __free attribute should be initialized\n" . $herecurr);
+ 		}
++
++# check for raw dereferences of hardware page table pointers
++		if ($realfile !~ m@^arch/@ &&
++		    $line =~ /(?<!pte_t |p[mu4g]d_t |izeof\()\*\(?(vmf(\.|->))?(pte|p[mu4g]d)p?\b/) {
++			WARN("PAGE_TABLE_ACCESSORS",
++			     "Use $3p_get()/set_$3() instead of dereferencing page table pointers\n" . $herecurr);
++		}
+ 	}
+ 
+ 	# If we have no input at all, then there is nothing to report on
+-- 
+2.49.0
+

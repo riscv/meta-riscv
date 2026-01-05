@@ -1,0 +1,432 @@
+From 772ff048dbbaad1722edc8b656ecf3d39fbe191f Mon Sep 17 00:00:00 2001
+Message-ID: <772ff048dbbaad1722edc8b656ecf3d39fbe191f.1767650435.git.marcel@ziswiler.com>
+In-Reply-To: <cover.1767650435.git.marcel@ziswiler.com>
+References: <cover.1767650435.git.marcel@ziswiler.com>
+From: Marcel Ziswiler <marcel@ziswiler.com>
+Date: Mon, 5 Jan 2026 16:40:22 +0100
+Subject: [PATCH 24/24] riscv: dts: eic7700: add sdio et. al.
+
+Upstream-Status: Pending
+---
+ arch/riscv/boot/dts/eswin/Makefile            |   1 +
+ .../riscv/boot/dts/eswin/eic7700-pinctrl.dtsi |  38 ++++++
+ arch/riscv/boot/dts/eswin/eic7700-sbc-a1.dts  |  86 +++++++++++++
+ arch/riscv/boot/dts/eswin/eic7700.dtsi        | 114 +++++++++++++++++-
+ 4 files changed, 236 insertions(+), 3 deletions(-)
+ create mode 100644 arch/riscv/boot/dts/eswin/eic7700-sbc-a1.dts
+
+diff --git a/arch/riscv/boot/dts/eswin/Makefile b/arch/riscv/boot/dts/eswin/Makefile
+index 224101ae471e..8371b2d0167b 100644
+--- a/arch/riscv/boot/dts/eswin/Makefile
++++ b/arch/riscv/boot/dts/eswin/Makefile
+@@ -1,2 +1,3 @@
+ # SPDX-License-Identifier: GPL-2.0
+ dtb-$(CONFIG_ARCH_ESWIN) += eic7700-hifive-premier-p550.dtb
++dtb-$(CONFIG_ARCH_ESWIN) += eic7700-sbc-a1.dtb
+diff --git a/arch/riscv/boot/dts/eswin/eic7700-pinctrl.dtsi b/arch/riscv/boot/dts/eswin/eic7700-pinctrl.dtsi
+index 4749e5b4df6e..5e9e6e7feda8 100644
+--- a/arch/riscv/boot/dts/eswin/eic7700-pinctrl.dtsi
++++ b/arch/riscv/boot/dts/eswin/eic7700-pinctrl.dtsi
+@@ -134,11 +134,15 @@ gpio13_pins: gpio13-pins {
+ 	gpio14_pins: gpio14-pins {
+ 		pins = "mode_set1";
+ 		function = "gpio";
++		input-disable;
++		bias-pull-up;
+ 	};
+ 
+ 	gpio15_pins: gpio15-pins {
+ 		pins = "mode_set2";
+ 		function = "gpio";
++		input-enable;
++		bias-disable;
+ 	};
+ 
+ 	gpio16_pins: gpio16-pins {
+@@ -270,6 +274,8 @@ gpio42_pins: gpio42-pins {
+ 	gpio43_pins: gpio43-pins {
+ 		pins = "usb1_pwren";
+ 		function = "gpio";
++		input-disable;
++		bias-disable;
+ 	};
+ 
+ 	gpio44_pins: gpio44-pins {
+@@ -410,6 +416,8 @@ gpio70_pins: gpio70-pins {
+ 	gpio71_pins: gpio71-pins {
+ 		pins = "mipi_csi0_xhs";
+ 		function = "gpio";
++		input-disable;
++		bias-pull-up;
+ 	};
+ 
+ 	gpio72_pins: gpio72-pins {
+@@ -425,6 +433,8 @@ gpio73_pins: gpio73-pins {
+ 	gpio74_pins: gpio74-pins {
+ 		pins = "mipi_csi1_xhs";
+ 		function = "gpio";
++		input-disable;
++		bias-pull-up;
+ 	};
+ 
+ 	gpio75_pins: gpio75-pins {
+@@ -435,11 +445,15 @@ gpio75_pins: gpio75-pins {
+ 	gpio76_pins: gpio76-pins {
+ 		pins = "mipi_csi2_xvs";
+ 		function = "gpio";
++		input-disable;
++		bias-disable;
+ 	};
+ 
+ 	gpio77_pins: gpio77-pins {
+ 		pins = "mipi_csi2_xhs";
+ 		function = "gpio";
++		input-disable;
++		bias-pull-up;
+ 	};
+ 
+ 	gpio78_pins: gpio78-pins {
+@@ -450,11 +464,15 @@ gpio78_pins: gpio78-pins {
+ 	gpio79_pins: gpio79-pins {
+ 		pins = "mipi_csi3_xvs";
+ 		function = "gpio";
++		input-disable;
++		bias-disable;
+ 	};
+ 
+ 	gpio80_pins: gpio80-pins {
+ 		pins = "mipi_csi3_xhs";
+ 		function = "gpio";
++		input-disable;
++		bias-pull-up;
+ 	};
+ 
+ 	gpio81_pins: gpio81-pins {
+@@ -465,6 +483,8 @@ gpio81_pins: gpio81-pins {
+ 	gpio82_pins: gpio82-pins {
+ 		pins = "mipi_csi4_xvs";
+ 		function = "gpio";
++		input-disable;
++		bias-pull-up;
+ 	};
+ 
+ 	gpio83_pins: gpio83-pins {
+@@ -475,11 +495,15 @@ gpio83_pins: gpio83-pins {
+ 	gpio84_pins: gpio84-pins {
+ 		pins = "mipi_csi4_mclk";
+ 		function = "gpio";
++		input-disable;
++		bias-disable;
+ 	};
+ 
+ 	gpio85_pins: gpio85-pins {
+ 		pins = "mipi_csi5_xvs";
+ 		function = "gpio";
++		input-disable;
++		bias-pull-up;
+ 	};
+ 
+ 	gpio86_pins: gpio86-pins {
+@@ -525,6 +549,8 @@ gpio93_pins: gpio93-pins {
+ 	gpio94_pins: gpio94-pins {
+ 		pins = "s_mode";
+ 		function = "gpio";
++		input-disable;
++		bias-disable;
+ 	};
+ 
+ 	gpio95_pins: gpio95-pins {
+@@ -617,16 +643,22 @@ uart4_pins: uart4-pins {
+ 	gpio0_pins: gpio0-pins {
+ 		pins = "gpio0";
+ 		function = "gpio";
++		input-enable;
++		bias-disable;
+ 	};
+ 
+ 	gpio5_pins: gpio5-pins {
+ 		pins = "gpio5";
+ 		function = "gpio";
++		input-enable;
++		bias-disable;
+ 	};
+ 
+ 	gpio11_pins: gpio11-pins {
+ 		pins = "gpio11";
+ 		function = "gpio";
++		input-enable;
++		bias-disable;
+ 	};
+ 
+ 	gpio27_pins: gpio27-pins {
+@@ -637,16 +669,22 @@ gpio27_pins: gpio27-pins {
+ 	gpio28_pins: gpio28-pins {
+ 		pins = "gpio28";
+ 		function = "gpio";
++		input-enable;
++		bias-disable;
+ 	};
+ 
+ 	gpio106_pins: gpio106-pins {
+ 		pins = "gpio106";
+ 		function = "gpio";
++		input-disable;
++		bias-disable;
+ 	};
+ 
+ 	gpio111_pins: gpio111-pins {
+ 		pins = "gpio111";
+ 		function = "gpio";
++		input-disable;
++		bias-disable;
+ 	};
+ 
+ 	chip_mode_pins: chip-mode-pins {
+diff --git a/arch/riscv/boot/dts/eswin/eic7700-sbc-a1.dts b/arch/riscv/boot/dts/eswin/eic7700-sbc-a1.dts
+new file mode 100644
+index 000000000000..4908de05a1f6
+--- /dev/null
++++ b/arch/riscv/boot/dts/eswin/eic7700-sbc-a1.dts
+@@ -0,0 +1,86 @@
++// SPDX-License-Identifier: (GPL-2.0 OR MIT)
++/*
++ * Copyright (c) 2024, Beijing ESWIN Computing Technology Co., Ltd.
++ */
++
++/dts-v1/;
++
++#include "eic7700.dtsi"
++#include "eic7700-pinctrl.dtsi"
++
++/ {
++	compatible = "eswin,ebc77", "eswin,eic7700";
++        model = "ESWIN EBC77";
++
++	aliases {
++		serial0 = &uart0;
++//		mmc0 = &sdhci_emmc;
++		mmc0 = &sdio0;
++//		ethernet0 = &gmac0;
++	};
++
++	chosen {
++		stdout-path = "serial0:115200n8";
++	};
++
++	memory@80000000 {
++		device_type = "memory";
++		reg = <0x0 0x80000000 0x4 0x00000000>;
++	};
++
++	vcc_1v8: vcc1v8 {
++		compatible = "regulator-fixed";
++		regulator-name = "vcc1v8";
++		regulator-always-on;
++		regulator-boot-on;
++		regulator-min-microvolt = <1800000>;
++		regulator-max-microvolt = <1800000>;
++	};
++
++	xtal24m: oscillator {
++		compatible = "fixed-clock";
++		clock-frequency = <24000000>;
++		#clock-cells = <0>;
++		clock-output-names = "xtal24m";
++	};
++};
++
++&clk {
++	status = "okay";
++};
++
++//&gmac0 {
++//	status = "okay";
++//};
++
++&pinctrl {
++	status = "okay";
++};
++
++&reset {
++	status = "okay";
++};
++
++//&sdhci_emmc {
++//	status = "okay";
++//};
++
++&sdio0 {
++	status = "okay";
++};
++
++//&sata {
++//	status = "okay";
++//};
++
++//&sata_phy {
++//	status = "okay";
++//};
++
++&uart0 {
++	status = "okay";
++};
++
++&uart2 {
++	status = "okay";
++};
+diff --git a/arch/riscv/boot/dts/eswin/eic7700.dtsi b/arch/riscv/boot/dts/eswin/eic7700.dtsi
+index 46d317f51891..4d2e91aa6044 100644
+--- a/arch/riscv/boot/dts/eswin/eic7700.dtsi
++++ b/arch/riscv/boot/dts/eswin/eic7700.dtsi
+@@ -208,7 +208,7 @@ pmu {
+ 				<0x00000000 0x0000000f 0xfffffffc 0x000000ff 0x00000078>;
+ 	};
+ 
+-	soc {
++	SOC: soc {
+ 		compatible = "simple-bus";
+ 		ranges;
+ 		interrupt-parent = <&plic>;
+@@ -226,6 +226,12 @@ clint: timer@2000000 {
+ 				<&cpu3_intc 3>, <&cpu3_intc 7>;
+ 		};
+ 
++		hsp_sp_csr: hsp-sp-top-csr@0x50440000 {
++				compatible = "syscon";
++				#size-cells = <2>;
++				reg = <0x0 0x50440000 0x0 0x2000>;
++		};
++
+ 		clk: clock-controller@51828000 {
+ 			compatible = "eswin,eic7700-clock";
+ 			reg = <0x0 0x51828000 0x0 0x300>;
+@@ -241,6 +247,13 @@ reset: reset-controller@51828300 {
+ 			status = "disable";
+ 		};
+ 
++		sata_phy: sata-phy@50440300 {
++			compatible = "eswin,eic7700-sata-phy";
++			reg = <0x0 0x50440300 0x0 0x40>;
++			#phy-cells = <0>;
++			status = "disabled";
++		};
++
+ 		ccache: cache-controller@2010000 {
+ 			compatible = "eswin,eic7700-l3-cache", "sifive,ccache0", "cache";
+ 			reg = <0x0 0x2010000 0x0 0x4000>;
+@@ -370,15 +383,110 @@ pinctrl: pinctrl@51600080 {
+ 			status = "disabled";
+ 		};
+ 
++		gmac0: ethernet@50400000 {
++			compatible = "eswin,eic7700-qos-eth", "snps,dwmac-5.20";
++			reg = <0x0 0x50400000 0x0 0x10000>;
++			clocks = <&clk 186>,
++				<&clk 171>,
++				<&clk 40>,
++				<&clk 193>;
++			clock-names = "axi", "cfg", "stmmaceth", "tx";
++			interrupt-parent = <&plic>;
++			interrupts = <61>;
++			interrupt-names = "macirq";
++			phy-mode = "rgmii-id";
++			phy-handle = <&phy0>;
++			resets = <&reset 95>;
++			reset-names = "stmmaceth";
++			rx-internal-delay-ps = <200>;
++			tx-internal-delay-ps = <900>;
++			eswin,hsp-sp-csr = <&hsp_sp_csr 0x100 0x108 0x118>;
++			dma-noncoherent;
++			snps,axi-config = <&stmmac_axi_setup>;
++			snps,aal;
++			snps,fixed-burst;
++			snps,tso;
++			status = "disabled";
++			stmmac_axi_setup: stmmac-axi-config {
++				snps,blen = <0 0 0 0 16 8 4>;
++				snps,rd_osr_lmt = <2>;
++				snps,wr_osr_lmt = <2>;
++			};
++			mdio {
++				compatible = "snps,dwmac-mdio";
++				status = "disabled";
++				#address-cells = <1>;
++				#size-cells = <0>;
++
++				phy0: ethernet-phy@0 {
++					device_type = "ethernet-phy";
++					reg = <0>;
++					compatible = "ethernet-phy-id001c.c916", "realtek,rtl8211f";
++				};
++			};
++		};
++
+ 		sdhci_emmc: mmc@50450000 {
+ 			compatible = "eswin,eic7700-dwcmshc";
+ 			reg = <0x0 0x50450000 0x0 0x10000>;
+-			interrupts = <79>;
+ 			clocks = <&clk 190>, <&clk 171>;
+-			clock-names = "clk_xin", "clk_ahb";
++			clock-names = "core", "bus";
++			assigned-clocks = <&clk 190>;
++			assigned-clock-rates = <200000000>;
++			interrupt-parent = <&plic>;
++			interrupts = <79>;
++			resets = <&reset 75>,
++				   <&reset 72>,
++				   <&reset 88>,
++				   <&reset 92>;
++			reset-names = "txrx", "phy", "prstn", "axi";
+ 			bus-width = <8>;
++			non-removable;
++			mmc-hs400-1_8v;
++			no-sdio;
++			no-sd;
++			max-frequency = <200000000>;
++			#size-cells = <2>;
++			eswin,hsp-sp-csr = <&hsp_sp_csr 0x508 0x50c>;
++			eswin,drive-impedance-ohms = <50>;
++			status = "disabled";
++		};
++
++		sdio0: mmc@0x50460000{
++			compatible = "eswin,eic7700-dwcmshc";
++			reg = <0x0 0x50460000 0x0 0x10000>;
++			interrupt-parent = <&plic>;
++			interrupts = <81>;
++			clocks =<&clk 191>, <&clk 171>;
++			clock-names ="core","bus";
++			resets = <&reset 76>,
++				   <&reset 73>,
++				   <&reset 87>,
++				   <&reset 91>;
++			reset-names = "txrx","phy","prstn","axi";
++			clock-frequency = <208000000>;
++			max-frequency = <208000000>;
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
++			bus-width = <4>;
++			no-sdio;
++			no-mmc;
++			eswin,hsp-sp-csr = <&hsp_sp_csr 0x608 0x60c>;
++			eswin,drive-impedance-ohms = <33>;
++			status = "disabled";
++		};
++		sata: sata@50420000 {
++			compatible = "eswin,eic7700-ahci", "snps,dwc-ahci";
++			reg = <0x0 0x50420000 0x0 0x10000>;
++			interrupt-parent = <&plic>;
++			interrupts = <58>;
++			clocks = <&clk 171>, <&clk 186>;
++			clock-names = "pclk", "aclk";
++			phys = <&sata_phy>;
++			phy-names = "sata-phy";
++			ports-implemented = <0x1>;
++			resets = <&reset 96>;
++			reset-names = "arst";
+ 			status = "disabled";
+ 		};
+ 	};
+-- 
+2.49.0
+

@@ -1,0 +1,168 @@
+From 2585bcbb59f0dd36c2bf4f0b64caa3020b48c3ac Mon Sep 17 00:00:00 2001
+Message-ID: <2585bcbb59f0dd36c2bf4f0b64caa3020b48c3ac.1767650435.git.marcel@ziswiler.com>
+In-Reply-To: <cover.1767650435.git.marcel@ziswiler.com>
+References: <cover.1767650435.git.marcel@ziswiler.com>
+From: Samuel Holland <samuel.holland@sifive.com>
+Date: Wed, 12 Nov 2025 17:45:28 -0800
+Subject: [PATCH 12/24] riscv: mm: Expose all page table bits to assembly code
+
+pgtable-32.h and pgtable-64.h are not usable by assembly code files, so
+move all page table field definitions to pgtable-bits.h. This allows
+handling more complex PTE transformations in out-of-line assembly code.
+
+Signed-off-by: Samuel Holland <samuel.holland@sifive.com>
+
+Upstream-Status: Submitted [https://lore.kernel.org/all/20251113014656.2605447-1-samuel.holland@sifive.com]
+---
+ arch/riscv/include/asm/pgtable-32.h   | 11 -------
+ arch/riscv/include/asm/pgtable-64.h   | 30 -------------------
+ arch/riscv/include/asm/pgtable-bits.h | 42 +++++++++++++++++++++++++--
+ 3 files changed, 40 insertions(+), 43 deletions(-)
+
+diff --git a/arch/riscv/include/asm/pgtable-32.h b/arch/riscv/include/asm/pgtable-32.h
+index 90ef35a7c1a5..eb556ab95732 100644
+--- a/arch/riscv/include/asm/pgtable-32.h
++++ b/arch/riscv/include/asm/pgtable-32.h
+@@ -17,17 +17,6 @@
+ 
+ #define MAX_POSSIBLE_PHYSMEM_BITS 34
+ 
+-/*
+- * rv32 PTE format:
+- * | XLEN-1  10 | 9             8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0
+- *       PFN      reserved for SW   D   A   G   U   X   W   R   V
+- */
+-#define _PAGE_PFN_MASK  GENMASK(31, 10)
+-
+-#define _PAGE_NOCACHE		0
+-#define _PAGE_IO		0
+-#define _PAGE_MTMASK		0
+-
+ #define ALT_FIXUP_MT(_val)
+ #define ALT_UNFIX_MT(_val)
+ 
+diff --git a/arch/riscv/include/asm/pgtable-64.h b/arch/riscv/include/asm/pgtable-64.h
+index aad34c754325..fa2c1dcb6f72 100644
+--- a/arch/riscv/include/asm/pgtable-64.h
++++ b/arch/riscv/include/asm/pgtable-64.h
+@@ -70,20 +70,6 @@ typedef struct {
+ 
+ #define MAX_POSSIBLE_PHYSMEM_BITS 56
+ 
+-/*
+- * rv64 PTE format:
+- * | 63 | 62 61 | 60 54 | 53  10 | 9             8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0
+- *   N      MT     RSV    PFN      reserved for SW   D   A   G   U   X   W   R   V
+- */
+-#define _PAGE_PFN_MASK  GENMASK(53, 10)
+-
+-/*
+- * [63] Svnapot definitions:
+- * 0 Svnapot disabled
+- * 1 Svnapot enabled
+- */
+-#define _PAGE_NAPOT_SHIFT	63
+-#define _PAGE_NAPOT		BIT(_PAGE_NAPOT_SHIFT)
+ /*
+  * Only 64KB (order 4) napot ptes supported.
+  */
+@@ -113,18 +99,6 @@ enum napot_cont_order {
+ 
+ #if defined(CONFIG_RISCV_ISA_SVPBMT) || defined(CONFIG_ERRATA_THEAD_MAE)
+ 
+-/*
+- * [62:61] Svpbmt Memory Type definitions:
+- *
+- *  00 - PMA    Normal Cacheable, No change to implied PMA memory type
+- *  01 - NC     Non-cacheable, idempotent, weakly-ordered Main Memory
+- *  10 - IO     Non-cacheable, non-idempotent, strongly-ordered I/O memory
+- *  11 - Rsvd   Reserved for future standard use
+- */
+-#define _PAGE_NOCACHE		(1UL << 61)
+-#define _PAGE_IO		(2UL << 61)
+-#define _PAGE_MTMASK		(3UL << 61)
+-
+ /*
+  * ALT_FIXUP_MT
+  *
+@@ -176,10 +150,6 @@ enum napot_cont_order {
+ 
+ #else
+ 
+-#define _PAGE_NOCACHE		0
+-#define _PAGE_IO		0
+-#define _PAGE_MTMASK		0
+-
+ #define ALT_FIXUP_MT(_val)
+ 
+ #endif /* CONFIG_RISCV_ISA_SVPBMT || CONFIG_ERRATA_THEAD_MAE */
+diff --git a/arch/riscv/include/asm/pgtable-bits.h b/arch/riscv/include/asm/pgtable-bits.h
+index b422d9691e60..ab570e017ce5 100644
+--- a/arch/riscv/include/asm/pgtable-bits.h
++++ b/arch/riscv/include/asm/pgtable-bits.h
+@@ -6,6 +6,16 @@
+ #ifndef _ASM_RISCV_PGTABLE_BITS_H
+ #define _ASM_RISCV_PGTABLE_BITS_H
+ 
++/*
++ * rv32 PTE format:
++ * | XLEN-1  10 | 9             8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0
++ *       PFN      reserved for SW   D   A   G   U   X   W   R   V
++ *
++ * rv64 PTE format:
++ * | 63 | 62 61 | 60 54 | 53 10 | 9             8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0
++ *   N      MT     RSV     PFN    reserved for SW   D   A   G   U   X   W   R   V
++ */
++
+ #define _PAGE_ACCESSED_OFFSET 6
+ 
+ #define _PAGE_PRESENT   (1 << 0)
+@@ -58,6 +68,36 @@
+ 
+ #define _PAGE_TABLE     _PAGE_PRESENT
+ 
++#define _PAGE_PFN_SHIFT		10
++#ifdef CONFIG_64BIT
++#define _PAGE_PFN_MASK		GENMASK(53, 10)
++#else
++#define _PAGE_PFN_MASK		GENMASK(31, 10)
++#endif /* CONFIG_64BIT */
++
++#if defined(CONFIG_RISCV_ISA_SVPBMT) || defined(CONFIG_ERRATA_THEAD_MAE)
++/*
++ * [62:61] Svpbmt Memory Type definitions:
++ *
++ *  00 - PMA    Normal Cacheable, No change to implied PMA memory type
++ *  01 - NC     Non-cacheable, idempotent, weakly-ordered Main Memory
++ *  10 - IO     Non-cacheable, non-idempotent, strongly-ordered I/O memory
++ *  11 - Rsvd   Reserved for future standard use
++ */
++#define _PAGE_NOCACHE		(UL(1) << 61)
++#define _PAGE_IO		(UL(2) << 61)
++#define _PAGE_MTMASK		(UL(3) << 61)
++#else
++#define _PAGE_NOCACHE		0
++#define _PAGE_IO		0
++#define _PAGE_MTMASK		0
++#endif /* CONFIG_RISCV_ISA_SVPBMT || CONFIG_ERRATA_THEAD_MAE */
++
++#ifdef CONFIG_RISCV_ISA_SVNAPOT
++#define _PAGE_NAPOT_SHIFT	63
++#define _PAGE_NAPOT		BIT(_PAGE_NAPOT_SHIFT)
++#endif /* CONFIG_RISCV_ISA_SVNAPOT */
++
+ /*
+  * _PAGE_PROT_NONE is set on not-present pages (and ignored by the hardware) to
+  * distinguish them from swapped out pages
+@@ -67,8 +107,6 @@
+ /* Used for swap PTEs only. */
+ #define _PAGE_SWP_EXCLUSIVE _PAGE_ACCESSED
+ 
+-#define _PAGE_PFN_SHIFT 10
+-
+ /*
+  * when all of R/W/X are zero, the PTE is a pointer to the next level
+  * of the page table; otherwise, it is a leaf PTE.
+-- 
+2.49.0
+

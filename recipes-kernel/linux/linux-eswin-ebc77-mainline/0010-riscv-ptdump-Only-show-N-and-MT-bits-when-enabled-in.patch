@@ -1,0 +1,58 @@
+From 90005daabbc7ea2e9482b9b5fd4cdf20fd35bb55 Mon Sep 17 00:00:00 2001
+Message-ID: <90005daabbc7ea2e9482b9b5fd4cdf20fd35bb55.1767650435.git.marcel@ziswiler.com>
+In-Reply-To: <cover.1767650435.git.marcel@ziswiler.com>
+References: <cover.1767650435.git.marcel@ziswiler.com>
+From: Samuel Holland <samuel.holland@sifive.com>
+Date: Wed, 12 Nov 2025 17:45:26 -0800
+Subject: [PATCH 10/24] riscv: ptdump: Only show N and MT bits when enabled in
+ the kernel
+
+When the Svnapot or Svpbmt extension is not implemented, the
+corresponding page table bits are reserved, and must be zero. There is
+no need to show them in the ptdump output.
+
+When the Kconfig option for an extension is disabled, we assume it is
+not implemented. In that case, the kernel may provide a fallback
+definition for the fields, like how _PAGE_MTMASK is defined on riscv32.
+Using those fallback definitions in ptdump would produce incorrect
+results. To avoid this, hide the fields from the ptdump output.
+
+Reviewed-by: Alexandre Ghiti <alexghiti@rivosinc.com>
+Signed-off-by: Samuel Holland <samuel.holland@sifive.com>
+
+Upstream-Status: Submitted [https://lore.kernel.org/all/20251113014656.2605447-1-samuel.holland@sifive.com]
+---
+ arch/riscv/mm/ptdump.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/arch/riscv/mm/ptdump.c b/arch/riscv/mm/ptdump.c
+index 34299c2b231f..0dd6ee282953 100644
+--- a/arch/riscv/mm/ptdump.c
++++ b/arch/riscv/mm/ptdump.c
+@@ -134,11 +134,13 @@ struct prot_bits {
+ 
+ static const struct prot_bits pte_bits[] = {
+ 	{
+-#ifdef CONFIG_64BIT
++#ifdef CONFIG_RISCV_ISA_SVNAPOT
+ 		.mask = _PAGE_NAPOT,
+ 		.set = "N",
+ 		.clear = ".",
+ 	}, {
++#endif
++#ifdef CONFIG_RISCV_ISA_SVPBMT
+ 		.mask = _PAGE_MTMASK_SVPBMT,
+ 		.set = "MT(%s)",
+ 		.clear = "  ..  ",
+@@ -214,7 +216,7 @@ static void dump_prot(struct pg_state *st)
+ 		if (val) {
+ 			if (pte_bits[i].mask == _PAGE_SOFT)
+ 				sprintf(s, pte_bits[i].set, val >> 8);
+-#ifdef CONFIG_64BIT
++#ifdef CONFIG_RISCV_ISA_SVPBMT
+ 			else if (pte_bits[i].mask == _PAGE_MTMASK_SVPBMT) {
+ 				if (val == _PAGE_NOCACHE_SVPBMT)
+ 					sprintf(s, pte_bits[i].set, "NC");
+-- 
+2.49.0
+

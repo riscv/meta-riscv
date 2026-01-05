@@ -1,0 +1,57 @@
+From 8acea1c0aca043d017cf289f76935c5fb7014967 Mon Sep 17 00:00:00 2001
+Message-ID: <8acea1c0aca043d017cf289f76935c5fb7014967.1767650435.git.marcel@ziswiler.com>
+In-Reply-To: <cover.1767650435.git.marcel@ziswiler.com>
+References: <cover.1767650435.git.marcel@ziswiler.com>
+From: Samuel Holland <samuel.holland@sifive.com>
+Date: Wed, 12 Nov 2025 17:45:35 -0800
+Subject: [PATCH 19/24] riscv: dts: eswin: eic7700: Use physical memory ranges
+ for DMA
+
+EIC7700 provides a physical memory region which is a noncached alias of
+normal cacheable DRAM. Declare this alias in the devicetree so Linux can
+allocate noncached pages for noncoherent DMA, and M-mode firmware can
+protect the noncached alias with PMPs.
+
+Signed-off-by: Samuel Holland <samuel.holland@sifive.com>
+
+Upstream-Status: Submitted [https://lore.kernel.org/all/20251113014656.2605447-1-samuel.holland@sifive.com]
+---
+ arch/riscv/Kconfig.socs                | 2 ++
+ arch/riscv/boot/dts/eswin/eic7700.dtsi | 5 +++++
+ 2 files changed, 7 insertions(+)
+
+diff --git a/arch/riscv/Kconfig.socs b/arch/riscv/Kconfig.socs
+index b930ac48aad7..70bfc156952c 100644
+--- a/arch/riscv/Kconfig.socs
++++ b/arch/riscv/Kconfig.socs
+@@ -14,6 +14,8 @@ config ARCH_ANLOGIC
+ 
+ config ARCH_ESWIN
+ 	bool "ESWIN SoCs"
++	select RISCV_DMA_NONCOHERENT
++	select RISCV_NONSTANDARD_CACHE_OPS
+ 	help
+ 	  This enables support for ESWIN SoC platform hardware,
+ 	  including the ESWIN EIC7700 SoC.
+diff --git a/arch/riscv/boot/dts/eswin/eic7700.dtsi b/arch/riscv/boot/dts/eswin/eic7700.dtsi
+index c3ed93008bca..d566bca4e09e 100644
+--- a/arch/riscv/boot/dts/eswin/eic7700.dtsi
++++ b/arch/riscv/boot/dts/eswin/eic7700.dtsi
+@@ -5,9 +5,14 @@
+ 
+ /dts-v1/;
+ 
++#include <dt-bindings/riscv/physical-memory.h>
++
+ / {
+ 	#address-cells = <2>;
+ 	#size-cells = <2>;
++	riscv,physical-memory-regions =
++		<0x000 0x80000000 0x00f 0x80000000 (PMA_RWXA | PMA_NONCOHERENT_MEMORY) 0x0>,
++		<0x0c0 0x00000000 0x010 0x00000000 (PMA_RWX | PMA_NONCACHEABLE_MEMORY | PMR_ALIAS(0)) 0x0>;
+ 
+ 	cpus {
+ 		#address-cells = <1>;
+-- 
+2.49.0
+
