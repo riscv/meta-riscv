@@ -3,6 +3,8 @@ LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 PROVIDES = "boot-bundle"
 
+COMPATIBLE_MACHINE = "(k1)"
+
 # Useful to use mainline U-Boot when it doesn't support MMC yet
 # This way, everything can be loaded from the vendors U-Boot SPL
 # when it loads mainline U-Boot.
