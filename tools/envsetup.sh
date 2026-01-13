@@ -1,7 +1,10 @@
 #!/bin/bash
 # Bootstrapper for buildbot slave
 
-DIR="build"
+# You can override build environment variable when invoking the script:
+BUILD_DIR="${BUILD_DIR:-build}"
+
+LAYERS_ROOT="${PWD}/layers"
 MACHINE="qemuriscv64"
 DISTRO="poky-altcfg"
 CONFFILE="conf/auto.conf"
@@ -30,7 +33,7 @@ fi
 # bootstrap OE
 echo "Init OE"
 export BASH_SOURCE="openembedded-core/oe-init-build-env"
-. ./layers/openembedded-core/oe-init-build-env $DIR
+. ${LAYERS_ROOT}/openembedded-core/oe-init-build-env ${BUILD_DIR}
 
 # Symlink the cache
 #echo "Setup symlink for sstate"
@@ -38,12 +41,12 @@ export BASH_SOURCE="openembedded-core/oe-init-build-env"
 
 # add the missing layers
 echo "Adding layers"
-bitbake-layers add-layer ../layers/meta-yocto/meta-poky
-bitbake-layers add-layer ../layers/meta-openembedded/meta-oe
-bitbake-layers add-layer ../layers/meta-openembedded/meta-python
-bitbake-layers add-layer ../layers/meta-openembedded/meta-multimedia
-bitbake-layers add-layer ../layers/meta-openembedded/meta-networking
-bitbake-layers add-layer ../layers/meta-riscv
+bitbake-layers add-layer ${LAYERS_ROOT}/meta-yocto/meta-poky
+bitbake-layers add-layer ${LAYERS_ROOT}/meta-openembedded/meta-oe
+bitbake-layers add-layer ${LAYERS_ROOT}/meta-openembedded/meta-python
+bitbake-layers add-layer ${LAYERS_ROOT}/meta-openembedded/meta-multimedia
+bitbake-layers add-layer ${LAYERS_ROOT}/meta-openembedded/meta-networking
+bitbake-layers add-layer ${LAYERS_ROOT}/meta-riscv
 
 # fix the configuration
 echo "Creating auto.conf"
