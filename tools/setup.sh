@@ -30,7 +30,7 @@ fi
 # bootstrap OE
 echo "Init OE"
 export BASH_SOURCE="openembedded-core/oe-init-build-env"
-. ./openembedded-core/oe-init-build-env $DIR
+. ./layers/openembedded-core/oe-init-build-env $DIR
 
 # Symlink the cache
 #echo "Setup symlink for sstate"
@@ -38,12 +38,12 @@ export BASH_SOURCE="openembedded-core/oe-init-build-env"
 
 # add the missing layers
 echo "Adding layers"
-bitbake-layers add-layer ../meta-yocto/meta-poky
-bitbake-layers add-layer ../meta-openembedded/meta-oe
-bitbake-layers add-layer ../meta-openembedded/meta-python
-bitbake-layers add-layer ../meta-openembedded/meta-multimedia
-bitbake-layers add-layer ../meta-openembedded/meta-networking
-bitbake-layers add-layer ../meta-riscv
+bitbake-layers add-layer ../layers/meta-yocto/meta-poky
+bitbake-layers add-layer ../layers/meta-openembedded/meta-oe
+bitbake-layers add-layer ../layers/meta-openembedded/meta-python
+bitbake-layers add-layer ../layers/meta-openembedded/meta-multimedia
+bitbake-layers add-layer ../layers/meta-openembedded/meta-networking
+bitbake-layers add-layer ../layers/meta-riscv
 
 # fix the configuration
 echo "Creating auto.conf"
