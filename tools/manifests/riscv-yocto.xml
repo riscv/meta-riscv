@@ -7,10 +7,10 @@
   <remote name="yocto" fetch="https://git.yoctoproject.org/" />
   <default remote="openembedded" revision="master" />
 
-  <project name="meta-riscv" remote="yoe" path="meta-riscv" revision="yoe/mut" />
-  <project name="openembedded-core" remote="openembedded" path="openembedded-core" revision="master" />
-  <project name="bitbake" remote="openembedded" path="openembedded-core/bitbake" revision="master" />
-  <project name="meta-openembedded" remote="openembedded" path="meta-openembedded" revision="master" />
-  <project name="meta-yocto" remote="yocto" path="meta-yocto" revision="master" />
+  <project name="meta-riscv" remote="yoe" path="layers/meta-riscv" revision="yoe/mut" />
+  <project name="openembedded-core" remote="openembedded" path="layers/openembedded-core" revision="master" />
+  <project name="bitbake" remote="openembedded" path="layers/openembedded-core/bitbake" revision="master" />
+  <project name="meta-openembedded" remote="openembedded" path="layers/meta-openembedded" revision="master" />
+  <project name="meta-yocto" remote="yocto" path="layers/meta-yocto" revision="master" />
 
 </manifest>
