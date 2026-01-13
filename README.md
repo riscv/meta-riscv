@@ -37,7 +37,7 @@ Make sure to [install the `repo` command by Google](https://source.android.com/s
 ### Create workspace
 ```text
 mkdir riscv-yocto && cd riscv-yocto
-repo init -u https://github.com/riscv/meta-riscv  -b master -m tools/manifests/riscv-yocto.xml
+repo init -u https://github.com/riscv/meta-riscv -b master -m tools/manifests/riscv-yocto.xml
 repo sync
 repo start work --all
 ```
@@ -53,7 +53,13 @@ repo rebase
 
 ### Setup Build Environment
 ```text
-. ./layers/meta-riscv/tools/setup.sh
+. layers/meta-riscv/tools/envsetup.sh
+```
+
+Optionally override the build directory:
+
+```text
+BUILD_DIR=<build-riscv> . ./layers/meta-riscv/tools/envsetup.sh
 ```
 
 ### Kas Support
@@ -206,7 +212,7 @@ $ zcat <image>-<machine>.wic.gz | sudo dd of=/dev/sdX bs=4M iflag=fullblock ofla
 
 ### Using bmaptoop to write the image
 
-Instead of dding wic.gz image ```bmaptool``` (available in most Linux distributions and/or pip)  can be used for more reliable and faster flashing. You can write this file to an sd card using:
+Instead of dding wic.gz image ```bmaptool``` (available in most Linux distributions and/or pip) can be used for more reliable and faster flashing. You can write this file to an sd card using:
 ```text
 $ sudo bmaptool copy <image>-<machine>.wic.gz /dev/sdX
 ```
