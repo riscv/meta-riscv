@@ -1,0 +1,6 @@
+header:
+  version: 20
+  includes:
+    - base-riscv.yml
+
+machine: eswin-ebc77-mainline
