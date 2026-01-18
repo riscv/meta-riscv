@@ -29,8 +29,9 @@ SRC_URI = " \
 
 COMPATIBLE_MACHINE = "(beaglev-ahead)"
 
-DEPENDS += "e2fsprogs-native firmware-th1520"
+DEPENDS += "android-tools-native e2fsprogs-native firmware-th1520"
 
+SPARSE_BLOCK_SIZE ??= "4096"
 # package a separate partition boot.ext4 that can be flashed via fastboot to partition boot
 do_deploy:append() {
     [ -d ${DEPLOY_DIR_IMAGE}/.boot ] && rm -rf ${DEPLOY_DIR_IMAGE}/.boot
@@ -58,6 +59,11 @@ do_deploy:append() {
 
     dd if=/dev/zero of=${DEPLOY_DIR_IMAGE}/boot.ext4 bs=1 count=0 seek=190M
     mkfs.ext4 -F ${DEPLOY_DIR_IMAGE}/boot.ext4 -d ${DEPLOY_DIR_IMAGE}/.boot
+    # sparse the file so it can be flashed with flastboot without error
+    if [ -f ${DEPLOY_DIR_IMAGE}/boot.ext4.sparse]; then
+       rm ${DEPLOY_DIR_IMAGE}/boot.ext4.sparse
+    fi
+    img2simg -s ${DEPLOY_DIR_IMAGE}/boot.ext4 ${DEPLOY_DIR_IMAGE}/boot.ext4.sparse ${SPARSE_BLOCK_SIZE};
 }
 
 do_deploy[depends] += "opensbi:do_deploy"
