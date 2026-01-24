@@ -1,0 +1,6 @@
+header:
+  version: 20
+  includes:
+    - base-riscv.yml
+
+machine: orangepi-r2s
