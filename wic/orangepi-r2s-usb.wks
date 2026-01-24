@@ -1,0 +1,8 @@
+# MBR partition table
+bootloader --ptable msdos
+
+# Partition 1: boot (kernel, DTB, boot.scr)
+part /boot --source bootimg-partition --fstype=vfat --label boot --size 128M --use-uuid --active --align 4096
+
+# Partition 2: rootfs
+part / --source rootfs --fstype=ext4 --label root --use-uuid --align 4096
