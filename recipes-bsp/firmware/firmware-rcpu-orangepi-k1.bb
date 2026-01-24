@@ -1,4 +1,4 @@
-SUMMARY = "Orange Pi RV2 RCPU firmware (esos.elf)"
+SUMMARY = "Ky X1 Orange Pi RCPU firmware (esos.elf)"
 DESCRIPTION = "esos.elf is the firmware for the RCPU (Real-Time CPU), responsible for initializing some hardware modules and forwarding HDMI Audio interrupts \
 It is dependent on the Linux kernel and the system will not boot without it. It needs to be installed in the initramfs /lib/firmware directory"
 LICENSE = "CLOSED"
@@ -16,4 +16,4 @@ FILES:${PN} = "/lib/firmware"
 
 INSANE_SKIP:${PN} = "usrmerge arch already-stripped"
 
-COMPATIBLE_MACHINE = "(orangepi-rv2)"
+COMPATIBLE_MACHINE = "(k1)"
