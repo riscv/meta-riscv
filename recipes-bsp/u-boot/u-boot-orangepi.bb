@@ -44,4 +44,6 @@ do_deploy:append:orangepi-r2s() {
 	mkimage -f uboot-opensbi.its -r u-boot-opensbi.itb
 	install -m 644 u-boot-opensbi.itb ${DEPLOYDIR}/
 }
+do_deploy[depends] += "opensbi:do_deploy"
+
 COMPATIBLE_MACHINE = "(orangepi-rv2|orangepi-r2s)"
