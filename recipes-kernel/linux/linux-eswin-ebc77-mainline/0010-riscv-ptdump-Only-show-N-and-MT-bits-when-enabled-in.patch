@@ -1,7 +1,7 @@
-From 90005daabbc7ea2e9482b9b5fd4cdf20fd35bb55 Mon Sep 17 00:00:00 2001
-Message-ID: <90005daabbc7ea2e9482b9b5fd4cdf20fd35bb55.1767650435.git.marcel@ziswiler.com>
-In-Reply-To: <cover.1767650435.git.marcel@ziswiler.com>
-References: <cover.1767650435.git.marcel@ziswiler.com>
+From 607341202d23bc257d9f4accc400beb32324a3f1 Mon Sep 17 00:00:00 2001
+Message-ID: <607341202d23bc257d9f4accc400beb32324a3f1.1769619771.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
+References: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:26 -0800
 Subject: [PATCH 10/24] riscv: ptdump: Only show N and MT bits when enabled in
@@ -54,5 +54,5 @@ index 34299c2b231f..0dd6ee282953 100644
  				if (val == _PAGE_NOCACHE_SVPBMT)
  					sprintf(s, pte_bits[i].set, "NC");
 -- 
-2.49.0
+2.52.0
 

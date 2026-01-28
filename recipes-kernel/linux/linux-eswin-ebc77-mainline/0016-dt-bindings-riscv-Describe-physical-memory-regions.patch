@@ -1,7 +1,7 @@
-From 3ad1a7ad5f8f053bcffabc4ed8c2d5d7a2ab6adf Mon Sep 17 00:00:00 2001
-Message-ID: <3ad1a7ad5f8f053bcffabc4ed8c2d5d7a2ab6adf.1767650435.git.marcel@ziswiler.com>
-In-Reply-To: <cover.1767650435.git.marcel@ziswiler.com>
-References: <cover.1767650435.git.marcel@ziswiler.com>
+From 620cccf03480bfe7035b15c972ed14c0e7d6aae8 Mon Sep 17 00:00:00 2001
+Message-ID: <620cccf03480bfe7035b15c972ed14c0e7d6aae8.1769619771.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
+References: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:32 -0800
 Subject: [PATCH 16/24] dt-bindings: riscv: Describe physical memory regions
@@ -176,5 +176,5 @@ index 000000000000..d6ed8015c535
 +
 +#endif /* _DT_BINDINGS_RISCV_PHYSICAL_MEMORY_H */
 -- 
-2.49.0
+2.52.0
 

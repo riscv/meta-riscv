@@ -1,7 +1,7 @@
-From 9935ec39ea6b4efe2a3217f15aa9aa8bdd638a73 Mon Sep 17 00:00:00 2001
-Message-ID: <9935ec39ea6b4efe2a3217f15aa9aa8bdd638a73.1767650435.git.marcel@ziswiler.com>
-In-Reply-To: <cover.1767650435.git.marcel@ziswiler.com>
-References: <cover.1767650435.git.marcel@ziswiler.com>
+From fc8fbda4974682231dbdd1ddc4c9e35260929aaa Mon Sep 17 00:00:00 2001
+Message-ID: <fc8fbda4974682231dbdd1ddc4c9e35260929aaa.1769619771.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
+References: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
 From: Pritesh Patel <pritesh.patel@einfochips.com>
 Date: Wed, 5 Nov 2025 18:36:09 +0530
 Subject: [PATCH 23/24] riscv: dts: Dts changes for emmc boot
@@ -3450,5 +3450,5 @@ index 000000000000..267464281861
 +CONFIG_TEST_BLACKHOLE_DEV=m
 +CONFIG_MEMTEST=y
 -- 
-2.49.0
+2.52.0
 

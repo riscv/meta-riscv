@@ -1,7 +1,7 @@
-From 662dd8d59b4133c53f261a33e93b656c81a401c4 Mon Sep 17 00:00:00 2001
-Message-ID: <662dd8d59b4133c53f261a33e93b656c81a401c4.1767650435.git.marcel@ziswiler.com>
-In-Reply-To: <cover.1767650435.git.marcel@ziswiler.com>
-References: <cover.1767650435.git.marcel@ziswiler.com>
+From 303847cda88d7b4daf24851ca93b89bf6f7cf544 Mon Sep 17 00:00:00 2001
+Message-ID: <303847cda88d7b4daf24851ca93b89bf6f7cf544.1769619771.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
+References: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:31 -0800
 Subject: [PATCH 15/24] riscv: Fix logic for selecting DMA_DIRECT_REMAP
@@ -41,10 +41,10 @@ index 6b39f37f769a..2ec7d78b405d 100644
  	   Add support for the Zicbom extension (Cache Block Management
  	   Operations) and enable its use in the kernel when it is detected
 diff --git a/arch/riscv/Kconfig.errata b/arch/riscv/Kconfig.errata
-index aca9b0cfcfec..46a353a266e5 100644
+index 3c945d086c7d..f4ea7d7b69de 100644
 --- a/arch/riscv/Kconfig.errata
 +++ b/arch/riscv/Kconfig.errata
-@@ -108,6 +108,7 @@ config ERRATA_THEAD
+@@ -109,6 +109,7 @@ config ERRATA_THEAD
  config ERRATA_THEAD_MAE
  	bool "Apply T-Head's memory attribute extension (XTheadMae) errata"
  	depends on ERRATA_THEAD && 64BIT && MMU
@@ -52,7 +52,7 @@ index aca9b0cfcfec..46a353a266e5 100644
  	select RISCV_ALTERNATIVE_EARLY
  	default y
  	help
-@@ -119,7 +120,6 @@ config ERRATA_THEAD_MAE
+@@ -120,7 +121,6 @@ config ERRATA_THEAD_MAE
  config ERRATA_THEAD_CMO
  	bool "Apply T-Head cache management errata"
  	depends on ERRATA_THEAD && MMU
@@ -61,5 +61,5 @@ index aca9b0cfcfec..46a353a266e5 100644
  	select RISCV_NONSTANDARD_CACHE_OPS
  	default y
 -- 
-2.49.0
+2.52.0
 

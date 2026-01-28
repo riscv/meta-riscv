@@ -1,7 +1,7 @@
-From 82bc8a07d2dfd6aa096d0c63eebd65ffc190453a Mon Sep 17 00:00:00 2001
-Message-ID: <82bc8a07d2dfd6aa096d0c63eebd65ffc190453a.1767650435.git.marcel@ziswiler.com>
-In-Reply-To: <cover.1767650435.git.marcel@ziswiler.com>
-References: <cover.1767650435.git.marcel@ziswiler.com>
+From 5be028799a3266b4447e6426e78fd9a50d52f344 Mon Sep 17 00:00:00 2001
+Message-ID: <5be028799a3266b4447e6426e78fd9a50d52f344.1769619771.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
+References: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:29 -0800
 Subject: [PATCH 13/24] riscv: alternative: Add an ALTERNATIVE_3 macro
@@ -114,5 +114,5 @@ index 9619bd5c8eba..e8bf384da5c2 100644
 +
  #endif
 -- 
-2.49.0
+2.52.0
 

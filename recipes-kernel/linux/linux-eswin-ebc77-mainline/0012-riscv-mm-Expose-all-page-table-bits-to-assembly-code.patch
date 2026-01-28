@@ -1,7 +1,7 @@
-From 2585bcbb59f0dd36c2bf4f0b64caa3020b48c3ac Mon Sep 17 00:00:00 2001
-Message-ID: <2585bcbb59f0dd36c2bf4f0b64caa3020b48c3ac.1767650435.git.marcel@ziswiler.com>
-In-Reply-To: <cover.1767650435.git.marcel@ziswiler.com>
-References: <cover.1767650435.git.marcel@ziswiler.com>
+From 16edc194794ad6e8ec00cb242548896b495575d3 Mon Sep 17 00:00:00 2001
+Message-ID: <16edc194794ad6e8ec00cb242548896b495575d3.1769619771.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
+References: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:28 -0800
 Subject: [PATCH 12/24] riscv: mm: Expose all page table bits to assembly code
@@ -164,5 +164,5 @@ index b422d9691e60..ab570e017ce5 100644
   * when all of R/W/X are zero, the PTE is a pointer to the next level
   * of the page table; otherwise, it is a leaf PTE.
 -- 
-2.49.0
+2.52.0
 

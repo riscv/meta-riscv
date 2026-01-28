@@ -1,7 +1,7 @@
-From 49c067830a034d2d22136da83d7741060c3d2ddc Mon Sep 17 00:00:00 2001
-Message-ID: <49c067830a034d2d22136da83d7741060c3d2ddc.1767650435.git.marcel@ziswiler.com>
-In-Reply-To: <cover.1767650435.git.marcel@ziswiler.com>
-References: <cover.1767650435.git.marcel@ziswiler.com>
+From 6a40a13a7d146e5463349d4f221dc62c807e591c Mon Sep 17 00:00:00 2001
+Message-ID: <6a40a13a7d146e5463349d4f221dc62c807e591c.1769619771.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
+References: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:18 -0800
 Subject: [PATCH 02/24] mm: Move the fallback definitions of pXXp_get()
@@ -21,7 +21,7 @@ Upstream-Status: Submitted [https://lore.kernel.org/all/20251113014656.2605447-1
  1 file changed, 35 insertions(+), 35 deletions(-)
 
 diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
-index eb8aacba3698..1cdb02c9571f 100644
+index 652f287c1ef6..c82c5cfde6ad 100644
 --- a/include/linux/pgtable.h
 +++ b/include/linux/pgtable.h
 @@ -90,6 +90,41 @@ static inline unsigned long pud_index(unsigned long address)
@@ -66,7 +66,7 @@ index eb8aacba3698..1cdb02c9571f 100644
  #ifndef kernel_pte_init
  static inline void kernel_pte_init(void *addr)
  {
-@@ -474,41 +509,6 @@ static inline int pudp_set_access_flags(struct vm_area_struct *vma,
+@@ -334,41 +369,6 @@ static inline int pudp_set_access_flags(struct vm_area_struct *vma,
  #endif /* CONFIG_TRANSPARENT_HUGEPAGE */
  #endif
  
@@ -109,5 +109,5 @@ index eb8aacba3698..1cdb02c9571f 100644
  static inline int ptep_test_and_clear_young(struct vm_area_struct *vma,
  					    unsigned long address,
 -- 
-2.49.0
+2.52.0
 
