@@ -1,7 +1,7 @@
-From dbbb73129e10a9c06625de1ae2a146828fcaa1f4 Mon Sep 17 00:00:00 2001
-Message-ID: <dbbb73129e10a9c06625de1ae2a146828fcaa1f4.1767650435.git.marcel@ziswiler.com>
-In-Reply-To: <cover.1767650435.git.marcel@ziswiler.com>
-References: <cover.1767650435.git.marcel@ziswiler.com>
+From 2173ff918a0bf7901600d355eb93bf1b71b7941f Mon Sep 17 00:00:00 2001
+Message-ID: <2173ff918a0bf7901600d355eb93bf1b71b7941f.1769619771.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
+References: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:21 -0800
 Subject: [PATCH 05/24] mm: Allow page table accessors to be non-idempotent
@@ -29,10 +29,10 @@ Upstream-Status: Submitted [https://lore.kernel.org/all/20251113014656.2605447-1
  5 files changed, 14 insertions(+), 2 deletions(-)
 
 diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 2d645dece8e4..f8496a07a7cf 100644
+index 4277b4e5c91c..aadf09abcc61 100644
 --- a/kernel/events/core.c
 +++ b/kernel/events/core.c
-@@ -8432,6 +8432,8 @@ static u64 perf_get_pgtable_size(struct mm_struct *mm, unsigned long addr)
+@@ -8162,6 +8162,8 @@ static u64 perf_get_pgtable_size(struct mm_struct *mm, unsigned long addr)
  	if (pmd_leaf(pmd))
  		return pmd_leaf_size(pmd);
  
@@ -42,10 +42,10 @@ index 2d645dece8e4..f8496a07a7cf 100644
  	if (!ptep)
  		goto again;
 diff --git a/mm/gup.c b/mm/gup.c
-index aa0c535d042f..8ef6045ec6d1 100644
+index 95d39fef783f..96005f744750 100644
 --- a/mm/gup.c
 +++ b/mm/gup.c
-@@ -2833,7 +2833,10 @@ static int gup_fast_pte_range(pmd_t pmd, pmd_t *pmdp, unsigned long addr,
+@@ -2844,7 +2844,10 @@ static int gup_fast_pte_range(pmd_t pmd, pmd_t *pmdp, unsigned long addr,
  	int ret = 0;
  	pte_t *ptep, *ptem;
  
@@ -57,10 +57,10 @@ index aa0c535d042f..8ef6045ec6d1 100644
  		return 0;
  	do {
 diff --git a/mm/khugepaged.c b/mm/khugepaged.c
-index 5af27fe3aed9..fd8769c3d0ce 100644
+index 9a73efdab500..09ebe3d9ab9a 100644
 --- a/mm/khugepaged.c
 +++ b/mm/khugepaged.c
-@@ -1757,7 +1757,7 @@ static void retract_page_tables(struct address_space *mapping, pgoff_t pgoff)
+@@ -1755,7 +1755,7 @@ static void retract_page_tables(struct address_space *mapping, pgoff_t pgoff)
  		struct mmu_notifier_range range;
  		struct mm_struct *mm;
  		unsigned long addr;
@@ -69,7 +69,7 @@ index 5af27fe3aed9..fd8769c3d0ce 100644
  		spinlock_t *pml;
  		spinlock_t *ptl;
  		bool success = false;
-@@ -1796,7 +1796,9 @@ static void retract_page_tables(struct address_space *mapping, pgoff_t pgoff)
+@@ -1794,7 +1794,9 @@ static void retract_page_tables(struct address_space *mapping, pgoff_t pgoff)
  		 */
  		if (check_pmd_state(pmd) != SCAN_SUCCEED)
  			goto drop_pml;
@@ -109,5 +109,5 @@ index fba4d065abba..ae872a0750e9 100644
  nomap:
  	rcu_read_unlock();
 -- 
-2.49.0
+2.52.0
 

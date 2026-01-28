@@ -1,7 +1,7 @@
-From f183a25782a22ebf436bcb4f753bbde6ca89c788 Mon Sep 17 00:00:00 2001
-Message-ID: <f183a25782a22ebf436bcb4f753bbde6ca89c788.1767650435.git.marcel@ziswiler.com>
-In-Reply-To: <cover.1767650435.git.marcel@ziswiler.com>
-References: <cover.1767650435.git.marcel@ziswiler.com>
+From 283b5e84a2d736bb0d79fec5c41a269c3f312e4b Mon Sep 17 00:00:00 2001
+Message-ID: <283b5e84a2d736bb0d79fec5c41a269c3f312e4b.1769619771.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
+References: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:27 -0800
 Subject: [PATCH 11/24] riscv: mm: Fix up memory types when writing page tables
@@ -405,10 +405,10 @@ index 093f0f41fd23..aad34c754325 100644
  #ifdef CONFIG_TRANSPARENT_HUGEPAGE
  static inline pte_t pmd_pte(pmd_t pmd);
 diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
-index 9e536500593a..74e923a51fb3 100644
+index 6ebabaabfd11..a57691e19881 100644
 --- a/arch/riscv/include/asm/pgtable.h
 +++ b/arch/riscv/include/asm/pgtable.h
-@@ -253,6 +253,7 @@ static inline bool pmd_leaf(pmd_t pmd)
+@@ -249,6 +249,7 @@ static inline bool pmd_leaf(pmd_t pmd)
  
  static inline void set_pmd(pmd_t *pmdp, pmd_t pmd)
  {
@@ -416,7 +416,7 @@ index 9e536500593a..74e923a51fb3 100644
  	WRITE_ONCE(*pmdp, pmd);
  }
  
-@@ -263,11 +264,7 @@ static inline void pmd_clear(pmd_t *pmdp)
+@@ -259,11 +260,7 @@ static inline void pmd_clear(pmd_t *pmdp)
  
  static inline pgd_t pfn_pgd(unsigned long pfn, pgprot_t prot)
  {
@@ -429,7 +429,7 @@ index 9e536500593a..74e923a51fb3 100644
  }
  
  static inline unsigned long _pgd_pfn(pgd_t pgd)
-@@ -343,11 +340,7 @@ static inline unsigned long pte_pfn(pte_t pte)
+@@ -339,11 +336,7 @@ static inline unsigned long pte_pfn(pte_t pte)
  /* Constructs a page table entry */
  static inline pte_t pfn_pte(unsigned long pfn, pgprot_t prot)
  {
@@ -442,7 +442,7 @@ index 9e536500593a..74e923a51fb3 100644
  }
  
  #define pte_pgprot pte_pgprot
-@@ -557,11 +550,7 @@ static inline int pmd_protnone(pmd_t pmd)
+@@ -553,11 +546,7 @@ static inline int pmd_protnone(pmd_t pmd)
  /* Modify page protection bits */
  static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
  {
@@ -455,7 +455,7 @@ index 9e536500593a..74e923a51fb3 100644
  }
  
  #define pgd_ERROR(e) \
-@@ -617,9 +606,10 @@ static inline int pte_same(pte_t pte_a, pte_t pte_b)
+@@ -613,9 +602,10 @@ static inline int pte_same(pte_t pte_a, pte_t pte_b)
   * a page table are directly modified.  Thus, the following hook is
   * made available.
   */
@@ -468,7 +468,7 @@ index 9e536500593a..74e923a51fb3 100644
  }
  
  void flush_icache_pte(struct mm_struct *mm, pte_t pte);
-@@ -674,6 +664,7 @@ static inline pte_t ptep_get_and_clear(struct mm_struct *mm,
+@@ -670,6 +660,7 @@ static inline pte_t ptep_get_and_clear(struct mm_struct *mm,
  	set_pte(ptep, __pte(0));
  #endif
  
@@ -476,7 +476,7 @@ index 9e536500593a..74e923a51fb3 100644
  	page_table_check_pte_clear(mm, pte);
  
  	return pte;
-@@ -1017,6 +1008,7 @@ static inline pmd_t pmdp_huge_get_and_clear(struct mm_struct *mm,
+@@ -1013,6 +1004,7 @@ static inline pmd_t pmdp_huge_get_and_clear(struct mm_struct *mm,
  	pmd_clear(pmdp);
  #endif
  
@@ -484,7 +484,7 @@ index 9e536500593a..74e923a51fb3 100644
  	page_table_check_pmd_clear(mm, pmd);
  
  	return pmd;
-@@ -1034,7 +1026,11 @@ static inline pmd_t pmdp_establish(struct vm_area_struct *vma,
+@@ -1030,7 +1022,11 @@ static inline pmd_t pmdp_establish(struct vm_area_struct *vma,
  				unsigned long address, pmd_t *pmdp, pmd_t pmd)
  {
  	page_table_check_pmd_set(vma->vm_mm, pmdp, pmd);
@@ -497,7 +497,7 @@ index 9e536500593a..74e923a51fb3 100644
  }
  
  #define pmdp_collapse_flush pmdp_collapse_flush
-@@ -1103,14 +1099,9 @@ static inline int pudp_test_and_clear_young(struct vm_area_struct *vma,
+@@ -1099,14 +1095,9 @@ static inline int pudp_test_and_clear_young(struct vm_area_struct *vma,
  static inline pud_t pudp_huge_get_and_clear(struct mm_struct *mm,
  					    unsigned long address,  pud_t *pudp)
  {
@@ -514,7 +514,7 @@ index 9e536500593a..74e923a51fb3 100644
  	page_table_check_pud_clear(mm, pud);
  
  	return pud;
-@@ -1133,7 +1124,11 @@ static inline pud_t pudp_establish(struct vm_area_struct *vma,
+@@ -1129,7 +1120,11 @@ static inline pud_t pudp_establish(struct vm_area_struct *vma,
  				   unsigned long address, pud_t *pudp, pud_t pud)
  {
  	page_table_check_pud_set(vma->vm_mm, pudp, pud);
@@ -588,5 +588,5 @@ index 0dd6ee282953..763ffde8ab5e 100644
  				else
  					sprintf(s, pte_bits[i].set, "??");
 -- 
-2.49.0
+2.52.0
 

@@ -1,7 +1,7 @@
-From 28c627ffb67f0f07b5f7886e05df2955d415dbe1 Mon Sep 17 00:00:00 2001
-Message-ID: <28c627ffb67f0f07b5f7886e05df2955d415dbe1.1767650435.git.marcel@ziswiler.com>
-In-Reply-To: <cover.1767650435.git.marcel@ziswiler.com>
-References: <cover.1767650435.git.marcel@ziswiler.com>
+From 3a37f882e52aace03c131101431584cc45b65208 Mon Sep 17 00:00:00 2001
+Message-ID: <3a37f882e52aace03c131101431584cc45b65208.1769619771.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
+References: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
 From: Xuyang Dong <dongxuyang@eswincomputing.com>
 Date: Mon, 29 Dec 2025 18:59:49 +0800
 Subject: [PATCH 21/24] clock: eswin: Add eic7700 clock driver
@@ -2008,5 +2008,5 @@ index 000000000000..e6e0682ff39c
 +
 +#endif /* __ESWIN_CLK_H__ */
 -- 
-2.49.0
+2.52.0
 

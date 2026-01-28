@@ -1,7 +1,7 @@
-From a2d68025b54acc9a0455930899d246502420785a Mon Sep 17 00:00:00 2001
-Message-ID: <a2d68025b54acc9a0455930899d246502420785a.1767650435.git.marcel@ziswiler.com>
-In-Reply-To: <cover.1767650435.git.marcel@ziswiler.com>
-References: <cover.1767650435.git.marcel@ziswiler.com>
+From afc5ec543d4c9beb09b34705cb5f538d32e88896 Mon Sep 17 00:00:00 2001
+Message-ID: <afc5ec543d4c9beb09b34705cb5f538d32e88896.1769619771.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
+References: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:20 -0800
 Subject: [PATCH 04/24] checkpatch: Warn on page table access without accessors
@@ -32,10 +32,10 @@ Upstream-Status: Submitted [https://lore.kernel.org/all/20251113014656.2605447-1
  1 file changed, 7 insertions(+)
 
 diff --git a/scripts/checkpatch.pl b/scripts/checkpatch.pl
-index 362a8d1cd327..5e81094562ac 100755
+index c0250244cf7a..a49ed4936b49 100755
 --- a/scripts/checkpatch.pl
 +++ b/scripts/checkpatch.pl
-@@ -7740,6 +7740,13 @@ sub process {
+@@ -7738,6 +7738,13 @@ sub process {
  			ERROR("UNINITIALIZED_PTR_WITH_FREE",
  			      "pointer '$1' with __free attribute should be initialized\n" . $herecurr);
  		}
@@ -50,5 +50,5 @@ index 362a8d1cd327..5e81094562ac 100755
  
  	# If we have no input at all, then there is nothing to report on
 -- 
-2.49.0
+2.52.0
 
