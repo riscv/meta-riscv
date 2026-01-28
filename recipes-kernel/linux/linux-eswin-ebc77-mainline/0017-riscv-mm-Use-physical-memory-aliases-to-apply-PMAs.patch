@@ -1,7 +1,7 @@
-From 7d9be47aa7297865ab4da996c19bdd41388fd3eb Mon Sep 17 00:00:00 2001
-Message-ID: <7d9be47aa7297865ab4da996c19bdd41388fd3eb.1767650435.git.marcel@ziswiler.com>
-In-Reply-To: <cover.1767650435.git.marcel@ziswiler.com>
-References: <cover.1767650435.git.marcel@ziswiler.com>
+From 00c595d326e8168c414b3d09ca2e6b43af677483 Mon Sep 17 00:00:00 2001
+Message-ID: <00c595d326e8168c414b3d09ca2e6b43af677483.1769619771.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
+References: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:33 -0800
 Subject: [PATCH 17/24] riscv: mm: Use physical memory aliases to apply PMAs
@@ -219,10 +219,10 @@ index ab570e017ce5..ecd6cd2dfb4e 100644
  #ifdef CONFIG_RISCV_ISA_SVNAPOT
  #define _PAGE_NAPOT_SHIFT	63
 diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
-index 74e923a51fb3..ed05b552447b 100644
+index a57691e19881..3c322248d4f9 100644
 --- a/arch/riscv/include/asm/pgtable.h
 +++ b/arch/riscv/include/asm/pgtable.h
-@@ -1263,6 +1263,14 @@ extern u64 satp_mode;
+@@ -1259,6 +1259,14 @@ extern u64 satp_mode;
  void paging_init(void);
  void misc_mem_init(void);
  
@@ -238,10 +238,10 @@ index 74e923a51fb3..ed05b552447b 100644
   * ZERO_PAGE is a global shared page that is always zero,
   * used for zero-mapped memory areas, etc.
 diff --git a/arch/riscv/kernel/cpufeature.c b/arch/riscv/kernel/cpufeature.c
-index c05b11596c19..2fa38c74e3a6 100644
+index fa591aff9d33..17a43ba8d5db 100644
 --- a/arch/riscv/kernel/cpufeature.c
 +++ b/arch/riscv/kernel/cpufeature.c
-@@ -1119,6 +1119,12 @@ void __init riscv_fill_hwcap(void)
+@@ -1118,6 +1118,12 @@ void __init riscv_fill_hwcap(void)
  		riscv_v_setup_vsize();
  	}
  
@@ -537,5 +537,5 @@ index 763ffde8ab5e..29a7be14cca5 100644
  				if (val == _PAGE_NOCACHE)
  					sprintf(s, pte_bits[i].set, "NC");
 -- 
-2.49.0
+2.52.0
 

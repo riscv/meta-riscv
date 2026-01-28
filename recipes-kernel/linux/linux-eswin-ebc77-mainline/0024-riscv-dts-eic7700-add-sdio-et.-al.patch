@@ -1,7 +1,7 @@
-From 772ff048dbbaad1722edc8b656ecf3d39fbe191f Mon Sep 17 00:00:00 2001
-Message-ID: <772ff048dbbaad1722edc8b656ecf3d39fbe191f.1767650435.git.marcel@ziswiler.com>
-In-Reply-To: <cover.1767650435.git.marcel@ziswiler.com>
-References: <cover.1767650435.git.marcel@ziswiler.com>
+From e240cf0bb3e096017566fe77c229d5a073a54b0b Mon Sep 17 00:00:00 2001
+Message-ID: <e240cf0bb3e096017566fe77c229d5a073a54b0b.1769619771.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
+References: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
 From: Marcel Ziswiler <marcel@ziswiler.com>
 Date: Mon, 5 Jan 2026 16:40:22 +0100
 Subject: [PATCH 24/24] riscv: dts: eic7700: add sdio et. al.
@@ -428,5 +428,5 @@ index 46d317f51891..4d2e91aa6044 100644
  		};
  	};
 -- 
-2.49.0
+2.52.0
 

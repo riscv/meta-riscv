@@ -1,7 +1,7 @@
-From 2a6321b5edbb5f8ca344ec9549f991039123b041 Mon Sep 17 00:00:00 2001
-Message-ID: <2a6321b5edbb5f8ca344ec9549f991039123b041.1767650435.git.marcel@ziswiler.com>
-In-Reply-To: <cover.1767650435.git.marcel@ziswiler.com>
-References: <cover.1767650435.git.marcel@ziswiler.com>
+From 2f6f9951db457e773a6c89b84cc1af474a185139 Mon Sep 17 00:00:00 2001
+Message-ID: <2f6f9951db457e773a6c89b84cc1af474a185139.1769619771.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
+References: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:23 -0800
 Subject: [PATCH 07/24] riscv: mm: Always use page table accessor functions
@@ -21,10 +21,10 @@ Upstream-Status: Submitted [https://lore.kernel.org/all/20251113014656.2605447-1
  4 files changed, 49 insertions(+), 42 deletions(-)
 
 diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
-index 6bb1f5bdc5d2..f5ed5e64e824 100644
+index 9acd58a67123..ad3185f7ad25 100644
 --- a/arch/riscv/include/asm/pgtable.h
 +++ b/arch/riscv/include/asm/pgtable.h
-@@ -1100,7 +1100,7 @@ static inline pud_t pudp_huge_get_and_clear(struct mm_struct *mm,
+@@ -1096,7 +1096,7 @@ static inline pud_t pudp_huge_get_and_clear(struct mm_struct *mm,
  #ifdef CONFIG_SMP
  	pud_t pud = __pud(xchg(&pudp->pud, 0));
  #else
@@ -33,7 +33,7 @@ index 6bb1f5bdc5d2..f5ed5e64e824 100644
  
  	pud_clear(pudp);
  #endif
-@@ -1279,13 +1279,15 @@ extern unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsigned long)];
+@@ -1275,13 +1275,15 @@ extern unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsigned long)];
   */
  #define set_p4d_safe(p4dp, p4d) \
  ({ \
@@ -303,5 +303,5 @@ index 807c0a0de182..8b02813e3dc2 100644
  	flush_pud_tlb_range(vma, address, address + HPAGE_PUD_SIZE);
  	return old;
 -- 
-2.49.0
+2.52.0
 

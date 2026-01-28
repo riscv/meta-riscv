@@ -1,7 +1,7 @@
-From 254fd0920e7f3cf63f13d236cb1c3e0dfc8e4d01 Mon Sep 17 00:00:00 2001
-Message-ID: <254fd0920e7f3cf63f13d236cb1c3e0dfc8e4d01.1767650435.git.marcel@ziswiler.com>
-In-Reply-To: <cover.1767650435.git.marcel@ziswiler.com>
-References: <cover.1767650435.git.marcel@ziswiler.com>
+From ba7052035cab9b2ac55da1f71ed6e68eb4630cd0 Mon Sep 17 00:00:00 2001
+Message-ID: <ba7052035cab9b2ac55da1f71ed6e68eb4630cd0.1769619771.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
+References: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:25 -0800
 Subject: [PATCH 09/24] riscv: mm: Deduplicate _PAGE_CHG_MASK definition
@@ -61,10 +61,10 @@ index 5532f8515450..093f0f41fd23 100644
  {
  	return (pud_val(pud) & _PAGE_PRESENT);
 diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
-index f5ed5e64e824..9e536500593a 100644
+index ad3185f7ad25..6ebabaabfd11 100644
 --- a/arch/riscv/include/asm/pgtable.h
 +++ b/arch/riscv/include/asm/pgtable.h
-@@ -207,6 +207,12 @@ extern struct pt_alloc_ops pt_ops __meminitdata;
+@@ -203,6 +203,12 @@ extern struct pt_alloc_ops pt_ops __meminitdata;
  #define _PAGE_IOREMAP	((_PAGE_KERNEL & ~_PAGE_MTMASK) | _PAGE_IO)
  #define PAGE_KERNEL_IO		__pgprot(_PAGE_IOREMAP)
  
@@ -78,5 +78,5 @@ index f5ed5e64e824..9e536500593a 100644
  extern pgd_t trampoline_pg_dir[];
  extern pgd_t early_pg_dir[];
 -- 
-2.49.0
+2.52.0
 

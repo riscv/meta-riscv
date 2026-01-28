@@ -1,7 +1,7 @@
-From f6837c5e150d30dae80fd5f7717852d494a479a3 Mon Sep 17 00:00:00 2001
-Message-ID: <f6837c5e150d30dae80fd5f7717852d494a479a3.1767650435.git.marcel@ziswiler.com>
-In-Reply-To: <cover.1767650435.git.marcel@ziswiler.com>
-References: <cover.1767650435.git.marcel@ziswiler.com>
+From 23b2377cdb1c979f21c2c8cd4012b54beba611c6 Mon Sep 17 00:00:00 2001
+Message-ID: <23b2377cdb1c979f21c2c8cd4012b54beba611c6.1769619771.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
+References: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:30 -0800
 Subject: [PATCH 14/24] riscv: alternative: Allow calls with alternate link
@@ -34,5 +34,5 @@ index 7642704c7f18..e3eb2585faea 100644
  
  			riscv_alternative_fix_auipc_jalr(alt_ptr + i * sizeof(u32),
 -- 
-2.49.0
+2.52.0
 
