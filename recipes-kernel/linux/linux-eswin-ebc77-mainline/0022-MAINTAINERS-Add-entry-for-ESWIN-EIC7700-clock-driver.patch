@@ -1,25 +1,25 @@
-From 0c66ab83de30993648a041c07d3b28af69803bdc Mon Sep 17 00:00:00 2001
-Message-ID: <0c66ab83de30993648a041c07d3b28af69803bdc.1769619771.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
-References: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
+From 87b8ce2a0237e00c2398c9efd715c3ca0b94b00a Mon Sep 17 00:00:00 2001
+Message-ID: <87b8ce2a0237e00c2398c9efd715c3ca0b94b00a.1770329852.git.marcel@ziswiler.com>
+In-Reply-To: <49a10b1b231cd647f5862d444272dd8f8f86de2c.1770329852.git.marcel@ziswiler.com>
+References: <49a10b1b231cd647f5862d444272dd8f8f86de2c.1770329852.git.marcel@ziswiler.com>
 From: Xuyang Dong <dongxuyang@eswincomputing.com>
-Date: Mon, 29 Dec 2025 19:00:05 +0800
+Date: Thu, 5 Feb 2026 17:35:10 +0800
 Subject: [PATCH 22/24] MAINTAINERS: Add entry for ESWIN EIC7700 clock driver
 
 Add myself as maintainer of ESWIN EIC7700 clock driver
 
 Signed-off-by: Xuyang Dong <dongxuyang@eswincomputing.com>
 
-Upstream-Status: Submitted [https://lore.kernel.org/all/20251229105844.1089-1-dongxuyang@eswincomputing.com]
+Upstream-Status: Submitted [https://lore.kernel.org/all/20260205093510.1198-1-dongxuyang@eswincomputing.com]
 ---
  MAINTAINERS | 8 ++++++++
  1 file changed, 8 insertions(+)
 
 diff --git a/MAINTAINERS b/MAINTAINERS
-index 67db88b04537..2f0e3024726d 100644
+index 0efa8cc6775b..dc9881b98574 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -9373,6 +9373,14 @@ T:	git https://github.com/eswincomputing/linux-next.git
+@@ -9372,6 +9372,14 @@ T:	git https://github.com/eswincomputing/linux-next.git
  F:	Documentation/devicetree/bindings/riscv/eswin.yaml
  F:	arch/riscv/boot/dts/eswin/
  

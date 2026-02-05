@@ -1,9 +1,9 @@
-From 3bf236bed0e6f03e592004e2c6c82b51bd15f125 Mon Sep 17 00:00:00 2001
-Message-ID: <3bf236bed0e6f03e592004e2c6c82b51bd15f125.1769619771.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
-References: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
+From e9fa19a9e4fe6a2e202c80c189c2d7e2cfd7ec7e Mon Sep 17 00:00:00 2001
+Message-ID: <e9fa19a9e4fe6a2e202c80c189c2d7e2cfd7ec7e.1770329852.git.marcel@ziswiler.com>
+In-Reply-To: <49a10b1b231cd647f5862d444272dd8f8f86de2c.1770329852.git.marcel@ziswiler.com>
+References: <49a10b1b231cd647f5862d444272dd8f8f86de2c.1770329852.git.marcel@ziswiler.com>
 From: Xuyang Dong <dongxuyang@eswincomputing.com>
-Date: Mon, 29 Dec 2025 18:59:33 +0800
+Date: Thu, 5 Feb 2026 17:34:30 +0800
 Subject: [PATCH 20/24] dt-bindings: clock: eswin: Documentation for eic7700
  SoC
 
@@ -15,7 +15,7 @@ Acked-by: Conor Dooley <conor.dooley@microchip.com>
 Acked-by: Troy Mitchell <troy.mitchell@linux.dev>
 Signed-off-by: Xuyang Dong <dongxuyang@eswincomputing.com>
 
-Upstream-Status: Submitted [https://lore.kernel.org/all/20251229105844.1089-1-dongxuyang@eswincomputing.com]
+Upstream-Status: Submitted [https://lore.kernel.org/all/20260205093430.1088-1-dongxuyang@eswincomputing.com]
 ---
  .../bindings/clock/eswin,eic7700-clock.yaml   |  46 +++
  .../dt-bindings/clock/eswin,eic7700-clock.h   | 285 ++++++++++++++++++
@@ -77,13 +77,13 @@ index 000000000000..3125ae52bde6
 +    };
 diff --git a/include/dt-bindings/clock/eswin,eic7700-clock.h b/include/dt-bindings/clock/eswin,eic7700-clock.h
 new file mode 100644
-index 000000000000..87ccf72eda37
+index 000000000000..d7ef697d0f7a
 --- /dev/null
 +++ b/include/dt-bindings/clock/eswin,eic7700-clock.h
 @@ -0,0 +1,285 @@
 +/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
 +/*
-+ * Copyright 2025, Beijing ESWIN Computing Technology Co., Ltd..
++ * Copyright 2026, Beijing ESWIN Computing Technology Co., Ltd..
 + * All rights reserved.
 + *
 + * Device Tree binding constants for EIC7700 clock controller.
