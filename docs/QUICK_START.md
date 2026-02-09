@@ -92,17 +92,6 @@ target: custom-image # Or nezha default image: riscv-nezha-image
 
 For more details on `nezha`, `beaglev` and other boards steps check `doc` folder.
 
-## Available Machines
-
-The different machines you can build for are:
-
-* freedom-u540: The SiFive HiFive Unleashed board
-* beaglev-starlight-jh7100: BeagleV - Based on Starlight JH7100 SOC
-* mangopi-mq-pro: MangoPi MQ Pro - Based on Allwinner D1 SOC
-
-Note that this layer also provides improvements and features for the
-upstream qemuriscv32 and qemuriscv64 machines.
-
 ## Build Images
 
 A console-only image for the 64-bit QEMU machine
