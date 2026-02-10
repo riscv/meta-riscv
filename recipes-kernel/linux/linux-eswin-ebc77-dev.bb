@@ -17,13 +17,14 @@ SRC_URI = "git://github.com/${FORK}/linux-stable;protocol=https;branch=${BRANCH}
            file://0004-memory-eswin-es_dev_buf-fix-building-out-of-tree.patch \
            file://0005-memory-eswin-fix-building-out-of-tree.patch \
            file://0006-media-i2c-fix-missing-rk628.patch \
+           file://0007-fix-dsp_ioctl-include-issue.patch \
            file://iwd-wifi.cfg \
 "
 
-SRCREV ?= "5c405e4d1fe41a25c98c0fab0dc3e94ff7c8adeb"
+SRCREV ?= "da228da68a382684b01f6c0717effafcec2bee76"
 LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 
-LINUX_VERSION ?= "6.6.92"
+LINUX_VERSION ?= "6.6.115"
 LINUX_VERSION_EXTENSION:append:eswin-ebc77 = "-eswin-ebc77"
 KERNEL_VERSION_SANITY_SKIP = "1"
 

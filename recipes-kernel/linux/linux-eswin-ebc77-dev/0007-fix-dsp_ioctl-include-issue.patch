@@ -1,0 +1,67 @@
+From 7be27d4f6538bec137633a08e127e70cb6eef72a Mon Sep 17 00:00:00 2001
+Message-ID: <7be27d4f6538bec137633a08e127e70cb6eef72a.1770749905.git.marcel@ziswiler.com>
+In-Reply-To: <3af10e62b81db8828e73d3c68e7f723abd69959f.1770749905.git.marcel@ziswiler.com>
+References: <3af10e62b81db8828e73d3c68e7f723abd69959f.1770749905.git.marcel@ziswiler.com>
+From: Marcel Ziswiler <marcel@ziswiler.com>
+Date: Tue, 10 Feb 2026 19:54:10 +0100
+Subject: [PATCH 7/7] fix: dsp_ioctl include issue
+
+drivers/soc/eswin/ai_driver/dsp/dsp_ioctl.c:166:18: error: implicit declaration of function 'iommu_get_domain_for_dev' [-Wimplicit-function-declaration]
+  166 |         domain = iommu_get_domain_for_dev(dsp->dev);
+      |                  ^~~~~~~~~~~~~~~~~~~~~~~~
+drivers/soc/eswin/ai_driver/dsp/dsp_ioctl.c:166:16: error: assignment to 'struct iommu_domain *' from 'int' makes pointer from integer without a cast [-Wint-conversion]
+  166 |         domain = iommu_get_domain_for_dev(dsp->dev);
+      |                ^
+  CC [M]  arch/riscv/kvm/vcpu.o
+  CC [M]  crypto/blake2b_generic.o
+  CC [M]  net/netfilter/nfnetlink_acct.o
+  CC [M]  net/netfilter/nfnetlink_queue.o
+drivers/soc/eswin/ai_driver/dsp/dsp_ioctl.c:173:29: error: implicit declaration of function 'iommu_iova_to_phys' [-Wimplicit-function-declaration]
+  173 |                 phys_addr = iommu_iova_to_phys(domain, dma_addr);
+      |                             ^~~~~~~~~~~~~~~~~~
+drivers/soc/eswin/ai_driver/dsp/dsp_ioctl.c: In function 'dump_dma_mapping_info':
+drivers/soc/eswin/ai_driver/dsp/dsp_ioctl.c:202:16: error: assignment to 'struct iommu_domain *' from 'int' makes pointer from integer without a cast [-Wint-conversion]
+  202 |         domain = iommu_get_domain_for_dev(dsp->dev);
+      |                ^
+
+Upstream-Status: Inappropriate [Downstream-specific]
+
+Signed-off-by: Marcel Ziswiler <marcel@ziswiler.com>
+---
+ drivers/soc/eswin/ai_driver/dsp/dsp_ioctl.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/soc/eswin/ai_driver/dsp/dsp_ioctl.c b/drivers/soc/eswin/ai_driver/dsp/dsp_ioctl.c
+index 358e525fa8f1..67b18d467446 100644
+--- a/drivers/soc/eswin/ai_driver/dsp/dsp_ioctl.c
++++ b/drivers/soc/eswin/ai_driver/dsp/dsp_ioctl.c
+@@ -27,6 +27,7 @@
+ #include <linux/slab.h>
+ #include "eswin-khandle.h"
+ #include "dsp_dma_buf.h"
++#include <linux/iommu.h>
+ #include <linux/list.h>
+ #include <linux/poll.h>
+ #include "dsp_platform.h"
+@@ -163,14 +164,18 @@ void dsp_flush_iova_cache(struct dsp_file *dsp_file)
+ 	void *vaddr;
+ 	struct es_dsp *dsp = dsp_file->dsp;
+ 
++
+ 	domain = iommu_get_domain_for_dev(dsp->dev);
++
+ 	if (!domain) {
+ 		dev_err(dsp->dev, "can't find dsp IOMMU domain\n");
+ 		return;
+ 	}
+ 
+ 	for (dma_addr = 0; dma_addr < 0xffffffff; dma_addr += PAGE_SIZE) {
++
+ 		phys_addr = iommu_iova_to_phys(domain, dma_addr);
++
+ 		if (phys_addr !=0 ) {
+ 			break;
+ 		}
+-- 
+2.49.0
+
