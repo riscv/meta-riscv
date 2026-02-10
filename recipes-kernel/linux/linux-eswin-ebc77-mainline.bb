@@ -38,10 +38,10 @@ SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git;prot
            file://iwd-wifi.cfg \
 "
 
-SRCREV ?= "18f7fcd5e69a04df57b563360b88be72471d6b62"
+SRCREV ?= "05f7e89ab9731565d8a62e3b5d1ec206485eeb0b"
 LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 
-LINUX_VERSION ?= "6.19-rc8"
+LINUX_VERSION ?= "6.19"
 
 INSANE_SKIP:append = " textrel"
 
