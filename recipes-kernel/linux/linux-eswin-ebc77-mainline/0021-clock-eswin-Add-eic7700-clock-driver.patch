@@ -1,10 +1,72 @@
-From c2f31b4dc019641ae2f0247af166fcaa157ff9c6 Mon Sep 17 00:00:00 2001
-Message-ID: <c2f31b4dc019641ae2f0247af166fcaa157ff9c6.1770719310.git.marcel@ziswiler.com>
-In-Reply-To: <108f2ba1aa5f0eef4d20b582a1906bb8ab1fa0a8.1770719310.git.marcel@ziswiler.com>
-References: <108f2ba1aa5f0eef4d20b582a1906bb8ab1fa0a8.1770719310.git.marcel@ziswiler.com>
+From mboxrd@z Thu Jan  1 00:00:00 1970
+Received: from zg8tmja2lje4os4yms4ymjma.icoremail.net (zg8tmja2lje4os4yms4ymjma.icoremail.net [206.189.21.223])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 9EC0B24DCF6;
+	Sat, 14 Feb 2026 10:15:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=206.189.21.223
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1771064138; cv=none; b=WHUUA+1eFC05Jj2Wr2ah6I4QI3zOu8D9LTU5WAfW2zzvKHKaJXV2VtKpuaTdoVad8OhKCdKYt5Ovudw67ixThvHpmGm1PiI0Aaa6epkeMFXQOBuZXnr4zXd+iQwt6t4lvSDZ0Pykc6V2104Su7coObwuYMyGAXSq+QcFQWixSoo=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1771064138; c=relaxed/simple;
+	bh=HHm0LIMIHBrk9aebbLIiDMJ5HkLkepdABDznvI9eYTA=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=odlDO7FMIkjOSkrnfqKY0JRC3vU3KhCmUzhsLt6fg5ASnuP4U+mFEulDDxeD6nZEPKut5PzHe86KXl3vpwb7mMjTzvwPWdKjH75hwytLUuulA7Co7yRfuoPlVsU0U8Gq6OAvtYUCgptx4N9ZFqorzqLbnuQKf/mzxb1UMVQqebM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=eswincomputing.com; spf=pass smtp.mailfrom=eswincomputing.com; arc=none smtp.client-ip=206.189.21.223
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=eswincomputing.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=eswincomputing.com
+Received: from E0005152DT.eswin.cn (unknown [10.12.96.41])
+	by app2 (Coremail) with SMTP id TQJkCgBHXaA6S5Bp7ZIAAA--.2750S2;
+	Sat, 14 Feb 2026 18:15:23 +0800 (CST)
+From: dongxuyang@eswincomputing.com
+To: mturquette@baylibre.com,
+	sboyd@kernel.org,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	linux-clk@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	troy.mitchell@linux.dev,
+	bmasney@redhat.com
+Cc: ningyu@eswincomputing.com,
+	linmin@eswincomputing.com,
+	huangyifeng@eswincomputing.com,
+	pinkesh.vaghela@einfochips.com,
+	ganboing@gmail.com,
+	marcel@ziswiler.com,
+	Xuyang Dong <dongxuyang@eswincomputing.com>
+Subject: [PATCH v13 2/3] clk: eswin: Add eic7700 clock driver
+Date: Sat, 14 Feb 2026 18:15:19 +0800
+Message-Id: <20260214101519.341-1-dongxuyang@eswincomputing.com>
+X-Mailer: git-send-email 2.31.1.windows.1
+In-Reply-To: <20260214101421.228-1-dongxuyang@eswincomputing.com>
+References: <20260214101421.228-1-dongxuyang@eswincomputing.com>
+Precedence: bulk
+X-Mailing-List: devicetree@vger.kernel.org
+List-Id: <devicetree.vger.kernel.org>
+List-Subscribe: <mailto:devicetree+subscribe@vger.kernel.org>
+List-Unsubscribe: <mailto:devicetree+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:TQJkCgBHXaA6S5Bp7ZIAAA--.2750S2
+X-Coremail-Antispam: 1UD129KBjvAXoWkGrWDWFy3Cw4rtw1DGF43GFg_yoWftr1rKo
+	W8CFs3Zry8tw1UurZ8Gr1fJw1Y9a1xAr9FvF1rWwn7CFnrG39rt348AF4Yvr1fJ34j9r95
+	Ar1vkrWfZFZrXay7n29KB7ZKAUJUUUU8529EdanIXcx71UUUUU7v73VFW2AGmfu7bjvjm3
+	AaLaJ3UjIYCTnIWjp_UUUYK7AC8VAFwI0_Xr0_Wr1l1xkIjI8I6I8E6xAIw20EY4v20xva
+	j40_Wr0E3s1l1IIY67AEw4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2
+	x7M28EF7xvwVC0I7IYx2IY67AKxVWUJVWUCwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVWx
+	JVW8Jr1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gc
+	CE3s1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E
+	2Ix0cI8IcVAFwI0_Jrv_JF1lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJV
+	W8JwACjcxG0xvY0x0EwIxGrwACjI8F5VA0II8E6IAqYI8I648v4I1lFIxGxcIEc7CjxVA2
+	Y2ka0xkIwI1lw4CEc2x0rVAKj4xxMxkF7I0En4kS14v26r4a6rW5MxkIecxEwVCm-wCF04
+	k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18
+	MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_GFv_WrylIxkGc2Ij64vIr4
+	1lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1U
+	MIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I
+	8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjTRNSdgDUUUU
+X-CM-SenderInfo: pgrqw5xx1d0w46hv4xpqfrz1xxwl0woofrz/
+
 From: Xuyang Dong <dongxuyang@eswincomputing.com>
-Date: Tue, 10 Feb 2026 17:51:06 +0800
-Subject: [PATCH 21/24] clock: eswin: Add eic7700 clock driver
 
 Add clock drivers for the EIC7700 SoC. The clock controller on the ESWIN
 EIC7700 provides various clocks to different IP blocks within the SoC.
@@ -13,15 +75,15 @@ Signed-off-by: Yifeng Huang <huangyifeng@eswincomputing.com>
 Tested-by: Marcel Ziswiler <marcel@ziswiler.com> # ebc77
 Signed-off-by: Xuyang Dong <dongxuyang@eswincomputing.com>
 
-Upstream-Status: Submitted [https://lore.kernel.org/all/20260210095106.839-1-dongxuyang@eswincomputing.com]
+Upstream-Status: Submitted [https://lore.kernel.org/all/20260214101519.341-1-dongxuyang@eswincomputing.com]
 ---
  drivers/clk/Kconfig             |    1 +
  drivers/clk/Makefile            |    1 +
  drivers/clk/eswin/Kconfig       |   15 +
  drivers/clk/eswin/Makefile      |    8 +
- drivers/clk/eswin/clk-eic7700.c | 1337 +++++++++++++++++++++++++++++++
- drivers/clk/eswin/clk.c         |  579 +++++++++++++
- drivers/clk/eswin/common.h      |  373 +++++++++
+ drivers/clk/eswin/clk-eic7700.c | 1357 +++++++++++++++++++++++++++++++
+ drivers/clk/eswin/clk.c         |  591 ++++++++++++++
+ drivers/clk/eswin/common.h      |  341 ++++++++
  7 files changed, 2314 insertions(+)
  create mode 100644 drivers/clk/eswin/Kconfig
  create mode 100644 drivers/clk/eswin/Makefile
@@ -30,11 +92,11 @@ Upstream-Status: Submitted [https://lore.kernel.org/all/20260210095106.839-1-don
  create mode 100644 drivers/clk/eswin/common.h
 
 diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
-index 3a1611008e48..2a9056d41093 100644
+index 3d803b4cf5c1..3b0f82e51523 100644
 --- a/drivers/clk/Kconfig
 +++ b/drivers/clk/Kconfig
-@@ -515,6 +515,7 @@ source "drivers/clk/actions/Kconfig"
- source "drivers/clk/analogbits/Kconfig"
+@@ -504,6 +504,7 @@ source "drivers/clk/analogbits/Kconfig"
+ source "drivers/clk/aspeed/Kconfig"
  source "drivers/clk/baikal-t1/Kconfig"
  source "drivers/clk/bcm/Kconfig"
 +source "drivers/clk/eswin/Kconfig"
@@ -42,10 +104,10 @@ index 3a1611008e48..2a9056d41093 100644
  source "drivers/clk/imgtec/Kconfig"
  source "drivers/clk/imx/Kconfig"
 diff --git a/drivers/clk/Makefile b/drivers/clk/Makefile
-index 61ec08404442..4e87924dd983 100644
+index f7bce3951a30..ab5205654c48 100644
 --- a/drivers/clk/Makefile
 +++ b/drivers/clk/Makefile
-@@ -121,6 +121,7 @@ obj-$(CONFIG_CLK_BAIKAL_T1)		+= baikal-t1/
+@@ -120,6 +120,7 @@ obj-$(CONFIG_CLK_BAIKAL_T1)		+= baikal-t1/
  obj-y					+= bcm/
  obj-$(CONFIG_ARCH_BERLIN)		+= berlin/
  obj-$(CONFIG_ARCH_DAVINCI)		+= davinci/
@@ -90,10 +152,10 @@ index 000000000000..4a7c2af82164
 +obj-$(CONFIG_COMMON_CLK_EIC7700)	+= clk-eic7700.o
 diff --git a/drivers/clk/eswin/clk-eic7700.c b/drivers/clk/eswin/clk-eic7700.c
 new file mode 100644
-index 000000000000..f77751a8711e
+index 000000000000..fd0fd5f078a6
 --- /dev/null
 +++ b/drivers/clk/eswin/clk-eic7700.c
-@@ -0,0 +1,1337 @@
+@@ -0,0 +1,1357 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright 2026, Beijing ESWIN Computing Technology Co., Ltd..
@@ -222,7 +284,7 @@ index 000000000000..f77751a8711e
 +#define EIC7700_REG_OFFSET_I2C0			0x210
 +#define EIC7700_REG_OFFSET_I2C1			0x214
 +
-+#define EIC7700_NR_CLKS		(EIC7700_CLK_GATE_NOC_WDREF + 1)
++#define EIC7700_NR_CLKS				(EIC7700_CLK_GATE_NOC_WDREF + 1)
 +
 +/*
 + * The 24 MHz oscillator, the root of most of the clock tree.
@@ -268,15 +330,14 @@ index 000000000000..f77751a8711e
 +/* pll clocks */
 +static struct eswin_pll_clock eic7700_pll_clks[] = {
 +	ESWIN_PLL(EIC7700_CLK_APLL_FOUT1, "clk_apll_fout1", xtal24M,
-+		  EIC7700_REG_OFFSET_APLL_CFG_0, 0, 1, 12, 6, 20, 12,
-+		  EIC7700_REG_OFFSET_APLL_CFG_1, 4, 24,
-+		  EIC7700_REG_OFFSET_APLL_CFG_2, 1, 3, 16, 3,
-+		  EIC7700_REG_OFFSET_PLL_STATUS, 4, 1, APLL_HIGH_FREQ,
-+		  APLL_LOW_FREQ),
++		  EIC7700_REG_OFFSET_APLL_CFG_0, 20,
++		  EIC7700_REG_OFFSET_APLL_CFG_1, 4,
++		  EIC7700_REG_OFFSET_APLL_CFG_2, EIC7700_REG_OFFSET_PLL_STATUS,
++		  4, 1, APLL_HIGH_FREQ, APLL_LOW_FREQ),
 +	ESWIN_PLL(EIC7700_CLK_PLL_CPU, "clk_pll_cpu", xtal24M,
-+		  EIC7700_REG_OFFSET_MCPUT_PLL_CFG_0, 0, 1, 12, 6, 20, 12,
-+		  EIC7700_REG_OFFSET_MCPUT_PLL_CFG_1, 4, 24,
-+		  EIC7700_REG_OFFSET_MCPUT_PLL_CFG_2, 1, 3, 16, 3,
++		  EIC7700_REG_OFFSET_MCPUT_PLL_CFG_0, 20,
++		  EIC7700_REG_OFFSET_MCPUT_PLL_CFG_1, 4,
++		  EIC7700_REG_OFFSET_MCPUT_PLL_CFG_2,
 +		  EIC7700_REG_OFFSET_PLL_STATUS, 5, 1, PLL_HIGH_FREQ,
 +		  PLL_LOW_FREQ),
 +};
@@ -506,119 +567,140 @@ index 000000000000..f77751a8711e
 +	ESWIN_MUX(EIC7700_CLK_MUX_CPU_ROOT_3MUX1_GFREE,
 +		  "mux_cpu_root_3mux1_gfree", mux_cpu_root_3mux1_gfree_p,
 +		  ARRAY_SIZE(mux_cpu_root_3mux1_gfree_p),
-+		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_U84, 0, 2, 0),
++		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_U84, 0, 2,
++		  CLK_MUX_ROUND_CLOSEST),
 +	ESWIN_MUX(EIC7700_CLK_MUX_RMII_REF_2MUX, "mux_rmii_ref_2mux1",
 +		  mux_rmii_ref_2mux1_p, ARRAY_SIZE(mux_rmii_ref_2mux1_p),
-+		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_ETH0, 2, 1, 0),
++		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_ETH0, 2, 1,
++		  CLK_MUX_ROUND_CLOSEST),
 +	ESWIN_MUX(EIC7700_CLK_MUX_DSP_ACLK_ROOT_2MUX1_GFREE,
 +		  "mux_dsp_aclk_root_2mux1_gfree",
 +		  dsp_aclk_root_2mux1_gfree_mux_p,
 +		  ARRAY_SIZE(dsp_aclk_root_2mux1_gfree_mux_p),
-+		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_DSP_ACLK, 0, 1, 0),
++		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_DSP_ACLK, 0, 1,
++		  CLK_MUX_ROUND_CLOSEST),
 +	ESWIN_MUX(EIC7700_CLK_MUX_D2D_ACLK_ROOT_2MUX1_GFREE,
 +		  "mux_d2d_aclk_root_2mux1_gfree",
 +		  d2d_aclk_root_2mux1_gfree_mux_p,
 +		  ARRAY_SIZE(d2d_aclk_root_2mux1_gfree_mux_p),
-+		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_D2D_ACLK, 0, 1, 0),
++		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_D2D_ACLK, 0, 1,
++		  CLK_MUX_ROUND_CLOSEST),
 +	ESWIN_MUX(EIC7700_CLK_MUX_DDR_ACLK_ROOT_2MUX1_GFREE,
 +		  "mux_ddr_aclk_root_2mux1_gfree",
 +		  ddr_aclk_root_2mux1_gfree_mux_p,
 +		  ARRAY_SIZE(ddr_aclk_root_2mux1_gfree_mux_p),
-+		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_DDR, 16, 1, 0),
++		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_DDR, 16, 1,
++		  CLK_MUX_ROUND_CLOSEST),
 +	ESWIN_MUX(EIC7700_CLK_MUX_MSHCORE_ROOT_3MUX1_0,
 +		  "mux_mshcore_root_3mux1_0", mshcore_root_3mux1_0_mux_p,
 +		  ARRAY_SIZE(mshcore_root_3mux1_0_mux_p), CLK_SET_RATE_PARENT,
-+		  EIC7700_REG_OFFSET_MSHC0_CORE, 0, 1, 0),
++		  EIC7700_REG_OFFSET_MSHC0_CORE, 0, 1, CLK_MUX_ROUND_CLOSEST),
 +	ESWIN_MUX(EIC7700_CLK_MUX_MSHCORE_ROOT_3MUX1_1,
 +		  "mux_mshcore_root_3mux1_1", mshcore_root_3mux1_1_mux_p,
 +		  ARRAY_SIZE(mshcore_root_3mux1_1_mux_p), CLK_SET_RATE_PARENT,
-+		  EIC7700_REG_OFFSET_MSHC1_CORE, 0, 1, 0),
++		  EIC7700_REG_OFFSET_MSHC1_CORE, 0, 1, CLK_MUX_ROUND_CLOSEST),
 +	ESWIN_MUX(EIC7700_CLK_MUX_MSHCORE_ROOT_3MUX1_2,
 +		  "mux_mshcore_root_3mux1_2", mshcore_root_3mux1_2_mux_p,
 +		  ARRAY_SIZE(mshcore_root_3mux1_2_mux_p), CLK_SET_RATE_PARENT,
-+		  EIC7700_REG_OFFSET_MSHC2_CORE, 0, 1, 0),
++		  EIC7700_REG_OFFSET_MSHC2_CORE, 0, 1, CLK_MUX_ROUND_CLOSEST),
 +	ESWIN_MUX(EIC7700_CLK_MUX_NPU_LLCLK_3MUX1_GFREE,
 +		  "mux_npu_llclk_3mux1_gfree", npu_llclk_3mux1_gfree_mux_p,
 +		  ARRAY_SIZE(npu_llclk_3mux1_gfree_mux_p),
-+		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_NPU_LLC, 0, 2, 0),
++		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_NPU_LLC, 0, 2,
++		  CLK_MUX_ROUND_CLOSEST),
 +	ESWIN_MUX(EIC7700_CLK_MUX_NPU_CORE_3MUX1_GFREE,
 +		  "mux_npu_core_3mux1_gfree", npu_core_3mux1_gfree_mux_p,
 +		  ARRAY_SIZE(npu_core_3mux1_gfree_mux_p), CLK_SET_RATE_PARENT,
-+		  EIC7700_REG_OFFSET_NPU_CORE, 0, 2, 0),
++		  EIC7700_REG_OFFSET_NPU_CORE, 0, 2, CLK_MUX_ROUND_CLOSEST),
 +	ESWIN_MUX(EIC7700_CLK_MUX_NPU_E31_3MUX1_GFREE,
 +		  "mux_npu_e31_3mux1_gfree", npu_e31_3mux1_gfree_mux_p,
 +		  ARRAY_SIZE(npu_e31_3mux1_gfree_mux_p), CLK_SET_RATE_PARENT,
-+		  EIC7700_REG_OFFSET_NPU_CORE, 8, 2, 0),
++		  EIC7700_REG_OFFSET_NPU_CORE, 8, 2, CLK_MUX_ROUND_CLOSEST),
 +	ESWIN_MUX(EIC7700_CLK_MUX_VI_ACLK_ROOT_2MUX1_GFREE,
 +		  "mux_vi_aclk_root_2mux1_gfree",
 +		  vi_aclk_root_2mux1_gfree_mux_p,
 +		  ARRAY_SIZE(vi_aclk_root_2mux1_gfree_mux_p),
-+		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_VI_ACLK, 0, 1, 0),
++		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_VI_ACLK, 0, 1,
++		  CLK_MUX_ROUND_CLOSEST),
 +	ESWIN_MUX(EIC7700_CLK_MUX_VI_DW_ROOT_2MUX1, "mux_vi_dw_root_2mux1",
 +		  mux_vi_dw_root_2mux1_p, ARRAY_SIZE(mux_vi_dw_root_2mux1_p),
-+		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_VI_DWCLK, 0, 1, 0),
++		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_VI_DWCLK, 0, 1,
++		  CLK_MUX_ROUND_CLOSEST),
 +	ESWIN_MUX(EIC7700_CLK_MUX_VI_DVP_ROOT_2MUX1_GFREE,
 +		  "mux_vi_dvp_root_2mux1_gfree",
 +		  mux_vi_dvp_root_2mux1_gfree_p,
 +		  ARRAY_SIZE(mux_vi_dvp_root_2mux1_gfree_p),
-+		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_VI_DVP, 0, 1, 0),
++		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_VI_DVP, 0, 1,
++		  CLK_MUX_ROUND_CLOSEST),
 +	ESWIN_MUX(EIC7700_CLK_MUX_VI_DIG_ISP_ROOT_2MUX1_GFREE,
 +		  "mux_vi_dig_isp_root_2mux1_gfree",
 +		  mux_vi_dig_isp_root_2mux1_gfree_p,
 +		  ARRAY_SIZE(mux_vi_dig_isp_root_2mux1_gfree_p),
-+		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_VI_DIG_ISP, 0, 1, 0),
++		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_VI_DIG_ISP, 0, 1,
++		  CLK_MUX_ROUND_CLOSEST),
 +	ESWIN_MUX(EIC7700_CLK_MUX_VO_ACLK_ROOT_2MUX1_GFREE,
 +		  "mux_vo_aclk_root_2mux1_gfree",
 +		  mux_vo_aclk_root_2mux1_gfree_p,
 +		  ARRAY_SIZE(mux_vo_aclk_root_2mux1_gfree_p),
-+		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_VO_ACLK, 0, 1, 0),
++		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_VO_ACLK, 0, 1,
++		  CLK_MUX_ROUND_CLOSEST),
 +	ESWIN_MUX(EIC7700_CLK_MUX_VO_PIXEL_ROOT_2MUX1,
 +		  "mux_vo_pixel_root_2mux1", mux_vo_pixel_root_2mux1_p,
 +		  ARRAY_SIZE(mux_vo_pixel_root_2mux1_p), CLK_SET_RATE_PARENT,
-+		  EIC7700_REG_OFFSET_VO_PIXEL, 0, 1, 0),
++		  EIC7700_REG_OFFSET_VO_PIXEL, 0, 1, CLK_MUX_ROUND_CLOSEST),
 +	ESWIN_MUX(EIC7700_CLK_MUX_VCDEC_ROOT_2MUX1_GFREE,
 +		  "mux_vcdec_root_2mux1_gfree", mux_vcdec_root_2mux1_gfree_p,
 +		  ARRAY_SIZE(mux_vcdec_root_2mux1_gfree_p),
-+		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_VCDEC_ROOT, 0, 1, 0),
++		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_VCDEC_ROOT, 0, 1,
++		  CLK_MUX_ROUND_CLOSEST),
 +	ESWIN_MUX(EIC7700_CLK_MUX_VCACLK_ROOT_2MUX1_GFREE,
 +		  "mux_vcaclk_root_2mux1_gfree",
 +		  mux_vcaclk_root_2mux1_gfree_p,
 +		  ARRAY_SIZE(mux_vcaclk_root_2mux1_gfree_p),
-+		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_VC_ACLK, 0, 1, 0),
++		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_VC_ACLK, 0, 1,
++		  CLK_MUX_ROUND_CLOSEST),
 +	ESWIN_MUX(EIC7700_CLK_MUX_SYSCFG_CLK_ROOT_2MUX1_GFREE,
 +		  "mux_syscfg_clk_root_2mux1_gfree",
 +		  mux_syscfg_clk_root_2mux1_gfree_p,
 +		  ARRAY_SIZE(mux_syscfg_clk_root_2mux1_gfree_p),
-+		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_SYSCFG, 0, 1, 0),
++		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_SYSCFG, 0, 1,
++		  CLK_MUX_ROUND_CLOSEST),
 +	ESWIN_MUX(EIC7700_CLK_MUX_BOOTSPI_CLK_2MUX1_GFREE,
 +		  "mux_bootspi_clk_2mux1_gfree",
 +		  mux_bootspi_clk_2mux1_gfree_p,
 +		  ARRAY_SIZE(mux_bootspi_clk_2mux1_gfree_p),
-+		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_BOOTSPI, 0, 1, 0),
++		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_BOOTSPI, 0, 1,
++		  CLK_MUX_ROUND_CLOSEST),
 +	ESWIN_MUX(EIC7700_CLK_MUX_SCPU_CORE_CLK_2MUX1_GFREE,
 +		  "mux_scpu_core_clk_2mux1_gfree",
 +		  mux_scpu_core_clk_2mux1_gfree_p,
 +		  ARRAY_SIZE(mux_scpu_core_clk_2mux1_gfree_p),
-+		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_SCPU_CORE, 0, 1, 0),
++		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_SCPU_CORE, 0, 1,
++		  CLK_MUX_ROUND_CLOSEST),
 +	ESWIN_MUX(EIC7700_CLK_MUX_LPCPU_CORE_CLK_2MUX1_GFREE,
 +		  "mux_lpcpu_core_clk_2mux1_gfree",
 +		  mux_lpcpu_core_clk_2mux1_gfree_p,
 +		  ARRAY_SIZE(mux_lpcpu_core_clk_2mux1_gfree_p),
-+		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_LPCPU_CORE, 0, 1, 0),
++		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_LPCPU_CORE, 0, 1,
++		  CLK_MUX_ROUND_CLOSEST),
 +	ESWIN_MUX(EIC7700_CLK_MUX_VO_MCLK_2MUX_EXT_MCLK,
 +		  "mux_vo_mclk_2mux_ext_mclk", mux_vo_mclk_2mux_ext_mclk_p,
 +		  ARRAY_SIZE(mux_vo_mclk_2mux_ext_mclk_p),
-+		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_VO_MCLK, 0, 1, 0),
++		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_VO_MCLK, 0, 1,
++		  CLK_MUX_ROUND_CLOSEST),
 +	ESWIN_MUX(EIC7700_CLK_MUX_AONDMA_AXI2MUX1_GFREE,
 +		  "mux_aondma_axi2mux1_gfree", mux_aondma_axi2mux1_gfree_p,
 +		  ARRAY_SIZE(mux_aondma_axi2mux1_gfree_p),
-+		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_AON_DMA, 0, 1, 0),
++		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_AON_DMA, 0, 1,
++		  CLK_MUX_ROUND_CLOSEST),
 +	ESWIN_MUX(EIC7700_CLK_MUX_ETH_CORE_2MUX1, "mux_eth_core_2mux1",
 +		  mux_eth_core_2mux1_p, ARRAY_SIZE(mux_eth_core_2mux1_p),
-+		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_ETH0, 1, 1, 0),
++		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_ETH0, 1, 1,
++		  CLK_MUX_ROUND_CLOSEST),
 +	ESWIN_MUX(EIC7700_CLK_MUX_SATA_PHY_2MUX1, "mux_sata_phy_2mux1",
 +		  mux_sata_phy_2mux1_p, ARRAY_SIZE(mux_sata_phy_2mux1_p),
-+		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_SATA_OOB, 9, 1, 0),
++		  CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_SATA_OOB, 9, 1,
++		  CLK_MUX_ROUND_CLOSEST),
 +};
 +
 +static const struct clk_parent_data mux_cpu_aclk_2mux1_gfree_p[] = {
@@ -630,8 +712,8 @@ index 000000000000..f77751a8711e
 +	ESWIN_MUX_TYPE(EIC7700_CLK_MUX_CPU_ACLK_2MUX1_GFREE,
 +		       "mux_cpu_aclk_2mux1_gfree", mux_cpu_aclk_2mux1_gfree_p,
 +		       ARRAY_SIZE(mux_cpu_aclk_2mux1_gfree_p),
-+		       CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_U84, 20, 1, 0,
-+		       NULL),
++		       CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_U84, 20, 1,
++		       CLK_MUX_ROUND_CLOSEST, NULL),
 +	ESWIN_GATE_TYPE(EIC7700_CLK_GATE_CPU_TRACE_COM_CLK,
 +			"gate_clk_cpu_trace_com_clk",
 +			EIC7700_CLK_MUX_CPU_ACLK_2MUX1_GFREE,
@@ -1433,10 +1515,10 @@ index 000000000000..f77751a8711e
 +MODULE_DESCRIPTION("ESWIN EIC7700 clock controller driver");
 diff --git a/drivers/clk/eswin/clk.c b/drivers/clk/eswin/clk.c
 new file mode 100644
-index 000000000000..4a748748e989
+index 000000000000..7d9678c00c3d
 --- /dev/null
 +++ b/drivers/clk/eswin/clk.c
-@@ -0,0 +1,579 @@
+@@ -0,0 +1,591 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright 2026, Beijing ESWIN Computing Technology Co., Ltd..
@@ -1447,6 +1529,7 @@ index 000000000000..4a748748e989
 + *	Xuyang Dong <dongxuyang@eswincomputing.com>
 + */
 +
++#include <linux/bitfield.h>
 +#include <linux/clk-provider.h>
 +#include <linux/delay.h>
 +#include <linux/iopoll.h>
@@ -1455,6 +1538,13 @@ index 000000000000..4a748748e989
 +#include <linux/slab.h>
 +
 +#include "common.h"
++
++#define PLL_EN_MASK		GENMASK(1, 0)
++#define PLL_REFDIV_MASK		GENMASK(17, 12)
++#define PLL_FBDIV_MASK		GENMASK(31, 20)
++#define PLL_FRAC_MASK		GENMASK(27, 4)
++#define PLL_POSTDIV1_MASK	GENMASK(10, 8)
++#define PLL_POSTDIV2_MASK	GENMASK(18, 16)
 +
 +struct eswin_clock_data *eswin_clk_init(struct platform_device *pdev,
 +					size_t nr_clks)
@@ -1487,29 +1577,39 @@ index 000000000000..4a748748e989
 + * @frac_val: fractional divider
 + * @fbdiv_val: feedback divider
 + * @rate: reference rate
++ * @parent_rate: parent rate
 + *
 + *   Calculate PLL values for frac and fbdiv
 + */
-+static void eswin_calc_pll(u32 *frac_val, u32 *fbdiv_val, u64 rate)
++static void eswin_calc_pll(u32 *frac_val, u32 *fbdiv_val, unsigned long rate,
++			   unsigned long parent_rate)
 +{
-+	u64 rem = 0;
-+	u32 tmp1 = 0, tmp2 = 0;
++	u32 rem, tmp1 = 0, tmp2 = 0, tmp_p;
++	u64 tmp;
 +
-+	rate = rate * 4;
-+	rem = do_div(rate, 1000);
++	/* fbdiv = rate * 4 / parent_rate */
++	tmp = rate * 4;
++	tmp_p = parent_rate;
++
++	do_div(tmp, tmp_p);
++
++	*fbdiv_val = (u32)tmp;
++
++	/* frac = rate * 4 % parent_rate * (2 ^ 24) */
++	tmp = rate * 4;
++	rem = do_div(tmp, 1000);
 +	if (rem)
 +		tmp1 = rem;
 +
-+	rem = do_div(rate, 1000);
++	rem = do_div(tmp, 1000);
 +	if (rem)
 +		tmp2 = rem;
 +
-+	rem = do_div(rate, 24);
-+	/* fbdiv = rate * 4 / 24000000 */
-+	*fbdiv_val = rate;
-+	/* frac = rate * 4 % 24000000 * (2 ^ 24) */
-+	*frac_val = (u64)((1000 * (1000 * rem + tmp2) + tmp1) << 24) / 24
-+			  / 1000000;
++	rem = do_div(tmp, 24);
++	tmp = (u64)(1000 * (1000 * rem + tmp2) + tmp1) << 24;
++	do_div(tmp, tmp_p);
++
++	*frac_val = (u32)tmp;
 +}
 +
 +static inline struct eswin_clk_pll *to_pll_clk(struct clk_hw *hw)
@@ -1521,38 +1621,43 @@ index 000000000000..4a748748e989
 +			    unsigned long parent_rate)
 +{
 +	struct eswin_clk_pll *clk = to_pll_clk(hw);
-+	u32 frac_val, fbdiv_val, val;
++	u32 frac_val, fbdiv_val, val, mask;
 +	int ret;
 +
-+	eswin_calc_pll(&frac_val, &fbdiv_val, (u64)rate);
++	eswin_calc_pll(&frac_val, &fbdiv_val, rate, parent_rate);
 +
 +	/* First, disable pll */
 +	val = readl_relaxed(clk->ctrl_reg0);
-+	val &= ~(((1 << clk->pllen_width) - 1) << clk->pllen_shift);
-+	val |= 0 << clk->pllen_shift;
++	val &= ~PLL_EN_MASK;
++	val |= FIELD_PREP(PLL_EN_MASK, 0);
 +	writel_relaxed(val, clk->ctrl_reg0);
 +
 +	val = readl_relaxed(clk->ctrl_reg0);
-+	val &= ~(((1 << clk->fbdiv_width) - 1) << clk->fbdiv_shift);
-+	val &= ~(((1 << clk->refdiv_width) - 1) << clk->refdiv_shift);
-+	val |= 1 << clk->refdiv_shift;
-+	val |= fbdiv_val << clk->fbdiv_shift;
++	val &= ~(PLL_REFDIV_MASK | PLL_FBDIV_MASK);
++	val |= FIELD_PREP(PLL_FBDIV_MASK, fbdiv_val);
++	val |= FIELD_PREP(PLL_REFDIV_MASK, 1);
 +	writel_relaxed(val, clk->ctrl_reg0);
 +
 +	val = readl_relaxed(clk->ctrl_reg1);
-+	val &= ~(((1 << clk->frac_width) - 1) << clk->frac_shift);
-+	val |= frac_val << clk->frac_shift;
++	val &= ~PLL_FRAC_MASK;
++	val |= FIELD_PREP(PLL_FRAC_MASK, frac_val);
 +	writel_relaxed(val, clk->ctrl_reg1);
++
++	val = readl_relaxed(clk->ctrl_reg2);
++	val &= ~(PLL_POSTDIV1_MASK | PLL_POSTDIV2_MASK);
++	val |= FIELD_PREP(PLL_POSTDIV1_MASK, 1);
++	val |= FIELD_PREP(PLL_POSTDIV2_MASK, 1);
++	writel_relaxed(val, clk->ctrl_reg2);
 +
 +	/* Last, enable pll */
 +	val = readl_relaxed(clk->ctrl_reg0);
-+	val &= ~(((1 << clk->pllen_width) - 1) << clk->pllen_shift);
-+	val |= 1 << clk->pllen_shift;
++	val &= ~PLL_EN_MASK;
++	val |= FIELD_PREP(PLL_EN_MASK, 1);
 +	writel_relaxed(val, clk->ctrl_reg0);
 +
 +	/* Usually the pll will lock in 50us */
-+	ret = readl_poll_timeout(clk->status_reg, val,
-+				 val & (1 << clk->lock_shift), 1, 50 * 2);
++	mask = GENMASK(clk->lock_shift + clk->lock_width - 1, clk->lock_shift);
++	ret = readl_poll_timeout(clk->status_reg, val, val & mask, 1, 50 * 2);
 +	if (ret)
 +		pr_err("failed to lock the pll!\n");
 +
@@ -1563,29 +1668,28 @@ index 000000000000..4a748748e989
 +					 unsigned long parent_rate)
 +{
 +	struct eswin_clk_pll *clk = to_pll_clk(hw);
-+	u64 fbdiv_val, frac_val, rate, rem, tmp;
-+	u32 val;
++	u64 fbdiv_val, frac_val, tmp;
++	u32 rem, val;
 +
 +	val = readl_relaxed(clk->ctrl_reg0);
-+	val = val >> clk->fbdiv_shift;
-+	val &= ((1 << clk->fbdiv_width) - 1);
-+	fbdiv_val = val;
++	val &= PLL_FBDIV_MASK;
++	fbdiv_val = (val >> clk->fbdiv_shift);
 +
 +	val = readl_relaxed(clk->ctrl_reg1);
-+	val = val >> clk->frac_shift;
-+	val &= ((1 << clk->frac_width) - 1);
-+	frac_val = val;
++	val &= PLL_FRAC_MASK;
++	frac_val = (val >> clk->frac_shift);
 +
 +	/* rate = 24000000 * (fbdiv + frac / (2 ^ 24)) / 4 */
-+	tmp = 1000 * frac_val;
++	tmp = parent_rate * frac_val;
 +	rem = do_div(tmp, BIT(24));
 +	if (rem)
-+		rate = (u64)(6000 * (1000 * fbdiv_val + tmp) +
-+			    ((6000 * rem) >> 24) + 1);
++		tmp = parent_rate * fbdiv_val + tmp + 1;
 +	else
-+		rate = (u64)(6000 * 1000 * fbdiv_val);
++		tmp = parent_rate * fbdiv_val + tmp;
 +
-+	return rate;
++	do_div(tmp, 4);
++
++	return tmp;
 +}
 +
 +static int clk_pll_determine_rate(struct clk_hw *hw,
@@ -1643,22 +1747,12 @@ index 000000000000..4a748748e989
 +	for (i = 0; i < nums; i++) {
 +		p_clk->id = clks[i].id;
 +		p_clk->ctrl_reg0 = data->base + clks[i].ctrl_reg0;
-+		p_clk->pllen_shift = clks[i].pllen_shift;
-+		p_clk->pllen_width = clks[i].pllen_width;
-+		p_clk->refdiv_shift = clks[i].refdiv_shift;
-+		p_clk->refdiv_width = clks[i].refdiv_width;
 +		p_clk->fbdiv_shift = clks[i].fbdiv_shift;
-+		p_clk->fbdiv_width = clks[i].fbdiv_width;
 +
 +		p_clk->ctrl_reg1 = data->base + clks[i].ctrl_reg1;
 +		p_clk->frac_shift = clks[i].frac_shift;
-+		p_clk->frac_width = clks[i].frac_width;
 +
 +		p_clk->ctrl_reg2 = data->base + clks[i].ctrl_reg2;
-+		p_clk->postdiv1_shift = clks[i].postdiv1_shift;
-+		p_clk->postdiv1_width = clks[i].postdiv1_width;
-+		p_clk->postdiv2_shift = clks[i].postdiv2_shift;
-+		p_clk->postdiv2_width = clks[i].postdiv2_width;
 +
 +		p_clk->status_reg = data->base + clks[i].status_reg;
 +		p_clk->lock_shift = clks[i].lock_shift;
@@ -2018,10 +2112,10 @@ index 000000000000..4a748748e989
 +EXPORT_SYMBOL_GPL(eswin_clk_register_clks);
 diff --git a/drivers/clk/eswin/common.h b/drivers/clk/eswin/common.h
 new file mode 100644
-index 000000000000..219429242c41
+index 000000000000..8a19f15a3578
 --- /dev/null
 +++ b/drivers/clk/eswin/common.h
-@@ -0,0 +1,373 @@
+@@ -0,0 +1,341 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright 2026, Beijing ESWIN Computing Technology Co., Ltd..
@@ -2125,22 +2219,12 @@ index 000000000000..219429242c41
 +	const char *name;
 +	const struct clk_parent_data *parent_data;
 +	const u32 ctrl_reg0;
-+	const u8 pllen_shift;
-+	const u8 pllen_width;
-+	const u8 refdiv_shift;
-+	const u8 refdiv_width;
 +	const u8 fbdiv_shift;
-+	const u8 fbdiv_width;
 +
 +	const u32 ctrl_reg1;
 +	const u8 frac_shift;
-+	const u8 frac_width;
 +
 +	const u32 ctrl_reg2;
-+	const u8 postdiv1_shift;
-+	const u8 postdiv1_width;
-+	const u8 postdiv2_shift;
-+	const u8 postdiv2_width;
 +
 +	const u32 status_reg;
 +	const u8 lock_shift;
@@ -2154,22 +2238,12 @@ index 000000000000..219429242c41
 +	struct clk_hw hw;
 +	u32 id;
 +	void __iomem *ctrl_reg0;
-+	u8 pllen_shift;
-+	u8 pllen_width;
-+	u8 refdiv_shift;
-+	u8 refdiv_width;
 +	u8 fbdiv_shift;
-+	u8 fbdiv_width;
 +
 +	void __iomem *ctrl_reg1;
 +	u8 frac_shift;
-+	u8 frac_width;
 +
 +	void __iomem *ctrl_reg2;
-+	u8 postdiv1_shift;
-+	u8 postdiv1_width;
-+	u8 postdiv2_shift;
-+	u8 postdiv2_width;
 +
 +	void __iomem *status_reg;
 +	u8 lock_shift;
@@ -2363,30 +2437,18 @@ index 000000000000..219429242c41
 +		},							\
 +	}
 +
-+#define ESWIN_PLL(_id, _name, _pdata, _reg0, _en_shift, _en_width,	\
-+		  _ref_shift, _ref_width, _fb_shift, _fb_width, _reg1,	\
-+		  _frac_shift, _frac_width, _reg2, _post1_shift,	\
-+		  _post1_width, _post2_shift, _post2_width, _reg,	\
-+		  _lock_shift, _lock_width, _max_rate, _min_rate)	\
++#define ESWIN_PLL(_id, _name, _pdata, _reg0, _fb_shift, _reg1,		\
++		  _frac_shift, _reg2, _reg, _lock_shift, _lock_width,	\
++		  _max_rate, _min_rate)					\
 +	{								\
 +		.id		= _id,					\
 +		.name		= _name,				\
 +		.parent_data	= _pdata,				\
 +		.ctrl_reg0	= _reg0,				\
-+		.pllen_shift	= _en_shift,				\
-+		.pllen_width	= _en_width,				\
-+		.refdiv_shift	= _ref_shift,				\
-+		.refdiv_width	= _ref_width,				\
 +		.fbdiv_shift	= _fb_shift,				\
-+		.fbdiv_width	= _fb_width,				\
 +		.ctrl_reg1	= _reg1,				\
 +		.frac_shift	= _frac_shift,				\
-+		.frac_width	= _frac_width,				\
 +		.ctrl_reg2	= _reg2,				\
-+		.postdiv1_shift	= _post1_shift,				\
-+		.postdiv1_width	= _post1_width,				\
-+		.postdiv2_shift	= _post2_shift,				\
-+		.postdiv2_width	= _post2_width,				\
 +		.status_reg	= _reg,					\
 +		.lock_shift	= _lock_shift,				\
 +		.lock_width	= _lock_width,				\
@@ -2396,5 +2458,6 @@ index 000000000000..219429242c41
 +
 +#endif /* __ESWIN_COMMON_H__ */
 -- 
-2.52.0
+2.43.0
+
 

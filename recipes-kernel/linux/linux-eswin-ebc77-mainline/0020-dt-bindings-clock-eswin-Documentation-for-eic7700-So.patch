@@ -1,11 +1,73 @@
-From ae88fee48135ad12b6971e9081277a9514f184e4 Mon Sep 17 00:00:00 2001
-Message-ID: <ae88fee48135ad12b6971e9081277a9514f184e4.1770719310.git.marcel@ziswiler.com>
-In-Reply-To: <108f2ba1aa5f0eef4d20b582a1906bb8ab1fa0a8.1770719310.git.marcel@ziswiler.com>
-References: <108f2ba1aa5f0eef4d20b582a1906bb8ab1fa0a8.1770719310.git.marcel@ziswiler.com>
+From mboxrd@z Thu Jan  1 00:00:00 1970
+Received: from azure-sdnproxy.icoremail.net (azure-sdnproxy.icoremail.net [207.46.229.174])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id C1AD118D658;
+	Sat, 14 Feb 2026 10:15:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=207.46.229.174
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1771064131; cv=none; b=pH1BcfTLS9uy6auzULYRtI2qRL837y1auKuTPif08EunnJfpme4w1s66FH0y16yuUwbRmkkBH5YiimkUNh/JNvCp538BFRmPIM77waGNdTncWm8TNC6r/ryV2Jo6Fqd6slGtXYCohNhafAbTBbhH7cLCeVHFlvFKKgIsc2VAMEg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1771064131; c=relaxed/simple;
+	bh=cZ/TLw6B+iF05yrvNvACsw+9TBCsnqSykFwzE7jp2WY=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=ipVjCMf1dG7BB7fF9WVBaSxOIgBAstS0jHA9LTx/JvNw95vclRlC9mOUTs/MdGPl29TCmg0238L+FJWkfnTZulYF5Unnde8iYnCtRj3QQO5knnh4whSz2lfeNg5CJnSL8rWdYwo1fc8lzXjS/Xm4457DEOshe8MsD010K3ye01M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=eswincomputing.com; spf=pass smtp.mailfrom=eswincomputing.com; arc=none smtp.client-ip=207.46.229.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=eswincomputing.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=eswincomputing.com
+Received: from E0005152DT.eswin.cn (unknown [10.12.96.41])
+	by app2 (Coremail) with SMTP id TQJkCgD3DaEoS5Bp65IAAA--.4038S2;
+	Sat, 14 Feb 2026 18:15:06 +0800 (CST)
+From: dongxuyang@eswincomputing.com
+To: mturquette@baylibre.com,
+	sboyd@kernel.org,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	linux-clk@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	troy.mitchell@linux.dev,
+	bmasney@redhat.com
+Cc: ningyu@eswincomputing.com,
+	linmin@eswincomputing.com,
+	huangyifeng@eswincomputing.com,
+	pinkesh.vaghela@einfochips.com,
+	ganboing@gmail.com,
+	marcel@ziswiler.com,
+	Xuyang Dong <dongxuyang@eswincomputing.com>,
+	Conor Dooley <conor.dooley@microchip.com>
+Subject: [PATCH v13 1/3] dt-bindings: clock: eswin: Documentation for eic7700 SoC
+Date: Sat, 14 Feb 2026 18:15:03 +0800
+Message-Id: <20260214101503.286-1-dongxuyang@eswincomputing.com>
+X-Mailer: git-send-email 2.31.1.windows.1
+In-Reply-To: <20260214101421.228-1-dongxuyang@eswincomputing.com>
+References: <20260214101421.228-1-dongxuyang@eswincomputing.com>
+Precedence: bulk
+X-Mailing-List: devicetree@vger.kernel.org
+List-Id: <devicetree.vger.kernel.org>
+List-Subscribe: <mailto:devicetree+subscribe@vger.kernel.org>
+List-Unsubscribe: <mailto:devicetree+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:TQJkCgD3DaEoS5Bp65IAAA--.4038S2
+X-Coremail-Antispam: 1UD129KBjvAXoW3ZF4UuF45ur18Zr13Xw15XFb_yoW8Wr4fWo
+	W8C3Zxu3yUKw1IvrsxGw1xX3yYkr47Jr1DXF13Xa4fKF1xJrnFkry8Jr40934ftryj9r90
+	kwsrKwn7ZrWY9FW7n29KB7ZKAUJUUUU8529EdanIXcx71UUUUU7v73VFW2AGmfu7bjvjm3
+	AaLaJ3UjIYCTnIWjp_UUUYu7AC8VAFwI0_Xr0_Wr1l1xkIjI8I6I8E6xAIw20EY4v20xva
+	j40_Wr0E3s1l1IIY67AEw4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2
+	x7M28EF7xvwVC0I7IYx2IY67AKxVWUJVWUCwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVW8
+	JVWxJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oV
+	Cq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0
+	I7IYx2IY67AKxVWUGVWUXwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r
+	4UM4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02628v
+	n2kIc2xKxwAKzVCY07xG64k0F24lc7CjxVAaw2AFwI0_GFv_Wrylc2xSY4AK6svPMxAIw2
+	8IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4l
+	x2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVW8ZVWrXwCIc40Y0x0EwIxGrw
+	CI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI
+	42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z2
+	80aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7sRRhL05UUUUU==
+X-CM-SenderInfo: pgrqw5xx1d0w46hv4xpqfrz1xxwl0woofrz/
+
 From: Xuyang Dong <dongxuyang@eswincomputing.com>
-Date: Tue, 10 Feb 2026 17:50:46 +0800
-Subject: [PATCH 20/24] dt-bindings: clock: eswin: Documentation for eic7700
- SoC
 
 Add device tree binding documentation for the ESWIN eic7700
 clock controller module.
@@ -16,7 +78,7 @@ Acked-by: Troy Mitchell <troy.mitchell@linux.dev>
 Tested-by: Marcel Ziswiler <marcel@ziswiler.com> # ebc77
 Signed-off-by: Xuyang Dong <dongxuyang@eswincomputing.com>
 
-Upstream-Status: Submitted [https://lore.kernel.org/all/20260210095046.784-1-dongxuyang@eswincomputing.com]
+Upstream-Status: Submitted [https://lore.kernel.org/all/20260214101503.286-1-dongxuyang@eswincomputing.com]
 ---
  .../bindings/clock/eswin,eic7700-clock.yaml   |  46 +++
  .../dt-bindings/clock/eswin,eic7700-clock.h   | 285 ++++++++++++++++++
@@ -368,5 +430,6 @@ index 000000000000..d7ef697d0f7a
 +
 +#endif /* _DT_BINDINGS_ESWIN_EIC7700_CLOCK_H_ */
 -- 
-2.52.0
+2.43.0
+
 

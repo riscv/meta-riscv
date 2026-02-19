@@ -1,26 +1,88 @@
-From 5190b57c78d6f0d765aa72723f78f5c32f178006 Mon Sep 17 00:00:00 2001
-Message-ID: <5190b57c78d6f0d765aa72723f78f5c32f178006.1770719310.git.marcel@ziswiler.com>
-In-Reply-To: <108f2ba1aa5f0eef4d20b582a1906bb8ab1fa0a8.1770719310.git.marcel@ziswiler.com>
-References: <108f2ba1aa5f0eef4d20b582a1906bb8ab1fa0a8.1770719310.git.marcel@ziswiler.com>
+From mboxrd@z Thu Jan  1 00:00:00 1970
+Received: from zg8tmja2lje4os4yms4ymjma.icoremail.net (zg8tmja2lje4os4yms4ymjma.icoremail.net [206.189.21.223])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id D763122FE0E;
+	Sat, 14 Feb 2026 10:15:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=206.189.21.223
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1771064150; cv=none; b=CsQClMvw3mDbs31FFkkJpLJPVI0sJJLbmiIMI2ndTsVO6bxX1ABku/Vg7NIzNvpdbJ1Y2XZZ4E+JQMUyDeLwTQN8rTM53EUx+iILHA0ybMynTku6FiqOnwK1quSdvSXBb60gN5SQlsZ3rPS+ZB7Cq9bFQ4UciKP7ydYjA6BbGS4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1771064150; c=relaxed/simple;
+	bh=Q/16NY4yRYKEDK7d1huvvnM6BbBwg4AN3thZcEmlbgk=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=RxuCQ9jJohFzqGs/Q/DGksI82Mnz8Y0Sr4HTwGvmUhFX7jk29mlV8n0hb44bvPi/Xhykbc8JPkN4uK0+IabOEFzP2QnMkU1WoeOROiLl/2YZtuiyzTPZAfZC4w0GeV7R6I6vmVqJdBZUOnRbOp1fARrVq+ilU3RM1J2jkYLaa3Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=eswincomputing.com; spf=pass smtp.mailfrom=eswincomputing.com; arc=none smtp.client-ip=206.189.21.223
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=eswincomputing.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=eswincomputing.com
+Received: from E0005152DT.eswin.cn (unknown [10.12.96.41])
+	by app2 (Coremail) with SMTP id TQJkCgAXLqFJS5Bp8JIAAA--.4131S2;
+	Sat, 14 Feb 2026 18:15:39 +0800 (CST)
+From: dongxuyang@eswincomputing.com
+To: mturquette@baylibre.com,
+	sboyd@kernel.org,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	linux-clk@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	troy.mitchell@linux.dev,
+	bmasney@redhat.com
+Cc: ningyu@eswincomputing.com,
+	linmin@eswincomputing.com,
+	huangyifeng@eswincomputing.com,
+	pinkesh.vaghela@einfochips.com,
+	ganboing@gmail.com,
+	marcel@ziswiler.com,
+	Xuyang Dong <dongxuyang@eswincomputing.com>
+Subject: [PATCH v13 3/3] MAINTAINERS: Add entry for ESWIN EIC7700 clock driver
+Date: Sat, 14 Feb 2026 18:15:35 +0800
+Message-Id: <20260214101535.396-1-dongxuyang@eswincomputing.com>
+X-Mailer: git-send-email 2.31.1.windows.1
+In-Reply-To: <20260214101421.228-1-dongxuyang@eswincomputing.com>
+References: <20260214101421.228-1-dongxuyang@eswincomputing.com>
+Precedence: bulk
+X-Mailing-List: devicetree@vger.kernel.org
+List-Id: <devicetree.vger.kernel.org>
+List-Subscribe: <mailto:devicetree+subscribe@vger.kernel.org>
+List-Unsubscribe: <mailto:devicetree+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:TQJkCgAXLqFJS5Bp8JIAAA--.4131S2
+X-Coremail-Antispam: 1UD129KBjvdXoWruF48XFWkKr1DGr1UGry8Zrb_yoWDArc_Gw
+	4rCay7XFyrJF42k3ykZFZayrWYkw4xJr4jg3ZFkw1Yvw1Yyr1DKFWDXwnavw47Gr43WryU
+	uFyrKFZIgrnrXjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+	9fnUUIcSsGvfJTRUUUbhxFF20E14v26ryj6rWUM7CY07I20VC2zVCF04k26cxKx2IYs7xG
+	6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8w
+	A2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_
+	Gr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s
+	0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xII
+	jxv20xvE14v26r1Y6r17McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr
+	1lF7xvr2IYc2Ij64vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7M4IIrI8v6xkF7I0E8cxa
+	n2IY04v7M4kE6xkIj40Ew7xC0wCY1x0262kKe7AKxVW8ZVWrXwCY02Avz4vE-syl42xK82
+	IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC2
+	0s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMI
+	IF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26F4j6r4UJwCI
+	42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z2
+	80aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7sRiBT5PUUUUU==
+X-CM-SenderInfo: pgrqw5xx1d0w46hv4xpqfrz1xxwl0woofrz/
+
 From: Xuyang Dong <dongxuyang@eswincomputing.com>
-Date: Tue, 10 Feb 2026 17:51:22 +0800
-Subject: [PATCH 22/24] MAINTAINERS: Add entry for ESWIN EIC7700 clock driver
 
 Add myself as maintainer of ESWIN EIC7700 clock driver
 
 Tested-by: Marcel Ziswiler <marcel@ziswiler.com> # ebc77
 Signed-off-by: Xuyang Dong <dongxuyang@eswincomputing.com>
 
-Upstream-Status: Submitted [https://lore.kernel.org/all/20260210095122.894-1-dongxuyang@eswincomputing.com]
+Upstream-Status: Submitted [https://lore.kernel.org/all/20260214101535.396-1-dongxuyang@eswincomputing.com]
 ---
  MAINTAINERS | 8 ++++++++
  1 file changed, 8 insertions(+)
 
 diff --git a/MAINTAINERS b/MAINTAINERS
-index e08767323763..5ecd2284c06b 100644
+index faa914a5f34d..c57f1eb29ee9 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -9372,6 +9372,14 @@ T:	git https://github.com/eswincomputing/linux-next.git
+@@ -9500,6 +9500,14 @@ T:	git https://github.com/eswincomputing/linux-next.git
  F:	Documentation/devicetree/bindings/riscv/eswin.yaml
  F:	arch/riscv/boot/dts/eswin/
  
@@ -36,5 +98,6 @@ index e08767323763..5ecd2284c06b 100644
  M:	Mark Einon <mark.einon@gmail.com>
  S:	Odd Fixes
 -- 
-2.52.0
+2.43.0
+
 
