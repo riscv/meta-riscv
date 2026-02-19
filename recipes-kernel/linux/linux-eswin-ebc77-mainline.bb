@@ -7,9 +7,9 @@ inherit kernel
 
 DEPENDS = "u-boot-mkimage-native dtc-native"
 
-BRANCH = "master"
+BRANCH = "linux-6.19.y"
 
-SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git;protocol=https;branch=${BRANCH} \
+SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git;protocol=https;branch=${BRANCH} \
            file://0001-perf-events-replace-READ_ONCE-with-standard-page-tab.patch \
            file://0002-mm-Move-the-fallback-definitions-of-pXXp_get.patch \
            file://0003-mm-Always-use-page-table-accessor-functions.patch \
@@ -38,10 +38,10 @@ SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git;prot
            file://iwd-wifi.cfg \
 "
 
-SRCREV ?= "05f7e89ab9731565d8a62e3b5d1ec206485eeb0b"
+SRCREV ?= "aa95a019990986bee50ff2bcede0185035b2e1e0"
 LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 
-LINUX_VERSION ?= "6.19"
+LINUX_VERSION ?= "6.19.2"
 
 INSANE_SKIP:append = " textrel"
 
