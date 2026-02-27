@@ -1,0 +1,74 @@
+From bd3eece13ad6d382d9a93876525aedcf3debdcf8 Mon Sep 17 00:00:00 2001
+Message-ID: <bd3eece13ad6d382d9a93876525aedcf3debdcf8.1772155703.git.marcel@ziswiler.com>
+In-Reply-To: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
+References: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
+From: Pritesh Patel <pritesh.patel@einfochips.com>
+Date: Tue, 11 Nov 2025 17:25:02 +0530
+Subject: [PATCH 30/36] riscv: Add sata, sata_phy node in dtsi and add sata
+ related configs in defconfig
+
+Signed-off-by: Pritesh Patel <pritesh.patel@einfochips.com>
+
+Upstream-Status: Pending [https://github.com/hehuaneswincomputing/linux-next/commit/820e1ef2916c3b4ac463937afcac0877ed1e0399]
+---
+ .../dts/eswin/eic7700-hifive-premier-p550.dts |  8 +++++++
+ arch/riscv/boot/dts/eswin/eic7700.dtsi        | 21 +++++++++++++++++++
+ 2 files changed, 29 insertions(+)
+
+diff --git a/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts b/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts
+index c3ac8e721ae6..d31d0bf05c5b 100644
+--- a/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts
++++ b/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts
+@@ -199,3 +199,11 @@ &sdhci_emmc {
+ &sdio0 {
+ 	status = "okay";
+ };
++
++&sata {
++	status = "okay";
++};
++
++&sata_phy {
++	status = "okay";
++};
+diff --git a/arch/riscv/boot/dts/eswin/eic7700.dtsi b/arch/riscv/boot/dts/eswin/eic7700.dtsi
+index dd89c2d40d51..928e309c022d 100644
+--- a/arch/riscv/boot/dts/eswin/eic7700.dtsi
++++ b/arch/riscv/boot/dts/eswin/eic7700.dtsi
+@@ -247,6 +247,13 @@ reset: reset-controller@51828300 {
+ 			status = "disable";
+ 		};
+ 
++		sata_phy: sata-phy@50440300 {
++			compatible = "eswin,eic7700-sata-phy";
++			reg = <0x0 0x50440300 0x0 0x40>;
++			#phy-cells = <0>;
++			status = "disabled";
++		};
++
+ 		ccache: cache-controller@2010000 {
+ 			compatible = "eswin,eic7700-l3-cache", "sifive,ccache0", "cache";
+ 			reg = <0x0 0x2010000 0x0 0x4000>;
+@@ -425,5 +432,19 @@ sdio0: mmc@0x50460000{
+ 			eswin,drive-impedance-ohms = <33>;
+ 			status = "disabled";
+ 		};
++		sata: sata@50420000 {
++			compatible = "eswin,eic7700-ahci", "snps,dwc-ahci";
++			reg = <0x0 0x50420000 0x0 0x10000>;
++			interrupt-parent = <&plic>;
++			interrupts = <58>;
++			clocks = <&clk 171>, <&clk 186>;
++			clock-names = "pclk", "aclk";
++			phys = <&sata_phy>;
++			phy-names = "sata-phy";
++			ports-implemented = <0x1>;
++			resets = <&reset 96>;
++			reset-names = "arst";
++			status = "disabled";
++		};
+ 	};
+ };
+-- 
+2.49.0
+

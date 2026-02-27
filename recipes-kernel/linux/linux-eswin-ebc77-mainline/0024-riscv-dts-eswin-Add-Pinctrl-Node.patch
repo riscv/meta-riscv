@@ -1,0 +1,65 @@
+From 1f41a9f98b85987d1ff1c67763c67b8b59edb453 Mon Sep 17 00:00:00 2001
+Message-ID: <1f41a9f98b85987d1ff1c67763c67b8b59edb453.1772155703.git.marcel@ziswiler.com>
+In-Reply-To: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
+References: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
+From: Pritesh Patel <pritesh.patel@einfochips.com>
+Date: Tue, 4 Nov 2025 14:40:11 +0530
+Subject: [PATCH 24/36] riscv: dts: eswin: Add Pinctrl Node
+
+Signed-off-by: Pritesh Patel <pritesh.patel@einfochips.com>
+
+Upstream-Status: Pending [https://github.com/hehuaneswincomputing/linux-next/commit/81129382b2f81be9698c22b5e448b0c3605c6a26]
+---
+ .../boot/dts/eswin/eic7700-hifive-premier-p550.dts | 14 ++++++++++++++
+ arch/riscv/boot/dts/eswin/eic7700.dtsi             |  7 +++++++
+ 2 files changed, 21 insertions(+)
+
+diff --git a/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts b/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts
+index 131ed1fc6b2e..ba4a417c98bd 100644
+--- a/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts
++++ b/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts
+@@ -18,6 +18,16 @@ aliases {
+ 	chosen {
+ 		stdout-path = "serial0:115200n8";
+ 	};
++
++	vcc_1v8: vcc1v8 {
++		compatible = "regulator-fixed";
++		regulator-name = "vcc1v8";
++		regulator-always-on;
++		regulator-boot-on;
++		regulator-min-microvolt = <1800000>;
++		regulator-max-microvolt = <1800000>;
++	};
++
+ };
+ 
+ &uart0 {
+@@ -27,3 +37,7 @@ &uart0 {
+ &uart2 {
+ 	status = "okay";
+ };
++
++&pinctrl {
++	status = "okay";
++};
+diff --git a/arch/riscv/boot/dts/eswin/eic7700.dtsi b/arch/riscv/boot/dts/eswin/eic7700.dtsi
+index d566bca4e09e..43456ccd2057 100644
+--- a/arch/riscv/boot/dts/eswin/eic7700.dtsi
++++ b/arch/riscv/boot/dts/eswin/eic7700.dtsi
+@@ -346,5 +346,12 @@ gpioD: gpio-port@3 {
+ 				#gpio-cells = <2>;
+ 			};
+ 		};
++
++		pinctrl: pinctrl@51600080 {
++			compatible = "eswin,eic7700-pinctrl";
++			reg = <0x0 0x51600080 0x0 0x1fff80>;
++			vrgmii-supply = <&vcc_1v8>;
++			status = "disabled";
++		};
+ 	};
+ };
+-- 
+2.49.0
+

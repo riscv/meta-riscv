@@ -1,0 +1,44 @@
+From e2b5311de7e9c1755d53f11b8ef5f40fe5abc2d1 Mon Sep 17 00:00:00 2001
+Message-ID: <e2b5311de7e9c1755d53f11b8ef5f40fe5abc2d1.1772155703.git.marcel@ziswiler.com>
+In-Reply-To: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
+References: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
+From: Huan He <hehuan1@eswincomputing.com>
+Date: Tue, 24 Feb 2026 15:54:54 +0800
+Subject: [PATCH 35/36] dts: add mmc axi clk
+
+Signed-off-by: Huan He <hehuan1@eswincomputing.com>
+
+Upstream-Status: Pending [https://github.com/hehuaneswincomputing/linux-next/commit/618d334377ea95188b2f87cf068abb9900cb6cf7]
+---
+ arch/riscv/boot/dts/eswin/eic7700.dtsi | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/arch/riscv/boot/dts/eswin/eic7700.dtsi b/arch/riscv/boot/dts/eswin/eic7700.dtsi
+index f7796ab44ba9..decc32a6290a 100644
+--- a/arch/riscv/boot/dts/eswin/eic7700.dtsi
++++ b/arch/riscv/boot/dts/eswin/eic7700.dtsi
+@@ -463,8 +463,8 @@ phy0: ethernet-phy@0 {
+ 		sdhci_emmc: mmc@50450000 {
+ 			compatible = "eswin,eic7700-dwcmshc";
+ 			reg = <0x0 0x50450000 0x0 0x10000>;
+-			clocks = <&clk 190>, <&clk 171>;
+-			clock-names = "core", "bus";
++			clocks = <&clk 190>, <&clk 171>, <&clk 186>;
++			clock-names = "core", "bus", "axi";
+ 			assigned-clocks = <&clk 190>;
+ 			assigned-clock-rates = <200000000>;
+ 			interrupt-parent = <&plic>;
+@@ -491,8 +491,8 @@ sdio0: mmc@0x50460000{
+ 			reg = <0x0 0x50460000 0x0 0x10000>;
+ 			interrupt-parent = <&plic>;
+ 			interrupts = <81>;
+-			clocks =<&clk 191>, <&clk 171>;
+-			clock-names ="core","bus";
++			clocks =<&clk 191>, <&clk 171>, <&clk 186>;
++			clock-names ="core", "bus", "axi";
+ 			resets = <&reset 76>,
+ 				   <&reset 73>,
+ 				   <&reset 87>,
+-- 
+2.49.0
+

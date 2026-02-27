@@ -1,10 +1,10 @@
-From 344cfa81c532d3856fecf77c795d60cafc9c5c5c Mon Sep 17 00:00:00 2001
-Message-ID: <344cfa81c532d3856fecf77c795d60cafc9c5c5c.1769619771.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
-References: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
+From 7f4c15b9d8bcbcec18f74181cf3357d9a0739d97 Mon Sep 17 00:00:00 2001
+Message-ID: <7f4c15b9d8bcbcec18f74181cf3357d9a0739d97.1772155703.git.marcel@ziswiler.com>
+In-Reply-To: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
+References: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:34 -0800
-Subject: [PATCH 18/24] riscv: dts: starfive: jh7100: Use physical memory
+Subject: [PATCH 18/36] riscv: dts: starfive: jh7100: Use physical memory
  ranges for DMA
 
 JH7100 provides a physical memory region which is a noncached alias of
@@ -123,5 +123,5 @@ index 7de0732b8eab..c7d7ec9ed8c9 100644
  	cpus: cpus {
  		#address-cells = <1>;
 -- 
-2.52.0
+2.49.0
 

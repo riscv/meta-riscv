@@ -1,72 +1,10 @@
-From mboxrd@z Thu Jan  1 00:00:00 1970
-Received: from zg8tmja2lje4os4yms4ymjma.icoremail.net (zg8tmja2lje4os4yms4ymjma.icoremail.net [206.189.21.223])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 9EC0B24DCF6;
-	Sat, 14 Feb 2026 10:15:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=206.189.21.223
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771064138; cv=none; b=WHUUA+1eFC05Jj2Wr2ah6I4QI3zOu8D9LTU5WAfW2zzvKHKaJXV2VtKpuaTdoVad8OhKCdKYt5Ovudw67ixThvHpmGm1PiI0Aaa6epkeMFXQOBuZXnr4zXd+iQwt6t4lvSDZ0Pykc6V2104Su7coObwuYMyGAXSq+QcFQWixSoo=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771064138; c=relaxed/simple;
-	bh=HHm0LIMIHBrk9aebbLIiDMJ5HkLkepdABDznvI9eYTA=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=odlDO7FMIkjOSkrnfqKY0JRC3vU3KhCmUzhsLt6fg5ASnuP4U+mFEulDDxeD6nZEPKut5PzHe86KXl3vpwb7mMjTzvwPWdKjH75hwytLUuulA7Co7yRfuoPlVsU0U8Gq6OAvtYUCgptx4N9ZFqorzqLbnuQKf/mzxb1UMVQqebM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=eswincomputing.com; spf=pass smtp.mailfrom=eswincomputing.com; arc=none smtp.client-ip=206.189.21.223
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=eswincomputing.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=eswincomputing.com
-Received: from E0005152DT.eswin.cn (unknown [10.12.96.41])
-	by app2 (Coremail) with SMTP id TQJkCgBHXaA6S5Bp7ZIAAA--.2750S2;
-	Sat, 14 Feb 2026 18:15:23 +0800 (CST)
-From: dongxuyang@eswincomputing.com
-To: mturquette@baylibre.com,
-	sboyd@kernel.org,
-	robh@kernel.org,
-	krzk+dt@kernel.org,
-	conor+dt@kernel.org,
-	linux-clk@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	troy.mitchell@linux.dev,
-	bmasney@redhat.com
-Cc: ningyu@eswincomputing.com,
-	linmin@eswincomputing.com,
-	huangyifeng@eswincomputing.com,
-	pinkesh.vaghela@einfochips.com,
-	ganboing@gmail.com,
-	marcel@ziswiler.com,
-	Xuyang Dong <dongxuyang@eswincomputing.com>
-Subject: [PATCH v13 2/3] clk: eswin: Add eic7700 clock driver
-Date: Sat, 14 Feb 2026 18:15:19 +0800
-Message-Id: <20260214101519.341-1-dongxuyang@eswincomputing.com>
-X-Mailer: git-send-email 2.31.1.windows.1
-In-Reply-To: <20260214101421.228-1-dongxuyang@eswincomputing.com>
-References: <20260214101421.228-1-dongxuyang@eswincomputing.com>
-Precedence: bulk
-X-Mailing-List: devicetree@vger.kernel.org
-List-Id: <devicetree.vger.kernel.org>
-List-Subscribe: <mailto:devicetree+subscribe@vger.kernel.org>
-List-Unsubscribe: <mailto:devicetree+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:TQJkCgBHXaA6S5Bp7ZIAAA--.2750S2
-X-Coremail-Antispam: 1UD129KBjvAXoWkGrWDWFy3Cw4rtw1DGF43GFg_yoWftr1rKo
-	W8CFs3Zry8tw1UurZ8Gr1fJw1Y9a1xAr9FvF1rWwn7CFnrG39rt348AF4Yvr1fJ34j9r95
-	Ar1vkrWfZFZrXay7n29KB7ZKAUJUUUU8529EdanIXcx71UUUUU7v73VFW2AGmfu7bjvjm3
-	AaLaJ3UjIYCTnIWjp_UUUYK7AC8VAFwI0_Xr0_Wr1l1xkIjI8I6I8E6xAIw20EY4v20xva
-	j40_Wr0E3s1l1IIY67AEw4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2
-	x7M28EF7xvwVC0I7IYx2IY67AKxVWUJVWUCwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVWx
-	JVW8Jr1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gc
-	CE3s1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E
-	2Ix0cI8IcVAFwI0_Jrv_JF1lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJV
-	W8JwACjcxG0xvY0x0EwIxGrwACjI8F5VA0II8E6IAqYI8I648v4I1lFIxGxcIEc7CjxVA2
-	Y2ka0xkIwI1lw4CEc2x0rVAKj4xxMxkF7I0En4kS14v26r4a6rW5MxkIecxEwVCm-wCF04
-	k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18
-	MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_GFv_WrylIxkGc2Ij64vIr4
-	1lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1U
-	MIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I
-	8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjTRNSdgDUUUU
-X-CM-SenderInfo: pgrqw5xx1d0w46hv4xpqfrz1xxwl0woofrz/
-
+From aeab20fed77f1ef47cc1f7b3b6b3824583d2ea21 Mon Sep 17 00:00:00 2001
+Message-ID: <aeab20fed77f1ef47cc1f7b3b6b3824583d2ea21.1772155703.git.marcel@ziswiler.com>
+In-Reply-To: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
+References: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
 From: Xuyang Dong <dongxuyang@eswincomputing.com>
+Date: Thu, 26 Feb 2026 17:06:46 +0800
+Subject: [PATCH 22/36] clk: eswin: Add eic7700 clock driver
 
 Add clock drivers for the EIC7700 SoC. The clock controller on the ESWIN
 EIC7700 provides various clocks to different IP blocks within the SoC.
@@ -75,16 +13,16 @@ Signed-off-by: Yifeng Huang <huangyifeng@eswincomputing.com>
 Tested-by: Marcel Ziswiler <marcel@ziswiler.com> # ebc77
 Signed-off-by: Xuyang Dong <dongxuyang@eswincomputing.com>
 
-Upstream-Status: Submitted [https://lore.kernel.org/all/20260214101519.341-1-dongxuyang@eswincomputing.com]
+Upstream-Status: Submitted [https://lore.kernel.org/all/20260226090646.1867-1-dongxuyang@eswincomputing.com]
 ---
  drivers/clk/Kconfig             |    1 +
  drivers/clk/Makefile            |    1 +
  drivers/clk/eswin/Kconfig       |   15 +
  drivers/clk/eswin/Makefile      |    8 +
- drivers/clk/eswin/clk-eic7700.c | 1357 +++++++++++++++++++++++++++++++
- drivers/clk/eswin/clk.c         |  591 ++++++++++++++
- drivers/clk/eswin/common.h      |  341 ++++++++
- 7 files changed, 2314 insertions(+)
+ drivers/clk/eswin/clk-eic7700.c | 1376 +++++++++++++++++++++++++++++++
+ drivers/clk/eswin/clk.c         |  588 +++++++++++++
+ drivers/clk/eswin/common.h      |  340 ++++++++
+ 7 files changed, 2329 insertions(+)
  create mode 100644 drivers/clk/eswin/Kconfig
  create mode 100644 drivers/clk/eswin/Makefile
  create mode 100644 drivers/clk/eswin/clk-eic7700.c
@@ -92,11 +30,11 @@ Upstream-Status: Submitted [https://lore.kernel.org/all/20260214101519.341-1-don
  create mode 100644 drivers/clk/eswin/common.h
 
 diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
-index 3d803b4cf5c1..3b0f82e51523 100644
+index 3a1611008e48..2a9056d41093 100644
 --- a/drivers/clk/Kconfig
 +++ b/drivers/clk/Kconfig
-@@ -504,6 +504,7 @@ source "drivers/clk/analogbits/Kconfig"
- source "drivers/clk/aspeed/Kconfig"
+@@ -515,6 +515,7 @@ source "drivers/clk/actions/Kconfig"
+ source "drivers/clk/analogbits/Kconfig"
  source "drivers/clk/baikal-t1/Kconfig"
  source "drivers/clk/bcm/Kconfig"
 +source "drivers/clk/eswin/Kconfig"
@@ -104,10 +42,10 @@ index 3d803b4cf5c1..3b0f82e51523 100644
  source "drivers/clk/imgtec/Kconfig"
  source "drivers/clk/imx/Kconfig"
 diff --git a/drivers/clk/Makefile b/drivers/clk/Makefile
-index f7bce3951a30..ab5205654c48 100644
+index 61ec08404442..4e87924dd983 100644
 --- a/drivers/clk/Makefile
 +++ b/drivers/clk/Makefile
-@@ -120,6 +120,7 @@ obj-$(CONFIG_CLK_BAIKAL_T1)		+= baikal-t1/
+@@ -121,6 +121,7 @@ obj-$(CONFIG_CLK_BAIKAL_T1)		+= baikal-t1/
  obj-y					+= bcm/
  obj-$(CONFIG_ARCH_BERLIN)		+= berlin/
  obj-$(CONFIG_ARCH_DAVINCI)		+= davinci/
@@ -152,10 +90,10 @@ index 000000000000..4a7c2af82164
 +obj-$(CONFIG_COMMON_CLK_EIC7700)	+= clk-eic7700.o
 diff --git a/drivers/clk/eswin/clk-eic7700.c b/drivers/clk/eswin/clk-eic7700.c
 new file mode 100644
-index 000000000000..fd0fd5f078a6
+index 000000000000..6f091a06fa2d
 --- /dev/null
 +++ b/drivers/clk/eswin/clk-eic7700.c
-@@ -0,0 +1,1357 @@
+@@ -0,0 +1,1376 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright 2026, Beijing ESWIN Computing Technology Co., Ltd..
@@ -391,7 +329,8 @@ index 000000000000..fd0fd5f078a6
 +		       EIC7700_CLK_SPLL2_FOUT1, 0, EIC7700_REG_OFFSET_NPU_LLC,
 +		       8, 4, 0, ESWIN_PRIV_DIV_MIN_2),
 +	ESWIN_GATE_TYPE(EIC7700_CLK_GATE_SPLL0_FOUT2, "gate_clk_spll0_fout2",
-+			EIC7700_CLK_SPLL0_FOUT2, CLK_SET_RATE_PARENT,
++			EIC7700_CLK_SPLL0_FOUT2,
++			CLK_SET_RATE_PARENT | CLK_IGNORE_UNUSED,
 +			EIC7700_REG_OFFSET_SPLL0_CFG_2, 31, 0),
 +	ESWIN_DIV_TYPE(EIC7700_CLK_DIV_BOOTSPI_DYNM, "divider_bootspi_div_dynm",
 +		       EIC7700_CLK_GATE_SPLL0_FOUT2, 0,
@@ -914,19 +853,23 @@ index 000000000000..fd0fd5f078a6
 +	ESWIN_GATE_TYPE(EIC7700_CLK_GATE_CPU_EXT_SRC_CORE_CLK_0,
 +			"gate_clk_cpu_ext_src_core_clk_0",
 +			EIC7700_CLK_MUX_CPU_ROOT_3MUX1_GFREE,
-+			CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_U84, 28, 0),
++			CLK_SET_RATE_PARENT | CLK_IGNORE_UNUSED,
++			EIC7700_REG_OFFSET_U84, 28, 0),
 +	ESWIN_GATE_TYPE(EIC7700_CLK_GATE_CPU_EXT_SRC_CORE_CLK_1,
 +			"gate_clk_cpu_ext_src_core_clk_1",
 +			EIC7700_CLK_MUX_CPU_ROOT_3MUX1_GFREE,
-+			CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_U84, 29, 0),
++			CLK_SET_RATE_PARENT | CLK_IGNORE_UNUSED,
++			EIC7700_REG_OFFSET_U84, 29, 0),
 +	ESWIN_GATE_TYPE(EIC7700_CLK_GATE_CPU_EXT_SRC_CORE_CLK_2,
 +			"gate_clk_cpu_ext_src_core_clk_2",
 +			EIC7700_CLK_MUX_CPU_ROOT_3MUX1_GFREE,
-+			CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_U84, 30, 0),
++			CLK_SET_RATE_PARENT | CLK_IGNORE_UNUSED,
++			EIC7700_REG_OFFSET_U84, 30, 0),
 +	ESWIN_GATE_TYPE(EIC7700_CLK_GATE_CPU_EXT_SRC_CORE_CLK_3,
 +			"gate_clk_cpu_ext_src_core_clk_3",
 +			EIC7700_CLK_MUX_CPU_ROOT_3MUX1_GFREE,
-+			CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_U84, 31, 0),
++			CLK_SET_RATE_PARENT | CLK_IGNORE_UNUSED,
++			EIC7700_REG_OFFSET_U84, 31, 0),
 +	ESWIN_GATE_TYPE(EIC7700_CLK_GATE_CPU_TRACE_CLK_0,
 +			"gate_clk_cpu_trace_clk_0",
 +			EIC7700_CLK_MUX_CPU_ROOT_3MUX1_GFREE,
@@ -994,34 +937,44 @@ index 000000000000..fd0fd5f078a6
 +			EIC7700_CLK_MUX_SYSCFG_CLK_ROOT_2MUX1_GFREE,
 +			CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_DDR, 9, 0),
 +	ESWIN_GATE_TYPE(EIC7700_CLK_GATE_DDRT0_P0_ACLK, "gate_ddrt0_p0_aclk",
-+			EIC7700_CLK_DIV_DDR_ACLK_DYNM, CLK_SET_RATE_PARENT,
++			EIC7700_CLK_DIV_DDR_ACLK_DYNM,
++			CLK_SET_RATE_PARENT | CLK_IGNORE_UNUSED,
 +			EIC7700_REG_OFFSET_DDR, 4, 0),
 +	ESWIN_GATE_TYPE(EIC7700_CLK_GATE_DDRT0_P1_ACLK, "gate_ddrt0_p1_aclk",
-+			EIC7700_CLK_DIV_DDR_ACLK_DYNM, CLK_SET_RATE_PARENT,
++			EIC7700_CLK_DIV_DDR_ACLK_DYNM,
++			CLK_SET_RATE_PARENT | CLK_IGNORE_UNUSED,
 +			EIC7700_REG_OFFSET_DDR, 5, 0),
 +	ESWIN_GATE_TYPE(EIC7700_CLK_GATE_DDRT0_P2_ACLK, "gate_ddrt0_p2_aclk",
-+			EIC7700_CLK_DIV_DDR_ACLK_DYNM, CLK_SET_RATE_PARENT,
++			EIC7700_CLK_DIV_DDR_ACLK_DYNM,
++			CLK_SET_RATE_PARENT | CLK_IGNORE_UNUSED,
 +			EIC7700_REG_OFFSET_DDR, 6, 0),
 +	ESWIN_GATE_TYPE(EIC7700_CLK_GATE_DDRT0_P3_ACLK, "gate_ddrt0_p3_aclk",
-+			EIC7700_CLK_DIV_DDR_ACLK_DYNM, CLK_SET_RATE_PARENT,
++			EIC7700_CLK_DIV_DDR_ACLK_DYNM,
++			CLK_SET_RATE_PARENT | CLK_IGNORE_UNUSED,
 +			EIC7700_REG_OFFSET_DDR, 7, 0),
 +	ESWIN_GATE_TYPE(EIC7700_CLK_GATE_DDRT0_P4_ACLK, "gate_ddrt0_p4_aclk",
-+			EIC7700_CLK_DIV_DDR_ACLK_DYNM, CLK_SET_RATE_PARENT,
++			EIC7700_CLK_DIV_DDR_ACLK_DYNM,
++			CLK_SET_RATE_PARENT | CLK_IGNORE_UNUSED,
 +			EIC7700_REG_OFFSET_DDR, 8, 0),
 +	ESWIN_GATE_TYPE(EIC7700_CLK_GATE_DDRT1_P0_ACLK, "gate_ddrt1_p0_aclk",
-+			EIC7700_CLK_DIV_DDR_ACLK_DYNM, CLK_SET_RATE_PARENT,
++			EIC7700_CLK_DIV_DDR_ACLK_DYNM,
++			CLK_SET_RATE_PARENT | CLK_IGNORE_UNUSED,
 +			EIC7700_REG_OFFSET_DDR1, 4, 0),
 +	ESWIN_GATE_TYPE(EIC7700_CLK_GATE_DDRT1_P1_ACLK, "gate_ddrt1_p1_aclk",
-+			EIC7700_CLK_DIV_DDR_ACLK_DYNM, CLK_SET_RATE_PARENT,
++			EIC7700_CLK_DIV_DDR_ACLK_DYNM,
++			CLK_SET_RATE_PARENT | CLK_IGNORE_UNUSED,
 +			EIC7700_REG_OFFSET_DDR1, 5, 0),
 +	ESWIN_GATE_TYPE(EIC7700_CLK_GATE_DDRT1_P2_ACLK, "gate_ddrt1_p2_aclk",
-+			EIC7700_CLK_DIV_DDR_ACLK_DYNM, CLK_SET_RATE_PARENT,
++			EIC7700_CLK_DIV_DDR_ACLK_DYNM,
++			CLK_SET_RATE_PARENT | CLK_IGNORE_UNUSED,
 +			EIC7700_REG_OFFSET_DDR1, 6, 0),
 +	ESWIN_GATE_TYPE(EIC7700_CLK_GATE_DDRT1_P3_ACLK, "gate_ddrt1_p3_aclk",
-+			EIC7700_CLK_DIV_DDR_ACLK_DYNM, CLK_SET_RATE_PARENT,
++			EIC7700_CLK_DIV_DDR_ACLK_DYNM,
++			CLK_SET_RATE_PARENT | CLK_IGNORE_UNUSED,
 +			EIC7700_REG_OFFSET_DDR1, 7, 0),
 +	ESWIN_GATE_TYPE(EIC7700_CLK_GATE_DDRT1_P4_ACLK, "gate_ddrt1_p4_aclk",
-+			EIC7700_CLK_DIV_DDR_ACLK_DYNM, CLK_SET_RATE_PARENT,
++			EIC7700_CLK_DIV_DDR_ACLK_DYNM,
++			CLK_SET_RATE_PARENT | CLK_IGNORE_UNUSED,
 +			EIC7700_REG_OFFSET_DDR1, 8, 0),
 +	ESWIN_GATE_TYPE(EIC7700_CLK_GATE_HSP_ACLK, "gate_clk_hsp_aclk",
 +			EIC7700_CLK_DIV_HSP_ACLK_DYNM, CLK_SET_RATE_PARENT,
@@ -1291,13 +1244,15 @@ index 000000000000..fd0fd5f078a6
 +			CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_LSP_EN0, 27, 0),
 +	ESWIN_GATE_TYPE(EIC7700_CLK_GATE_LSP_UART0_PCLK, "gate_lsp_uart0_pclk",
 +			EIC7700_CLK_MUX_SYSCFG_CLK_ROOT_2MUX1_GFREE,
-+			CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_LSP_EN0, 17, 0),
++			CLK_SET_RATE_PARENT | CLK_IGNORE_UNUSED,
++			EIC7700_REG_OFFSET_LSP_EN0, 17, 0),
 +	ESWIN_GATE_TYPE(EIC7700_CLK_GATE_LSP_UART1_PCLK, "gate_lsp_uart1_pclk",
 +			EIC7700_CLK_MUX_SYSCFG_CLK_ROOT_2MUX1_GFREE,
 +			CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_LSP_EN0, 18, 0),
 +	ESWIN_GATE_TYPE(EIC7700_CLK_GATE_LSP_UART2_PCLK, "gate_lsp_uart2_pclk",
 +			EIC7700_CLK_MUX_SYSCFG_CLK_ROOT_2MUX1_GFREE,
-+			CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_LSP_EN0, 19, 0),
++			CLK_SET_RATE_PARENT | CLK_IGNORE_UNUSED,
++			EIC7700_REG_OFFSET_LSP_EN0, 19, 0),
 +	ESWIN_GATE_TYPE(EIC7700_CLK_GATE_LSP_UART3_PCLK, "gate_lsp_uart3_pclk",
 +			EIC7700_CLK_MUX_SYSCFG_CLK_ROOT_2MUX1_GFREE,
 +			CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_LSP_EN0, 20, 0),
@@ -1306,7 +1261,8 @@ index 000000000000..fd0fd5f078a6
 +			CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_LSP_EN0, 21, 0),
 +	ESWIN_GATE_TYPE(EIC7700_CLK_GATE_LSP_TIMER_PCLK, "gate_lsp_timer_pclk",
 +			EIC7700_CLK_MUX_SYSCFG_CLK_ROOT_2MUX1_GFREE,
-+			CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_LSP_EN0, 25, 0),
++			CLK_SET_RATE_PARENT | CLK_IGNORE_UNUSED,
++			EIC7700_REG_OFFSET_LSP_EN0, 25, 0),
 +	ESWIN_GATE_TYPE(EIC7700_CLK_GATE_LSP_FAN_PCLK, "gate_lsp_fan_pclk",
 +			EIC7700_CLK_MUX_SYSCFG_CLK_ROOT_2MUX1_GFREE,
 +			CLK_SET_RATE_PARENT, EIC7700_REG_OFFSET_LSP_EN0, 0, 0),
@@ -1426,8 +1382,9 @@ index 000000000000..fd0fd5f078a6
 +	int ret;
 +
 +	clk_data = eswin_clk_init(pdev, EIC7700_NR_CLKS);
-+	if (!clk_data)
-+		return dev_err_probe(dev, -EAGAIN, "failed to get clk data!\n");
++	if (IS_ERR(clk_data))
++		return dev_err_probe(dev, PTR_ERR(clk_data),
++				     "failed to get clk data!\n");
 +
 +	ret = eswin_clk_register_fixed_rate(dev, eic7700_fixed_rate_clks,
 +					    ARRAY_SIZE(eic7700_fixed_rate_clks),
@@ -1515,10 +1472,10 @@ index 000000000000..fd0fd5f078a6
 +MODULE_DESCRIPTION("ESWIN EIC7700 clock controller driver");
 diff --git a/drivers/clk/eswin/clk.c b/drivers/clk/eswin/clk.c
 new file mode 100644
-index 000000000000..7d9678c00c3d
+index 000000000000..3d40d1d7e696
 --- /dev/null
 +++ b/drivers/clk/eswin/clk.c
-@@ -0,0 +1,591 @@
+@@ -0,0 +1,588 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright 2026, Beijing ESWIN Computing Technology Co., Ltd..
@@ -1531,7 +1488,6 @@ index 000000000000..7d9678c00c3d
 +
 +#include <linux/bitfield.h>
 +#include <linux/clk-provider.h>
-+#include <linux/delay.h>
 +#include <linux/iopoll.h>
 +#include <linux/math.h>
 +#include <linux/platform_device.h>
@@ -1555,13 +1511,11 @@ index 000000000000..7d9678c00c3d
 +				 struct_size(eclk_data, clk_data.hws, nr_clks),
 +				 GFP_KERNEL);
 +	if (!eclk_data)
-+		return NULL;
++		return ERR_PTR(-ENOMEM);
 +
 +	eclk_data->base = devm_platform_ioremap_resource(pdev, 0);
-+	if (IS_ERR(eclk_data->base)) {
-+		dev_err(&pdev->dev, "failed to map clock registers\n");
-+		return NULL;
-+	}
++	if (IS_ERR(eclk_data->base))
++		return ERR_PTR(-EINVAL);
 +
 +	eclk_data->clk_data.num = nr_clks;
 +	/* Avoid returning NULL for unused id */
@@ -1579,36 +1533,30 @@ index 000000000000..7d9678c00c3d
 + * @rate: reference rate
 + * @parent_rate: parent rate
 + *
-+ *   Calculate PLL values for frac and fbdiv
++ *   Calculate PLL values for frac and fbdiv:
++ *	fbdiv = rate * 4 / parent_rate
++ *	frac = (rate * 4 % parent_rate * (2 ^ 24)) / parent_rate
 + */
 +static void eswin_calc_pll(u32 *frac_val, u32 *fbdiv_val, unsigned long rate,
 +			   unsigned long parent_rate)
 +{
-+	u32 rem, tmp1 = 0, tmp2 = 0, tmp_p;
++	u32 rem;
 +	u64 tmp;
 +
++	/* step 1: rate * 4 */
++	tmp = rate * 4;
++	/* step 2: use do_div() to get the quotient(tmp) and remainder(rem) */
++	rem = do_div(tmp, (u32)parent_rate);
 +	/* fbdiv = rate * 4 / parent_rate */
-+	tmp = rate * 4;
-+	tmp_p = parent_rate;
-+
-+	do_div(tmp, tmp_p);
-+
 +	*fbdiv_val = (u32)tmp;
-+
-+	/* frac = rate * 4 % parent_rate * (2 ^ 24) */
-+	tmp = rate * 4;
-+	rem = do_div(tmp, 1000);
-+	if (rem)
-+		tmp1 = rem;
-+
-+	rem = do_div(tmp, 1000);
-+	if (rem)
-+		tmp2 = rem;
-+
-+	rem = do_div(tmp, 24);
-+	tmp = (u64)(1000 * (1000 * rem + tmp2) + tmp1) << 24;
-+	do_div(tmp, tmp_p);
-+
++	/*
++	 * step 3: rem << 24
++	 * 24: 24-bit fractional accuracy
++	 */
++	tmp = (u64)rem << 24;
++	/* step 4: use do_div() to get the quotient(tmp) */
++	do_div(tmp, (u32)parent_rate);
++	/* frac = (rate * 4 % parent_rate * (2 ^ 24)) / parent_rate */
 +	*frac_val = (u32)tmp;
 +}
 +
@@ -1791,9 +1739,10 @@ index 000000000000..7d9678c00c3d
 +	int i;
 +
 +	for (i = 0; i < nums; i++) {
-+		clk_hw = devm_clk_hw_register_fixed_factor_index
-+				(dev, clks[i].name, clks[i].parent_data->index,
-+				clks[i].flags, clks[i].mult, clks[i].div);
++		clk_hw = devm_clk_hw_register_fixed_factor_index(dev, clks[i].name,
++								 clks[i].parent_data->index,
++								 clks[i].flags, clks[i].mult,
++								 clks[i].div);
 +
 +		if (IS_ERR(clk_hw))
 +			return PTR_ERR(clk_hw);
@@ -1813,12 +1762,14 @@ index 000000000000..7d9678c00c3d
 +	int i;
 +
 +	for (i = 0; i < nums; i++) {
-+		clk_hw = devm_clk_hw_register_mux_parent_data_table
-+				(dev, clks[i].name, clks[i].parent_data,
-+				clks[i].num_parents, clks[i].flags,
-+				data->base + clks[i].offset, clks[i].shift,
-+				clks[i].width, clks[i].mux_flags, clks[i].table,
-+				&data->lock);
++		clk_hw = devm_clk_hw_register_mux_parent_data_table(dev, clks[i].name,
++								    clks[i].parent_data,
++								    clks[i].num_parents,
++								    clks[i].flags,
++								    data->base + clks[i].reg,
++								    clks[i].shift, clks[i].width,
++								    clks[i].mux_flags,
++								    clks[i].table, &data->lock);
 +
 +		if (IS_ERR(clk_hw))
 +			return PTR_ERR(clk_hw);
@@ -1865,7 +1816,7 @@ index 000000000000..7d9678c00c3d
 +			    unsigned long parent_rate)
 +{
 +	struct eswin_divider_clock *dclk = to_div_clk(hw);
-+	unsigned long flags = 0;
++	unsigned long flags;
 +	unsigned int value;
 +	u32 val;
 +
@@ -1874,10 +1825,10 @@ index 000000000000..7d9678c00c3d
 +
 +	spin_lock_irqsave(dclk->lock, flags);
 +
-+	val = readl_relaxed(dclk->reg);
++	val = readl_relaxed(dclk->ctrl_reg);
 +	val &= ~(clk_div_mask(dclk->width) << dclk->shift);
 +	val |= (u32)value << dclk->shift;
-+	writel_relaxed(val, dclk->reg);
++	writel_relaxed(val, dclk->ctrl_reg);
 +
 +	spin_unlock_irqrestore(dclk->lock, flags);
 +
@@ -1890,7 +1841,7 @@ index 000000000000..7d9678c00c3d
 +	struct eswin_divider_clock *dclk = to_div_clk(hw);
 +	unsigned int div, val;
 +
-+	val = readl_relaxed(dclk->reg) >> dclk->shift;
++	val = readl_relaxed(dclk->ctrl_reg) >> dclk->shift;
 +	val &= clk_div_mask(dclk->width);
 +	div = _eswin_get_val(val, dclk->priv_flag, dclk->width);
 +
@@ -1964,7 +1915,7 @@ index 000000000000..7d9678c00c3d
 +
 +	/* struct clk_divider assignments */
 +	dclk->id = id;
-+	dclk->reg = reg;
++	dclk->ctrl_reg = reg;
 +	dclk->shift = shift;
 +	dclk->width = width;
 +	dclk->div_flags = clk_divider_flags;
@@ -1992,18 +1943,15 @@ index 000000000000..7d9678c00c3d
 +	int i;
 +
 +	for (i = 0; i < nums; i++) {
-+		clk_hw = clk_hw_register_divider_parent_data
-+				(dev, clks[i].name, clks[i].parent_data,
-+				clks[i].flags, data->base + clks[i].offset,
-+				clks[i].shift, clks[i].width, clks[i].div_flags,
-+				&data->lock);
++		clk_hw = devm_clk_hw_register_divider_parent_data(dev, clks[i].name,
++								  clks[i].parent_data,
++								  clks[i].flags,
++								  data->base + clks[i].reg,
++								  clks[i].shift, clks[i].width,
++								  clks[i].div_flags, &data->lock);
 +
-+		if (IS_ERR(clk_hw)) {
-+			while (i--)
-+				clk_hw_unregister_divider
-+					(data->clk_data.hws[clks[i].id]);
++		if (IS_ERR(clk_hw))
 +			return PTR_ERR(clk_hw);
-+		}
 +
 +		clks[i].hw = *clk_hw;
 +		data->clk_data.hws[clks[i].id] = clk_hw;
@@ -2020,11 +1968,12 @@ index 000000000000..7d9678c00c3d
 +	int i;
 +
 +	for (i = 0; i < nums; i++) {
-+		clk_hw = devm_clk_hw_register_gate_parent_data
-+				(dev, clks[i].name, clks[i].parent_data,
-+				clks[i].flags, data->base + clks[i].offset,
-+				clks[i].bit_idx, clks[i].gate_flags,
-+				&data->lock);
++		clk_hw = devm_clk_hw_register_gate_parent_data(dev, clks[i].name,
++							       clks[i].parent_data,
++							       clks[i].flags,
++							       data->base + clks[i].reg,
++							       clks[i].bit_idx, clks[i].gate_flags,
++							       &data->lock);
 +
 +		if (IS_ERR(clk_hw))
 +			return PTR_ERR(clk_hw);
@@ -2053,20 +2002,23 @@ index 000000000000..7d9678c00c3d
 +
 +			factor = &info->data.factor;
 +			phw = data->clk_data.hws[info->pid];
-+			hw = devm_clk_hw_register_fixed_factor_parent_hw
-+					(dev, factor->name, phw, factor->flags,
-+					factor->mult, factor->div);
++			hw = devm_clk_hw_register_fixed_factor_parent_hw(dev, factor->name, phw,
++									 factor->flags,
++									 factor->mult,
++									 factor->div);
 +			break;
 +		}
 +		case CLK_MUX: {
 +			const struct eswin_mux_clock *mux = &info->data.mux;
 +
-+			hw = devm_clk_hw_register_mux_parent_data_table
-+				(dev, mux->name, mux->parent_data,
-+				mux->num_parents, mux->flags,
-+				data->base + mux->offset, mux->shift,
-+				mux->width, mux->mux_flags, mux->table,
-+				&data->lock);
++			hw = devm_clk_hw_register_mux_parent_data_table(dev, mux->name,
++									mux->parent_data,
++									mux->num_parents,
++									mux->flags,
++									data->base + mux->reg,
++									mux->shift, mux->width,
++									mux->mux_flags,
++									mux->table, &data->lock);
 +			break;
 +		}
 +		case CLK_DIVIDER: {
@@ -2074,26 +2026,28 @@ index 000000000000..7d9678c00c3d
 +
 +			phw = data->clk_data.hws[info->pid];
 +			if (div->priv_flag)
-+				hw = eswin_register_clkdiv
-+				(dev, div->id, div->name, phw,
-+				div->flags, data->base + div->offset,
-+				div->shift, div->width, div->div_flags,
-+				div->priv_flag, &data->lock);
++				hw = eswin_register_clkdiv(dev, div->id, div->name, phw,
++							   div->flags, data->base + div->reg,
++							   div->shift, div->width, div->div_flags,
++							   div->priv_flag, &data->lock);
 +			else
-+				hw = devm_clk_hw_register_divider_parent_hw
-+				(dev, div->name, phw, div->flags,
-+				data->base + div->offset, div->shift,
-+				div->width, div->div_flags, &data->lock);
++				hw = devm_clk_hw_register_divider_parent_hw(dev, div->name, phw,
++									    div->flags,
++									    data->base + div->reg,
++									    div->shift, div->width,
++									    div->div_flags,
++									    &data->lock);
 +			break;
 +		}
 +		case CLK_GATE: {
 +			const struct eswin_gate_clock *gate = &info->data.gate;
 +
 +			phw = data->clk_data.hws[info->pid];
-+			hw = devm_clk_hw_register_gate_parent_hw
-+				(dev, gate->name, phw, gate->flags,
-+				data->base + gate->offset, gate->bit_idx,
-+				gate->gate_flags, &data->lock);
++			hw = devm_clk_hw_register_gate_parent_hw(dev, gate->name, phw,
++								 gate->flags,
++								 data->base + gate->reg,
++								 gate->bit_idx, gate->gate_flags,
++								 &data->lock);
 +			break;
 +		}
 +		default:
@@ -2112,10 +2066,10 @@ index 000000000000..7d9678c00c3d
 +EXPORT_SYMBOL_GPL(eswin_clk_register_clks);
 diff --git a/drivers/clk/eswin/common.h b/drivers/clk/eswin/common.h
 new file mode 100644
-index 000000000000..8a19f15a3578
+index 000000000000..d8e5e6545894
 --- /dev/null
 +++ b/drivers/clk/eswin/common.h
-@@ -0,0 +1,341 @@
+@@ -0,0 +1,340 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright 2026, Beijing ESWIN Computing Technology Co., Ltd..
@@ -2160,9 +2114,9 @@ index 000000000000..8a19f15a3578
 +	unsigned int id;
 +	const char *name;
 +	const struct clk_parent_data *parent_data;
-+	void __iomem *reg;
++	void __iomem *ctrl_reg; /* register address of the divider clock */
 +	unsigned long flags;
-+	unsigned long offset;
++	unsigned long reg; /* register offset */
 +	u8 shift;
 +	u8 width;
 +	unsigned long div_flags;
@@ -2194,7 +2148,7 @@ index 000000000000..8a19f15a3578
 +	const char *name;
 +	const struct clk_parent_data *parent_data;
 +	unsigned long flags;
-+	unsigned long offset;
++	unsigned long reg;
 +	u8 bit_idx;
 +	u8 gate_flags;
 +};
@@ -2206,7 +2160,7 @@ index 000000000000..8a19f15a3578
 +	const struct clk_parent_data *parent_data;
 +	u8 num_parents;
 +	unsigned long flags;
-+	unsigned long offset;
++	unsigned long reg;
 +	u8 shift;
 +	u8 width;
 +	u8 mux_flags;
@@ -2293,22 +2247,22 @@ index 000000000000..8a19f15a3578
 +				     unsigned long clk_divider_flags,
 +				     unsigned long priv_flag, spinlock_t *lock);
 +
-+#define ESWIN_DIV(_id, _name, _pdata, _flags, _offset, _shift, _width,	\
++#define ESWIN_DIV(_id, _name, _pdata, _flags, _reg, _shift, _width,	\
 +		  _dflags, _pflag)					\
 +	{								\
 +		.id		= _id,					\
 +		.name		= _name,				\
 +		.parent_data	= _pdata,				\
 +		.flags		= _flags,				\
-+		.offset		= _offset,				\
++		.reg		= _reg,					\
 +		.shift		= _shift,				\
 +		.width		= _width,				\
 +		.div_flags	= _dflags,				\
 +		.priv_flag	= _pflag,				\
 +	}
 +
-+#define ESWIN_DIV_TYPE(_id, _name, _pid, _flags, _offset, _shift,	\
-+		       _width, _dflags, _pflag)				\
++#define ESWIN_DIV_TYPE(_id, _name, _pid, _flags, _reg, _shift, _width,	\
++		       _dflags, _pflag)					\
 +	{								\
 +		.type	= CLK_DIVIDER,					\
 +		.pid	= _pid,						\
@@ -2317,7 +2271,7 @@ index 000000000000..8a19f15a3578
 +				.div = {				\
 +					.name	= _name,		\
 +					.flags		= _flags,	\
-+					.offset		= _offset,	\
++					.reg		= _reg,		\
 +					.shift		= _shift,	\
 +					.width		= _width,	\
 +					.div_flags	= _dflags,	\
@@ -2359,19 +2313,18 @@ index 000000000000..8a19f15a3578
 +		.rate		= _rate,				\
 +	}
 +
-+#define ESWIN_GATE(_id, _name, _pdata, _flags, _offset, _idx, _gflags)	\
++#define ESWIN_GATE(_id, _name, _pdata, _flags, _reg, _idx, _gflags)	\
 +	{								\
 +		.id		= _id,					\
 +		.name		= _name,				\
 +		.parent_data	= _pdata,				\
 +		.flags		= _flags,				\
-+		.offset		= _offset,				\
++		.reg		= _reg,					\
 +		.bit_idx	= _idx,					\
 +		.gate_flags	= _gflags,				\
 +	}
 +
-+#define ESWIN_GATE_TYPE(_id, _name, _pid, _flags, _offset, _idx,	\
-+			_gflags)					\
++#define ESWIN_GATE_TYPE(_id, _name, _pid, _flags, _reg, _idx, _gflags)	\
 +	{								\
 +		.type	= CLK_GATE,					\
 +		.pid	= _pid,						\
@@ -2380,14 +2333,14 @@ index 000000000000..8a19f15a3578
 +				.gate = {				\
 +					.name	= _name,		\
 +					.flags		= _flags,	\
-+					.offset		= _offset,	\
++					.reg		= _reg,		\
 +					.bit_idx	= _idx,		\
 +					.gate_flags	= _gflags,	\
 +				},					\
 +		},							\
 +	}
 +
-+#define ESWIN_MUX(_id, _name, _pdata, _num_parents, _flags, _offset,	\
++#define ESWIN_MUX(_id, _name, _pdata, _num_parents, _flags, _reg,	\
 +		  _shift, _width, _mflags)				\
 +	{								\
 +		.id		= _id,					\
@@ -2395,14 +2348,14 @@ index 000000000000..8a19f15a3578
 +		.parent_data	= _pdata,				\
 +		.num_parents	= _num_parents,				\
 +		.flags		= _flags,				\
-+		.offset		= _offset,				\
++		.reg		= _reg,					\
 +		.shift		= _shift,				\
 +		.width		= _width,				\
 +		.mux_flags	= _mflags,				\
 +		.table		= NULL,					\
 +	}
 +
-+#define ESWIN_MUX_TBL(_id, _name, _pdata, _num_parents, _flags, _offset,\
++#define ESWIN_MUX_TBL(_id, _name, _pdata, _num_parents, _flags, _reg,	\
 +		      _shift, _width, _mflags, _table)			\
 +	{								\
 +		.id		= _id,					\
@@ -2410,15 +2363,15 @@ index 000000000000..8a19f15a3578
 +		.parent_data	= _pdata,				\
 +		.num_parents	= _num_parents,				\
 +		.flags		= _flags,				\
-+		.offset		= _offset,				\
++		.reg		= _reg,					\
 +		.shift		= _shift,				\
 +		.width		= _width,				\
 +		.mux_flags	= _mflags,				\
 +		.table		= _table,				\
 +	}
 +
-+#define ESWIN_MUX_TYPE(_id, _name, _pdata, _num_parents, _flags,	\
-+		       _offset, _shift, _width, _mflags, _table)	\
++#define ESWIN_MUX_TYPE(_id, _name, _pdata, _num_parents, _flags, _reg,	\
++		       _shift, _width, _mflags, _table)			\
 +	{								\
 +		.type	= CLK_MUX,					\
 +		.id	= _id,						\
@@ -2428,7 +2381,7 @@ index 000000000000..8a19f15a3578
 +					.parent_data	= _pdata,	\
 +					.num_parents	= _num_parents,	\
 +					.flags		= _flags,	\
-+					.offset		= _offset,	\
++					.reg		= _reg,		\
 +					.shift		= _shift,	\
 +					.width		= _width,	\
 +					.mux_flags	= _mflags,	\
@@ -2458,6 +2411,5 @@ index 000000000000..8a19f15a3578
 +
 +#endif /* __ESWIN_COMMON_H__ */
 -- 
-2.43.0
-
+2.49.0
 

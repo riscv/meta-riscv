@@ -1,0 +1,60 @@
+From 8275cf30c68dc8e4d254f2fc0f4f5463b8c2511c Mon Sep 17 00:00:00 2001
+Message-ID: <8275cf30c68dc8e4d254f2fc0f4f5463b8c2511c.1772155703.git.marcel@ziswiler.com>
+In-Reply-To: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
+References: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
+From: Anish Rana <anish.rana@einfochips.com>
+Date: Tue, 4 Nov 2025 12:59:49 +0530
+Subject: [PATCH 26/36] riscv: dts: eswin: eic7700: Reset-controller node
+
+Signed-off-by: Anish Rana <anish.rana@einfochips.com>
+
+Upstream-Status: Pending [https://github.com/hehuaneswincomputing/linux-next/commit/66646b9b912d1f7d61c3d6b7d8f623642540460e]
+---
+ arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts | 4 ++++
+ arch/riscv/boot/dts/eswin/eic7700.dtsi                    | 8 ++++++++
+ 2 files changed, 12 insertions(+)
+
+diff --git a/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts b/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts
+index c1fdcd6b03a7..3e11f1e9583a 100644
+--- a/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts
++++ b/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts
+@@ -40,6 +40,10 @@ &clk {
+ 	status = "okay";
+ };
+ 
++&reset {
++	status = "okay";
++};
++
+ &uart0 {
+ 	status = "okay";
+ };
+diff --git a/arch/riscv/boot/dts/eswin/eic7700.dtsi b/arch/riscv/boot/dts/eswin/eic7700.dtsi
+index 38042bed2ba3..22ad6dabafe1 100644
+--- a/arch/riscv/boot/dts/eswin/eic7700.dtsi
++++ b/arch/riscv/boot/dts/eswin/eic7700.dtsi
+@@ -6,6 +6,7 @@
+ /dts-v1/;
+ 
+ #include <dt-bindings/riscv/physical-memory.h>
++#include <dt-bindings/reset/eswin,eic7700-reset.h>
+ 
+ / {
+ 	#address-cells = <2>;
+@@ -233,6 +234,13 @@ clk: clock-controller@51828000 {
+ 			status = "disable";
+ 		};
+ 
++		reset: reset-controller@51828300 {
++			compatible = "eswin,eic7700-reset";
++			reg = <0x0 0x51828300 0x0 0x200>;
++			#reset-cells = <1>;
++			status = "disable";
++		};
++
+ 		ccache: cache-controller@2010000 {
+ 			compatible = "eswin,eic7700-l3-cache", "sifive,ccache0", "cache";
+ 			reg = <0x0 0x2010000 0x0 0x4000>;
+-- 
+2.49.0
+

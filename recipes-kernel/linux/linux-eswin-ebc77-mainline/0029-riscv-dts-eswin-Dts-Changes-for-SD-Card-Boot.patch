@@ -1,0 +1,74 @@
+From 61e5e63989aa6d4af3d319a50f98ea4c8947bde6 Mon Sep 17 00:00:00 2001
+Message-ID: <61e5e63989aa6d4af3d319a50f98ea4c8947bde6.1772155703.git.marcel@ziswiler.com>
+In-Reply-To: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
+References: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
+From: Pritesh Patel <pritesh.patel@einfochips.com>
+Date: Fri, 7 Nov 2025 15:05:57 +0530
+Subject: [PATCH 29/36] riscv: dts: eswin: Dts Changes for SD Card Boot
+
+Signed-off-by: Pritesh Patel <pritesh.patel@einfochips.com>
+
+Upstream-Status: Pending [https://github.com/hehuaneswincomputing/linux-next/commit/564d37542f00c274620828a82093538f6d6ad23a]
+---
+ .../dts/eswin/eic7700-hifive-premier-p550.dts |  6 +++++
+ arch/riscv/boot/dts/eswin/eic7700.dtsi        | 24 +++++++++++++++++++
+ 2 files changed, 30 insertions(+)
+
+diff --git a/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts b/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts
+index 6680823d18ca..c3ac8e721ae6 100644
+--- a/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts
++++ b/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts
+@@ -14,6 +14,8 @@ / {
+ 
+ 	aliases {
+ 		serial0 = &uart0;
++		mmc0 = &sdhci_emmc;
++		mmc1 = &sdio0;
+ 	};
+ 
+ 	chosen {
+@@ -193,3 +195,7 @@ &uart2 {
+ &sdhci_emmc {
+ 	status = "okay";
+ };
++
++&sdio0 {
++	status = "okay";
++};
+diff --git a/arch/riscv/boot/dts/eswin/eic7700.dtsi b/arch/riscv/boot/dts/eswin/eic7700.dtsi
+index 21597df25325..dd89c2d40d51 100644
+--- a/arch/riscv/boot/dts/eswin/eic7700.dtsi
++++ b/arch/riscv/boot/dts/eswin/eic7700.dtsi
+@@ -401,5 +401,29 @@ sdhci_emmc: mmc@50450000 {
+ 			eswin,drive-impedance-ohms = <50>;
+ 			status = "disabled";
+ 		};
++
++		sdio0: mmc@0x50460000{
++			compatible = "eswin,eic7700-dwcmshc";
++			reg = <0x0 0x50460000 0x0 0x10000>;
++			interrupt-parent = <&plic>;
++			interrupts = <81>;
++			clocks =<&clk 191>, <&clk 171>;
++			clock-names ="core","bus";
++			resets = <&reset 76>,
++				   <&reset 73>,
++				   <&reset 87>,
++				   <&reset 91>;
++			reset-names = "txrx","phy","prstn","axi";
++			clock-frequency = <208000000>;
++			max-frequency = <208000000>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			bus-width = <4>;
++			no-sdio;
++			no-mmc;
++			eswin,hsp-sp-csr = <&hsp_sp_csr 0x608 0x60c>;
++			eswin,drive-impedance-ohms = <33>;
++			status = "disabled";
++		};
+ 	};
+ };
+-- 
+2.49.0
+

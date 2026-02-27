@@ -1,10 +1,10 @@
-From 11d38a6c63e3fa917660f16e8d3e1063223c5312 Mon Sep 17 00:00:00 2001
-Message-ID: <11d38a6c63e3fa917660f16e8d3e1063223c5312.1769619771.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
-References: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
+From c9f058f8fa4ea1155d20976f9e6faed70a9efa1c Mon Sep 17 00:00:00 2001
+Message-ID: <c9f058f8fa4ea1155d20976f9e6faed70a9efa1c.1772155703.git.marcel@ziswiler.com>
+In-Reply-To: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
+References: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:19 -0800
-Subject: [PATCH 03/24] mm: Always use page table accessor functions
+Subject: [PATCH 03/36] mm: Always use page table accessor functions
 
 Some platforms need to fix up the values when reading or writing page
 tables. Because of this, the accessors must always be used; it is not
@@ -156,10 +156,10 @@ index 289e6254aa30..4990456c979c 100644
  		goto unlock_entry;
  	}
 diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
-index 81dfc26bfae8..77c8587a2c2a 100644
+index 26188a4ad1ab..ceb64e27636c 100644
 --- a/fs/proc/task_mmu.c
 +++ b/fs/proc/task_mmu.c
-@@ -1061,11 +1061,11 @@ static void smaps_pmd_entry(pmd_t *pmd, unsigned long addr,
+@@ -1073,11 +1073,11 @@ static void smaps_pmd_entry(pmd_t *pmd, unsigned long addr,
  
  	if (pmd_none(*pmd))
  		return;
@@ -174,7 +174,7 @@ index 81dfc26bfae8..77c8587a2c2a 100644
  
  		if (softleaf_has_pfn(entry))
  			page = softleaf_to_page(entry);
-@@ -1082,7 +1082,8 @@ static void smaps_pmd_entry(pmd_t *pmd, unsigned long addr,
+@@ -1094,7 +1094,8 @@ static void smaps_pmd_entry(pmd_t *pmd, unsigned long addr,
  	else
  		mss->file_thp += HPAGE_PMD_SIZE;
  
@@ -184,7 +184,7 @@ index 81dfc26bfae8..77c8587a2c2a 100644
  		      locked, present);
  }
  #else
-@@ -1635,7 +1636,7 @@ static inline void clear_soft_dirty(struct vm_area_struct *vma,
+@@ -1647,7 +1648,7 @@ static inline void clear_soft_dirty(struct vm_area_struct *vma,
  static inline void clear_soft_dirty_pmd(struct vm_area_struct *vma,
  		unsigned long addr, pmd_t *pmdp)
  {
@@ -193,7 +193,7 @@ index 81dfc26bfae8..77c8587a2c2a 100644
  
  	if (!pgtable_supports_soft_dirty())
  		return;
-@@ -1680,10 +1681,10 @@ static int clear_refs_pte_range(pmd_t *pmd, unsigned long addr,
+@@ -1692,10 +1693,10 @@ static int clear_refs_pte_range(pmd_t *pmd, unsigned long addr,
  			goto out;
  		}
  
@@ -206,7 +206,7 @@ index 81dfc26bfae8..77c8587a2c2a 100644
  
  		/* Clear accessed and referenced bits. */
  		pmdp_test_and_clear_young(vma, addr, pmd);
-@@ -1991,7 +1992,7 @@ static int pagemap_pmd_range_thp(pmd_t *pmdp, unsigned long addr,
+@@ -2003,7 +2004,7 @@ static int pagemap_pmd_range_thp(pmd_t *pmdp, unsigned long addr,
  {
  	unsigned int idx = (addr & ~PMD_MASK) >> PAGE_SHIFT;
  	u64 flags = 0, frame = 0;
@@ -215,7 +215,7 @@ index 81dfc26bfae8..77c8587a2c2a 100644
  	struct page *page = NULL;
  	struct folio *folio = NULL;
  	int err = 0;
-@@ -2444,7 +2445,7 @@ static unsigned long pagemap_thp_category(struct pagemap_scan_private *p,
+@@ -2456,7 +2457,7 @@ static unsigned long pagemap_thp_category(struct pagemap_scan_private *p,
  static void make_uffd_wp_pmd(struct vm_area_struct *vma,
  			     unsigned long addr, pmd_t *pmdp)
  {
@@ -224,7 +224,7 @@ index 81dfc26bfae8..77c8587a2c2a 100644
  
  	if (pmd_present(pmd)) {
  		old = pmdp_invalidate_ad(vma, addr, pmdp);
-@@ -2682,7 +2683,7 @@ static int pagemap_scan_thp_entry(pmd_t *pmd, unsigned long start,
+@@ -2694,7 +2695,7 @@ static int pagemap_scan_thp_entry(pmd_t *pmd, unsigned long start,
  		return -ENOENT;
  
  	categories = p->cur_vma_category |
@@ -233,7 +233,7 @@ index 81dfc26bfae8..77c8587a2c2a 100644
  
  	if (!pagemap_scan_is_interesting_page(categories, p))
  		goto out_unlock;
-@@ -3217,9 +3218,9 @@ static int gather_pte_stats(pmd_t *pmd, unsigned long addr,
+@@ -3229,9 +3230,9 @@ static int gather_pte_stats(pmd_t *pmd, unsigned long addr,
  	if (ptl) {
  		struct page *page;
  
@@ -1319,7 +1319,7 @@ index b617b1be0f53..afe64745bd1f 100644
  
  	return 0;
 diff --git a/mm/memory-failure.c b/mm/memory-failure.c
-index c80c2907da33..995688e31a19 100644
+index 9fd8355176eb..cb95e8d0bc03 100644
 --- a/mm/memory-failure.c
 +++ b/mm/memory-failure.c
 @@ -347,20 +347,20 @@ static unsigned long dev_pagemap_mapping_shift(struct vm_area_struct *vma,
@@ -1349,7 +1349,7 @@ index c80c2907da33..995688e31a19 100644
  		return PMD_SHIFT;
  	pte = pte_offset_map(pmd, address);
  	if (!pte)
-@@ -713,7 +713,7 @@ static int check_hwpoisoned_entry(pte_t pte, unsigned long addr, short shift,
+@@ -717,7 +717,7 @@ static int check_hwpoisoned_entry(pte_t pte, unsigned long addr, short shift,
  static int check_hwpoisoned_pmd_entry(pmd_t *pmdp, unsigned long addr,
  				      struct hwpoison_walk *hwp)
  {
@@ -2306,7 +2306,7 @@ index e6dfd5f28acd..cd51116529fd 100644
  					err = -ENOENT;
  					break;
 diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index 628f96e83b11..0df9a887dd6a 100644
+index e286c2d2068c..3818d1dcc1e4 100644
 --- a/mm/vmalloc.c
 +++ b/mm/vmalloc.c
 @@ -158,7 +158,7 @@ static int vmap_try_huge_pmd(pmd_t *pmd, unsigned long addr, unsigned long end,
@@ -2504,5 +2504,5 @@ index 614ccf39fe3f..c67c7479ceb2 100644
  	pud = pud_offset(p4d, start & P4D_MASK);
  restart:
 -- 
-2.52.0
+2.49.0
 

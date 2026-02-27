@@ -1,0 +1,123 @@
+From 9cb6a90e79485d6c9ceaced185e822617814dd38 Mon Sep 17 00:00:00 2001
+Message-ID: <9cb6a90e79485d6c9ceaced185e822617814dd38.1772155703.git.marcel@ziswiler.com>
+In-Reply-To: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
+References: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
+From: Xuyang Dong <dongxuyang@eswincomputing.com>
+Date: Mon, 24 Nov 2025 16:19:53 +0800
+Subject: [PATCH 31/36] riscv: dts: eswin: Add ethernet node and defconfig
+
+1. Add ethernet node.
+2. Add ethernet defconfig.
+3. Enable ethernet and nfs.
+4. Add memory node in dts.
+
+Signed-off-by: Xuyang Dong <dongxuyang@eswincomputing.com>
+
+Upstream-Status: Pending [https://github.com/hehuaneswincomputing/linux-next/commit/0fbc7db4d812fca3d31a69133ad2c63ed77e56dd]
+---
+ .../dts/eswin/eic7700-hifive-premier-p550.dts | 21 +++++++---
+ arch/riscv/boot/dts/eswin/eic7700.dtsi        | 42 +++++++++++++++++++
+ 2 files changed, 57 insertions(+), 6 deletions(-)
+
+diff --git a/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts b/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts
+index d31d0bf05c5b..8100a8f35b93 100644
+--- a/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts
++++ b/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts
+@@ -22,6 +22,11 @@ chosen {
+ 		stdout-path = "serial0:115200n8";
+ 	};
+ 
++	memory@80000000 {
++		device_type = "memory";
++		reg = <0x0 0x80000000 0x4 0x00000000>;
++	};
++
+ 	vcc_1v8: vcc1v8 {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "vcc1v8";
+@@ -31,12 +36,12 @@ vcc_1v8: vcc1v8 {
+ 		regulator-max-microvolt = <1800000>;
+ 	};
+ 
+-	  xtal24m: oscillator {
+-        compatible = "fixed-clock";
+-        clock-frequency = <24000000>;
+-        #clock-cells = <0>;
+-        clock-output-names = "xtal24m";
+-    };
++	xtal24m: oscillator {
++		compatible = "fixed-clock";
++		clock-frequency = <24000000>;
++		#clock-cells = <0>;
++		clock-output-names = "xtal24m";
++	};
+ };
+ 
+ &pinctrl {
+@@ -184,6 +189,10 @@ &reset {
+ 	status = "okay";
+ };
+ 
++&gmac0 {
++	status = "okay";
++};
++
+ &uart0 {
+ 	status = "okay";
+ };
+diff --git a/arch/riscv/boot/dts/eswin/eic7700.dtsi b/arch/riscv/boot/dts/eswin/eic7700.dtsi
+index 928e309c022d..5f7d359a8fb8 100644
+--- a/arch/riscv/boot/dts/eswin/eic7700.dtsi
++++ b/arch/riscv/boot/dts/eswin/eic7700.dtsi
+@@ -383,6 +383,48 @@ pinctrl: pinctrl@51600080 {
+ 			status = "disabled";
+ 		};
+ 
++		gmac0: ethernet@50400000 {
++			compatible = "eswin,eic7700-qos-eth", "snps,dwmac-5.20";
++			reg = <0x0 0x50400000 0x0 0x10000>;
++			clocks = <&clk 186>,
++				<&clk 171>,
++				<&clk 40>,
++				<&clk 193>;
++			clock-names = "axi", "cfg", "stmmaceth", "tx";
++			interrupt-parent = <&plic>;
++			interrupts = <61>;
++			interrupt-names = "macirq";
++			phy-mode = "rgmii-id";
++			phy-handle = <&phy0>;
++			resets = <&reset 95>;
++			reset-names = "stmmaceth";
++			rx-internal-delay-ps = <200>;
++			tx-internal-delay-ps = <900>;
++			eswin,hsp-sp-csr = <&hsp_sp_csr 0x100 0x108 0x118>;
++			dma-noncoherent;
++			snps,axi-config = <&stmmac_axi_setup>;
++			snps,aal;
++			snps,fixed-burst;
++			snps,tso;
++			stmmac_axi_setup: stmmac-axi-config {
++				snps,blen = <0 0 0 0 16 8 4>;
++				snps,rd_osr_lmt = <2>;
++				snps,wr_osr_lmt = <2>;
++			};
++			mdio {
++				compatible = "snps,dwmac-mdio";
++				status = "okay";
++				#address-cells = <1>;
++				#size-cells = <0>;
++
++				phy0: ethernet-phy@0 {
++					device_type = "ethernet-phy";
++					reg = <0>;
++					compatible = "ethernet-phy-id001c.c916", "realtek,rtl8211f";
++				};
++			};
++		};
++
+ 		sdhci_emmc: mmc@50450000 {
+ 			compatible = "eswin,eic7700-dwcmshc";
+ 			reg = <0x0 0x50450000 0x0 0x10000>;
+-- 
+2.49.0
+

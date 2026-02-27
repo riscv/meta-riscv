@@ -1,0 +1,46 @@
+From 4d3a278b2ce0a95782423f5709e1e03fe6ff5c9a Mon Sep 17 00:00:00 2001
+Message-ID: <4d3a278b2ce0a95782423f5709e1e03fe6ff5c9a.1772155703.git.marcel@ziswiler.com>
+In-Reply-To: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
+References: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
+From: Min Lin <linmin@eswincomputing.com>
+Date: Wed, 14 Jan 2026 13:13:08 +0800
+Subject: [PATCH 34/36] riscv: dts: eswin:set 1.4GHz as the maximum cpu
+ frequency
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Modified eic7700-opptable.dtsi to set 1.4GHz as the maximu cpu frequency.
+To run the CPU above 1.4GHz requires increasing the voltage, but the driver
+for that voltage boost hasn’t been merged yet.
+
+Signed-off-by: Min Lin <linmin@eswincomputing.com>
+
+Upstream-Status: Pending [https://github.com/hehuaneswincomputing/linux-next/commit/020d14159a5b672b77d03cd14fc1e7d6f3898780]
+---
+ arch/riscv/boot/dts/eswin/eic7700-opptable.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/riscv/boot/dts/eswin/eic7700-opptable.dtsi b/arch/riscv/boot/dts/eswin/eic7700-opptable.dtsi
+index 5d55a419ef64..d065dcdf1be1 100644
+--- a/arch/riscv/boot/dts/eswin/eic7700-opptable.dtsi
++++ b/arch/riscv/boot/dts/eswin/eic7700-opptable.dtsi
+@@ -80,6 +80,7 @@ opp-1400000000 {
+ 			opp-microvolt = <800000>;
+ 			clock-latency-ns = <70000>;
+ 		};
++		/*
+ 		opp-1500000000 {
+ 			opp-hz = /bits/ 64 <1500000000>;
+ 			opp-microvolt = <900000>;
+@@ -100,6 +101,7 @@ opp-1800000000 {
+ 			opp-microvolt = <900000>;
+ 			clock-latency-ns = <70000>;
+ 		};
++		*/
+ 	};
+ 
+ 	dsp_opp_table: opp-table@dsp {
+-- 
+2.49.0
+

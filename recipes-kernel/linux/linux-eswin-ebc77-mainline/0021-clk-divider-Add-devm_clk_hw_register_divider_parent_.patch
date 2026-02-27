@@ -1,0 +1,54 @@
+From 3251682f7e35effba386a741c5faebae52431327 Mon Sep 17 00:00:00 2001
+Message-ID: <3251682f7e35effba386a741c5faebae52431327.1772155703.git.marcel@ziswiler.com>
+In-Reply-To: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
+References: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
+From: Xuyang Dong <dongxuyang@eswincomputing.com>
+Date: Thu, 26 Feb 2026 17:06:30 +0800
+Subject: [PATCH 21/36] clk: divider: Add
+ devm_clk_hw_register_divider_parent_data
+
+Add the devres variant of clk_hw_register_divider_parent_data() for
+registering a divider clock with parent clk data instead of parent
+name.
+
+Signed-off-by: Xuyang Dong <dongxuyang@eswincomputing.com>
+
+Upstream-Status: Submitted [https://lore.kernel.org/all/20260226090630.1812-1-dongxuyang@eswincomputing.com]
+---
+ include/linux/clk-provider.h | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+
+diff --git a/include/linux/clk-provider.h b/include/linux/clk-provider.h
+index 630705a47129..64967ac1b1df 100644
+--- a/include/linux/clk-provider.h
++++ b/include/linux/clk-provider.h
+@@ -947,6 +947,26 @@ struct clk *clk_register_divider_table(struct device *dev, const char *name,
+ 				       (parent_hw), NULL, (flags), (reg),     \
+ 				       (shift), (width), (clk_divider_flags), \
+ 				       NULL, (lock))
++/**
++ * devm_clk_hw_register_divider_parent_data - register a divider clock with the
++ * clock framework
++ * @dev: device registering this clock
++ * @name: name of this clock
++ * @parent_data: parent clk data
++ * @flags: framework-specific flags
++ * @reg: register address to adjust divider
++ * @shift: number of bits to shift the bitfield
++ * @width: width of the bitfield
++ * @clk_divider_flags: divider-specific flags for this clock
++ * @lock: shared register lock for this clock
++ */
++#define devm_clk_hw_register_divider_parent_data(dev, name, parent_data,       \
++						 flags, reg, shift, width,     \
++						 clk_divider_flags, lock)      \
++	__devm_clk_hw_register_divider((dev), NULL, (name), NULL, NULL,	       \
++				       (parent_data), (flags), (reg), (shift), \
++				       (width), (clk_divider_flags), NULL,     \
++				       (lock))
+ /**
+  * devm_clk_hw_register_divider_table - register a table based divider clock
+  * with the clock framework (devres variant)
+-- 
+2.49.0
+

@@ -1,10 +1,10 @@
-From 6a40a13a7d146e5463349d4f221dc62c807e591c Mon Sep 17 00:00:00 2001
-Message-ID: <6a40a13a7d146e5463349d4f221dc62c807e591c.1769619771.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
-References: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
+From fd6344a3509e0f71ae8a61f401bb5f9110d721cb Mon Sep 17 00:00:00 2001
+Message-ID: <fd6344a3509e0f71ae8a61f401bb5f9110d721cb.1772155703.git.marcel@ziswiler.com>
+In-Reply-To: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
+References: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:18 -0800
-Subject: [PATCH 02/24] mm: Move the fallback definitions of pXXp_get()
+Subject: [PATCH 02/36] mm: Move the fallback definitions of pXXp_get()
 
 Some platforms need to fix up the values when reading or writing page
 tables. Because of this, the accessors must always be used; it is not
@@ -109,5 +109,5 @@ index 652f287c1ef6..c82c5cfde6ad 100644
  static inline int ptep_test_and_clear_young(struct vm_area_struct *vma,
  					    unsigned long address,
 -- 
-2.52.0
+2.49.0
 
