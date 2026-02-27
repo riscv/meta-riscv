@@ -1,0 +1,30 @@
+From fee9573ff6192bb4848020570c0cfc19f7cde1a3 Mon Sep 17 00:00:00 2001
+Message-ID: <fee9573ff6192bb4848020570c0cfc19f7cde1a3.1772155703.git.marcel@ziswiler.com>
+In-Reply-To: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
+References: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
+From: Xuyang Dong <dongxuyang@eswincomputing.com>
+Date: Mon, 24 Nov 2025 17:45:15 +0800
+Subject: [PATCH 32/36] riscv: dts: eswin: Add ethernet0 aliase
+
+Signed-off-by: Xuyang Dong <dongxuyang@eswincomputing.com>
+
+Upstream-Status: Pending [https://github.com/hehuaneswincomputing/linux-next/commit/0febc86634e67ae7ced627bf0adf56330d14b3ad]
+---
+ arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts b/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts
+index 8100a8f35b93..7fcfab41eb14 100644
+--- a/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts
++++ b/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts
+@@ -16,6 +16,7 @@ aliases {
+ 		serial0 = &uart0;
+ 		mmc0 = &sdhci_emmc;
+ 		mmc1 = &sdio0;
++		ethernet0 = &gmac0;
+ 	};
+ 
+ 	chosen {
+-- 
+2.49.0
+

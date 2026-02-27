@@ -1,10 +1,10 @@
-From 75dce2d87dd620fd57cff56b0e73e2784ca36634 Mon Sep 17 00:00:00 2001
-Message-ID: <75dce2d87dd620fd57cff56b0e73e2784ca36634.1769619771.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
-References: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
+From d28d7ecbb2b5e7d20809caf81bc962c588a0b804 Mon Sep 17 00:00:00 2001
+Message-ID: <d28d7ecbb2b5e7d20809caf81bc962c588a0b804.1772155703.git.marcel@ziswiler.com>
+In-Reply-To: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
+References: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:22 -0800
-Subject: [PATCH 06/24] riscv: hibernate: Replace open-coded pXXp_get()
+Subject: [PATCH 06/36] riscv: hibernate: Replace open-coded pXXp_get()
 
 Use the semantically appropriate accessor function instead of open
 coding the implementation. This will become important once these
@@ -103,5 +103,5 @@ index 671b686c0158..2a9bc9d9e776 100644
  		next = pgd_addr_end(start, end);
  
 -- 
-2.52.0
+2.49.0
 

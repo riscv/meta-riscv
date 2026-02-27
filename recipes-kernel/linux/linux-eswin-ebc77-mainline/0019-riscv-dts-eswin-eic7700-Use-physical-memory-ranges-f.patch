@@ -1,10 +1,10 @@
-From 56d147a78f1ea1363a5e3271b3c686e8a9f26651 Mon Sep 17 00:00:00 2001
-Message-ID: <56d147a78f1ea1363a5e3271b3c686e8a9f26651.1769619771.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
-References: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
+From 7087a4af7d5c61f66950e2021de0828262a41b4a Mon Sep 17 00:00:00 2001
+Message-ID: <7087a4af7d5c61f66950e2021de0828262a41b4a.1772155703.git.marcel@ziswiler.com>
+In-Reply-To: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
+References: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:35 -0800
-Subject: [PATCH 19/24] riscv: dts: eswin: eic7700: Use physical memory ranges
+Subject: [PATCH 19/36] riscv: dts: eswin: eic7700: Use physical memory ranges
  for DMA
 
 EIC7700 provides a physical memory region which is a noncached alias of
@@ -53,5 +53,5 @@ index c3ed93008bca..d566bca4e09e 100644
  	cpus {
  		#address-cells = <1>;
 -- 
-2.52.0
+2.49.0
 

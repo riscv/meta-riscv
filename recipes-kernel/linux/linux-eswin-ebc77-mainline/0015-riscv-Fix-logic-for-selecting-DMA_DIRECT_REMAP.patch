@@ -1,10 +1,10 @@
-From 303847cda88d7b4daf24851ca93b89bf6f7cf544 Mon Sep 17 00:00:00 2001
-Message-ID: <303847cda88d7b4daf24851ca93b89bf6f7cf544.1769619771.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
-References: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
+From 3d969259a4c1f6acb370b0c4d6c05f243cfe1628 Mon Sep 17 00:00:00 2001
+Message-ID: <3d969259a4c1f6acb370b0c4d6c05f243cfe1628.1772155703.git.marcel@ziswiler.com>
+In-Reply-To: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
+References: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:31 -0800
-Subject: [PATCH 15/24] riscv: Fix logic for selecting DMA_DIRECT_REMAP
+Subject: [PATCH 15/36] riscv: Fix logic for selecting DMA_DIRECT_REMAP
 
 DMA_DIRECT_REMAP allows the kernel to make pages coherent for DMA by
 remapping them in the page tables with a different pgprot_t value. On
@@ -61,5 +61,5 @@ index 3c945d086c7d..f4ea7d7b69de 100644
  	select RISCV_NONSTANDARD_CACHE_OPS
  	default y
 -- 
-2.52.0
+2.49.0
 

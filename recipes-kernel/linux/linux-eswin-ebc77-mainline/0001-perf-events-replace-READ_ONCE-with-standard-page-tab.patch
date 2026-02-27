@@ -1,8 +1,8 @@
-From e81d165e4d6aa80f8a440b24df90f0ae953b6952 Mon Sep 17 00:00:00 2001
-Message-ID: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
+From 57ccec6b1f9983daf0b62e4cb87f44ebb7005559 Mon Sep 17 00:00:00 2001
+Message-ID: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
 From: Anshuman Khandual <anshuman.khandual@arm.com>
 Date: Wed, 12 Nov 2025 17:45:17 -0800
-Subject: [PATCH 01/24] perf/events: replace READ_ONCE() with standard page
+Subject: [PATCH 01/36] perf/events: replace READ_ONCE() with standard page
  table accessors
 
 Replace READ_ONCE() with standard page table accessors i.e pxdp_get() which
@@ -24,7 +24,7 @@ Upstream-Status: Submitted [https://lore.kernel.org/all/20251113014656.2605447-1
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/kernel/events/core.c b/kernel/events/core.c
-index a0fa488bce84..4277b4e5c91c 100644
+index 8cca80094624..77cb0981ad09 100644
 --- a/kernel/events/core.c
 +++ b/kernel/events/core.c
 @@ -8130,7 +8130,7 @@ static u64 perf_get_pgtable_size(struct mm_struct *mm, unsigned long addr)
@@ -55,5 +55,5 @@ index a0fa488bce84..4277b4e5c91c 100644
  		return 0;
  
 -- 
-2.52.0
+2.49.0
 

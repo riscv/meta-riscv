@@ -1,0 +1,367 @@
+From b1dc0e54793e33439ab1e02b2bf9beb352522641 Mon Sep 17 00:00:00 2001
+Message-ID: <b1dc0e54793e33439ab1e02b2bf9beb352522641.1772155703.git.marcel@ziswiler.com>
+In-Reply-To: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
+References: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
+From: Min Lin <linmin@eswincomputing.com>
+Date: Wed, 7 Jan 2026 17:16:09 +0800
+Subject: [PATCH 33/36] riscv: dts: eswin: Add cpu&devices scaling for EIC7700
+ SoC
+
+Add the operating-points-v2 to support cpu and other devices scaling
+on ESWIN EIC7700 SoC.
+
+Signed-off-by: Min Lin <linmin@eswincomputing.com>
+
+Upstream-Status: Pending [https://github.com/hehuaneswincomputing/linux-next/commit/4eae506c3597ccdc6c6c3a1ca62fe961ce00210e]
+---
+ .../boot/dts/eswin/eic7700-opptable.dtsi      | 256 ++++++++++++++++++
+ arch/riscv/boot/dts/eswin/eic7700.dtsi        |  35 +++
+ 2 files changed, 291 insertions(+)
+ create mode 100644 arch/riscv/boot/dts/eswin/eic7700-opptable.dtsi
+
+diff --git a/arch/riscv/boot/dts/eswin/eic7700-opptable.dtsi b/arch/riscv/boot/dts/eswin/eic7700-opptable.dtsi
+new file mode 100644
+index 000000000000..5d55a419ef64
+--- /dev/null
++++ b/arch/riscv/boot/dts/eswin/eic7700-opptable.dtsi
+@@ -0,0 +1,256 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Device Tree Include file for pin control of Eswin EIC770x family SoC.
++ *
++ * Copyright 2024, Beijing ESWIN Computing Technology Co., Ltd.. All rights reserved.
++ * SPDX-License-Identifier: GPL-2.0
++ *
++ * This program is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, version 2.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
++ */
++
++#include <dt-bindings/clock/eswin,eic7700-clock.h>
++
++/ {
++	cpu_opp_table: opp-table@cpu {
++		compatible = "operating-points-v2";
++		opp-shared;
++
++		opp-400000000 {
++			opp-hz = /bits/ 64 <400000000>;
++			opp-microvolt = <800000>;
++			clock-latency-ns = <70000>;
++		};
++		opp-500000000 {
++			opp-hz = /bits/ 64 <500000000>;
++			opp-microvolt = <800000>;
++			clock-latency-ns = <70000>;
++		};
++		opp-600000000 {
++			opp-hz = /bits/ 64 <600000000>;
++			opp-microvolt = <800000>;
++			clock-latency-ns = <70000>;
++		};
++		opp-700000000 {
++			opp-hz = /bits/ 64 <700000000>;
++			opp-microvolt = <800000>;
++			clock-latency-ns = <70000>;
++		};
++		opp-800000000 {
++			opp-hz = /bits/ 64 <800000000>;
++			opp-microvolt = <800000>;
++			clock-latency-ns = <70000>;
++		};
++		opp-900000000 {
++			opp-hz = /bits/ 64 <900000000>;
++			opp-microvolt = <900000>;
++			clock-latency-ns = <70000>;
++		};
++		opp-1000000000 {
++			opp-hz = /bits/ 64 <1000000000>;
++			opp-microvolt = <800000>;
++			clock-latency-ns = <70000>;
++		};
++		opp-1100000000 {
++			opp-hz = /bits/ 64 <1100000000>;
++			opp-microvolt = <800000>;
++			clock-latency-ns = <70000>;
++		};
++		opp-1200000000 {
++			opp-hz = /bits/ 64 <1200000000>;
++			opp-microvolt = <800000>;
++			clock-latency-ns = <70000>;
++		};
++		opp-1300000000 {
++			opp-hz = /bits/ 64 <1300000000>;
++			opp-microvolt = <800000>;
++			clock-latency-ns = <70000>;
++		};
++		opp-1400000000 {
++			opp-hz = /bits/ 64 <1400000000>;
++			opp-microvolt = <800000>;
++			clock-latency-ns = <70000>;
++		};
++		opp-1500000000 {
++			opp-hz = /bits/ 64 <1500000000>;
++			opp-microvolt = <900000>;
++			clock-latency-ns = <70000>;
++		};
++		opp-1600000000 {
++			opp-hz = /bits/ 64 <1600000000>;
++			opp-microvolt = <900000>;
++			clock-latency-ns = <70000>;
++		};
++		opp-1700000000 {
++			opp-hz = /bits/ 64 <1700000000>;
++			opp-microvolt = <900000>;
++			clock-latency-ns = <70000>;
++		};
++		opp-1800000000 {
++			opp-hz = /bits/ 64 <1800000000>;
++			opp-microvolt = <900000>;
++			clock-latency-ns = <70000>;
++		};
++	};
++
++	dsp_opp_table: opp-table@dsp {
++		compatible = "operating-points-v2";
++		opp@520000000 {
++			opp-hz = /bits/ 64 <520000000>;
++			opp-microvolt = <800000>;
++		};
++		opp@1040000000 {
++			opp-hz = /bits/ 64 <1040000000>;
++			opp-microvolt = <800000>;
++		};
++	};
++	
++	npu_opp_table: opp-table@npu {
++		compatible = "operating-points-v2";
++		opp@520000000 {
++			opp-hz = /bits/ 64 <520000000>;
++			opp-microvolt = <800000>;
++		};
++		opp@750000000 {
++			opp-hz = /bits/ 64 <750000000>;
++			opp-microvolt = <800000>;
++		};
++		opp@1040000000 {
++			opp-hz = /bits/ 64 <1040000000>;
++			opp-microvolt = <900000>;
++		};
++		opp@1188000000 {
++			opp-hz = /bits/ 64 <1188000000>;
++			opp-microvolt = <1000000>;
++		};
++		opp@1500000000 {
++			opp-hz = /bits/ 64 <1500000000>;
++			opp-microvolt = <1050000>;
++		};
++	};
++
++	g2d_opp_table: opp-table@g2d {
++		compatible = "operating-points-v2";
++		opp@260000000 {
++			opp-hz = /bits/ 64 <260000000>;
++			opp-microvolt = <800000>;
++		};
++		opp@520000000 {
++			opp-hz = /bits/ 64 <520000000>;
++			opp-microvolt = <800000>;
++		};
++		opp@693333334 {
++			opp-hz = /bits/ 64 <693333334>;
++			opp-microvolt = <800000>;
++		};
++		opp@1040000000 {
++			opp-hz = /bits/ 64 <1040000000>;
++			opp-microvolt = <800000>;
++		};
++	};
++
++	gpu_opp_table: opp-table@gpu {
++		compatible = "operating-points-v2";
++		opp@200000000 {
++			opp-hz = /bits/ 64 <200000000>;
++			opp-microvolt = <800000>;
++		};
++		opp@400000000 {
++			opp-hz = /bits/ 64 <400000000>;
++			opp-microvolt = <800000>;
++		};
++		opp@800000000 {
++			opp-hz = /bits/ 64 <800000000>;
++			opp-microvolt = <800000>;
++		};
++	};
++
++	vi_opp_table: opp-table@vi {
++		compatible = "operating-points-v2";
++		opp@800000000 {
++			opp-hz = /bits/ 64 <800000000>;
++			opp-microvolt = <800000>;
++		};
++		opp@400000000 {
++			opp-hz = /bits/ 64 <400000000>;
++			opp-microvolt = <800000>;
++		};
++		opp@200000000 {
++			opp-hz = /bits/ 64 <200000000>;
++			opp-microvolt = <800000>;
++		};
++	};
++
++	venc_opp_table: opp-table@venc {
++		compatible = "operating-points-v2";
++		opp@800000000 {
++			opp-hz = /bits/ 64 <800000000>;
++			opp-microvolt = <800000>;
++		};
++		opp@533333334 {
++			opp-hz = /bits/ 64 <533333334>;
++			opp-microvolt = <800000>;
++		};
++		opp@400000000 {
++			opp-hz = /bits/ 64 <400000000>;
++			opp-microvolt = <800000>;
++		};
++		opp@320000000 {
++			opp-hz = /bits/ 64 <320000000>;
++			opp-microvolt = <800000>;
++		};
++		opp@266666667 {
++			opp-hz = /bits/ 64 <266666667>;
++			opp-microvolt = <800000>;
++		};
++		opp@228571429 {
++			opp-hz = /bits/ 64 <228571429>;
++			opp-microvolt = <800000>;
++		};
++		opp@200000000 {
++			opp-hz = /bits/ 64 <200000000>;
++			opp-microvolt = <800000>;
++		};
++	};
++
++	vdec_opp_table: opp-table@vdec {
++		compatible = "operating-points-v2";
++		opp@800000000 {
++			opp-hz = /bits/ 64 <800000000>;
++			opp-microvolt = <800000>;
++		};
++		opp@533333334 {
++			opp-hz = /bits/ 64 <533333334>;
++			opp-microvolt = <800000>;
++		};
++		opp@400000000 {
++			opp-hz = /bits/ 64 <400000000>;
++			opp-microvolt = <800000>;
++		};
++		opp@320000000 {
++			opp-hz = /bits/ 64 <320000000>;
++			opp-microvolt = <800000>;
++		};
++		opp@266666667 {
++			opp-hz = /bits/ 64 <266666667>;
++			opp-microvolt = <800000>;
++		};
++		opp@228571429 {
++			opp-hz = /bits/ 64 <228571429>;
++			opp-microvolt = <800000>;
++		};
++		opp@200000000 {
++			opp-hz = /bits/ 64 <200000000>;
++			opp-microvolt = <800000>;
++		};
++	};
++};
+diff --git a/arch/riscv/boot/dts/eswin/eic7700.dtsi b/arch/riscv/boot/dts/eswin/eic7700.dtsi
+index 5f7d359a8fb8..f7796ab44ba9 100644
+--- a/arch/riscv/boot/dts/eswin/eic7700.dtsi
++++ b/arch/riscv/boot/dts/eswin/eic7700.dtsi
+@@ -6,6 +6,7 @@
+ /dts-v1/;
+ 
+ #include <dt-bindings/riscv/physical-memory.h>
++#include "eic7700-opptable.dtsi"
+ 
+ / {
+ 	#address-cells = <2>;
+@@ -20,6 +21,16 @@ cpus {
+ 		#size-cells = <0>;
+ 		timebase-frequency = <1000000>;
+ 
++		idle-states {
++			CPU_RET: cpu-retentive {
++				compatible = "riscv,idle-state";
++				riscv,sbi-suspend-param = <0x00000000>;
++				entry-latency-us = <20>;
++				exit-latency-us = <40>;
++				min-residency-us = <80>;
++			};
++		};
++
+ 		cpu0: cpu@0 {
+ 			compatible = "sifive,p550", "riscv";
+ 			device_type = "cpu";
+@@ -41,6 +52,12 @@ cpu0: cpu@0 {
+ 					       "zba", "zbb", "zicsr", "zifencei";
+ 			tlb-split;
+ 
++			clocks = <&clk EIC7700_CLK_GATE_CPU_EXT_SRC_CORE_CLK_0>;
++			operating-points-v2 = <&cpu_opp_table>;
++			#cooling-cells = <2>;
++			dynamic-power-coefficient = <800>;
++			cpu-idle-states = <&CPU_RET>;
++
+ 			cpu0_intc: interrupt-controller {
+ 				compatible = "riscv,cpu-intc";
+ 				#interrupt-cells = <1>;
+@@ -69,6 +86,12 @@ cpu1: cpu@1 {
+ 					       "zba", "zbb", "zicsr", "zifencei";
+ 			tlb-split;
+ 
++			clocks = <&clk EIC7700_CLK_GATE_CPU_EXT_SRC_CORE_CLK_1>;
++			operating-points-v2 = <&cpu_opp_table>;
++			#cooling-cells = <2>;
++			dynamic-power-coefficient = <800>;
++			cpu-idle-states = <&CPU_RET>;
++
+ 			cpu1_intc: interrupt-controller {
+ 				compatible = "riscv,cpu-intc";
+ 				#interrupt-cells = <1>;
+@@ -97,6 +120,12 @@ cpu2: cpu@2 {
+ 					       "zba", "zbb", "zicsr", "zifencei";
+ 			tlb-split;
+ 
++			clocks = <&clk EIC7700_CLK_GATE_CPU_EXT_SRC_CORE_CLK_2>;
++			operating-points-v2 = <&cpu_opp_table>;
++			#cooling-cells = <2>;
++			dynamic-power-coefficient = <800>;
++			cpu-idle-states = <&CPU_RET>;
++
+ 			cpu2_intc: interrupt-controller {
+ 				compatible = "riscv,cpu-intc";
+ 				#interrupt-cells = <1>;
+@@ -125,6 +154,12 @@ cpu3: cpu@3 {
+ 					       "zba", "zbb", "zicsr", "zifencei";
+ 			tlb-split;
+ 
++			clocks = <&clk EIC7700_CLK_GATE_CPU_EXT_SRC_CORE_CLK_3>;
++			operating-points-v2 = <&cpu_opp_table>;
++			#cooling-cells = <2>;
++			dynamic-power-coefficient = <800>;
++			cpu-idle-states = <&CPU_RET>;
++
+ 			cpu3_intc: interrupt-controller {
+ 				compatible = "riscv,cpu-intc";
+ 				#interrupt-cells = <1>;
+-- 
+2.49.0
+

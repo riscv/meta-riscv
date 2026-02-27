@@ -1,10 +1,10 @@
-From 23b2377cdb1c979f21c2c8cd4012b54beba611c6 Mon Sep 17 00:00:00 2001
-Message-ID: <23b2377cdb1c979f21c2c8cd4012b54beba611c6.1769619771.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
-References: <e81d165e4d6aa80f8a440b24df90f0ae953b6952.1769619771.git.marcel.ziswiler@codethink.co.uk>
+From 14e5cb7e36e229861006e76959ee281d7ce45b45 Mon Sep 17 00:00:00 2001
+Message-ID: <14e5cb7e36e229861006e76959ee281d7ce45b45.1772155703.git.marcel@ziswiler.com>
+In-Reply-To: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
+References: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:30 -0800
-Subject: [PATCH 14/24] riscv: alternative: Allow calls with alternate link
+Subject: [PATCH 14/36] riscv: alternative: Allow calls with alternate link
  registers
 
 Alternative assembly code may wish to use an alternate link register to
@@ -34,5 +34,5 @@ index 7642704c7f18..e3eb2585faea 100644
  
  			riscv_alternative_fix_auipc_jalr(alt_ptr + i * sizeof(u32),
 -- 
-2.52.0
+2.49.0
 
