@@ -38,10 +38,10 @@ SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git;protoc
            file://iwd-wifi.cfg \
 "
 
-SRCREV ?= "aa95a019990986bee50ff2bcede0185035b2e1e0"
+SRCREV ?= "a30b36143a41aa91d0c942e7a08d1c0c861e3102"
 LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 
-LINUX_VERSION ?= "6.19.2"
+LINUX_VERSION ?= "6.19.4"
 
 INSANE_SKIP:append = " textrel"
 
