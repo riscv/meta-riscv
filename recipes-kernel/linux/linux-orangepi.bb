@@ -35,6 +35,8 @@ do_install:append:k1() {
 	sed -i -e 's#${S}##g' ${B}/drivers/tty/vt/consolemap_deftbl.c
 }
 
+do_deploy[depends] += "${INITRAMFS_IMAGE}:do_image_complete"
+
 do_deploy:append:k1() {
 	cd ${DEPLOY_DIR_IMAGE}
 	mkimage -A riscv -O linux -T ramdisk -n "Initial Ram Disk" \
