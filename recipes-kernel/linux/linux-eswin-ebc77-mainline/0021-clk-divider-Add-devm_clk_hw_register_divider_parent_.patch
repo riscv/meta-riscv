@@ -1,19 +1,81 @@
-From 3251682f7e35effba386a741c5faebae52431327 Mon Sep 17 00:00:00 2001
-Message-ID: <3251682f7e35effba386a741c5faebae52431327.1772155703.git.marcel@ziswiler.com>
-In-Reply-To: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
-References: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
+From mboxrd@z Thu Jan  1 00:00:00 1970
+Received: from zg8tmtyylji0my4xnjeumjiw.icoremail.net (zg8tmtyylji0my4xnjeumjiw.icoremail.net [162.243.161.220])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 76800386C2C;
+	Tue,  3 Mar 2026 08:07:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.243.161.220
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772525232; cv=none; b=hR4/CV9K/fEaQ9L4K+/WvLRR9Dk2YuHTAyeGGlygAiRhEpa0V4r8e0ADfj76e8YBQHXPf8dtuaQVdZ8gbb5SI+tOvGWujFa67yrl1A+y2R0mfMP+VC/qoEqAz/qZ6yZX+AMvHcg0yymyrer30s7daFaLFtIsq1rQTEKWnyPe3v4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772525232; c=relaxed/simple;
+	bh=yVlUXNSNAzLyTtSlHlY0aIY4E8Ju1vErfzfdTJkcGoo=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=PPHcTSSFzc8TzseDVPTlQUAVFFybIJwI7CW186j+6Eb0EjQgjCKvRaZjcF0llcwBRzyt5Z821VBIy0IfpcL4qN0Bad++izBRG6GQ6Ttj/tplCvxqxu990jgjA7Eoc5E7AUp26AOwzuGk8vS5uHPNPJTGHP2/yfMRXNE+veXgJPY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=eswincomputing.com; spf=pass smtp.mailfrom=eswincomputing.com; arc=none smtp.client-ip=162.243.161.220
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=eswincomputing.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=eswincomputing.com
+Received: from E0005152DT.eswin.cn (unknown [10.12.96.41])
+	by app1 (Coremail) with SMTP id TAJkCgAnyXKilqZpSUEFAA--.23566S2;
+	Tue, 03 Mar 2026 16:07:00 +0800 (CST)
+From: dongxuyang@eswincomputing.com
+To: mturquette@baylibre.com,
+	sboyd@kernel.org,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	linux-clk@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	troy.mitchell@linux.dev,
+	bmasney@redhat.com
+Cc: ningyu@eswincomputing.com,
+	linmin@eswincomputing.com,
+	huangyifeng@eswincomputing.com,
+	pinkesh.vaghela@einfochips.com,
+	ganboing@gmail.com,
+	marcel@ziswiler.com,
+	Xuyang Dong <dongxuyang@eswincomputing.com>
+Subject: [PATCH v15 2/4] clk: divider: Add devm_clk_hw_register_divider_parent_data
+Date: Tue,  3 Mar 2026 16:06:55 +0800
+Message-Id: <20260303080655.2155-1-dongxuyang@eswincomputing.com>
+X-Mailer: git-send-email 2.31.1.windows.1
+In-Reply-To: <20260303080513.2042-1-dongxuyang@eswincomputing.com>
+References: <20260303080513.2042-1-dongxuyang@eswincomputing.com>
+Precedence: bulk
+X-Mailing-List: devicetree@vger.kernel.org
+List-Id: <devicetree.vger.kernel.org>
+List-Subscribe: <mailto:devicetree+subscribe@vger.kernel.org>
+List-Unsubscribe: <mailto:devicetree+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:TAJkCgAnyXKilqZpSUEFAA--.23566S2
+X-Coremail-Antispam: 1UD129KBjvJXoW7Ww4DJF13Wr45XrWkWFyUJrb_yoW8AFykpF
+	y0kasxGayjgF47Zwsxt3ZFvFyrXa1ktF1jkrWxJrn2kry5Gay8tw48Aa4ft3WUJFs7Zr1Y
+	qFW2q3yrCr4FyFJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUBm14x267AKxVW5JVWrJwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
+	1l84ACjcxK6xIIjxv20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4U
+	JVWxJr1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gc
+	CE3s1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E
+	2Ix0cI8IcVAFwI0_Jrv_JF1lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJV
+	W8JwACjcxG0xvY0x0EwIxGrwACjI8F5VA0II8E6IAqYI8I648v4I1lFIxGxcIEc7CjxVA2
+	Y2ka0xkIwI1lw4CEc2x0rVAKj4xxMxkF7I0En4kS14v26r4a6rW5MxkIecxEwVCm-wCF04
+	k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18
+	MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_GFv_WrylIxkGc2Ij64vIr4
+	1lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1U
+	MIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I
+	8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjTRNSdgDUUUU
+X-CM-SenderInfo: pgrqw5xx1d0w46hv4xpqfrz1xxwl0woofrz/
+
 From: Xuyang Dong <dongxuyang@eswincomputing.com>
-Date: Thu, 26 Feb 2026 17:06:30 +0800
-Subject: [PATCH 21/36] clk: divider: Add
- devm_clk_hw_register_divider_parent_data
 
 Add the devres variant of clk_hw_register_divider_parent_data() for
 registering a divider clock with parent clk data instead of parent
 name.
 
+Reviewed-by: Brian Masney <bmasney@redhat.com>
 Signed-off-by: Xuyang Dong <dongxuyang@eswincomputing.com>
 
-Upstream-Status: Submitted [https://lore.kernel.org/all/20260226090630.1812-1-dongxuyang@eswincomputing.com]
+Upstream-Status: Submitted [https://lore.kernel.org/all/20260303080655.2155-1-dongxuyang@eswincomputing.com]
 ---
  include/linux/clk-provider.h | 20 ++++++++++++++++++++
  1 file changed, 20 insertions(+)
@@ -50,5 +112,6 @@ index 630705a47129..64967ac1b1df 100644
   * devm_clk_hw_register_divider_table - register a table based divider clock
   * with the clock framework (devres variant)
 -- 
-2.49.0
+2.34.1
+
 
