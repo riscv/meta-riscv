@@ -1,28 +1,91 @@
-From aeab20fed77f1ef47cc1f7b3b6b3824583d2ea21 Mon Sep 17 00:00:00 2001
-Message-ID: <aeab20fed77f1ef47cc1f7b3b6b3824583d2ea21.1772155703.git.marcel@ziswiler.com>
-In-Reply-To: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
-References: <57ccec6b1f9983daf0b62e4cb87f44ebb7005559.1772155703.git.marcel@ziswiler.com>
+From mboxrd@z Thu Jan  1 00:00:00 1970
+Received: from zg8tmja2lje4os4yms4ymjma.icoremail.net (zg8tmja2lje4os4yms4ymjma.icoremail.net [206.189.21.223])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 515D7386C22;
+	Tue,  3 Mar 2026 08:07:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=206.189.21.223
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772525252; cv=none; b=ohvAsfAM3QxxQyrmuGVfe3zZlxYv17r3X9HSYzJuRt/8F3sGImUN5bFIOqBJuzaNqyd710amHkboyS4gM4A1POo2BWIGRHGLGkhTPxbk0JEYvlnoE1G4NbvQ5mcA8uHNxiiKCXTBcPdzvrMRflkDQUhhnngBzwG6980ge4/DqEM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772525252; c=relaxed/simple;
+	bh=gOVT+7PJ68O6j1OhY3oL25C0pQQtHMNci3GoSeOLkFY=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=ecFfBrmLsVtJLTbQHd87xmg8xaID+gBpvFdZk6eTF9z/KhxdweW4mQ1VETIf/yZe9jRNpt9PrwhwdwMKet2Jss6yPQdCzoDb3sGJwuWYJL7dDh4hvscaQSNmx2jp72QcNWEBekK4X6SWY/KQMmdNPIaMR0dzC635r+A/M2wEkhY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=eswincomputing.com; spf=pass smtp.mailfrom=eswincomputing.com; arc=none smtp.client-ip=206.189.21.223
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=eswincomputing.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=eswincomputing.com
+Received: from E0005152DT.eswin.cn (unknown [10.12.96.41])
+	by app2 (Coremail) with SMTP id TQJkCgAXLaCzlqZpFT8FAA--.22380S2;
+	Tue, 03 Mar 2026 16:07:17 +0800 (CST)
+From: dongxuyang@eswincomputing.com
+To: mturquette@baylibre.com,
+	sboyd@kernel.org,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	linux-clk@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	troy.mitchell@linux.dev,
+	bmasney@redhat.com
+Cc: ningyu@eswincomputing.com,
+	linmin@eswincomputing.com,
+	huangyifeng@eswincomputing.com,
+	pinkesh.vaghela@einfochips.com,
+	ganboing@gmail.com,
+	marcel@ziswiler.com,
+	Xuyang Dong <dongxuyang@eswincomputing.com>
+Subject: [PATCH v15 3/4] clk: eswin: Add eic7700 clock driver
+Date: Tue,  3 Mar 2026 16:07:12 +0800
+Message-Id: <20260303080712.2210-1-dongxuyang@eswincomputing.com>
+X-Mailer: git-send-email 2.31.1.windows.1
+In-Reply-To: <20260303080513.2042-1-dongxuyang@eswincomputing.com>
+References: <20260303080513.2042-1-dongxuyang@eswincomputing.com>
+Precedence: bulk
+X-Mailing-List: devicetree@vger.kernel.org
+List-Id: <devicetree.vger.kernel.org>
+List-Subscribe: <mailto:devicetree+subscribe@vger.kernel.org>
+List-Unsubscribe: <mailto:devicetree+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:TQJkCgAXLaCzlqZpFT8FAA--.22380S2
+X-Coremail-Antispam: 1UD129KBjvAXoWkGrWDWFy3Cw4rtw1DGF43GFg_yoWftrW8Jo
+	W8CFs3Zry8tw1UurZ8Gr1fJw1Y9a1xAr9FvF1rWwn7CFnrG39rt348AF4Yvr1fJ34j9r95
+	Ar1vkrWfZFZrXay7n29KB7ZKAUJUUUU8529EdanIXcx71UUUUU7v73VFW2AGmfu7bjvjm3
+	AaLaJ3UjIYCTnIWjp_UUUYN7AC8VAFwI0_Xr0_Wr1l1xkIjI8I6I8E6xAIw20EY4v20xva
+	j40_Wr0E3s1l1IIY67AEw4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2
+	x7M28EF7xvwVC0I7IYx2IY67AKxVW7JVWDJwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVW8
+	Jr0_Cr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26r
+	xl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj
+	6xIIjxv20xvE14v26r1Y6r17McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr
+	0_Gr1lF7xvr2IYc2Ij64vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7M4IIrI8v6xkF7I0E
+	8cxan2IY04v7M4kE6xkIj40Ew7xC0wCY1x0262kKe7AKxVW8ZVWrXwCY02Avz4vE-syl42
+	xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWU
+	GwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI4
+	8JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26F4j6r4U
+	JwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcV
+	C2z280aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7sRiBT5PUUUUU==
+X-CM-SenderInfo: pgrqw5xx1d0w46hv4xpqfrz1xxwl0woofrz/
+
 From: Xuyang Dong <dongxuyang@eswincomputing.com>
-Date: Thu, 26 Feb 2026 17:06:46 +0800
-Subject: [PATCH 22/36] clk: eswin: Add eic7700 clock driver
 
 Add clock drivers for the EIC7700 SoC. The clock controller on the ESWIN
 EIC7700 provides various clocks to different IP blocks within the SoC.
 
 Signed-off-by: Yifeng Huang <huangyifeng@eswincomputing.com>
 Tested-by: Marcel Ziswiler <marcel@ziswiler.com> # ebc77
+Reviewed-by: Brian Masney <bmasney@redhat.com>
 Signed-off-by: Xuyang Dong <dongxuyang@eswincomputing.com>
 
-Upstream-Status: Submitted [https://lore.kernel.org/all/20260226090646.1867-1-dongxuyang@eswincomputing.com]
+Upstream-Status: Submitted [https://lore.kernel.org/all/20260303080712.2210-1-dongxuyang@eswincomputing.com]
 ---
  drivers/clk/Kconfig             |    1 +
  drivers/clk/Makefile            |    1 +
  drivers/clk/eswin/Kconfig       |   15 +
  drivers/clk/eswin/Makefile      |    8 +
  drivers/clk/eswin/clk-eic7700.c | 1376 +++++++++++++++++++++++++++++++
- drivers/clk/eswin/clk.c         |  588 +++++++++++++
+ drivers/clk/eswin/clk.c         |  586 +++++++++++++
  drivers/clk/eswin/common.h      |  340 ++++++++
- 7 files changed, 2329 insertions(+)
+ 7 files changed, 2327 insertions(+)
  create mode 100644 drivers/clk/eswin/Kconfig
  create mode 100644 drivers/clk/eswin/Makefile
  create mode 100644 drivers/clk/eswin/clk-eic7700.c
@@ -30,11 +93,11 @@ Upstream-Status: Submitted [https://lore.kernel.org/all/20260226090646.1867-1-do
  create mode 100644 drivers/clk/eswin/common.h
 
 diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
-index 3a1611008e48..2a9056d41093 100644
+index 3d803b4cf5c1..3b0f82e51523 100644
 --- a/drivers/clk/Kconfig
 +++ b/drivers/clk/Kconfig
-@@ -515,6 +515,7 @@ source "drivers/clk/actions/Kconfig"
- source "drivers/clk/analogbits/Kconfig"
+@@ -504,6 +504,7 @@ source "drivers/clk/analogbits/Kconfig"
+ source "drivers/clk/aspeed/Kconfig"
  source "drivers/clk/baikal-t1/Kconfig"
  source "drivers/clk/bcm/Kconfig"
 +source "drivers/clk/eswin/Kconfig"
@@ -42,10 +105,10 @@ index 3a1611008e48..2a9056d41093 100644
  source "drivers/clk/imgtec/Kconfig"
  source "drivers/clk/imx/Kconfig"
 diff --git a/drivers/clk/Makefile b/drivers/clk/Makefile
-index 61ec08404442..4e87924dd983 100644
+index f7bce3951a30..ab5205654c48 100644
 --- a/drivers/clk/Makefile
 +++ b/drivers/clk/Makefile
-@@ -121,6 +121,7 @@ obj-$(CONFIG_CLK_BAIKAL_T1)		+= baikal-t1/
+@@ -120,6 +120,7 @@ obj-$(CONFIG_CLK_BAIKAL_T1)		+= baikal-t1/
  obj-y					+= bcm/
  obj-$(CONFIG_ARCH_BERLIN)		+= berlin/
  obj-$(CONFIG_ARCH_DAVINCI)		+= davinci/
@@ -90,7 +153,7 @@ index 000000000000..4a7c2af82164
 +obj-$(CONFIG_COMMON_CLK_EIC7700)	+= clk-eic7700.o
 diff --git a/drivers/clk/eswin/clk-eic7700.c b/drivers/clk/eswin/clk-eic7700.c
 new file mode 100644
-index 000000000000..6f091a06fa2d
+index 000000000000..be81d74192da
 --- /dev/null
 +++ b/drivers/clk/eswin/clk-eic7700.c
 @@ -0,0 +1,1376 @@
@@ -1467,15 +1530,15 @@ index 000000000000..6f091a06fa2d
 +module_platform_driver(eic7700_clock_driver);
 +
 +MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Yifeng Huang<huangyifeng@eswincomputing.com>");
-+MODULE_AUTHOR("Xuyang Dong<dongxuyang@eswincomputing.com>");
++MODULE_AUTHOR("Yifeng Huang <huangyifeng@eswincomputing.com>");
++MODULE_AUTHOR("Xuyang Dong <dongxuyang@eswincomputing.com>");
 +MODULE_DESCRIPTION("ESWIN EIC7700 clock controller driver");
 diff --git a/drivers/clk/eswin/clk.c b/drivers/clk/eswin/clk.c
 new file mode 100644
-index 000000000000..3d40d1d7e696
+index 000000000000..e09a52cc3587
 --- /dev/null
 +++ b/drivers/clk/eswin/clk.c
-@@ -0,0 +1,588 @@
+@@ -0,0 +1,586 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright 2026, Beijing ESWIN Computing Technology Co., Ltd..
@@ -1518,8 +1581,6 @@ index 000000000000..3d40d1d7e696
 +		return ERR_PTR(-EINVAL);
 +
 +	eclk_data->clk_data.num = nr_clks;
-+	/* Avoid returning NULL for unused id */
-+	memset_p((void **)eclk_data->clk_data.hws, ERR_PTR(-ENOENT), nr_clks);
 +	spin_lock_init(&eclk_data->lock);
 +
 +	return eclk_data;
@@ -2411,5 +2472,6 @@ index 000000000000..d8e5e6545894
 +
 +#endif /* __ESWIN_COMMON_H__ */
 -- 
-2.49.0
+2.34.1
+
 
