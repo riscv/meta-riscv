@@ -30,6 +30,7 @@ SRC_URI:k1 = " \
             git://source.denx.de/u-boot/u-boot.git;protocol=https;branch=master \
             file://bootcommand.cfg \
             "
+
 # Master branch as of Dec 11, 2025
 SRCREV:k1 = "ff80e95fed188ec3d4001129445e414c9c811beb"
 
