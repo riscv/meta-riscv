@@ -27,6 +27,7 @@ KERNEL_IMAGETYPE = "Image"
 EXTRA_IMAGEDEPENDS += "u-boot-spl-k1 boot-bundle"
 
 IMAGE_FSTYPES += "wic.gz wic.bmap ext4 tar.zst"
+IMAGE_CLASSES:append = " k1-image"
 
 MACHINE_ESSENTIAL_EXTRA_RDEPENDS += "kernel-modules"
 
