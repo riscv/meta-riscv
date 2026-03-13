@@ -1,0 +1,65 @@
+From f8f1f487ad34e601d095a56504c08f65fa252987 Mon Sep 17 00:00:00 2001
+From: Trevor Gamblin <tgamblin@baylibre.com>
+Date: Fri, 13 Mar 2026 07:43:38 -0400
+Subject: [PATCH] k1-orangepi-rv2: limit SD to HS mode
+
+Upstream-Status: Pending
+
+When booting with the default settings, I am seeing:
+
+|[    1.058889] spacemit-p1-rtc spacemit-p1-rtc.1.auto: registered as rtc0
+|[    1.063092] spacemit-p1-rtc spacemit-p1-rtc.1.auto: hctosys: unable to read the hardware clock
+|[    1.072417] sdhci-spacemit d4280000.mmc: Got CD GPIO
+|[    1.109741] mmc0: SDHCI controller on d4280000.mmc [d4280000.mmc] using ADMA
+|[    1.114589] clk: Disabling unused clocks
+|[    1.118421] PM: genpd: Disabling unused power domains
+|[    1.123249] ALSA device list:
+|[    1.126[    1.129949] check access for rdinit=/init failed: -2, ignoring
+|[    1.133284] Waiting for root device PARTUUID=e94bfdd7-a36f-4315-a480-476e2a12403d...
+|[    1.176569] mmc0: new UHS-I speed DDR50 SDHC card at address aaaa
+|[    1.180732] mmcblk0: mmc0:aaaa SS16G 14.8 GiB
+|[    1.276268] mmcblk0: recovery failed!
+|[    1.277351] I/O error, dev mmcblk0, sector 0 op 0x0:(READ) flags 0x800000 phys_seg 1 prio class 2
+|[    1.286346] Buffer I/O error on dev mmcblk0, logical block 0, async page read
+|[    1.293891] mmcblk0: recovery failed!
+|[    1.297289] I/O error, dev mmcblk0, sector 0 op 0x0:(READ) flags 0x800000 phys_seg 1 prio class 2
+|[    1.306269] Buffer I/O error on dev mmcblk0, logical block 0, async page read
+|[    1.313522]  mmcblk0: unable to read partition table
+
+Reduce the bus speed to help ensure the MMC works properly.
+
+Signed-off-by: Trevor Gamblin <tgamblin@baylibre.com>
+---
+ arch/riscv/boot/dts/spacemit/k1-orangepi-rv2.dts | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
+
+diff --git a/arch/riscv/boot/dts/spacemit/k1-orangepi-rv2.dts b/arch/riscv/boot/dts/spacemit/k1-orangepi-rv2.dts
+index 361135269801..d4449ba5ade2 100644
+--- a/arch/riscv/boot/dts/spacemit/k1-orangepi-rv2.dts
++++ b/arch/riscv/boot/dts/spacemit/k1-orangepi-rv2.dts
+@@ -142,20 +142,16 @@ sd_vqmmc: aldo1 {
+ };
+ 
+ &sdhci0 {
+-	pinctrl-names = "default", "state_uhs";
++	pinctrl-names = "default";
+ 	pinctrl-0 = <&mmc1_cfg>;
+-	pinctrl-1 = <&mmc1_uhs_cfg>;
+ 	bus-width = <4>;
+ 	cd-gpios = <&gpio K1_GPIO(80) GPIO_ACTIVE_HIGH>;
+ 	cd-inverted;
+ 	no-mmc;
+ 	no-sdio;
+ 	disable-wp;
+-	cap-sd-highspeed;
+ 	vmmc-supply = <&sd_vmmc>;
+ 	vqmmc-supply = <&sd_vqmmc>;
+-	sd-uhs-sdr25;
+-	sd-uhs-sdr50;
+-	sd-uhs-sdr104;
++	no-1-8-v;
+ 	status = "okay";
+ };
+-- 
+2.53.0
+

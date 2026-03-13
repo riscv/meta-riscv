@@ -1,0 +1,105 @@
+From b3b05778aeee8aa0af769fdc8cb6b92635f44604 Mon Sep 17 00:00:00 2001
+From: Iker Pedrosa <ikerpedrosam@gmail.com>
+Date: Mon, 9 Mar 2026 12:40:13 +0100
+Subject: [PATCH 3/8] mmc: sdhci-of-k1: add SDR tuning infrastructure
+
+Upstream-Status: Submitted
+[https://lore.kernel.org/spacemit/20260309-orangepi-sd-card-uhs-v2-0-5bb2b574df5d@gmail.com/T/#]
+
+Add register definitions and delay line control functions to prepare for
+SDR50/SDR104 tuning support:
+
+- Add tuning register definitions (RX_CFG, DLINE_CTRL, DLINE_CFG)
+- Add delay line control helper functions
+- Add tuning preparation function
+
+This infrastructure prepares for implementing the SDR tuning algorithm
+while maintaining all existing functionality.
+
+Signed-off-by: Iker Pedrosa <ikerpedrosam@gmail.com>
+---
+ drivers/mmc/host/sdhci-of-k1.c | 61 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 61 insertions(+)
+
+diff --git a/drivers/mmc/host/sdhci-of-k1.c b/drivers/mmc/host/sdhci-of-k1.c
+index 8af117a8e271..79cb7c8d0b6d 100644
+--- a/drivers/mmc/host/sdhci-of-k1.c
++++ b/drivers/mmc/host/sdhci-of-k1.c
+@@ -68,6 +68,23 @@
+ #define  SDHC_PHY_DRIVE_SEL		GENMASK(2, 0)
+ #define  SDHC_RX_BIAS_CTRL		BIT(5)
+ 
++#define SPACEMIT_SDHC_RX_CFG_REG        0x118
++#define  SDHC_RX_SDCLK_SEL0_MASK        GENMASK(1, 0)
++#define  SDHC_RX_SDCLK_SEL1_MASK        GENMASK(3, 2)
++#define  SDHC_RX_SDCLK_SEL1             FIELD_PREP(SDHC_RX_SDCLK_SEL1_MASK, 1)
++
++#define SPACEMIT_SDHC_DLINE_CTRL_REG    0x130
++#define  SDHC_DLINE_PU                  BIT(0)
++#define  SDHC_RX_DLINE_CODE_MASK        GENMASK(23, 16)
++#define  SDHC_TX_DLINE_CODE_MASK        GENMASK(31, 24)
++
++#define SPACEMIT_SDHC_DLINE_CFG_REG     0x134
++#define  SDHC_RX_DLINE_REG_MASK         GENMASK(7, 0)
++#define  SDHC_RX_DLINE_GAIN             BIT(8)
++#define  SDHC_TX_DLINE_REG_MASK         GENMASK(23, 16)
++
++#define SPACEMIT_RX_DLINE_REG		9
++
+ struct spacemit_sdhci_host {
+ 	struct clk *clk_core;
+ 	struct clk *clk_io;
+@@ -95,6 +112,50 @@ static inline void spacemit_sdhci_clrsetbits(struct sdhci_host *host, u32 clr, u
+ 	sdhci_writel(host, val, reg);
+ }
+ 
++static void spacemit_sdhci_set_rx_delay(struct sdhci_host *host, u8 delay)
++{
++	spacemit_sdhci_clrsetbits(host, SDHC_RX_DLINE_CODE_MASK,
++				  FIELD_PREP(SDHC_RX_DLINE_CODE_MASK, delay),
++				  SPACEMIT_SDHC_DLINE_CTRL_REG);
++}
++
++static void spacemit_sdhci_set_tx_delay(struct sdhci_host *host, u8 delay)
++{
++	spacemit_sdhci_clrsetbits(host, SDHC_TX_DLINE_CODE_MASK,
++				  FIELD_PREP(SDHC_TX_DLINE_CODE_MASK, delay),
++				  SPACEMIT_SDHC_DLINE_CTRL_REG);
++}
++
++static void spacemit_sdhci_set_tx_dline_reg(struct sdhci_host *host, u8 dline_reg)
++{
++	spacemit_sdhci_clrsetbits(host, SDHC_TX_DLINE_REG_MASK,
++				  FIELD_PREP(SDHC_TX_DLINE_REG_MASK, dline_reg),
++				  SPACEMIT_SDHC_DLINE_CFG_REG);
++}
++
++static void spacemit_sdhci_tx_tuning_prepare(struct sdhci_host *host)
++{
++	spacemit_sdhci_setbits(host, SDHC_TX_MUX_SEL, SPACEMIT_SDHC_TX_CFG_REG);
++	spacemit_sdhci_setbits(host, SDHC_DLINE_PU, SPACEMIT_SDHC_DLINE_CTRL_REG);
++	udelay(5);
++}
++
++static void spacemit_sdhci_prepare_tuning(struct sdhci_host *host)
++{
++	spacemit_sdhci_clrsetbits(host, SDHC_RX_DLINE_REG_MASK,
++				  FIELD_PREP(SDHC_RX_DLINE_REG_MASK, SPACEMIT_RX_DLINE_REG),
++				  SPACEMIT_SDHC_DLINE_CFG_REG);
++
++	spacemit_sdhci_setbits(host, SDHC_DLINE_PU, SPACEMIT_SDHC_DLINE_CTRL_REG);
++	udelay(5);
++
++	spacemit_sdhci_clrsetbits(host, SDHC_RX_SDCLK_SEL1_MASK, SDHC_RX_SDCLK_SEL1,
++				  SPACEMIT_SDHC_RX_CFG_REG);
++
++	if (host->mmc->ios.timing == MMC_TIMING_MMC_HS200)
++		spacemit_sdhci_setbits(host, SDHC_HS200_USE_RFIFO, SPACEMIT_SDHC_PHY_FUNC_REG);
++}
++
+ static void spacemit_sdhci_reset(struct sdhci_host *host, u8 mask)
+ {
+ 	sdhci_reset(host, mask);
+-- 
+2.53.0
+
