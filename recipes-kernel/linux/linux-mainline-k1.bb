@@ -9,8 +9,8 @@ SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git;prot
            file://nfs.cfg \
            file://misc.cfg \
           "
-SRCREV = "05f7e89ab9731565d8a62e3b5d1ec206485eeb0b"
+SRCREV = "f338e77383789c0cae23ca3d48adcc5e9e137e3c"
 KBUILD_DEFCONFIG ?= "defconfig"
-LINUX_VERSION = "6.19"
+LINUX_VERSION = "7.0-rc4"
 
 COMPATIBLE_MACHINE = "(k1)"
