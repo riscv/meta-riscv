@@ -1,0 +1,7 @@
+header:
+  version: 20
+  includes:
+    - base-riscv.yml
+
+machine: beaglev-ahead
+target: core-image-minimal
