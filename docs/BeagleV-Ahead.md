@@ -7,7 +7,41 @@ The board provides both a eMMC based startup and booting from U-Boot (the curren
 How to Build
 ============
 
-Create an image with `MACHINE=beaglev-ahead` setting in `conf/local.conf` and obtain the following build artifacts (the following assumes a core-image-minimal):
+Clone and enable these repositories and enable the below layers:
+
+* bitbake
+* openembedded-core
+  * meta
+* meta-riscv
+
+See [the Yocto Project](https://docs.yoctoproject.org/brief-yoctoprojectqs/index.html) manual for details.
+
+Set these variables in a configuration file:
+
+* `MACHINE = "beaglev-ahead"`
+* `DISTRO = "poky-altcfg"`
+* `EXTRA_IMAGE_FEATURES = "allow-empty-password empty-root-password allow-root-login post-install-logging"`
+
+Build your image:
+
+```
+$ bitbake core-image-minimal
+```
+
+How to Build - Using Kas
+========================
+
+```
+$ kas build /path/to/meta-riscv/kas/beaglev-ahead.yml
+```
+
+The `kas` tool can be installed as a package on your distribution or
+be obtained from the [kas repository](https://github.com/siemens/kas/).
+
+Build artifacts
+===============
+
+After building, you will obtain the following artifacts: 
 
 - u-boot-with-spl.bin : the SPL boot loader
 - boot.ext4 : a generated ext4 partition containing `fw_dynamic.bin`, `Image`, and `th1520-beaglev-ahead.dtb`
