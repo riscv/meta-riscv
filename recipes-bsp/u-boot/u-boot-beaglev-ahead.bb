@@ -11,7 +11,8 @@ SRC_URI = " \
     file://0001-Set-sec_library-path-to-source-location.patch \
     file://0002-Fix-errors-for-GCC-14-compatibility.patch \
     file://tftp-mmc-boot.txt \
-    file://uEnv-beaglev-ahead.txt \
+    file://uEnv.txt \
+    file://boot.cmd \
 "
 
 SRCREV = "85565d543633e5532d727039e1f880117c74f0a8"
@@ -35,8 +36,9 @@ do_install() {
 }
 
 do_deploy() {
+    install -d ${DEPLOYDIR}
     install -m 644 ${B}/u-boot-with-spl.bin ${DEPLOYDIR}
-    install -m 644 ${UNPACKDIR}/uEnv-beaglev-ahead.txt ${DEPLOYDIR}/uEnv.txt
+    install -m 644 ${UNPACKDIR}/uEnv.txt ${DEPLOYDIR}/uEnv.txt
 }
 
 TOOLCHAIN = "gcc"
