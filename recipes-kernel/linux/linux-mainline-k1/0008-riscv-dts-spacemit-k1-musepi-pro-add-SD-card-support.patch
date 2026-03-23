@@ -1,10 +1,11 @@
-From 76acc75047693960a203ea1dbacbcaaf88535427 Mon Sep 17 00:00:00 2001
+From 7b11dd107525221cfd6ebd9fb22ea8f8aaf35404 Mon Sep 17 00:00:00 2001
 From: Trevor Gamblin <tgamblin@baylibre.com>
-Date: Thu, 12 Mar 2026 09:52:57 -0400
-Subject: [PATCH] riscv: dts: spacemit: k1-musepi-pro: add SD card support with
- UHS modes
+Date: Mon, 23 Mar 2026 11:19:11 +0100
+Subject: [PATCH 8/8] riscv: dts: spacemit: k1-musepi-pro: add SD card support
+ with UHS modes
 
-Upstream-Status: Pending
+Upstream-Status: Submitted
+[https://lore.kernel.org/linux-riscv/20260323-orangepi-sd-card-uhs-v4-0-567c9775fd0e@gmail.com/]
 
 Update the Muse Pi Pro devicetree with SD card support to match what
 was done for the OrangePi RV2 in [1]. More precisely:
@@ -18,8 +19,8 @@ was done for the OrangePi RV2 in [1]. More precisely:
 
 [1] https://lore.kernel.org/linux-riscv/20260316-orangepi-sd-card-uhs-v3-0-aefd3b7832df@gmail.com/T/#
 
-Co-developed-by: Iker Pedrosa <ikerpedrosam@gmail.com>
 Signed-off-by: Trevor Gamblin <tgamblin@baylibre.com>
+Signed-off-by: Iker Pedrosa <ikerpedrosam@gmail.com>
 ---
  .../riscv/boot/dts/spacemit/k1-musepi-pro.dts | 66 +++++++++++++++++++
  1 file changed, 66 insertions(+)

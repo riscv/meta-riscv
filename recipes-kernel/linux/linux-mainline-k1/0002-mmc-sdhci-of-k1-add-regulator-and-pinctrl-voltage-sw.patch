@@ -1,11 +1,11 @@
-From dbbfd715b098f9ab8891599ec3b08bc82ac380b4 Mon Sep 17 00:00:00 2001
+From 18b49be39e2b70357f7b24770383635dfa160655 Mon Sep 17 00:00:00 2001
 From: Iker Pedrosa <ikerpedrosam@gmail.com>
-Date: Mon, 16 Mar 2026 15:03:30 +0100
-Subject: [PATCH 2/7] mmc: sdhci-of-k1: add regulator and pinctrl voltage
+Date: Mon, 23 Mar 2026 11:19:05 +0100
+Subject: [PATCH 2/8] mmc: sdhci-of-k1: add regulator and pinctrl voltage
  switching support
 
 Upstream-Status: Submitted
-[https://lore.kernel.org/linux-riscv/20260316-orangepi-sd-card-uhs-v3-0-aefd3b7832df@gmail.com/T/#]
+[https://lore.kernel.org/linux-riscv/20260323-orangepi-sd-card-uhs-v4-0-567c9775fd0e@gmail.com/]
 
 Add voltage switching infrastructure for UHS-I modes by integrating both
 regulator framework (for supply voltage control) and pinctrl state
@@ -20,13 +20,14 @@ This provides complete voltage switching support while maintaining
 backward compatibility when pinctrl states are not defined.
 
 Tested-by: Anand Moon <linux.amoon@gmail.com>
+Tested-by: Trevor Gamblin <tgamblin@baylibre.com>
 Signed-off-by: Iker Pedrosa <ikerpedrosam@gmail.com>
 ---
- drivers/mmc/host/sdhci-of-k1.c | 58 ++++++++++++++++++++++++++++++++++
- 1 file changed, 58 insertions(+)
+ drivers/mmc/host/sdhci-of-k1.c | 72 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 72 insertions(+)
 
 diff --git a/drivers/mmc/host/sdhci-of-k1.c b/drivers/mmc/host/sdhci-of-k1.c
-index 585c7eca6ebf..b2cd35f275ac 100644
+index 585c7eca6ebf..1231b814aa64 100644
 --- a/drivers/mmc/host/sdhci-of-k1.c
 +++ b/drivers/mmc/host/sdhci-of-k1.c
 @@ -15,6 +15,7 @@
@@ -47,46 +48,59 @@ index 585c7eca6ebf..b2cd35f275ac 100644
  };
  
  /* All helper functions will update clr/set while preserve rest bits */
-@@ -218,6 +222,33 @@ static void spacemit_sdhci_pre_hs400_to_hs200(struct mmc_host *mmc)
+@@ -218,6 +222,46 @@ static void spacemit_sdhci_pre_hs400_to_hs200(struct mmc_host *mmc)
  			       SPACEMIT_SDHC_PHY_CTRL_REG);
  }
  
-+static void spacemit_sdhci_voltage_switch(struct sdhci_host *host)
++static int spacemit_sdhci_start_signal_voltage_switch(struct mmc_host *mmc,
++						      struct mmc_ios *ios)
 +{
++	struct sdhci_host *host = mmc_priv(mmc);
 +	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
 +	struct spacemit_sdhci_host *sdhst = sdhci_pltfm_priv(pltfm_host);
-+	struct mmc_ios *ios = &host->mmc->ios;
++	struct pinctrl_state *state;
 +	int ret;
 +
++	ret = sdhci_start_signal_voltage_switch(mmc, ios);
++	if (ret)
++		return ret;
++
 +	if (!sdhst->pinctrl)
-+		return;
++		return 0;
 +
-+	if (ios->signal_voltage != MMC_SIGNAL_VOLTAGE_180) {
-+		dev_warn(mmc_dev(host->mmc), "unsupported voltage %d\n",
-+			 ios->signal_voltage);
-+		return;
++	/* Select appropriate pinctrl state based on signal voltage */
++	switch (ios->signal_voltage) {
++	case MMC_SIGNAL_VOLTAGE_330:
++		state = sdhst->pinctrl_default;
++		break;
++	case MMC_SIGNAL_VOLTAGE_180:
++		state = sdhst->pinctrl_uhs;
++		break;
++	default:
++		dev_warn(mmc_dev(mmc), "unsupported voltage %d\n", ios->signal_voltage);
++		return 0;
 +	}
 +
-+	if (sdhst->pinctrl_uhs) {
-+		ret = pinctrl_select_state(sdhst->pinctrl, sdhst->pinctrl_uhs);
-+		if (ret) {
-+			dev_warn(mmc_dev(host->mmc),
-+				 "failed to select UHS pinctrl state: %d\n", ret);
-+			return;
-+		}
-+		dev_dbg(mmc_dev(host->mmc), "switched to UHS pinctrl state\n");
++	ret = pinctrl_select_state(sdhst->pinctrl, state);
++	if (ret) {
++		dev_warn(mmc_dev(mmc), "failed to select pinctrl state: %d\n", ret);
++		return 0;
 +	}
++	dev_dbg(mmc_dev(mmc), "switched to %s pinctrl state\n",
++		ios->signal_voltage == MMC_SIGNAL_VOLTAGE_180 ? "UHS" : "default");
++
++	return 0;
 +}
 +
  static inline int spacemit_sdhci_get_clocks(struct device *dev,
  					    struct sdhci_pltfm_host *pltfm_host)
  {
-@@ -236,12 +267,37 @@ static inline int spacemit_sdhci_get_clocks(struct device *dev,
+@@ -236,6 +280,30 @@ static inline int spacemit_sdhci_get_clocks(struct device *dev,
  	return 0;
  }
  
 +static inline void spacemit_sdhci_get_pins(struct device *dev,
-+					    struct sdhci_pltfm_host *pltfm_host)
++					   struct sdhci_pltfm_host *pltfm_host)
 +{
 +	struct spacemit_sdhci_host *sdhst = sdhci_pltfm_priv(pltfm_host);
 +
@@ -112,18 +126,13 @@ index 585c7eca6ebf..b2cd35f275ac 100644
  static const struct sdhci_ops spacemit_sdhci_ops = {
  	.get_max_clock		= spacemit_sdhci_clk_get_max_clock,
  	.reset			= spacemit_sdhci_reset,
- 	.set_bus_width		= sdhci_set_bus_width,
- 	.set_clock		= spacemit_sdhci_set_clock,
- 	.set_uhs_signaling	= spacemit_sdhci_set_uhs_signaling,
-+	.voltage_switch         = spacemit_sdhci_voltage_switch,
- };
- 
- static const struct sdhci_pltfm_data spacemit_sdhci_k1_pdata = {
-@@ -293,6 +349,8 @@ static int spacemit_sdhci_probe(struct platform_device *pdev)
+@@ -293,6 +361,10 @@ static int spacemit_sdhci_probe(struct platform_device *pdev)
  
  	host->mmc->caps |= MMC_CAP_NEED_RSP_BUSY;
  
 +	spacemit_sdhci_get_pins(dev, pltfm_host);
++
++	host->mmc_host_ops.start_signal_voltage_switch = spacemit_sdhci_start_signal_voltage_switch;
 +
  	ret = spacemit_sdhci_get_clocks(dev, pltfm_host);
  	if (ret)
