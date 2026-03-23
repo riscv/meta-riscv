@@ -16,7 +16,7 @@ SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git;prot
            file://0005-riscv-dts-spacemit-k1-orangepi-rv2-add-PMIC-and-powe.patch \
            file://0006-riscv-dts-spacemit-k1-orangepi-rv2-add-SD-card-suppo.patch \
            file://0007-riscv-dts-spacemit-k1-bananapi-f3-add-SD-card-suppor.patch \
-           file://0001-riscv-dts-spacemit-k1-musepi-pro-add-SD-card-support.patch \
+           file://0008-riscv-dts-spacemit-k1-musepi-pro-add-SD-card-support.patch \
           "
 SRCREV = "c369299895a591d96745d6492d4888259b004a9e"
 KBUILD_DEFCONFIG ?= "defconfig"

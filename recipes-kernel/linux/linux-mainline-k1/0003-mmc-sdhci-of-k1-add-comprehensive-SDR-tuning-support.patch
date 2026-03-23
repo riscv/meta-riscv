@@ -1,10 +1,13 @@
-From e3f03b488f6a833efc2c8d4f2616744eee88ebbf Mon Sep 17 00:00:00 2001
+From 4cbeb924f2dd2900fefd02a63dd3ab597acedfb7 Mon Sep 17 00:00:00 2001
 From: Iker Pedrosa <ikerpedrosam@gmail.com>
-Date: Mon, 16 Mar 2026 15:03:31 +0100
-Subject: [PATCH 3/7] mmc: sdhci-of-k1: add comprehensive SDR tuning support
+Date: Mon, 23 Mar 2026 11:19:06 +0100
+Subject: [PATCH 3/8] mmc: sdhci-of-k1: add comprehensive SDR tuning support
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
 Upstream-Status: Submitted
-[https://lore.kernel.org/linux-riscv/20260316-orangepi-sd-card-uhs-v3-0-aefd3b7832df@gmail.com/T/#]
+[https://lore.kernel.org/linux-riscv/20260323-orangepi-sd-card-uhs-v4-0-567c9775fd0e@gmail.com/]
 
 Implement software tuning algorithm to enable UHS-I SDR modes for SD
 card operation and HS200 mode for eMMC. This adds both TX and RX delay
@@ -21,13 +24,15 @@ Algorithm features:
   for improved reliability
 
 Tested-by: Anand Moon <linux.amoon@gmail.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Tested-by: Trevor Gamblin <tgamblin@baylibre.com>
 Signed-off-by: Iker Pedrosa <ikerpedrosam@gmail.com>
 ---
  drivers/mmc/host/sdhci-of-k1.c | 172 +++++++++++++++++++++++++++++++++
  1 file changed, 172 insertions(+)
 
 diff --git a/drivers/mmc/host/sdhci-of-k1.c b/drivers/mmc/host/sdhci-of-k1.c
-index b2cd35f275ac..3fe4675e6760 100644
+index 1231b814aa64..43701857ec01 100644
 --- a/drivers/mmc/host/sdhci-of-k1.c
 +++ b/drivers/mmc/host/sdhci-of-k1.c
 @@ -68,6 +68,28 @@
@@ -222,10 +227,10 @@ index b2cd35f275ac..3fe4675e6760 100644
  static int spacemit_sdhci_pre_select_hs400(struct mmc_host *mmc)
  {
  	struct sdhci_host *host = mmc_priv(mmc);
-@@ -298,6 +469,7 @@ static const struct sdhci_ops spacemit_sdhci_ops = {
+@@ -310,6 +481,7 @@ static const struct sdhci_ops spacemit_sdhci_ops = {
+ 	.set_bus_width		= sdhci_set_bus_width,
  	.set_clock		= spacemit_sdhci_set_clock,
  	.set_uhs_signaling	= spacemit_sdhci_set_uhs_signaling,
- 	.voltage_switch         = spacemit_sdhci_voltage_switch,
 +	.platform_execute_tuning = spacemit_sdhci_execute_tuning,
  };
  

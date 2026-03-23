@@ -1,11 +1,11 @@
-From 645e9233b07f51438a0b2245eb7080259a24b593 Mon Sep 17 00:00:00 2001
+From b3134ed9b7e04a28f8b79268b35cb5125b55e377 Mon Sep 17 00:00:00 2001
 From: Iker Pedrosa <ikerpedrosam@gmail.com>
-Date: Mon, 16 Mar 2026 15:03:35 +0100
-Subject: [PATCH 7/7] riscv: dts: spacemit: k1-bananapi-f3: add SD card support
+Date: Mon, 23 Mar 2026 11:19:10 +0100
+Subject: [PATCH 7/8] riscv: dts: spacemit: k1-bananapi-f3: add SD card support
  with UHS modes
 
 Upstream-Status: Submitted
-[https://lore.kernel.org/linux-riscv/20260316-orangepi-sd-card-uhs-v3-0-aefd3b7832df@gmail.com/T/#]
+[https://lore.kernel.org/linux-riscv/20260323-orangepi-sd-card-uhs-v4-0-567c9775fd0e@gmail.com/]
 
 Add complete SD card controller support with UHS high-speed modes.
 
@@ -20,13 +20,14 @@ This enables full SD card functionality including high-speed UHS modes
 for improved performance.
 
 Suggested-by: Anand Moon <linux.amoon@gmail.com>
+Tested-by: Anand Moon <linux.amoon@gmail.com>
 Signed-off-by: Iker Pedrosa <ikerpedrosam@gmail.com>
 ---
- .../boot/dts/spacemit/k1-bananapi-f3.dts      | 23 +++++++++++++++++--
- 1 file changed, 21 insertions(+), 2 deletions(-)
+ .../boot/dts/spacemit/k1-bananapi-f3.dts      | 24 +++++++++++++++++--
+ 1 file changed, 22 insertions(+), 2 deletions(-)
 
 diff --git a/arch/riscv/boot/dts/spacemit/k1-bananapi-f3.dts b/arch/riscv/boot/dts/spacemit/k1-bananapi-f3.dts
-index 5971605754b3..50f30aeac711 100644
+index 5971605754b3..ba348e6a8bb9 100644
 --- a/arch/riscv/boot/dts/spacemit/k1-bananapi-f3.dts
 +++ b/arch/riscv/boot/dts/spacemit/k1-bananapi-f3.dts
 @@ -214,7 +214,7 @@ buck3_1v8: buck3 {
@@ -47,7 +48,7 @@ index 5971605754b3..50f30aeac711 100644
  				regulator-min-microvolt = <500000>;
  				regulator-max-microvolt = <3400000>;
  				regulator-boot-on;
-@@ -359,3 +359,22 @@ hub_3_0: hub@2 {
+@@ -359,3 +359,23 @@ hub_3_0: hub@2 {
  		reset-gpios = <&gpio K1_GPIO(124) GPIO_ACTIVE_LOW>;
  	};
  };
@@ -59,6 +60,7 @@ index 5971605754b3..50f30aeac711 100644
 +	bus-width = <4>;
 +	cd-gpios = <&gpio K1_GPIO(80) GPIO_ACTIVE_HIGH>;
 +	cd-inverted;
++	broken-cd;
 +	no-mmc;
 +	no-sdio;
 +	disable-wp;

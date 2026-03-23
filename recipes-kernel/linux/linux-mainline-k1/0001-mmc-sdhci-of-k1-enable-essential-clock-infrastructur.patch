@@ -1,11 +1,11 @@
-From c349b093e3e0605a4ef2a77826edf37ef39212ea Mon Sep 17 00:00:00 2001
+From fbde838bddd5eda5bb8a9c9dc72b370533d6be67 Mon Sep 17 00:00:00 2001
 From: Iker Pedrosa <ikerpedrosam@gmail.com>
-Date: Mon, 16 Mar 2026 15:03:29 +0100
-Subject: [PATCH 1/7] mmc: sdhci-of-k1: enable essential clock infrastructure
+Date: Mon, 23 Mar 2026 11:19:04 +0100
+Subject: [PATCH 1/8] mmc: sdhci-of-k1: enable essential clock infrastructure
  for SD operation
 
 Upstream-Status: Submitted
-[https://lore.kernel.org/linux-riscv/20260316-orangepi-sd-card-uhs-v3-0-aefd3b7832df@gmail.com/T/#]
+[https://lore.kernel.org/linux-riscv/20260323-orangepi-sd-card-uhs-v4-0-567c9775fd0e@gmail.com/]
 
 Ensure SD card pins receive clock signals by enabling pad clock
 generation and overriding automatic clock gating. Required for all SD
@@ -21,6 +21,8 @@ SDHC_FORCE_CLK_ON) are conditionally applied only for SD-only
 controllers to handle removable card scenarios.
 
 Tested-by: Anand Moon <linux.amoon@gmail.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Tested-by: Trevor Gamblin <tgamblin@baylibre.com>
 Signed-off-by: Iker Pedrosa <ikerpedrosam@gmail.com>
 ---
  drivers/mmc/host/sdhci-of-k1.c | 13 +++++++++++++

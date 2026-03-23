@@ -1,11 +1,11 @@
-From ebe876efd72af823464b1289fa7eb695b181d9dd Mon Sep 17 00:00:00 2001
+From 7a0c6c57e5f5fb8bb0eb445832657804e4a4851d Mon Sep 17 00:00:00 2001
 From: Iker Pedrosa <ikerpedrosam@gmail.com>
-Date: Mon, 16 Mar 2026 15:03:32 +0100
-Subject: [PATCH 4/7] riscv: dts: spacemit: k1: add SD card controller and
+Date: Mon, 23 Mar 2026 11:19:07 +0100
+Subject: [PATCH 4/8] riscv: dts: spacemit: k1: add SD card controller and
  pinctrl support
 
 Upstream-Status: Submitted
-[https://lore.kernel.org/linux-riscv/20260316-orangepi-sd-card-uhs-v3-0-aefd3b7832df@gmail.com/T/#]
+[https://lore.kernel.org/linux-riscv/20260323-orangepi-sd-card-uhs-v4-0-567c9775fd0e@gmail.com/]
 
 Add SD card controller infrastructure for SpacemiT K1 SoC with complete
 pinctrl support for both standard and UHS modes.
@@ -19,6 +19,7 @@ This provides complete SD card infrastructure that K1-based boards can
 enable.
 
 Tested-by: Anand Moon <linux.amoon@gmail.com>
+Tested-by: Trevor Gamblin <tgamblin@baylibre.com>
 Signed-off-by: Iker Pedrosa <ikerpedrosam@gmail.com>
 ---
  arch/riscv/boot/dts/spacemit/k1-pinctrl.dtsi | 40 ++++++++++++++++++++
