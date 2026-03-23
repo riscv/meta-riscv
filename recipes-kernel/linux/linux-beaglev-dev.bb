@@ -6,6 +6,8 @@ SUMMARY = "Beagle-V Ahead dev kernel recipe"
 LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 KERNEL_VERSION_SANITY_SKIP = "1"
 
+inherit deploy
+
 # Downstream patches are taken from Beagle's Kernel fork: https://openbeagle.org/beaglev-ahead/linux
 # Network stability is not good enough for Bitbake fetch+checkout
 SRCREV_kernel = "0ff41df1cb268fc69e703a08a57ee14ae967d0ca"
@@ -33,31 +35,32 @@ DEPENDS += "e2fsprogs-native firmware-th1520"
 
 # package a separate partition boot.ext4 that can be flashed via fastboot to partition boot
 do_deploy:append() {
-    [ -d ${DEPLOY_DIR_IMAGE}/.boot ] && rm -rf ${DEPLOY_DIR_IMAGE}/.boot
+    [ -d ${DEPLOYDIR}/.boot ] && rm -rf ${DEPLOYDIR}/.boot
 
-    if [ ! -d ${DEPLOY_DIR_IMAGE}/.boot ]; then
-        mkdir -p ${DEPLOY_DIR_IMAGE}/.boot
+    if [ ! -d ${DEPLOYDIR}/.boot ]; then
+        mkdir -p ${DEPLOYDIR}/.boot
     fi
-    if [ ! -d ${DEPLOY_DIR_IMAGE}/.boot/overlays ]; then
-        mkdir -p ${DEPLOY_DIR_IMAGE}/.boot/overlays
+    if [ ! -d ${DEPLOYDIR}/.boot/overlays ]; then
+        mkdir -p ${DEPLOYDIR}/.boot/overlays
     fi
-    if [ ! -d ${DEPLOY_DIR_IMAGE}/.boot/extlinux ]; then
-        mkdir -p ${DEPLOY_DIR_IMAGE}/.boot/extlinux
+    if [ ! -d ${DEPLOYDIR}/.boot/extlinux ]; then
+        mkdir -p ${DEPLOYDIR}/.boot/extlinux
     fi
 
     sleep 1
 
-    cp ${DEPLOY_DIR_IMAGE}/fw_dynamic.bin ${DEPLOY_DIR_IMAGE}/.boot/fw_dynamic.bin
-    cp ${DEPLOY_DIR_IMAGE}/light_aon_fpga.bin ${DEPLOY_DIR_IMAGE}/.boot/
-    cp -f ${DEPLOYDIR}/th1520-beaglev-ahead.dtb ${DEPLOY_DIR_IMAGE}/.boot/
-    cp -f ${DEPLOYDIR}/Image ${DEPLOY_DIR_IMAGE}/.boot/
-    cp -f ${UNPACKDIR}/extlinux.conf ${DEPLOY_DIR_IMAGE}/.boot/extlinux/
+    cp ${DEPLOY_DIR_IMAGE}/fw_dynamic.bin ${DEPLOYDIR}/.boot/fw_dynamic.bin
+    cp ${DEPLOY_DIR_IMAGE}/light_aon_fpga.bin ${DEPLOYDIR}/.boot/
+    cp -f ${DEPLOYDIR}/th1520-beaglev-ahead.dtb ${DEPLOYDIR}/.boot/
+    cp -f ${DEPLOYDIR}/Image ${DEPLOYDIR}/.boot/
+    cp -f ${UNPACKDIR}/extlinux.conf ${DEPLOYDIR}/.boot/extlinux/
     
-    cp -f ${UNPACKDIR}/extlinux.conf ${DEPLOY_DIR_IMAGE}/extlinux_sd.conf
-    sed -i 's/\/dev\/mmcblk0p3/\/dev\/mmcblk1p3/g' ${DEPLOY_DIR_IMAGE}/extlinux_sd.conf
+    cp -f ${UNPACKDIR}/extlinux.conf ${DEPLOYDIR}/extlinux_sd.conf
+    sed -i 's/\/dev\/mmcblk0p3/\/dev\/mmcblk1p3/g' ${DEPLOYDIR}/extlinux_sd.conf
 
-    dd if=/dev/zero of=${DEPLOY_DIR_IMAGE}/boot.ext4 bs=1 count=0 seek=190M
-    mkfs.ext4 -F ${DEPLOY_DIR_IMAGE}/boot.ext4 -d ${DEPLOY_DIR_IMAGE}/.boot
+    dd if=/dev/zero of=${DEPLOYDIR}/boot.ext4 bs=1 count=0 seek=190M
+    mkfs.ext4 -F ${DEPLOYDIR}/boot.ext4 -d ${DEPLOYDIR}/.boot
 }
 
+addtask deploy after do_compile before do_build
 do_deploy[depends] += "opensbi:do_deploy"
