@@ -8,25 +8,20 @@ KERNEL_VERSION_SANITY_SKIP = "1"
 
 inherit deploy
 
-# Downstream patches are taken from Beagle's Kernel fork: https://openbeagle.org/beaglev-ahead/linux
-# Network stability is not good enough for Bitbake fetch+checkout
-SRCREV_kernel = "0ff41df1cb268fc69e703a08a57ee14ae967d0ca"
+# Linux 6.19.9
+SRCREV = "4a2b0ed2ac7abe9743e1559d212075a0ebac96b3"
 
-BRANCH_kernel = "master"
-LINUX_VERSION ?= "6.15"
+BRANCH = "linux-6.19.y"
+LINUX_VERSION ?= "6.19"
 
 SRC_URI = " \
-    git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git;protocol=https;branch=${BRANCH_kernel};name=kernel \
-    file://defconfig \
+    git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git;protocol=https;branch=${BRANCH} \
     file://extlinux.conf \
     file://0001-dt-binding-riscv-add-T-HEAD-CPU-reset.patch \
     file://0002-th1520-add-cpu-reset-node.patch \
-    file://0003-dt-bindings-reset-Add-T-HEAD-TH1520-SoC-Reset-Contro.patch \
-    file://0004-reset-thead-Add-TH1520-reset-controller-driver.patch \
     file://0001-dt-bindings-usb-Add-T-HEAD-TH1520-USB-controller.patch \
     file://0002-usb-dwc3-add-T-HEAD-TH1520-usb-driver.patch \
     file://0003-riscv-dts-thead-Add-TH1520-USB-nodes.patch \
-    file://0001-riscv-dts-merge-in-openbeagle-dts-changes.patch \
    "
 
 COMPATIBLE_MACHINE = "(beaglev-ahead)"
