@@ -18,8 +18,8 @@ SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git;prot
            file://0007-riscv-dts-spacemit-k1-bananapi-f3-add-SD-card-suppor.patch \
            file://0001-riscv-dts-spacemit-k1-musepi-pro-add-SD-card-support.patch \
           "
-SRCREV = "f338e77383789c0cae23ca3d48adcc5e9e137e3c"
+SRCREV = "c369299895a591d96745d6492d4888259b004a9e"
 KBUILD_DEFCONFIG ?= "defconfig"
-LINUX_VERSION = "7.0-rc4"
+LINUX_VERSION = "7.0-rc5"
 
 COMPATIBLE_MACHINE = "(k1)"
