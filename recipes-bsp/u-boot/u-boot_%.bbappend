@@ -107,13 +107,11 @@ do_compile:prepend:visionfive2() {
 
 do_deploy:append:ae350-ax45mp() {
     if [ -f "${UNPACKDIR}/boot.scr.uimg" ]; then
-        install -d ${DEPLOY_DIR_IMAGE}
-        install -m 644 ${UNPACKDIR}/boot.scr.uimg ${DEPLOYDIR}
+        install -Dm 644 ${UNPACKDIR}/boot.scr.uimg ${DEPLOYDIR}/boot.scr.uimg
     fi
 
     if [ -f "${UNPACKDIR}/uEnv-ae350.txt" ]; then
-        install -d ${DEPLOY_DIR_IMAGE}
-        install -m 644 ${UNPACKDIR}/uEnv-ae350.txt ${DEPLOYDIR}/uEnv.txt
+        install -Dm 644 ${UNPACKDIR}/uEnv-ae350.txt ${DEPLOYDIR}/uEnv.txt
     fi
 }
 
