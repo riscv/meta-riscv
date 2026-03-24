@@ -40,7 +40,7 @@ This layer depends on:
 | beaglev-starlight-jh7100 | [BeagleV](https://old.beagleboard.org/static/beagleV/beagleV.html)                                           | No longer produced                                                               |
 | eswin-ebc77              | ESWIN EBC77                                                                                                  | Vendor kernel. Use `eswin-ebc77-mainline` for upstream version                   |
 | eswin-ebc77-mainline     | ESWIN EBC77                                                                                                  |                                                                                  |
-| freedom-u540             | [HiFive Unleashed](https://www.sifive.com/boards/hifive-unleashed)                                           |                                                                                  |
+| freedom-u540             | [HiFive Unleashed](https://www.sifive.com/boards/hifive-unleashed)                                           | Discontinued                                                                     |
 | mangopi-mq-pro           | [MangoPi MQ Pro](https://mangopi.org/mangopi_mqpro)                                                          |                                                                                  |
 | milkv-duo                | [Milk-V Duo](https://milkv.io/duo)                                                                           |                                                                                  |
 | milkv-megrez             | [Milk-V Megrez](https://milkv.io/megrez)                                                                     | Build broken due to downstream kernel commit since being branchless              |
@@ -50,8 +50,8 @@ This layer depends on:
 | orangepi-rv2             | [OrangePi RV2](http://www.orangepi.org/html/hardWare/computerAndMicrocontrollers/details/Orange-Pi-RV2.html) | Vendor Kernel and U-Boot                                                         |
 | orangepi-rv2-mainline    | [OrangePi RV2](http://www.orangepi.org/html/hardWare/computerAndMicrocontrollers/details/Orange-Pi-RV2.html) | Mainline Kernel and U-Boot (uses vendor FSBL)                                    |
 | star64                   | [PINE64 STAR64](https://pine64.org/devices/star64/)                                                          | 5.15 Kernel [fork](https://github.com/fishwaldo/Star64_linux)                    |
-| visionfive               | [StarFive VisionFive](https://www.starfivetech.com/en/site/boards)                                           |                                                                                  |
-| visionfive2              | [StarFive VisionFive 2](https://www.starfivetech.com/en/site/boards)                                         |                                                                                  |
+| visionfive               | StarFive VisionFive                                                                                          | No product page found                                                            |
+| visionfive2              | [StarFive VisionFive 2](https://www.starfivetech.com/en/index.php?s=hardware&c=show&id=14)                   |                                                                                  |
 
 Note that this layer also provides improvements and features for the
 upstream qemuriscv32 and qemuriscv64 machines.
