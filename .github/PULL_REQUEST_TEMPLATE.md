@@ -19,6 +19,9 @@ Please provide the following information:
   
 **-(Optional, if it's not clear from above) how your change resolves the
 issues in the first part.**
+
+**-(Optional, if you have added a new BSP) indicate which new platforms are
+supported with this change by adding a new row in the README [table](https://github.com/riscv/meta-riscv/tree/master?tab=readme-ov-file#available-machines).**
   
 **-Tag line(s) at the end.**
 
