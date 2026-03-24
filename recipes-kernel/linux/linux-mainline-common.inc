@@ -12,6 +12,7 @@ PV = "${LINUX_VERSION}+git${SRCPV}"
 
 KCONFIG_MODE = "--alldefconfig"
 
+KBUILD_DEFCONFIG ?= "defconfig"
 KBUILD_DEFCONFIG:qemuriscv32 = "rv32_defconfig"
 KBUILD_DEFCONFIG:qemuriscv64 = "defconfig"
 KBUILD_DEFCONFIG:freedom-u540 = "defconfig"
