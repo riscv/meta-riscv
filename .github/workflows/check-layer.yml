@@ -1,0 +1,55 @@
+on:
+  schedule:
+    - cron: '30 3 * * *'
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - master
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check-meta-riscv:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    container:
+      image: debian:12
+      options: --user root
+    steps:
+      - name: Install Yocto dependencies
+        run: |
+          apt-get update
+          apt-get install -y build-essential chrpath cpio debianutils diffstat file gawk gcc git iputils-ping libacl1 locales python3 python3-git python3-jinja2 python3-pexpect python3-pip python3-subunit socat texinfo unzip wget xz-utils zstd
+          echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+          locale-gen
+
+      - name: Verify locale
+        run: locale -a
+
+      - name: Create build user
+        run: |
+          useradd -m builduser
+          chown -R builduser:builduser $GITHUB_WORKSPACE
+
+      - name: Check out meta-riscv
+        uses: actions/checkout@v4
+        with:
+          path: meta-riscv
+          fetch-depth: 1
+
+      - name: Clone openembedded-core and bitbake
+        run: |
+          git clone --depth 1 --branch master https://github.com/openembedded/openembedded-core.git
+          git clone --depth 1 --branch master https://github.com/openembedded/bitbake.git openembedded-core/bitbake
+          chown -R builduser:builduser $GITHUB_WORKSPACE
+
+      - name: Run yocto-check-layer-wrapper
+        shell: bash
+        run: |
+          su builduser -s /bin/bash -c "
+            export LANG=en_US.UTF-8 &&
+            source $GITHUB_WORKSPACE/openembedded-core/oe-init-build-env $GITHUB_WORKSPACE/build &&
+            bitbake-layers add-layer $GITHUB_WORKSPACE/meta-riscv &&
+            yocto-check-layer-wrapper $GITHUB_WORKSPACE/meta-riscv"
