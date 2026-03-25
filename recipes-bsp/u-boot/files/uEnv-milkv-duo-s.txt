@@ -1,0 +1,14 @@
+baudrate=115200
+consoledev=ttyS0
+bootargs=root=/dev/mmcblk0p2 console=ttyS0,115200 earlycon=sbi loglevel=7 rootwait rw
+
+fdt=default.dtb
+kernel=uImage.fit
+
+loadaddr=0x84000000
+fdtaddr=0x83000000
+
+loadfdt=fatload mmc ${devnum}:1 ${fdtaddr} ${fdt}
+loaduimage=fatload mmc ${devnum}:1 ${loadaddr} ${kernel}
+
+uenvcmd=echo Booting from mmc ${devnum} ...; run loaduimage && run loadfdt && bootm ${loadaddr} - ${fdtaddr}
