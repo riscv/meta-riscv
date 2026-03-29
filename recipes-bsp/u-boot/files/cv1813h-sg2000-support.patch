@@ -359,7 +359,7 @@ new file mode 100644
 +CONFIG_CMD_FS_GENERIC=y
 +CONFIG_BOOTDELAY=3
 +CONFIG_USE_BOOTCOMMAND=y
-+CONFIG_BOOTCOMMAND="if fatload mmc 0:1 0x84100000 uEnv.txt; then env import -t 0x84100000 ${filesize}; fi; if test -n ${uenvcmd}; then run uenvcmd; fi"
++CONFIG_BOOTCOMMAND="for devnum in 0 1; do if fatload mmc ${devnum}:1 0x84100000 uEnv.txt; then env import -t 0x84100000 ${filesize}; if test -n ${uenvcmd}; then run uenvcmd; fi; fi; done"
 +CONFIG_ENV_OVERWRITE=y
 +CONFIG_NET_RANDOM_ETHADDR=y
 +CONFIG_CLK_SOPHGO_CV1800B=y
