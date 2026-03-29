@@ -2,7 +2,7 @@
 
 **Note: You only need this if you do not have an existing Yocto Project build environment.**
 
-Make sure to [install the `repo` command by Google](https://source.android.com/setup/downloading#installing-repo) first.
+Make sure to [install the `repo` command by Google](https://gerrit.googlesource.com/git-repo#install) first.
 
 ## Create workspace
 ```text
