@@ -32,7 +32,7 @@ elif [ "${0##*/}" = "dash" ]; then
 fi
 # bootstrap OE
 echo "Init OE"
-export BASH_SOURCE="openembedded-core/oe-init-build-env"
+export BASH_SOURCE="${LAYERS_ROOT}/openembedded-core/oe-init-build-env"
 . ${LAYERS_ROOT}/openembedded-core/oe-init-build-env ${BUILD_DIR}
 
 # Symlink the cache
