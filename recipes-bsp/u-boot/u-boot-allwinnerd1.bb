@@ -13,6 +13,7 @@ SRC_URI = " \
     file://0001-sun20i-set-CONFIG_SYS_BOOTM_LEN.patch \
     file://0002-Fix-build-with-newer-swig.patch \
     file://increase-spl-malloc.cfg \
+    file://0001-tools-binman-control.py-replace-pkg_resources-with-i.patch \
 "
 SRCREV = "2e89b706f5c956a70c989cd31665f1429e9a0b48"
 
@@ -41,9 +42,13 @@ do_compile:prepend() {
 do_deploy:append() {
     install -m 644 ${B}/u-boot-sunxi-with-spl.bin ${DEPLOYDIR}
     install -m 644 ${UNPACKDIR}/uEnv-nezha.txt ${DEPLOYDIR}/uEnv.txt
+    install -m 644 ${B}/${UBOOT_ENV_BINARY} ${DEPLOYDIR}/boot.scr.uimg
 }
 
 TOOLCHAIN = "gcc"
 ## Should be overwritten in machine conf
 UBOOT_MACHINE ?= "allwinner_defconfig"
+# Disable u-boot.inc's boot script handling since this recipe
+# compiles its own boot script from tftp-mmc-boot.txt
+UBOOT_ENV = ""
 COMPATIBLE_MACHINE = "(nezha-allwinner-d1|mangopi-mq-pro)"
