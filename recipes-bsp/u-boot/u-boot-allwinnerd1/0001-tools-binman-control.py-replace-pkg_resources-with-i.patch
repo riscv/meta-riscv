@@ -1,0 +1,60 @@
+From 274ec1a82ee41645b5c7671dbf86430810365741 Mon Sep 17 00:00:00 2001
+From: Trevor Gamblin <tgamblin@baylibre.com>
+Date: Sun, 22 Mar 2026 11:17:04 -0400
+Subject: [PATCH] tools/binman/control.py: replace pkg_resources with importlib
+
+Upstream-Status: Inactive-Upstream [lastcommit: 31-10-2023]
+
+A recent change to setuptools in oe-core means that the pkg_resources
+module is no longer available. Building u-boot for the allwinner d1 is
+broken because of it. Since there's unlikely to be significant activity
+for the board for now, replace usage of pkg_resources with importlib,
+which has been available in Python since 3.9.
+
+Signed-off-by: Trevor Gamblin <tgamblin@baylibre.com>
+---
+ tools/binman/control.py | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
+
+diff --git a/tools/binman/control.py b/tools/binman/control.py
+index c6d3205b8c2..00baf958baf 100644
+--- a/tools/binman/control.py
++++ b/tools/binman/control.py
+@@ -7,14 +7,10 @@
+ 
+ from collections import OrderedDict
+ import glob
+-try:
+-    import importlib.resources
+-except ImportError:  # pragma: no cover
+-    # for Python 3.6
+-    import importlib_resources
+ import os
+-import pkg_resources
+ import re
++import importlib.resources
++import importlib.util
+ 
+ import sys
+ 
+@@ -96,7 +92,7 @@ def _ReadMissingBlobHelp():
+             msg = ''
+         return tag, msg
+ 
+-    my_data = pkg_resources.resource_string(__name__, 'missing-blob-help')
++    my_data = importlib.resources.files(__name__).joinpath('missing-blob-help').read_bytes()
+     re_tag = re.compile('^([-a-z0-9]+):$')
+     result = {}
+     tag = None
+@@ -151,7 +147,7 @@ def GetEntryModules(include_testing=True):
+     Returns:
+         Set of paths to entry class filenames
+     """
+-    glob_list = pkg_resources.resource_listdir(__name__, 'etype')
++    glob_list = [f.name for f in importlib.resources.files(__name__).joinpath('etype').iterdir()]
+     glob_list = [fname for fname in glob_list if fname.endswith('.py')]
+     return set([os.path.splitext(os.path.basename(item))[0]
+                 for item in glob_list
+-- 
+2.53.0
+
