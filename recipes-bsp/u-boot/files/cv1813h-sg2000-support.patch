@@ -1,0 +1,397 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Andreas Rehn <rehn.andreas86@gmail.com>
+Date: Fri, 21 Mar 2026 00:00:00 +0000
+Subject: [PATCH] riscv: Add Milk-V Duo S (CV1813H/SG2000) board support
+
+Add support for the Milk-V Duo S development board based on the
+Sophgo SG2000 (CV1813H) SoC. This SoC is pin-compatible with the
+CV1800B and shares the same peripheral IP blocks, so we reuse the
+existing cv1800b cpu and driver code.
+
+Changes:
+- Add board/sophgo/milkv_duo_s/ with Kconfig for TARGET_MILKV_DUO_S
+- Add arch/riscv/dts/cv1813h-milkv-duo-s.dts and cv1813h.dtsi
+- Add configs/milkv_duo_s_defconfig
+- Register milkv_duo_s in arch/riscv/cpu/cv1800b Kconfig
+- Add DTS build entry in arch/riscv/dts/Makefile
+
+The SG2000 has 512MB DDR vs 64MB on CV1800B, and uses SDHCI0 for
+the SD card slot.
+
+Upstream-Status: Pending
+
+Signed-off-by: Andreas Rehn <rehn.andreas86@gmail.com>
+---
+ arch/riscv/cpu/cv1800b/Kconfig              |   5 +
+ arch/riscv/dts/Makefile                     |   1 +
+ arch/riscv/dts/cv1813h.dtsi                 | 101 +++++++++++++++
+ arch/riscv/dts/cv1813h-milkv-duo-s.dts      |  50 ++++++++
+ board/sophgo/milkv_duo_s/Kconfig            |  28 +++++
+ board/sophgo/milkv_duo_s/MAINTAINERS        |   8 ++
+ board/sophgo/milkv_duo_s/Makefile           |   5 +
+ board/sophgo/milkv_duo_s/board.c            |  18 +++
+ configs/milkv_duo_s_defconfig               |  42 +++++++
+ include/configs/milkv_duo_s.h               |  12 ++
+ 10 files changed, 270 insertions(+)
+ create mode 100644 arch/riscv/dts/cv1813h.dtsi
+ create mode 100644 arch/riscv/dts/cv1813h-milkv-duo-s.dts
+ create mode 100644 board/sophgo/milkv_duo_s/Kconfig
+ create mode 100644 board/sophgo/milkv_duo_s/MAINTAINERS
+ create mode 100644 board/sophgo/milkv_duo_s/Makefile
+ create mode 100644 board/sophgo/milkv_duo_s/board.c
+ create mode 100644 configs/milkv_duo_s_defconfig
+ create mode 100644 include/configs/milkv_duo_s.h
+
+diff --git a/arch/riscv/cpu/cv1800b/Kconfig b/arch/riscv/cpu/cv1800b/Kconfig
+--- a/arch/riscv/cpu/cv1800b/Kconfig
++++ b/arch/riscv/cpu/cv1800b/Kconfig
+@@ -12,1 +12,4 @@ config SOPHGO_CV1800B
+ 	imply CMD_CPU
++
++config TARGET_MILKV_DUO_S
++	bool "Milk-V Duo S (SG2000/CV1813H)"
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -116,3 +116,4 @@
+ source "board/sophgo/milkv_duo/Kconfig"
+ source "board/sophgo/licheerv_nano/Kconfig"
++source "board/sophgo/milkv_duo_s/Kconfig"
+ source "board/spacemit/bananapi-f3/Kconfig"
+diff --git a/arch/riscv/dts/Makefile b/arch/riscv/dts/Makefile
+--- a/arch/riscv/dts/Makefile
++++ b/arch/riscv/dts/Makefile
+@@ -8,6 +8,7 @@ dtb-$(CONFIG_TARGET_MILKV_DUO) += cv1800b-milkv-duo.dtb
+ dtb-$(CONFIG_TARGET_LICHEERV_NANO) += sg2002-licheerv-nano-b.dtb
+ dtb-$(CONFIG_TARGET_QEMU_VIRT) += qemu-virt32.dtb qemu-virt64.dtb
+ dtb-$(CONFIG_TARGET_OPENPITON_RISCV64) += openpiton-riscv64.dtb
++dtb-$(CONFIG_TARGET_MILKV_DUO_S) += cv1813h-milkv-duo-s.dtb
+ dtb-$(CONFIG_TARGET_SIFIVE_UNLEASHED) += hifive-unleashed-a00.dtb
+ dtb-$(CONFIG_TARGET_SIFIVE_UNMATCHED) += hifive-unmatched-a00.dtb
+ dtb-$(CONFIG_TARGET_SIPEED_MAIX) += k210-maix-bit.dtb
+diff --git a/arch/riscv/dts/cv1813h.dtsi b/arch/riscv/dts/cv1813h.dtsi
+new file mode 100644
+--- /dev/null
++++ b/arch/riscv/dts/cv1813h.dtsi
+@@ -0,0 +1,38 @@
++// SPDX-License-Identifier: (GPL-2.0 OR MIT)
++/*
++ * Copyright (C) 2024 Andreas Rehn <rehn.andreas86@gmail.com>
++ *
++ * Sophgo CV1813H / SG2000 SoC
++ * Pin-compatible with CV1800B, shares cv18xx peripheral IP.
++ */
++
++#include "cv18xx.dtsi"
++
++/ {
++	compatible = "sophgo,cv1813h";
++};
++
++&clk {
++	compatible = "sophgo,cv1800-clk";
++};
++
++&plic {
++	compatible = "sophgo,cv1800b-plic", "thead,c900-plic";
++};
++
++&clint {
++	compatible = "sophgo,cv1800b-clint", "thead,c900-clint";
++};
++
++/ {
++	soc {
++		emmc: mmc@4300000 {
++			compatible = "sophgo,cv1800b-dwcmshc";
++			reg = <0x4300000 0x1000>;
++			interrupts = <34 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&clk CLK_AXI4_EMMC>, <&clk CLK_EMMC>;
++			clock-names = "core", "bus";
++			status = "disabled";
++		};
++	};
++};
+diff --git a/arch/riscv/dts/cv1813h-milkv-duo-s.dts b/arch/riscv/dts/cv1813h-milkv-duo-s.dts
+new file mode 100644
+--- /dev/null
++++ b/arch/riscv/dts/cv1813h-milkv-duo-s.dts
+@@ -0,0 +1,69 @@
++// SPDX-License-Identifier: (GPL-2.0 OR MIT)
++/*
++ * Copyright (C) 2024 Andreas Rehn <rehn.andreas86@gmail.com>
++ *
++ * Device tree for the Milk-V Duo S (Sophgo SG2000/CV1813H)
++ */
++
++/dts-v1/;
++
++#include "cv1813h.dtsi"
++
++/ {
++	model = "Milk-V Duo S";
++	compatible = "milkv,duo-s", "sophgo,cv1813h";
++
++	aliases {
++		ethernet0 = &ethernet0;
++		serial0 = &uart0;
++		serial1 = &uart1;
++		serial2 = &uart2;
++		serial3 = &uart3;
++		serial4 = &uart4;
++		mmc0 = &sdhci0;
++		mmc1 = &emmc;
++	};
++
++	chosen {
++		stdout-path = "serial0:115200n8";
++	};
++
++	memory@80000000 {
++		device_type = "memory";
++		reg = <0x80000000 0x1fe00000>;
++	};
++};
++
++&ethernet0 {
++	status = "okay";
++	phy-mode = "rmii";
++};
++
++&osc {
++	clock-frequency = <25000000>;
++};
++
++&sdhci0 {
++	status = "okay";
++	bus-width = <4>;
++	no-1-8-v;
++	no-mmc;
++	no-sdio;
++};
++
++&emmc {
++	status = "okay";
++	bus-width = <4>;
++	no-sd;
++	no-sdio;
++	non-removable;
++	disable-wp;
++};
++
++&spif {
++	status = "okay";
++};
++
++&uart0 {
++	status = "okay";
++};
+diff --git a/board/sophgo/milkv_duo_s/Kconfig b/board/sophgo/milkv_duo_s/Kconfig
+new file mode 100644
+--- /dev/null
++++ b/board/sophgo/milkv_duo_s/Kconfig
+@@ -0,0 +1,28 @@
++if TARGET_MILKV_DUO_S
++
++config SYS_BOARD
++	default "milkv_duo_s"
++
++config SYS_VENDOR
++	default "sophgo"
++
++config SYS_CPU
++	default "cv1800b"
++
++config SYS_CONFIG_NAME
++	default "milkv_duo_s"
++
++config TEXT_BASE
++	default 0x80200000
++
++config ENV_SIZE
++	default 0x20000
++
++config ENV_SECT_SIZE
++	default 0x40000
++
++config BOARD_SPECIFIC_OPTIONS
++	def_bool y
++	select SOPHGO_CV1800B
++
++endif
+diff --git a/board/sophgo/milkv_duo_s/MAINTAINERS b/board/sophgo/milkv_duo_s/MAINTAINERS
+new file mode 100644
+--- /dev/null
++++ b/board/sophgo/milkv_duo_s/MAINTAINERS
+@@ -0,0 +1,8 @@
++MILKV DUO S BOARD
++M:	Andreas Rehn <rehn.andreas86@gmail.com>
++S:	Maintained
++F:	board/sophgo/milkv_duo_s/
++F:	configs/milkv_duo_s_defconfig
++F:	arch/riscv/dts/cv1813h-milkv-duo-s.dts
++F:	arch/riscv/dts/cv1813h.dtsi
++F:	include/configs/milkv_duo_s.h
+diff --git a/board/sophgo/milkv_duo_s/Makefile b/board/sophgo/milkv_duo_s/Makefile
+new file mode 100644
+--- /dev/null
++++ b/board/sophgo/milkv_duo_s/Makefile
+@@ -0,0 +1,5 @@
++# SPDX-License-Identifier: GPL-2.0+
++
++obj-y += board.o
++
++obj-$(CONFIG_NET) += ../milkv_duo/ethernet.o
+diff --git a/board/sophgo/milkv_duo_s/board.c b/board/sophgo/milkv_duo_s/board.c
+new file mode 100644
+--- /dev/null
++++ b/board/sophgo/milkv_duo_s/board.c
+@@ -0,0 +1,78 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (c) 2024, Andreas Rehn <rehn.andreas86@gmail.com>
++ */
++
++#include <dm/lists.h>
++#include <env.h>
++#include <net.h>
++#include <asm/io.h>
++#include <fdt_support.h>
++
++#include "../milkv_duo/ethernet.h"
++
++#define PINMUX_BASE		0x03001000
++#define EFUSE_SHADOW_BASE	0x03050100
++
++static void cv181x_emmc_pinmux_init(void)
++{
++	/* Configure eMMC pins to function 0 (eMMC mode) */
++	writel(0, (void *)(PINMUX_BASE + 0x48));  /* EMMC_RSTN */
++	writel(0, (void *)(PINMUX_BASE + 0x4c));  /* EMMC_DAT2 */
++	writel(0, (void *)(PINMUX_BASE + 0x50));  /* EMMC_CLK */
++	writel(0, (void *)(PINMUX_BASE + 0x54));  /* EMMC_DAT0 */
++	writel(0, (void *)(PINMUX_BASE + 0x58));  /* EMMC_DAT3 */
++	writel(0, (void *)(PINMUX_BASE + 0x5c));  /* EMMC_CMD */
++	writel(0, (void *)(PINMUX_BASE + 0x60));  /* EMMC_DAT1 */
++}
++
++int misc_init_r(void)
++{
++	u32 ef0, ef1;
++	u8 mac[6];
++
++	/* Skip if ethaddr is already set */
++	if (env_get("ethaddr"))
++		return 0;
++
++	/* Derive MAC from efuse shadow registers (unique per chip) */
++	ef0 = readl((void *)EFUSE_SHADOW_BASE + 0x08);
++	ef1 = readl((void *)EFUSE_SHADOW_BASE + 0x0c);
++
++	if (ef0 == 0 && ef1 == 0)
++		return 0;  /* efuse empty, fall back to random */
++
++	mac[0] = (ef1 >> 8) & 0xff;
++	mac[1] = (ef1 >> 0) & 0xff;
++	mac[2] = (ef0 >> 24) & 0xff;
++	mac[3] = (ef0 >> 16) & 0xff;
++	mac[4] = (ef0 >> 8) & 0xff;
++	mac[5] = (ef0 >> 0) & 0xff;
++
++	/* Set locally administered + unicast bits */
++	mac[0] = (mac[0] & 0xfe) | 0x02;
++
++	eth_env_set_enetaddr("ethaddr", mac);
++
++	return 0;
++}
++
++int board_init(void)
++{
++	if (IS_ENABLED(CONFIG_SYSRESET_CV1800B))
++		device_bind_driver(gd->dm_root, "cv1800b_sysreset", "sysreset", NULL);
++
++	if (IS_ENABLED(CONFIG_NET))
++		cv1800b_ephy_init();
++
++	cv181x_emmc_pinmux_init();
++
++	return 0;
++}
++
++int ft_board_setup(void *blob, struct bd_info *bd)
++{
++	/* Write ethaddr into kernel DTB so Linux gets the same MAC */
++	fdt_fixup_ethernet(blob);
++	return 0;
++}
+diff --git a/configs/milkv_duo_s_defconfig b/configs/milkv_duo_s_defconfig
+new file mode 100644
+--- /dev/null
++++ b/configs/milkv_duo_s_defconfig
+@@ -0,0 +1,47 @@
++CONFIG_RISCV=y
++CONFIG_SYS_MALLOC_LEN=0x820000
++CONFIG_SYS_MALLOC_F_LEN=0x8000
++CONFIG_NR_DRAM_BANKS=1
++CONFIG_HAS_CUSTOM_SYS_INIT_SP_ADDR=y
++CONFIG_CUSTOM_SYS_INIT_SP_ADDR=0x82300000
++CONFIG_DEFAULT_DEVICE_TREE="cv1813h-milkv-duo-s"
++CONFIG_SYS_LOAD_ADDR=0x80080000
++CONFIG_IDENT_STRING="milkv_duo_s"
++CONFIG_TARGET_MILKV_DUO_S=y
++CONFIG_MISC_INIT_R=y
++CONFIG_OF_BOARD_SETUP=y
++CONFIG_ARCH_RV64I=y
++CONFIG_RISCV_SMODE=y
++CONFIG_FIT=y
++CONFIG_SUPPORT_RAW_INITRD=y
++CONFIG_SYS_CBSIZE=512
++CONFIG_SYS_PBSIZE=544
++CONFIG_HUSH_PARSER=y
++CONFIG_SYS_PROMPT="milkv_duo_s# "
++CONFIG_CMD_MMC=y
++CONFIG_CMD_PART=y
++CONFIG_CMD_POWEROFF=y
++CONFIG_CMD_DHCP=y
++CONFIG_CMD_PXE=y
++CONFIG_CMD_FAT=y
++CONFIG_CMD_FS_GENERIC=y
++CONFIG_BOOTDELAY=3
++CONFIG_USE_BOOTCOMMAND=y
++CONFIG_BOOTCOMMAND="for devnum in 0 1; do if fatload mmc ${devnum}:1 0x84100000 uEnv.txt; then env import -t 0x84100000 ${filesize}; if test -n ${uenvcmd}; then run uenvcmd; fi; fi; done"
++CONFIG_ENV_OVERWRITE=y
++CONFIG_NET_RANDOM_ETHADDR=y
++CONFIG_CLK_SOPHGO_CV1800B=y
++CONFIG_MMC=y
++CONFIG_MMC_IO_VOLTAGE=y
++CONFIG_MMC_UHS_SUPPORT=y
++CONFIG_MMC_SDHCI=y
++CONFIG_MMC_SDHCI_ADMA=y
++CONFIG_MMC_SDHCI_CV1800B=y
++CONFIG_SPI_FLASH_MACRONIX=y
++CONFIG_ETH_DESIGNWARE=y
++CONFIG_SYS_NS16550=y
++CONFIG_SYS_NS16550_MEM32=y
++CONFIG_SPI=y
++CONFIG_CV1800B_SPIF=y
++CONFIG_SYSRESET=y
++CONFIG_SYSRESET_CV1800B=y
+diff --git a/include/configs/milkv_duo_s.h b/include/configs/milkv_duo_s.h
+new file mode 100644
+--- /dev/null
++++ b/include/configs/milkv_duo_s.h
+@@ -0,0 +1,11 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * Copyright (c) 2024, Andreas Rehn <rehn.andreas86@gmail.com>
++ */
++
++#ifndef __MILKV_DUO_S_H
++#define __MILKV_DUO_S_H
++
++#include <configs/milkv_duo.h>
++
++#endif /* __MILKV_DUO_S_H */
+--
+2.45.0

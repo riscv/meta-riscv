@@ -1,0 +1,35 @@
+# short-description: Create eMMC image for Milk-V Duo S
+#
+# Boot chain (eMMC):
+#   1. Boot ROM reads fip.bin from boot0 HW partition (2 MB)
+#   2. fip.bin contains: FSBL BL2 + DDR init + OpenSBI + U-Boot
+#   3. U-Boot loads kernel + DTB from FAT boot partition in user area
+#
+# Disk layout (user area only):
+#   - /boot (FAT32, 32MB) - uImage.fit, default.dtb, uEnv.txt (~5 MB)
+#   - / (ext4) - rootfs, expands to fill available space
+#
+# No raw fip.bin section — boot0 HW partition is used instead,
+# maximizing user area for rootfs on the 3.7 GB eMMC.
+#
+# === Flashing from SD card (booted from SD) ===
+#
+# Step 1: Configure eMMC boot partition
+#   echo 0 > /sys/block/mmcblk1boot0/force_ro
+#   mmc bootpart enable 1 1 /dev/mmcblk1
+#
+# Step 2: Write fip.bin to boot0
+#   dd if=/usr/share/milkv-duo-s/fip.bin of=/dev/mmcblk1boot0 bs=4096 conv=fsync
+#   cmp -n $(wc -c < /usr/share/milkv-duo-s/fip.bin) \
+#       /usr/share/milkv-duo-s/fip.bin /dev/mmcblk1boot0
+#
+# Step 3: Write this WIC image to eMMC user area
+#   gunzip -c <image>.wic.gz | dd of=/dev/mmcblk1 bs=4096 conv=fsync
+#
+# === PARTITION_CONFIG reference ===
+#   0x48 = boot from boot0, boot ACK enabled (production)
+#   0x50 = boot from boot1, boot ACK enabled (A/B fallback)
+#   0x00 = boot from user area (uses SD-style raw fip.bin layout)
+
+part /boot --source bootimg-partition --ondisk mmcblk0 --fstype=vfat --label boot --active --fixed-size 32M
+part / --source rootfs --ondisk mmcblk0 --fstype=ext4 --label root
