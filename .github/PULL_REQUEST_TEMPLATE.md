@@ -8,6 +8,11 @@ If this PR fixes an issue, make sure your description includes "fixes #xxxx".
 
 If this PR connects to an issue, make sure your description includes "connected to #xxxx".
 
+If you are adding a new BSP, please review the DEPRECATED.md file to confirm
+that it has not previously been removed. If you are modifying an existing BSP
+which is slated for removal in an upcoming release, consider whether the changes
+are necessary before that occurs. If needed, open a new issue or discussion.
+
 Please provide the following information:
 -->
 
