@@ -1,23 +1,24 @@
-From 248cdbe419b19d7584681a979526617ad9aada0d Mon Sep 17 00:00:00 2001
+From 2151d23bef3de78f312230f01426454dc878f09f Mon Sep 17 00:00:00 2001
 From: Iker Pedrosa <ikerpedrosam@gmail.com>
-Date: Mon, 23 Mar 2026 11:19:08 +0100
-Subject: [PATCH 5/8] riscv: dts: spacemit: k1-orangepi-rv2: add PMIC and power
+Date: Mon, 13 Apr 2026 10:02:15 +0200
+Subject: [PATCH 5/9] riscv: dts: spacemit: k1-orangepi-rv2: add PMIC and power
  infrastructure
 
-Upstream-Status: Submitted
-[https://lore.kernel.org/linux-riscv/20260323-orangepi-sd-card-uhs-v4-0-567c9775fd0e@gmail.com/]
+Upstream-Status: Submitted [https://lore.kernel.org/linux-riscv/DHSQ6VG82QYX.1EVAYV9JTBCL7@linux.dev/T/#m7019138a8182f8add500d2b753a7071da894b95d]
 
 Add Spacemit P1 PMIC configuration and board power infrastructure for
 voltage regulation support.
 
-- Add board power regulators (12V input, 4V rail)
+- Add board power regulators (5V input, 4V rail)
 - Enable I2C8 for PMIC communication
 - Configure PMIC with buck4 (vmmc) and aldo1 (vqmmc) regulators
 - Set up regulator constraints for SD card operation
 
 Tested-by: Anand Moon <linux.amoon@gmail.com>
 Tested-by: Trevor Gamblin <tgamblin@baylibre.com>
+Tested-by: Vincent Legoll <legoll@online.fr>
 Signed-off-by: Iker Pedrosa <ikerpedrosam@gmail.com>
+Signed-off-by: Trevor Gamblin <tgamblin@baylibre.com>
 ---
  .../boot/dts/spacemit/k1-orangepi-rv2.dts     | 48 +++++++++++++++++++
  1 file changed, 48 insertions(+)

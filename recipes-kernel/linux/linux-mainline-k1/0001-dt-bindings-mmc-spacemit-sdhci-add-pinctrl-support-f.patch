@@ -1,0 +1,59 @@
+From 55891e71ff68990e7ff8c7e098349d9335e257e7 Mon Sep 17 00:00:00 2001
+From: Iker Pedrosa <ikerpedrosam@gmail.com>
+Date: Mon, 13 Apr 2026 10:02:10 +0200
+Subject: [PATCH 1/9] dt-bindings: mmc: spacemit,sdhci: add pinctrl support for
+ voltage switching
+
+Upstream-Status: Submitted [https://lore.kernel.org/linux-riscv/DHSQ6VG82QYX.1EVAYV9JTBCL7@linux.dev/T/#m7019138a8182f8add500d2b753a7071da894b95d]
+
+Document pinctrl properties to support voltage-dependent pin
+configuration switching for UHS-I SD card modes.
+
+Add optional pinctrl-names property with two states:
+- "default": For 3.3V operation with standard drive strength
+- "state_uhs": For 1.8V operation with optimized drive strength
+
+These pinctrl states allow the SDHCI driver to coordinate voltage
+switching with pin configuration changes, ensuring proper signal
+integrity during UHS-I mode transitions.
+
+Signed-off-by: Iker Pedrosa <ikerpedrosam@gmail.com>
+Signed-off-by: Trevor Gamblin <tgamblin@baylibre.com>
+---
+ .../devicetree/bindings/mmc/spacemit,sdhci.yaml   | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/mmc/spacemit,sdhci.yaml b/Documentation/devicetree/bindings/mmc/spacemit,sdhci.yaml
+index 13d9382058fb..55965a28dcc3 100644
+--- a/Documentation/devicetree/bindings/mmc/spacemit,sdhci.yaml
++++ b/Documentation/devicetree/bindings/mmc/spacemit,sdhci.yaml
+@@ -32,6 +32,18 @@ properties:
+       - const: core
+       - const: io
+ 
++  pinctrl-names:
++    minItems: 1
++    items:
++      - const: default
++      - const: uhs
++
++  pinctrl-0:
++    description: Default pinctrl state for 3.3V operation
++
++  pinctrl-1:
++    description: Optional pinctrl state for 1.8V UHS operation with "uhs" name
++
+ required:
+   - compatible
+   - reg
+@@ -50,4 +62,7 @@ examples:
+       interrupt-parent = <&plic>;
+       clocks = <&clk_apmu 10>, <&clk_apmu 13>;
+       clock-names = "core", "io";
++      pinctrl-names = "default", "uhs";
++      pinctrl-0 = <&sdhci_default_cfg>;
++      pinctrl-1 = <&sdhci_uhs_cfg>;
+     };
+-- 
+2.53.0
+

@@ -1,11 +1,10 @@
-From b3134ed9b7e04a28f8b79268b35cb5125b55e377 Mon Sep 17 00:00:00 2001
+From 680acc9cedb9b4795bc5cc136fc623ea09295f3b Mon Sep 17 00:00:00 2001
 From: Iker Pedrosa <ikerpedrosam@gmail.com>
-Date: Mon, 23 Mar 2026 11:19:10 +0100
-Subject: [PATCH 7/8] riscv: dts: spacemit: k1-bananapi-f3: add SD card support
+Date: Mon, 13 Apr 2026 10:02:17 +0200
+Subject: [PATCH 7/9] riscv: dts: spacemit: k1-bananapi-f3: add SD card support
  with UHS modes
 
-Upstream-Status: Submitted
-[https://lore.kernel.org/linux-riscv/20260323-orangepi-sd-card-uhs-v4-0-567c9775fd0e@gmail.com/]
+Upstream-Status: Submitted [https://lore.kernel.org/linux-riscv/DHSQ6VG82QYX.1EVAYV9JTBCL7@linux.dev/T/#m7019138a8182f8add500d2b753a7071da894b95d]
 
 Add complete SD card controller support with UHS high-speed modes.
 
@@ -22,12 +21,13 @@ for improved performance.
 Suggested-by: Anand Moon <linux.amoon@gmail.com>
 Tested-by: Anand Moon <linux.amoon@gmail.com>
 Signed-off-by: Iker Pedrosa <ikerpedrosam@gmail.com>
+Signed-off-by: Trevor Gamblin <tgamblin@baylibre.com>
 ---
  .../boot/dts/spacemit/k1-bananapi-f3.dts      | 24 +++++++++++++++++--
  1 file changed, 22 insertions(+), 2 deletions(-)
 
 diff --git a/arch/riscv/boot/dts/spacemit/k1-bananapi-f3.dts b/arch/riscv/boot/dts/spacemit/k1-bananapi-f3.dts
-index 5971605754b3..ba348e6a8bb9 100644
+index 5971605754b3..725792600c5d 100644
 --- a/arch/riscv/boot/dts/spacemit/k1-bananapi-f3.dts
 +++ b/arch/riscv/boot/dts/spacemit/k1-bananapi-f3.dts
 @@ -214,7 +214,7 @@ buck3_1v8: buck3 {
@@ -54,7 +54,7 @@ index 5971605754b3..ba348e6a8bb9 100644
  };
 +
 +&sdhci0 {
-+	pinctrl-names = "default", "state_uhs";
++	pinctrl-names = "default", "uhs";
 +	pinctrl-0 = <&mmc1_cfg>;
 +	pinctrl-1 = <&mmc1_uhs_cfg>;
 +	bus-width = <4>;
