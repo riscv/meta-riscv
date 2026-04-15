@@ -9,17 +9,18 @@ SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git;prot
            file://nfs.cfg \
            file://misc.cfg \
            file://k1-i2c.cfg \
-           file://0001-mmc-sdhci-of-k1-enable-essential-clock-infrastructur.patch \
-           file://0002-mmc-sdhci-of-k1-add-regulator-and-pinctrl-voltage-sw.patch \
-           file://0003-mmc-sdhci-of-k1-add-comprehensive-SDR-tuning-support.patch \
-           file://0004-riscv-dts-spacemit-k1-add-SD-card-controller-and-pin.patch \
+           file://0001-dt-bindings-mmc-spacemit-sdhci-add-pinctrl-support-f.patch \
+           file://0002-mmc-sdhci-of-k1-enable-essential-clock-infrastructur.patch \
+           file://0003-mmc-sdhci-of-k1-add-regulator-and-pinctrl-voltage-sw.patch \
+           file://0004-mmc-sdhci-of-k1-add-comprehensive-SDR-tuning-support.patch \
            file://0005-riscv-dts-spacemit-k1-orangepi-rv2-add-PMIC-and-powe.patch \
            file://0006-riscv-dts-spacemit-k1-orangepi-rv2-add-SD-card-suppo.patch \
            file://0007-riscv-dts-spacemit-k1-bananapi-f3-add-SD-card-suppor.patch \
            file://0008-riscv-dts-spacemit-k1-musepi-pro-add-SD-card-support.patch \
+           file://0009-riscv-dts-spacemit-k1-add-SD-card-controller-and-pin.patch \
           "
-SRCREV = "c369299895a591d96745d6492d4888259b004a9e"
+SRCREV = "028ef9c96e96197026887c0f092424679298aae8"
 KBUILD_DEFCONFIG ?= "defconfig"
-LINUX_VERSION = "7.0-rc5"
+LINUX_VERSION = "7.0"
 
 COMPATIBLE_MACHINE = "(k1)"

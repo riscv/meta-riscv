@@ -1,13 +1,12 @@
-From 4cbeb924f2dd2900fefd02a63dd3ab597acedfb7 Mon Sep 17 00:00:00 2001
+From 1bff222f565519e399f89f5b28db60a1f32cf326 Mon Sep 17 00:00:00 2001
 From: Iker Pedrosa <ikerpedrosam@gmail.com>
-Date: Mon, 23 Mar 2026 11:19:06 +0100
-Subject: [PATCH 3/8] mmc: sdhci-of-k1: add comprehensive SDR tuning support
+Date: Mon, 13 Apr 2026 10:02:13 +0200
+Subject: [PATCH 4/9] mmc: sdhci-of-k1: add comprehensive SDR tuning support
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Upstream-Status: Submitted
-[https://lore.kernel.org/linux-riscv/20260323-orangepi-sd-card-uhs-v4-0-567c9775fd0e@gmail.com/]
+Upstream-Status: Submitted [https://lore.kernel.org/linux-riscv/DHSQ6VG82QYX.1EVAYV9JTBCL7@linux.dev/T/#m7019138a8182f8add500d2b753a7071da894b95d]
 
 Implement software tuning algorithm to enable UHS-I SDR modes for SD
 card operation and HS200 mode for eMMC. This adds both TX and RX delay
@@ -26,13 +25,15 @@ Algorithm features:
 Tested-by: Anand Moon <linux.amoon@gmail.com>
 Acked-by: Adrian Hunter <adrian.hunter@intel.com>
 Tested-by: Trevor Gamblin <tgamblin@baylibre.com>
+Tested-by: Vincent Legoll <legoll@online.fr>
 Signed-off-by: Iker Pedrosa <ikerpedrosam@gmail.com>
+Signed-off-by: Trevor Gamblin <tgamblin@baylibre.com>
 ---
  drivers/mmc/host/sdhci-of-k1.c | 172 +++++++++++++++++++++++++++++++++
  1 file changed, 172 insertions(+)
 
 diff --git a/drivers/mmc/host/sdhci-of-k1.c b/drivers/mmc/host/sdhci-of-k1.c
-index 1231b814aa64..43701857ec01 100644
+index 1aea0206f0ed..a5cb047f24d6 100644
 --- a/drivers/mmc/host/sdhci-of-k1.c
 +++ b/drivers/mmc/host/sdhci-of-k1.c
 @@ -68,6 +68,28 @@

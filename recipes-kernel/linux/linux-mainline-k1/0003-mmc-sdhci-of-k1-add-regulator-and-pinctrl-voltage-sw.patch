@@ -1,11 +1,10 @@
-From 18b49be39e2b70357f7b24770383635dfa160655 Mon Sep 17 00:00:00 2001
+From 5d26fda70262e1811d69013dd140db766e17a862 Mon Sep 17 00:00:00 2001
 From: Iker Pedrosa <ikerpedrosam@gmail.com>
-Date: Mon, 23 Mar 2026 11:19:05 +0100
-Subject: [PATCH 2/8] mmc: sdhci-of-k1: add regulator and pinctrl voltage
+Date: Mon, 13 Apr 2026 10:02:12 +0200
+Subject: [PATCH 3/9] mmc: sdhci-of-k1: add regulator and pinctrl voltage
  switching support
 
-Upstream-Status: Submitted
-[https://lore.kernel.org/linux-riscv/20260323-orangepi-sd-card-uhs-v4-0-567c9775fd0e@gmail.com/]
+Upstream-Status: Submitted [https://lore.kernel.org/linux-riscv/DHSQ6VG82QYX.1EVAYV9JTBCL7@linux.dev/T/#m7019138a8182f8add500d2b753a7071da894b95d]
 
 Add voltage switching infrastructure for UHS-I modes by integrating both
 regulator framework (for supply voltage control) and pinctrl state
@@ -21,13 +20,17 @@ backward compatibility when pinctrl states are not defined.
 
 Tested-by: Anand Moon <linux.amoon@gmail.com>
 Tested-by: Trevor Gamblin <tgamblin@baylibre.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Reviewed-by: Troy Mitchell <troy.mitchell@linux.dev>
+Tested-by: Vincent Legoll <legoll@online.fr>
 Signed-off-by: Iker Pedrosa <ikerpedrosam@gmail.com>
+Signed-off-by: Trevor Gamblin <tgamblin@baylibre.com>
 ---
  drivers/mmc/host/sdhci-of-k1.c | 72 ++++++++++++++++++++++++++++++++++
  1 file changed, 72 insertions(+)
 
 diff --git a/drivers/mmc/host/sdhci-of-k1.c b/drivers/mmc/host/sdhci-of-k1.c
-index 585c7eca6ebf..1231b814aa64 100644
+index 585c7eca6ebf..1aea0206f0ed 100644
 --- a/drivers/mmc/host/sdhci-of-k1.c
 +++ b/drivers/mmc/host/sdhci-of-k1.c
 @@ -15,6 +15,7 @@
@@ -115,7 +118,7 @@ index 585c7eca6ebf..1231b814aa64 100644
 +	if (IS_ERR(sdhst->pinctrl_default))
 +		sdhst->pinctrl_default = NULL;
 +
-+	sdhst->pinctrl_uhs = pinctrl_lookup_state(sdhst->pinctrl, "state_uhs");
++	sdhst->pinctrl_uhs = pinctrl_lookup_state(sdhst->pinctrl, "uhs");
 +	if (IS_ERR(sdhst->pinctrl_uhs))
 +		sdhst->pinctrl_uhs = NULL;
 +

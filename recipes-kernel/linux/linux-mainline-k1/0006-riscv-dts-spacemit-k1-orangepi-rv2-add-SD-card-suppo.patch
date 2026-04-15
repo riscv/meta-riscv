@@ -1,11 +1,10 @@
-From 6ca5785b06a137196f30833408bd64a1afb81383 Mon Sep 17 00:00:00 2001
+From b96f16ded65c88af28a7276d39ab1459eee19e82 Mon Sep 17 00:00:00 2001
 From: Iker Pedrosa <ikerpedrosam@gmail.com>
-Date: Mon, 23 Mar 2026 11:19:09 +0100
-Subject: [PATCH 6/8] riscv: dts: spacemit: k1-orangepi-rv2: add SD card
+Date: Mon, 13 Apr 2026 10:02:16 +0200
+Subject: [PATCH 6/9] riscv: dts: spacemit: k1-orangepi-rv2: add SD card
  support with UHS modes
 
-Upstream-Status: Submitted
-[https://lore.kernel.org/linux-riscv/20260323-orangepi-sd-card-uhs-v4-0-567c9775fd0e@gmail.com/]
+Upstream-Status: Submitted [https://lore.kernel.org/linux-riscv/DHSQ6VG82QYX.1EVAYV9JTBCL7@linux.dev/T/#m7019138a8182f8add500d2b753a7071da894b95d]
 
 Add complete SD card controller support with UHS high-speed modes.
 
@@ -22,13 +21,15 @@ for improved performance.
 Tested-by: Anand Moon <linux.amoon@gmail.com>
 Tested-by: Trevor Gamblin <tgamblin@baylibre.com>
 Tested-by: Michael Opdenacker <michael.opdenacker@rootcommit.com>
+Tested-by: Vincent Legoll <legoll@online.fr>
 Signed-off-by: Iker Pedrosa <ikerpedrosam@gmail.com>
+Signed-off-by: Trevor Gamblin <tgamblin@baylibre.com>
 ---
  .../boot/dts/spacemit/k1-orangepi-rv2.dts     | 19 +++++++++++++++++++
  1 file changed, 19 insertions(+)
 
 diff --git a/arch/riscv/boot/dts/spacemit/k1-orangepi-rv2.dts b/arch/riscv/boot/dts/spacemit/k1-orangepi-rv2.dts
-index 9c417a483f6b..5f823611c969 100644
+index 9c417a483f6b..95cfb4681ced 100644
 --- a/arch/riscv/boot/dts/spacemit/k1-orangepi-rv2.dts
 +++ b/arch/riscv/boot/dts/spacemit/k1-orangepi-rv2.dts
 @@ -140,3 +140,22 @@ aldo1: aldo1 {
@@ -37,7 +38,7 @@ index 9c417a483f6b..5f823611c969 100644
  };
 +
 +&sdhci0 {
-+	pinctrl-names = "default", "state_uhs";
++	pinctrl-names = "default", "uhs";
 +	pinctrl-0 = <&mmc1_cfg>;
 +	pinctrl-1 = <&mmc1_uhs_cfg>;
 +	bus-width = <4>;
