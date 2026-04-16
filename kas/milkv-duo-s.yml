@@ -1,0 +1,10 @@
+header:
+  version: 20
+  includes:
+    - base-riscv.yml
+
+machine: milkv-duo-s
+
+local_conf_header:
+  milkv-duo-s: |
+    IMAGE_INSTALL:append = " packagegroup-base"
