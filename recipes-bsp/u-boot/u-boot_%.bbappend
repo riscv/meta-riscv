@@ -9,6 +9,7 @@ FILESEXTRAPATHS:prepend:ae350-ax45mp := "${THISDIR}/files/ae350-ax45mp:"
 DEPENDS:append = " u-boot-tools-native"
 DEPENDS:append:ae350-ax45mp = " opensbi"
 DEPENDS:append:milkv-duo = " xxd-native"
+DEPENDS:append:milkv-duo-s = " xxd-native"
 
 SRC_URI:append:ae350-ax45mp = " \
             file://0001-mmc-ftsdc010_mci-Support-DTS-of-ftsdc010-driver-for-.patch \
@@ -43,6 +44,17 @@ SRC_URI:milkv-duo = " \
 SRCREV:milkv-duo = "4345a29c08e67044021f74139b4ff307019e9932"
 LIC_FILES_CHKSUM:milkv-duo = "file://Licenses/README;md5=5a7450c57ffe5ae63fd732446b988025"
 
+# milkv-duo-s: Upstream U-Boot v2026.01 with Duo S board support patch
+SRC_URI:milkv-duo-s = " \
+            git://source.denx.de/u-boot/u-boot.git;protocol=https;branch=master \
+            file://cv1813h-sg2000-support.patch \
+            file://uEnv-milkv-duo-s.txt \
+            "
+SRCREV:milkv-duo-s = "127a42c7257a6ffbbd1575ed1cbaa8f5408a44b3"
+LIC_FILES_CHKSUM:milkv-duo-s = "file://Licenses/README;md5=2ca5f2c35c8cc335f0a19756634782f1"
+ERROR_QA:remove:milkv-duo-s = "patch-fuzz"
+WARN_QA:append:milkv-duo-s = " patch-fuzz"
+
 ###############################
 # configure task customizations
 ###############################
@@ -71,6 +83,10 @@ do_configure:prepend:milkv-duo() {
     fi
 }
 
+do_configure:prepend:milkv-duo-s() {
+    :
+}
+
 #############################
 # compile task customizations
 #############################
@@ -82,6 +98,7 @@ _DEPS = ""
 _DEPS:riscv32 = "opensbi:do_deploy"
 _DEPS:riscv64 = "opensbi:do_deploy"
 _DEPS:milkv-duo = ""
+_DEPS:milkv-duo-s = ""
 
 do_compile[depends] += "${_DEPS}"
 
@@ -137,6 +154,13 @@ do_deploy:append:k1() {
 do_deploy:append:milkv-duo() {
     if [ -f "${UNPACKDIR}/uEnv-milkv-duo.txt" ]; then
         cp ${UNPACKDIR}/uEnv-milkv-duo.txt ${DEPLOYDIR}/uEnv.txt
+    fi
+    install -m 0644 ${B}/u-boot.dtb ${DEPLOYDIR}
+}
+
+do_deploy:append:milkv-duo-s() {
+    if [ -f "${UNPACKDIR}/uEnv-milkv-duo-s.txt" ]; then
+        cp ${UNPACKDIR}/uEnv-milkv-duo-s.txt ${DEPLOYDIR}/uEnv.txt
     fi
     install -m 0644 ${B}/u-boot.dtb ${DEPLOYDIR}
 }

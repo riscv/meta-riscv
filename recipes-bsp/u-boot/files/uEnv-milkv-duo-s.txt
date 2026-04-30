@@ -1,0 +1,6 @@
+baudrate=115200
+
+loadaddr=0x84000000
+fdtaddr=0x83000000
+
+uenvcmd=if test ${devnum} = 0; then setenv rootdev mmcblk0p2; else setenv rootdev mmcblk1p2; fi; setenv bootargs root=/dev/${rootdev} console=ttyS0,${baudrate} earlycon=sbi rootwait rw; fatload mmc ${devnum}:1 ${loadaddr} uImage.fit && fatload mmc ${devnum}:1 ${fdtaddr} default.dtb && bootm ${loadaddr} - ${fdtaddr}
