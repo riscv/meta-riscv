@@ -7,7 +7,7 @@ LIC_FILES_CHKSUM = "file://Licenses/README;md5=2ca5f2c35c8cc335f0a19756634782f1"
 
 inherit deploy
 
-SRC_URI = "git://gitee.com/bianbu-linux/uboot-2022.10;protocol=https;branch=k1-bl-v2.2.y"
+SRC_URI = "git://github.com/amarula/uboot-2022.10;protocol=https;branch=k1-bl-v2.2.y"
 SRCREV = "c6f2746cb7993a6fb6c9f51b2bff318921e13f98"
 
 UBOOT_SPL_MACHINE ??= "k1_defconfig"
