@@ -31,9 +31,6 @@ SRC_URI:k1 = " \
             file://bootcommand.cfg \
             "
 
-# Master branch as of Dec 11, 2025
-SRCREV:k1 = "ff80e95fed188ec3d4001129445e414c9c811beb"
-
 SRC_URI:milkv-duo = " \
             git://github.com/milkv-duo/milkv-duo-u-boot;protocol=https;branch=duo-64mb \
             file://uboot-milkv-duo.env \
