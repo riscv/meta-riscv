@@ -1,0 +1,8 @@
+[Match]
+Type=ether
+
+[Network]
+DHCP=yes
+
+[DHCPv4]
+ClientIdentifier=mac

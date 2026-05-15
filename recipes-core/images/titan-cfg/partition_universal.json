@@ -1,0 +1,72 @@
+{
+  "version": "1.0",
+  "format": "gpt",
+  "partitions": [
+    {
+      "name": "env",
+      "comment": "uboot env data partition, MUST not change its offset and size",
+      "hidden": true,
+      "offset": "640K",
+      "size": "64K",
+      "image": "env.bin"
+    },
+    {
+      "name": "bootinfo",
+      "comment": "contain address and size info of fsbl, MUST not change its position",
+      "hidden": true,
+      "offset": "1M",
+      "size": "128K",
+      "image": "factory/bootinfo_block.bin"
+    },
+    {
+      "name": "fsbl",
+      "comment": "its offset was designated by bootinfo",
+      "hidden": true,
+      "offset": "1536K",
+      "size": "512K",
+      "image": "factory/FSBL.bin"
+    },
+    {
+      "name": "esos",
+      "hidden": true,
+      "offset": "4M",
+      "size": "3M",
+      "image": "esos.itb"
+    },
+    {
+      "name": "opensbi",
+      "hidden": true,
+      "offset": "7M",
+      "size": "1M",
+      "image": "fw_dynamic.itb"
+    },
+    {
+      "name": "uboot",
+      "hidden": true,
+      "offset": "8M",
+      "size": "4M",
+      "image": "u-boot.itb"
+    },
+    {
+      "name": "ESP",
+      "offset": "12M",
+      "size": "256M",
+      "image": "esp.vfat",
+      "compress": "gzip-5"
+    },
+    {
+      "name": "bootfs",
+      "offset": "268M",
+      "size": "256M",
+      "image": "bootfs.ext4",
+      "compress": "gzip-5"
+    },
+    {
+        "name": "rootfs",
+        "offset": "524M",
+        "size": "-",
+        "image": "rootfs.ext4",
+        "compress": "gzip-5"
+    }
+  ]
+}

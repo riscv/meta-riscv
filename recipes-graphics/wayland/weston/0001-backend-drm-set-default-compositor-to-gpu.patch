@@ -1,0 +1,33 @@
+From 28852b0d3bd2aa63726750d5f9657a10fb6d7a06 Mon Sep 17 00:00:00 2001
+From: liuyingjie <yingjie.liu@spacemit.com>
+Date: Tue, 24 Feb 2026 11:39:51 +0800
+Subject: [PATCH] backend-drm: set default compositor to gpu
+
+Workaround: spacemit drm has bug to assign multi planes to display.
+Force all content to be composited by GPU renderer instead of using
+hardware planes.
+
+This changes the default mode from DRM_OUTPUT_PROPOSE_STATE_PLANES_ONLY
+to DRM_OUTPUT_PROPOSE_STATE_RENDERER_ONLY in drm_assign_planes().
+
+Upstream-Status: Inappropriate [vendor specific]
+---
+ libweston/backend-drm/state-propose.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/libweston/backend-drm/state-propose.c b/libweston/backend-drm/state-propose.c
+index 2715ab6..12694b1 100644
+--- a/libweston/backend-drm/state-propose.c
++++ b/libweston/backend-drm/state-propose.c
+@@ -973,7 +973,7 @@ drm_assign_planes(struct weston_output *output_base)
+ 	struct drm_writeback_state *wb_state = output->wb_state;
+ 	struct weston_paint_node *pnode;
+ 	struct weston_plane *primary = &output_base->primary_plane;
+-	enum drm_output_propose_state_mode mode = DRM_OUTPUT_PROPOSE_STATE_PLANES_ONLY;
++	enum drm_output_propose_state_mode mode = DRM_OUTPUT_PROPOSE_STATE_RENDERER_ONLY;
+ 
+ 	assert(output);
+ 
+-- 
+2.43.0
+
