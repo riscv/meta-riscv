@@ -1,0 +1,91 @@
+{
+    "description": "meta-riscv master with Poky reference distro",
+    "sources": {
+        "bitbake": {
+            "git-remote": {
+                "uri": "https://git.openembedded.org/bitbake",
+                "branch": "master",
+                "rev": "master"
+            }
+        },
+        "openembedded-core": {
+            "git-remote": {
+                "uri": "https://git.openembedded.org/openembedded-core",
+                "branch": "master",
+                "rev": "master"
+            }
+        },
+        "meta-yocto": {
+            "git-remote": {
+                "uri": "https://git.yoctoproject.org/meta-yocto",
+                "branch": "master",
+                "rev": "master"
+            }
+        },
+        "yocto-docs": {
+            "git-remote": {
+                "uri": "https://git.yoctoproject.org/yocto-docs",
+                "branch": "master",
+                "rev": "master"
+            }
+        },
+        "meta-riscv": {
+            "git-remote": {
+                "uri": "https://github.com/riscv/meta-riscv.git",
+                "branch": "master",
+                "rev": "master"
+            }
+        }
+    },
+    "bitbake-setup": {
+        "configurations": [
+        {
+            "bb-layers": ["openembedded-core/meta","meta-yocto/meta-yocto-bsp","meta-yocto/meta-poky", "meta-riscv"],
+            "bb-env-passthrough-additions": ["DL_DIR", "SSTATE_DIR"],
+            "setup-dir-name": "$distro-master-meta-riscv",
+            "oe-fragments-one-of": {
+                "machine": {
+                    "description": "Target machines",
+                    "options" : [
+                        { "name": "machine/bananapi-f3", "description": "BananaPi BPI-F3" },
+                        { "name": "machine/beaglev-ahead", "description": "BeagleV Ahead" },
+                        { "name": "machine/eswin-ebc77", "description": "ESWIN EBC77 (Vendor Kernel)" },
+                        { "name": "machine/freedom-u540", "description": "Freedom U540" },
+                        { "name": "machine/mangopi-mq-pro", "description": "MangoPi MQ Pro" },
+                        { "name": "machine/milkv-duo", "description": "Milk-V Duo" },
+                        { "name": "machine/milkv-megrez", "description": "Milk-V Megrez" },
+                        { "name": "machine/eswin-ebc77-mainline", "description": "ESWIN EBC77 (Mainline Kernel)" },
+                        { "name": "machine/muse-pi-pro", "description": "SpacemiT Muse Pi Pro" },
+                        { "name": "machine/nezha-allwinner-d1", "description": "Nezha D1-H" },
+                        { "name": "machine/orangepi-r2s", "description": "OrangePi R2S" },
+                        { "name": "machine/orangepi-rv2", "description": "OrangePi RV2 (Vendor Kernel)" },
+                        { "name": "machine/orangepi-rv2-mainline", "description": "OrangePi RV2 (Mainline Kernel)" },
+                        { "name": "machine/star64", "description": "PINE64 Star64" },
+                        { "name": "machine/visionfive2", "description": "x86_64 (64-bit) PCs and servers" }
+                    ]
+                },
+                "distro": {
+                    "description": "Target distributions",
+                    "options" : [
+                        { "name": "distro/poky", "description": "Yocto Project Reference Distro" },
+                        { "name": "distro/poky-altcfg", "description": "Poky alternative with systemd as init manager" },
+                        { "name": "distro/poky-tiny", "description": "Poky alternative optimized for size" }
+                    ]
+                }
+            },
+            "configurations": [
+            {
+                "name": "poky",
+                "description": "Poky - The Yocto Project testing distribution"
+            },
+            {
+                "name": "poky-with-sstate",
+                "description": "Poky - The Yocto Project testing distribution with internet sstate acceleration. Use with caution as it requires a completely robust local network with sufficient bandwidth.",
+                "oe-fragments": ["core/yocto/sstate-mirror-cdn"]
+            }
+            ]
+        }
+        ]
+    },
+    "version": "1.0"
+}

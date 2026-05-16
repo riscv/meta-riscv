@@ -4,14 +4,46 @@
 
 Make sure to [install the `repo` command by Google](https://gerrit.googlesource.com/git-repo#install) first.
 
-## Create workspace
+## bitbake-setup
+
+The following examples assumes that you have the `bitbake` repository checked
+out at `~/workspace/yocto/bitbake`, and that you are using the `nodistro`
+variant. They read the config templates from URLs to minimize how much needs to
+be preemptively checked out on the host system. Alternatively, you could clone
+this repository and use the following to achieve the same result:
+
+```
+../bitbake-setup init /path/to/meta-riscv/bitbake-regsitry/your-preferred.conf.json
+```
+
+### Interactively
+
+1. `~/workspace/yocto/bitbake/bin/bitbake-setup init https://raw.githubusercontent.com/riscv/meta-riscv/refs/heads/master/bitbake-registry/meta-riscv-oe-nodistro-master.conf.json`
+2. Provide your choice of MACHINE
+3. Set the workspace name
+4. Confirm workspace setup
+
+bitbake-setup should clone the minimal repository set and provide you with
+further usage instructions.
+
+### Non-Interactively
+
+Using `MACHINE="orangepi-rv2"` as an example:
+
+```
+bitbake-setup init --non-interactive https://raw.githubusercontent.com/riscv/meta-riscv/refs/heads/master/bitbake-registry/meta-riscv-oe-nodistro-master.conf.json nodistro machine/orangepi-r2s
+```
+
+## repo
+
+### Create workspace
 ```text
 mkdir riscv-yocto && cd riscv-yocto
 repo init -u https://github.com/riscv/meta-riscv -b master -m tools/manifests/riscv-yocto.xml
 repo sync
 repo start work --all
 ```
-## Update existing workspace
+### Update existing workspace
 
 In order to bring all the layers up to date with upstream
 
@@ -21,7 +53,10 @@ repo sync
 repo rebase
 ```
 
-## Setup Build Environment
+## envsetup script
+
+Set up the build environment:
+
 ```text
 . layers/meta-riscv/tools/envsetup.sh
 ```
