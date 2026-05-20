@@ -1,0 +1,44 @@
+From 905c559e51497b8bfdbb68df8be56d2f70f0de8e Mon Sep 17 00:00:00 2001
+From: Kees Cook <kees@kernel.org>
+Date: Sat, 14 Mar 2026 14:24:56 +0100
+Subject: [PATCH] gcc-plugins: Always define CONST_CAST_GIMPLE and
+ CONST_CAST_TREE
+
+Upstream-Status: Backport [https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=905c559e51497]
+
+For gcc-16, the CONST_CAST macro family was removed. Add back what
+we were using in gcc-common.h, as they are simple wrappers.
+
+See GCC commits:
+  c3d96ff9e916c02584aa081f03ab999292efbb50
+  458c7926d48959abcb2c1adaa22458e27459a551
+
+Suggested-by: Ingo Saitz <ingo@hannover.ccc.de>
+Link: https://lore.kernel.org/lkml/ab6OKoay0OWkywjK@spatz.zoo
+Fixes: 6b90bd4ba40b ("GCC plugin infrastructure")
+Tested-by: Ivan Bulatovic <combuster@archlinux.us>
+Tested-by: Christopher Cradock <christopher@cradock.myzen.co.uk>
+Signed-off-by: Kees Cook <kees@kernel.org>
+Signed-off-by: Trevor Gamblin <tgamblin@baylibre.com>
+---
+ scripts/gcc-plugins/gcc-common.h | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/scripts/gcc-plugins/gcc-common.h b/scripts/gcc-plugins/gcc-common.h
+index 8f1b3500f8e2..abb1964c44d4 100644
+--- a/scripts/gcc-plugins/gcc-common.h
++++ b/scripts/gcc-plugins/gcc-common.h
+@@ -309,7 +309,9 @@ typedef const gimple *const_gimple_ptr;
+ #define gimple gimple_ptr
+ #define const_gimple const_gimple_ptr
+ #undef CONST_CAST_GIMPLE
+-#define CONST_CAST_GIMPLE(X) CONST_CAST(gimple, (X))
++#define CONST_CAST_GIMPLE(X) const_cast<gimple>((X))
++#undef CONST_CAST_TREE
++#define CONST_CAST_TREE(X) const_cast<tree>((X))
+ 
+ /* gimple related */
+ static inline gimple gimple_build_assign_with_ops(enum tree_code subcode, tree lhs, tree op1, tree op2 MEM_STAT_DECL)
+-- 
+2.54.0
+
