@@ -1,0 +1,20 @@
+# K3 SD Card Image WIC Configuration
+# Boot sequence: FSBL → esos → opensbi → u-boot → kernel
+# Bootinfo (128 Kbytes) is injected via image-k3.inc post-processing at offset 1M
+# Partition layout matches partition_universal.json
+
+bootloader --ptable gpt
+
+part --part-name env --source rawcopy --sourceparams="file=u-boot-env-default.bin" --fixed-size 64K --align 640
+
+part --part-name fsbl --source rawcopy --sourceparams="file=FSBL.bin" --fixed-size 512K --align 1536
+
+part --part-name esos --source rawcopy --sourceparams="file=esos.itb" --fixed-size 3M --align 4096
+
+part --part-name opensbi --source rawcopy --sourceparams="file=fw_dynamic.itb" --fixed-size 1M --align 7168
+
+part --part-name uboot --source rawcopy --sourceparams="file=u-boot.itb" --fixed-size 4M --align 8192
+
+part --part-name bootfs --source rawcopy --sourceparams="file=bootfs.ext4" --fixed-size 256M --align 12288
+
+part --part-name rootfs --source rootfs --fstype=ext4 --label rootfs --align 274432
