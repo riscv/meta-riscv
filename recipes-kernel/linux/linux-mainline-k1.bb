@@ -20,7 +20,6 @@ SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git;prot
            file://0009-riscv-dts-spacemit-k1-add-SD-card-controller-and-pin.patch \
           "
 SRCREV = "028ef9c96e96197026887c0f092424679298aae8"
-KBUILD_DEFCONFIG ?= "defconfig"
 LINUX_VERSION = "7.0"
 
 COMPATIBLE_MACHINE = "(k1)"
