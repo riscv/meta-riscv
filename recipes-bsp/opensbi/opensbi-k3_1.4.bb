@@ -8,20 +8,16 @@ require recipes-bsp/opensbi/opensbi-payloads.inc
 
 inherit autotools-brokensep deploy
 
-DEPENDS += "u-boot-tools-native dtc-native spacemit-toolchain-native"
+DEPENDS += "u-boot-tools-native dtc-native"
 
 SRC_URI = "git://github.com/spacemit-com/opensbi.git;protocol=https;tag=k3-br-v1.0.0;nobranch=1"
 
 RISCV_SBI_PLAT = "generic"
 OPENSBI_DEFCONFIG = "k3_defconfig"
 
-# Use Spacemit toolchain for K3 custom CSR support
-SPACEMIT_TOOLCHAIN_PATH = "${STAGING_DIR_NATIVE}${datadir}/spacemit-toolchain"
-SPACEMIT_CROSS_COMPILE = "${SPACEMIT_TOOLCHAIN_PATH}/bin/riscv64-unknown-linux-gnu-"
-
 EXTRA_OEMAKE += "PLATFORM=${RISCV_SBI_PLAT} I=${D} FW_PIC=y"
 EXTRA_OEMAKE += "PLATFORM_DEFCONFIG=${OPENSBI_DEFCONFIG}"
-EXTRA_OEMAKE += "CROSS_COMPILE=${SPACEMIT_CROSS_COMPILE}"
+EXTRA_OEMAKE += "CROSS_COMPILE=${TARGET_PREFIX}"
 
 # OpenSBI uses Makefile, not autotools - skip configure
 do_configure[noexec] = "1"
