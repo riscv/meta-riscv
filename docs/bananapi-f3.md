@@ -75,45 +75,6 @@ Then, you also need to flash the `bootinfo_sd.bin` file at the very beginning of
 $ sudo dd if=build/tmp/deploy/images/bananapi-f3/bootinfo_sd.bin of=/dev/sdx
 ```
 
-Set up NFS
-==========
-
-As there is no support for MMC or USB in the mainline Linux kernel yet, you will have to set up an NFS
-server to boot your board through a directory shared through NFS.
-
-On Debian-based systems, you can install the server with:
-
-```
-$ sudo apt install nfs-kernel-server
-```
-
-Then extract the Yocto-generated image:
-
-```
-sudo mkdir -p /srv/nfs/yocto-k1
-sudo tar xf build/tmp/deploy/images/bananapi-f3/core-image-full-cmdline-bananapi-f3.rootfs.tar.zst -C /srv/nfs/yocto-k1
-```
-
-Add this directory to `/etc/exports`:
-```
-/srv/nfs/yocto-k1 172.24.0.2(rw,no_root_squash,no_subtree_check)
-```
-
-And then run:
-
-```
-$ sudo exportfs -r
-```
-
-Note: the NFS directory can be modified through `recipes-bsp/u-boot/files/k1/bootcommand.cfg`.
-
-Then, connect the "RJ45 1" Ethernet port of your board to your NFS server through for example
-a USB/Ethernet dongle. Then assign the `172.24.0.1` IP address to your server:
-
-```
-$ nmcli con add type ethernet ifname enx<mac> ip4 172.24.0.1/24
-```
-
 Boot the Board
 ==============
 

@@ -6,7 +6,6 @@ DEPENDS += "u-boot-tools-native"
 
 BRANCH = "master"
 SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git;protocol=https;branch=${BRANCH} \
-           file://nfs.cfg \
            file://misc.cfg \
            file://k1-i2c.cfg \
            file://0001-dt-bindings-mmc-spacemit-sdhci-add-pinctrl-support-f.patch \
