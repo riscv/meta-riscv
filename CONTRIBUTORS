@@ -1,16 +1,55 @@
 List of meta-riscv contributors, sorted by Alphabetical order
 
+ * Alexey Firago <alexey.firago@gmail.com>
  * Alistair Francis <alistair.francis@wdc.com>
+ * Alper Ak <alperyasinak1@gmail.com>
+ * Andreas Cord-Landwehr <cordlandwehr@kde.org>
+ * Andrei Lalaev <andrey.lalaev@gmail.com>
+ * Bernhard Rosenkränzer <bernhard.rosenkraenzer.ext@huawei.com>
+ * Cezary Sobczak <cezary.sobczak@3mdeb.com>
  * Chin Huat Ang <chinhuat@gmail.com>
+ * Eduardo Gonzalez <eduardo.gonzalez@amarulasolutions.com>
+ * GP Orcullo <kinsamanka@gmail.com>
+ * gsh1209 <gsh1209@outlook.com>
+ * Gyorgy Sarvari <skandigraun@gmail.com>
+ * Hiago De Franco <hiagofranco@gmail.com>
  * Jeremy Puhlman <jpuhlman@mvista.com>
+ * Joel Winarske <joel.winarske@gmail.com>
+ * Justin Hammond <justin@dynam.ac>
+ * Kanak Shilledar <kanakshilledar111@protonmail.com>
  * Khem Raj <raj.khem@gmail.com>
+ * Koen Kooi <koen@dominion.thruhere.net>
+ * Leonard Anderweit <leonard.anderweit@gmail.com>
+ * Maciej Pijanowski <maciej.pijanowski@3mdeb.com>
+ * Marcel Ziswiler <marcel@ziswiler.com>
+ * Martin Herren <martin.herren@proton.me>
+ * Matheus Castello <matheus@castello.eng.br>
+ * Michael Opdenacker <michael.opdenacker@rootcommit.com>
  * Mirza Krak <mirza.krak@endian.se>
  * Moritz Fischer <moritz.fischer@ettus.com>
+ * Nick Owens <mischief@offblast.org>
+ * OOHehir <40183643+OOHehir@users.noreply.github.com>
  * Palmer Dabbelt <palmer@sifive.com>
+ * Pavel Zhukov <pavel@zhukoff.net>
+ * pino-kim <sungwon.pino@gmail.com>
  * Ricardo Salveti <ricardo@foundries.io>
- * Ricardo Salveti <ricardo@opensourcefoundries.com>
+ * Richard Purdie <richard.purdie@linuxfoundation.org>
+ * rmsyn <rmsynchls@gmail.com>
+ * Roy Franz <rfranz@tenstorrent.com>
+ * RP38 <raphael.peyre@smile.fr>
+ * Sanjay Chitroda <sanjayembeddedse@gmail.com>
+ * Stefan O'Rear <sorear@fastmail.com>
+ * Steve Arnold <nerdboy@gentoo.org>
  * sungwon.pino <sungwon.pino@gmail.com>
+ * Talel BELHAJSALEM <bhstalel@gmail.com>
  * Taras Kondratiuk <takondra@cisco.com>
+ * tfx2001 <tfx2001@outlook.com>
+ * Thomas Perrot <thomas.perrot@bootlin.com>
+ * Trevor Gamblin <tgamblin@baylibre.com>
  * Trevor Woerner <twoerner@gmail.com>
  * Vijai Kumar K <vijaikumar.kanagarajan@gmail.com>
-
+ * Vincent Legoll <vincent.legoll@gmail.com>
+ * xyq1113723547 <53088781+xyq1113723547@users.noreply.github.com>
+ * YanqiXu <y449xu@uwaterloo.ca>
+ * Yu Chien Peter Lin <main@yclin.org>
+ * Yu Chien Peter Lin <peterlin@andestech.com>
