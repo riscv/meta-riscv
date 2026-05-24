@@ -19,6 +19,13 @@ SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git;prot
            file://0008-riscv-dts-spacemit-k1-musepi-pro-add-SD-card-support.patch \
            file://0009-riscv-dts-spacemit-k1-add-SD-card-controller-and-pin.patch \
           "
+
+SRC_URI:append:bananapi-cm6-io = " \
+           file://0001-dt-bindings-riscv-spacemit-Add-Banana-Pi-BPI-CM6-com.patch \
+           file://0002-riscv-dts-spacemit-k1-Split-gmac_clk_ref-into-indepe.patch \
+           file://0003-riscv-dts-spacemit-k1-Add-Banana-Pi-BPI-CM6-IO-board.patch \
+          "
+
 SRCREV = "028ef9c96e96197026887c0f092424679298aae8"
 LINUX_VERSION = "7.0"
 
