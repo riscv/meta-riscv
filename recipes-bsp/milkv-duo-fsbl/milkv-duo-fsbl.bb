@@ -14,7 +14,7 @@ B = "${S}/build"
 TARGET_LDFLAGS = ""
 SECURITY_LDFLAGS = ""
 
-do_compile[depends] += "opensbi:do_deploy"
+do_compile[depends] += "opensbi:do_deploy virtual/bootloader:do_deploy"
 
 do_compile () {
 	unset LDFLAGS
