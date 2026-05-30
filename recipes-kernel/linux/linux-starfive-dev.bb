@@ -44,6 +44,8 @@ SRC_URI:jh7110 = " \
            file://0001-gcc-plugins-Rename-last_stmt-for-GCC-14.patch \
            file://0001-eswin-Repace-NULL-with-0-where-it-is-converted-from-.patch \
            file://0001-kbuild-Do-not-use-NOTIMMEDIATE.patch \
+           file://0001-gcc-plugins-Always-define-CONST_CAST_GIMPLE-and-CONS.patch \
+           file://0001-drm-img-rogue-fix-build-with-gcc-16.patch \
            file://visionfive2-graphics.cfg \
            file://modules.cfg \
 "
