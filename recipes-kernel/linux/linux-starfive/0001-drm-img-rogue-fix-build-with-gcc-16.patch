@@ -1,0 +1,111 @@
+From 87de7d84b158d8e2eedada246025b8f96e99dd1d Mon Sep 17 00:00:00 2001
+From: Max Krummenacher <max.oss.09@gmail.com>
+Date: Sat, 30 May 2026 11:21:19 +0000
+Subject: [PATCH] drm/img-rogue: fix build with gcc 16
+
+GCC 16 now complains about initialized/assigned but unused variables.
+Only define/set them if the relevant defines are set.
+
+Fixes:
+mmu_common.c:3038:20: error: variable 'ui32MappedCount' set but not used [-Werror=unused-but-set-variable=]
+ 3038 |         IMG_UINT32 ui32MappedCount = 0;
+
+sync_checkpoint.c:3094:40: error: variable 'ui32NullScpCount' set but not used [-Werror=unused-but-set-variable=]
+ 3094 |         IMG_UINT32 ui32ItemsFreed = 0, ui32NullScpCount = 0, __maybe_unused ui32PoolCount;
+
+rgxhwperf_common.c:3503:41: error: variable 'ui32TlPackets' set but not used [-Werror=unused-but-set-variable=]
+ 3503 |         IMG_UINT32                      ui32TlPackets = 0;
+
+Upstream-Status: Submitted [https://github.com/starfive-tech/linux/pull/149]
+Signed-off-by: Max Krummenacher <max.oss.09@gmail.com>
+---
+ .../drm/img/img-rogue/services/server/common/mmu_common.c  | 4 ++++
+ .../img/img-rogue/services/server/common/sync_checkpoint.c | 7 ++++++-
+ .../img-rogue/services/server/devices/rgxhwperf_common.c   | 6 ++++++
+ 3 files changed, 16 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/img/img-rogue/services/server/common/mmu_common.c b/drivers/gpu/drm/img/img-rogue/services/server/common/mmu_common.c
+index fb9c1c27f597..84d855ac9ce1 100644
+--- a/drivers/gpu/drm/img/img-rogue/services/server/common/mmu_common.c
++++ b/drivers/gpu/drm/img/img-rogue/services/server/common/mmu_common.c
+@@ -3035,7 +3035,9 @@ MMU_MapPages(MMU_CONTEXT *psMMUContext,
+ 	IMG_UINT32 uiPTEIndex = 0;
+ 	IMG_UINT32 uiPageSize = (1 << uiLog2HeapPageSize);
+ 	IMG_UINT32 uiLoop = 0;
++#if defined(PDUMP)
+ 	IMG_UINT32 ui32MappedCount = 0;
++#endif /*PDUMP*/
+ 	IMG_DEVMEM_OFFSET_T uiPgOffset = 0;
+ 	IMG_UINT32 uiFlushEnd = 0, uiFlushStart = 0;
+ 
+@@ -3333,7 +3335,9 @@ MMU_MapPages(MMU_CONTEXT *psMMUContext,
+ 						sDevVAddr.uiAddr,
+ 						uiPgOffset * uiPageSize));
+ 
++#if defined(PDUMP)
+ 				ui32MappedCount++;
++#endif /*PDUMP*/
+ 			}
+ 		}
+ 
+diff --git a/drivers/gpu/drm/img/img-rogue/services/server/common/sync_checkpoint.c b/drivers/gpu/drm/img/img-rogue/services/server/common/sync_checkpoint.c
+index 8f89f9c05a1e..98e5b40090c2 100644
+--- a/drivers/gpu/drm/img/img-rogue/services/server/common/sync_checkpoint.c
++++ b/drivers/gpu/drm/img/img-rogue/services/server/common/sync_checkpoint.c
+@@ -3091,7 +3091,10 @@ static IMG_UINT32 _CleanCheckpointPool(_SYNC_CHECKPOINT_CONTEXT *psContext)
+ 	DECLARE_DLLIST(sCleanupList);
+ 	DLLIST_NODE *psThis, *psNext;
+ 	OS_SPINLOCK_FLAGS uiFlags;
+-	IMG_UINT32 ui32ItemsFreed = 0, ui32NullScpCount = 0, __maybe_unused ui32PoolCount;
++	IMG_UINT32 ui32ItemsFreed = 0, __maybe_unused ui32PoolCount;
++#if (ENABLE_SYNC_CHECKPOINT_POOL_DEBUG == 1)
++	IMG_UINT32 ui32NullScpCount = 0;
++#endif
+ 
+ 	/* Acquire sync checkpoint pool lock */
+ 	OSSpinLockAcquire(psCtxCtl->hSyncCheckpointPoolLock, uiFlags);
+@@ -3116,10 +3119,12 @@ static IMG_UINT32 _CleanCheckpointPool(_SYNC_CHECKPOINT_CONTEXT *psContext)
+ 			 * from the list so it's safe to use sListNode here */
+ 			dllist_add_to_head(&sCleanupList, &psCheckpoint->sListNode);
+ 		}
++#if (ENABLE_SYNC_CHECKPOINT_POOL_DEBUG == 1)
+ 		else
+ 		{
+ 			ui32NullScpCount++;
+ 		}
++#endif
+ 	}
+ 
+ 	/* Release sync checkpoint pool lock */
+diff --git a/drivers/gpu/drm/img/img-rogue/services/server/devices/rgxhwperf_common.c b/drivers/gpu/drm/img/img-rogue/services/server/devices/rgxhwperf_common.c
+index 91f8471f8c4b..17b33adb4d0c 100644
+--- a/drivers/gpu/drm/img/img-rogue/services/server/devices/rgxhwperf_common.c
++++ b/drivers/gpu/drm/img/img-rogue/services/server/devices/rgxhwperf_common.c
+@@ -3500,7 +3500,9 @@ PVRSRV_ERROR RGXHWPerfAcquireEvents(
+ 	PVRSRV_ERROR			eError;
+ 	RGX_KM_HWPERF_DEVDATA*	psDevData = (RGX_KM_HWPERF_DEVDATA*)hDevData;
+ 	IMG_PBYTE				pDataDest;
++#if defined(DEBUG) || defined(DOXYGEN)
+ 	IMG_UINT32			ui32TlPackets = 0;
++#endif
+ 	IMG_PBYTE			pBufferEnd;
+ 	PVRSRVTL_PPACKETHDR psHDRptr;
+ 	PVRSRVTL_PACKETTYPE ui16TlType;
+@@ -3578,10 +3580,14 @@ PVRSRV_ERROR RGXHWPerfAcquireEvents(
+ 		psHDRptr = GET_NEXT_PACKET_ADDR(psHDRptr);
+ 		/* Updated to keep track of the next packet to be read. */
+ 		psDevData->pTlBufRead[eStreamId] = (IMG_PBYTE) ((void *)psHDRptr);
++#if defined(DEBUG) || defined(DOXYGEN)
+ 		ui32TlPackets++;
++#endif
+ 	}
+ 
++#if defined(DEBUG) || defined(DOXYGEN)
+ 	PVR_DPF((PVR_DBG_VERBOSE, "RGXHWPerfAcquireEvents: TL Packets processed %03d", ui32TlPackets));
++#endif
+ 
+ 	psDevData->bRelease[eStreamId] = IMG_FALSE;
+ 	if (psHDRptr >= (PVRSRVTL_PPACKETHDR)((void *)pBufferEnd))
+-- 
+2.54.0
+
