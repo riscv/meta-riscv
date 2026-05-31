@@ -1,0 +1,73 @@
+From 1661b7ce2571b19e2a4f8a2b0dae61691890fc5f Mon Sep 17 00:00:00 2001
+From: Andreas Rehn <rehn.andreas86@gmail.com>
+Date: Sun, 29 Mar 2026 14:45:20 +0000
+Subject: [PATCH] mmc: sdhci-of-dwcmshc: cv18xx: add eMMC workarounds for
+ SG2000
+
+The CV18xx DWC_mshc eMMC controller has two issues on the Milk-V Duo S:
+
+1. DDR52 writes fail: the host-to-card DDR data path produces write
+   corruption at 52 MHz dual-edge timing.  Replace mmc-ddr-1_8v with
+   max-frequency to force SDR52 (single-edge) which is fully reliable.
+
+2. HS200 voltage switching is unsupported: VCCQ is hardwired to 1.8V.
+   Add BROKEN_HS200 and an empty voltage_switch callback.
+
+Upstream-Status: Pending
+Signed-off-by: Andreas Rehn <rehn.andreas86@gmail.com>
+AI-Generated: Claude Code
+---
+ arch/riscv/boot/dts/sophgo/sg2000-milkv-duo-s.dts | 2 +-
+ drivers/mmc/host/sdhci-of-dwcmshc.c               | 9 ++++++++-
+ 2 files changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/arch/riscv/boot/dts/sophgo/sg2000-milkv-duo-s.dts b/arch/riscv/boot/dts/sophgo/sg2000-milkv-duo-s.dts
+index 9d16ac4e8f0a..dec2bdb06588 100644
+--- a/arch/riscv/boot/dts/sophgo/sg2000-milkv-duo-s.dts
++++ b/arch/riscv/boot/dts/sophgo/sg2000-milkv-duo-s.dts
+@@ -72,7 +72,7 @@ &emmc {
+ 	pinctrl-names = "default";
+ 	status = "okay";
+ 	bus-width = <4>;
+-	mmc-ddr-1_8v;
++	max-frequency = <52000000>;
+ 	no-sd;
+ 	no-sdio;
+ 	non-removable;
+diff --git a/drivers/mmc/host/sdhci-of-dwcmshc.c b/drivers/mmc/host/sdhci-of-dwcmshc.c
+index 2b75a36c096b..67be172fa91e 100644
+--- a/drivers/mmc/host/sdhci-of-dwcmshc.c
++++ b/drivers/mmc/host/sdhci-of-dwcmshc.c
+@@ -1710,6 +1710,11 @@ static const struct sdhci_ops sdhci_dwcmshc_th1520_ops = {
+ 	.platform_execute_tuning = th1520_execute_tuning,
+ };
+ 
++static void cv18xx_emmc_voltage_switch(struct sdhci_host *host)
++{
++	/* CV18xx eMMC VCCQ is hardwired to 1.8V. */
++}
++
+ static const struct sdhci_ops sdhci_dwcmshc_cv18xx_ops = {
+ 	.set_clock		= sdhci_set_clock,
+ 	.set_bus_width		= sdhci_set_bus_width,
+@@ -1717,6 +1722,7 @@ static const struct sdhci_ops sdhci_dwcmshc_cv18xx_ops = {
+ 	.get_max_clock		= dwcmshc_get_max_clock,
+ 	.reset			= cv18xx_sdhci_reset,
+ 	.adma_write_desc	= dwcmshc_adma_write_desc,
++	.voltage_switch		= cv18xx_emmc_voltage_switch,
+ 	.platform_execute_tuning = cv18xx_sdhci_execute_tuning,
+ };
+ 
+@@ -1810,7 +1816,8 @@ static const struct dwcmshc_pltfm_data sdhci_dwcmshc_cv18xx_pdata = {
+ 	.pdata = {
+ 		.ops = &sdhci_dwcmshc_cv18xx_ops,
+ 		.quirks = SDHCI_QUIRK_CAP_CLOCK_BASE_BROKEN,
+-		.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
++		.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN |
++			   SDHCI_QUIRK2_BROKEN_HS200,
+ 	},
+ };
+ 
+-- 
+2.34.1
+

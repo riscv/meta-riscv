@@ -21,10 +21,12 @@ DEPENDS:append:jh7110 = " u-boot-tools-native dtc-native"
 DEPENDS:append:orangepi-rv2 = " u-boot-tools-native"
 
 EXTRA_OEMAKE:append:milkv-duo = "FW_FDT_PATH=${DEPLOY_DIR_IMAGE}/u-boot.dtb"
+EXTRA_OEMAKE:append:milkv-duo-s = " FW_FDT_PATH=${DEPLOY_DIR_IMAGE}/u-boot.dtb"
 EXTRA_OEMAKE:append:orangepi-rv2 = " PLATFORM_DEFCONFIG=k1_defconfig"
 
 _DEPS = ""
 _DEPS:milkv-duo = "u-boot:do_deploy"
+_DEPS:milkv-duo-s = "u-boot:do_deploy"
 
 do_compile[depends] += "${_DEPS}"
 
