@@ -10,3 +10,5 @@ SRCPV = "${@bb.fetch2.get_srcrev(d)}"
 SRC_URI = " \
     git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git;protocol=https;branch=${BRANCH} \
 "
+
+SRC_URI:append:dc-roma-fml13v01 = " file://ethernet.cfg"

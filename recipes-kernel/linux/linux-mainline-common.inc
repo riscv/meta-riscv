@@ -15,7 +15,7 @@ KCONFIG_MODE = "--alldefconfig"
 KBUILD_DEFCONFIG ?= "defconfig"
 KBUILD_DEFCONFIG:qemuriscv32 = "rv32_defconfig"
 
-COMPATIBLE_MACHINE = "(qemuriscv32|qemuriscv64|freedom-u540)"
+COMPATIBLE_MACHINE = "(qemuriscv32|qemuriscv64|freedom-u540|dc-roma-fml13v01)"
 
 KERNEL_FEATURES:remove = "features/debug/printk.scc"
 KERNEL_FEATURES:remove = "features/kernel-sample/kernel-sample.scc"

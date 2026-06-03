@@ -12,6 +12,7 @@ BRANCH = "Star64"
 SRC_URI = "git://github.com/Fishwaldo/u-boot.git;protocol=https;branch=${BRANCH} \
            file://tftp-mmc-boot.txt \
            file://uEnv-star64.txt \
+           file://uEnv-dc-roma-fml13v01.txt \
           "
 
 SRCREV = "c71fa7376f4eaf29e2dc20e5a68418d79201290a"
@@ -26,6 +27,9 @@ EXTRA_OEMAKE += 'HOSTCFLAGS=-Wno-error=int-conversion'
 # Overwrite this for your server
 TFTP_SERVER_IP ?= "127.0.0.1"
 
+UBOOT_VF2_ENV ?= "uEnv-star64.txt"
+UBOOT_VF2_ENV:dc-roma-fml13v01 = "uEnv-dc-roma-fml13v01.txt"
+
 do_configure:prepend() {
     sed -i -e 's,@SERVERIP@,${TFTP_SERVER_IP},g' ${UNPACKDIR}/tftp-mmc-boot.txt
     mkimage -O linux -T script -C none -n "U-Boot boot script" \
@@ -33,12 +37,12 @@ do_configure:prepend() {
 }
 
 do_deploy:append() {
-    install -m 644 ${UNPACKDIR}/uEnv-star64.txt ${DEPLOYDIR}/vf2_uEnv.txt
+    install -m 644 ${UNPACKDIR}/${UBOOT_VF2_ENV} ${DEPLOYDIR}/vf2_uEnv.txt
     spl_tool -c -f ${DEPLOYDIR}/${SPL_IMAGE}
     ln -sf ${SPL_IMAGE}.normal.out ${DEPLOYDIR}/${SPL_BINARYNAME}.normal.out
     ln -sf ${SPL_IMAGE}.normal.out ${DEPLOYDIR}/${SPL_SYMLINK}.normal.out
 }
 
-COMPATIBLE_MACHINE = "star64"
+COMPATIBLE_MACHINE = "(star64|dc-roma-fml13v01)"
 
 TOOLCHAIN = "gcc"
