@@ -6,10 +6,18 @@ SRCREV:ae350-ax45mp = "22f38ee6c658a660083aa45c4ec6c72f66a17260"
 # JH7110_VF2_6.12_v6.0.0
 SRCREV:jh7100 = "1725bd71080960290fdde4499a58c25c09d5c8ee"
 SRCREV:star64 = "c6a092cd80112529cb2e92e180767ff5341b22a3"
+SRCREV:dc-roma-fml13v01 = "c6a092cd80112529cb2e92e180767ff5341b22a3"
 SRCREV:orangepi-rv2 = "89bff4a7e4cadfb5f130edb1ec44c39bff20a427"
 
 SRC_URI:star64 = "git://github.com/starfive-tech/opensbi;branch=JH7110_VisionFive2_devel;protocol=https"
 SRC_URI:append:star64 = "\
+	file://visionfive2-uboot-fit-image.its \
+	file://0001-inclue-sbi_utils-Cleanup-int-vs-bool-in-semihosting_.patch \
+	file://0002-include-sbi-Fix-compiling-with-C23-enabled-compilers.patch \
+	"
+
+SRC_URI:dc-roma-fml13v01 = "git://github.com/starfive-tech/opensbi;branch=JH7110_VisionFive2_devel;protocol=https"
+SRC_URI:append:dc-roma-fml13v01 = "\
 	file://visionfive2-uboot-fit-image.its \
 	file://0001-inclue-sbi_utils-Cleanup-int-vs-bool-in-semihosting_.patch \
 	file://0002-include-sbi-Fix-compiling-with-C23-enabled-compilers.patch \
@@ -31,6 +39,12 @@ _DEPS:milkv-duo = "u-boot:do_deploy"
 do_compile[depends] += "${_DEPS}"
 
 do_deploy:append:star64() {
+	install -m 0644 ${UNPACKDIR}/visionfive2-uboot-fit-image.its ${DEPLOYDIR}/visionfive2-uboot-fit-image.its
+	cd ${DEPLOYDIR}
+	mkimage -f visionfive2-uboot-fit-image.its -A riscv -O u-boot -T firmware visionfive2_fw_payload.img
+}
+
+do_deploy:append:dc-roma-fml13v01() {
 	install -m 0644 ${UNPACKDIR}/visionfive2-uboot-fit-image.its ${DEPLOYDIR}/visionfive2-uboot-fit-image.its
 	cd ${DEPLOYDIR}
 	mkimage -f visionfive2-uboot-fit-image.its -A riscv -O u-boot -T firmware visionfive2_fw_payload.img

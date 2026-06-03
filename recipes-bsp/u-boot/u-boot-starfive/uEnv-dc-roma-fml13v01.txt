@@ -1,0 +1,21 @@
+# U-Boot environment for the DeepComputing DC-ROMA RISC-V Mainboard (FML13V01).
+#
+# Inspired by
+# https://github.com/DC-DeepComputing/fml13v01/blob/fm7110-6.6/conf/vf2_uEnv.txt
+
+# FAT /boot partition is the 3rd partition of the boot device.
+partnum=3
+
+fitfile=starfiveu.fit
+
+fileaddr=0xa0000000
+kernel_addr_r=0x40200000
+fdt_addr_r=0x46000000
+
+bootargs_ext=if test ${devnum} = 0; then setenv bootargs "earlycon=sbi console=ttyS0,115200n8 ignore_loglevel rootwait root=/dev/mmcblk0p4"; else setenv bootargs "earlycon=sbi console=ttyS0,115200n8 ignore_loglevel rootwait root=/dev/mmcblk1p4"; fi
+
+setupfdt1=fdt addr ${fdt_addr_r}; fdt resize
+setupird=true
+setupfdt2=fdt set /chosen bootargs "${bootargs}"
+
+boot2=run bootargs_ext; mmc dev ${devnum}; fatload mmc ${devnum}:${partnum} ${fileaddr} ${fitfile}; bootm start ${fileaddr}; run setupfdt1; run setupird; run setupfdt2; bootm loados ${fileaddr}; run chipa_set_linux; run cpu_vol_set; echo "Booting kernel in"; booti ${kernel_addr_r} - ${fdt_addr_r}
