@@ -1,0 +1,46 @@
+From d539d64a23bbd64ba324eed595449bcc9c7be0cb Mon Sep 17 00:00:00 2001
+From: Michael Neuling <michaelneuling@tenstorrent.com>
+Date: Sat, 21 Dec 2024 21:38:50 +0530
+Subject: [PATCH] include: sbi: Fix compiling with C23 enabled compilers
+
+C23 pre-defines bool so we need to gate our defines.
+
+Upstream-Status: Backport
+Signed-off-by: Michael Neuling <michaelneuling@tenstorrent.com>
+Reviewed-by: Anup Patel <anup@brainfault.org>
+---
+ include/sbi/sbi_types.h            | 10 ++++++----
+ platform/generic/andes/andes_sbi.c |  2 +-
+ 2 files changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/include/sbi/sbi_types.h b/include/sbi/sbi_types.h
+index a9943d29..90b0d458 100644
+--- a/include/sbi/sbi_types.h
++++ b/include/sbi/sbi_types.h
+@@ -44,7 +44,12 @@ typedef unsigned long long	uint64_t;
+ #error "Unexpected __riscv_xlen"
+ #endif
+ 
+-typedef int			bool;
++#if __STDC_VERSION__ < 202000L
++typedef _Bool			bool;
++#define true			1
++#define false			0
++#endif
++
+ typedef unsigned long		ulong;
+ typedef unsigned long		uintptr_t;
+ typedef unsigned long		size_t;
+@@ -61,9 +66,6 @@ typedef uint32_t		be32_t;
+ typedef uint64_t		le64_t;
+ typedef uint64_t		be64_t;
+ 
+-#define true			1
+-#define false			0
+-
+ #define NULL			((void *)0)
+ 
+ #define __packed		__attribute__((packed))
+-- 
+2.54.0
+

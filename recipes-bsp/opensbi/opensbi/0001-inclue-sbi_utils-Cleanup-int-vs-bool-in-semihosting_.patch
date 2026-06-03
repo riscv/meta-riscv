@@ -1,0 +1,35 @@
+From 91196d76b7919fefa382b65f2416f4327435e3a1 Mon Sep 17 00:00:00 2001
+From: Michael Neuling <michaelneuling@tenstorrent.com>
+Date: Fri, 13 Dec 2024 04:14:20 +0000
+Subject: [PATCH] inclue: sbi_utils: Cleanup int vs bool in semihosting_init()
+ definitions
+
+This is needed for a future patches to enable the new C23 language dialect.
+
+Upstream-Status: Backport
+Signed-off-by: Michael Neuling <michaelneuling@tenstorrent.com>
+Reviewed-by: Anup Patel <anup@brainfault.org>
+---
+ include/sbi_utils/serial/semihosting.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/include/sbi_utils/serial/semihosting.h b/include/sbi_utils/serial/semihosting.h
+index 8cc4a86c..ef4888fc 100644
+--- a/include/sbi_utils/serial/semihosting.h
++++ b/include/sbi_utils/serial/semihosting.h
+@@ -38,10 +38,10 @@ enum semihosting_open_mode {
+ 
+ #ifdef CONFIG_SERIAL_SEMIHOSTING
+ int semihosting_init(void);
+-int semihosting_enabled(void);
++bool semihosting_enabled(void);
+ #else
+ static inline int semihosting_init(void) { return SBI_ENODEV; }
+-static inline int semihosting_enabled(void) { return 0; }
++static inline bool semihosting_enabled(void) { return false; }
+ #endif
+ 
+ #endif
+-- 
+2.54.0
+
