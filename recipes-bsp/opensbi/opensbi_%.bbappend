@@ -11,6 +11,8 @@ SRCREV:orangepi-rv2 = "89bff4a7e4cadfb5f130edb1ec44c39bff20a427"
 SRC_URI:star64 = "git://github.com/starfive-tech/opensbi;branch=JH7110_VisionFive2_devel;protocol=https"
 SRC_URI:append:star64 = "\
 	file://visionfive2-uboot-fit-image.its \
+	file://0001-inclue-sbi_utils-Cleanup-int-vs-bool-in-semihosting_.patch \
+	file://0002-include-sbi-Fix-compiling-with-C23-enabled-compilers.patch \
 	"
 
 SRC_URI:orangepi-rv2 = "git://github.com/orangepi-xunlong/u-boot-orangepi.git;protocol=https;branch=${BRANCH}"
