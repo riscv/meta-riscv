@@ -20,6 +20,9 @@ DEPENDS:append = " u-boot-tools-native"
 
 DEPENDS:append = " jh7110-spl-tool-native"
 
+EXTRA_OEMAKE += 'KCFLAGS=-Wno-error=int-conversion'
+EXTRA_OEMAKE += 'HOSTCFLAGS=-Wno-error=int-conversion'
+
 # Overwrite this for your server
 TFTP_SERVER_IP ?= "127.0.0.1"
 
