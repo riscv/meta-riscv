@@ -53,6 +53,7 @@ This layer depends on:
 | star64                   | [PINE64 STAR64](https://pine64.org/devices/star64/)                                                          | 5.15 Kernel [fork](https://github.com/fishwaldo/Star64_linux)                    |
 | visionfive               | StarFive VisionFive                                                                                          | No product page found                                                            |
 | visionfive2              | [StarFive VisionFive 2](https://www.starfivetech.com/en/index.php?s=hardware&c=show&id=14)                   |                                                                                  |
+| visionfive2-mainline     | [StarFive VisionFive 2](https://www.starfivetech.com/en/index.php?s=hardware&c=show&id=14)                   | Mainline Kernel and U-Boot                                                       |
 
 Note that this layer also provides improvements and features for the
 upstream qemuriscv32 and qemuriscv64 machines.
