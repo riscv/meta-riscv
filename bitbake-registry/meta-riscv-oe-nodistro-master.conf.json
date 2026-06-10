@@ -56,7 +56,8 @@
                         { "name": "machine/orangepi-rv2", "description": "OrangePi RV2 (Vendor Kernel)" },
                         { "name": "machine/orangepi-rv2-mainline", "description": "OrangePi RV2 (Mainline Kernel)" },
                         { "name": "machine/star64", "description": "PINE64 Star64" },
-                        { "name": "machine/visionfive2", "description": "x86_64 (64-bit) PCs and servers" }
+                        { "name": "machine/visionfive2", "description": "x86_64 (64-bit) PCs and servers" },
+                        { "name": "machine/visionfive2-mainline", "description": "Visionfive2 (Mainline Kernel)" }
                     ]
                 }
             }
