@@ -1,8 +1,8 @@
 header:
   version: 20
   includes:
-    - include/local.yml
-    - include/oe.yml
+    - kas/include/local.yml
+    - kas/include/oe.yml
 
 machine: qemuriscv64
 distro: poky-altcfg

@@ -1,7 +1,7 @@
 header:
   version: 20
   includes:
-    - base-riscv.yml
+    - kas/base-riscv.yml
 
 machine: nezha-allwinner-d1
 target: core-image-minimal
