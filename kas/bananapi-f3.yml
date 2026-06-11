@@ -1,6 +1,6 @@
 header:
   version: 20
   includes:
-    - base-riscv.yml
+    - kas/base-riscv.yml
 
 machine: bananapi-f3
