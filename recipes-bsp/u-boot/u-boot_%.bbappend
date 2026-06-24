@@ -98,6 +98,10 @@ do_compile:prepend:visionfive2() {
     export OPENSBI=${DEPLOY_DIR_IMAGE}/fw_dynamic.bin
 }
 
+do_compile:prepend:visionfive2-mainline() {
+    export OPENSBI=${DEPLOY_DIR_IMAGE}/fw_dynamic.bin
+}
+
 #############################
 # deploy task customizations
 #############################
