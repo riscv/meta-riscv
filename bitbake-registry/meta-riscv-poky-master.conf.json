@@ -49,18 +49,21 @@
                     "options" : [
                         { "name": "machine/bananapi-f3", "description": "BananaPi BPI-F3" },
                         { "name": "machine/beaglev-ahead", "description": "BeagleV Ahead" },
+                        { "name": "machine/beaglev-starlight-jh7100", "description": "BeagleV" },
                         { "name": "machine/eswin-ebc77", "description": "ESWIN EBC77 (Vendor Kernel)" },
+                        { "name": "machine/eswin-ebc77-mainline", "description": "ESWIN EBC77 (Mainline Kernel)" },
                         { "name": "machine/freedom-u540", "description": "Freedom U540" },
+                        { "name": "machine/k3-pico-itx", "description": "K3 Pico-ITX" },
                         { "name": "machine/mangopi-mq-pro", "description": "MangoPi MQ Pro" },
                         { "name": "machine/milkv-duo", "description": "Milk-V Duo" },
                         { "name": "machine/milkv-megrez", "description": "Milk-V Megrez" },
-                        { "name": "machine/eswin-ebc77-mainline", "description": "ESWIN EBC77 (Mainline Kernel)" },
                         { "name": "machine/muse-pi-pro", "description": "SpacemiT Muse Pi Pro" },
                         { "name": "machine/nezha-allwinner-d1", "description": "Nezha D1-H" },
                         { "name": "machine/orangepi-r2s", "description": "OrangePi R2S" },
                         { "name": "machine/orangepi-rv2", "description": "OrangePi RV2 (Vendor Kernel)" },
                         { "name": "machine/orangepi-rv2-mainline", "description": "OrangePi RV2 (Mainline Kernel)" },
                         { "name": "machine/star64", "description": "PINE64 Star64" },
+                        { "name": "machine/visionfive", "description": "StarFive VisionFive" },
                         { "name": "machine/visionfive2", "description": "x86_64 (64-bit) PCs and servers" }
                     ]
                 },
