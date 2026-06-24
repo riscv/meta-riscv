@@ -8,7 +8,7 @@ require conf/machine/include/soc-family.inc
 
 SOC_FAMILY = "k1"
 
-PREFERRED_PROVIDER_virtual/kernel ?= "linux-mainline-k1"
+PREFERRED_PROVIDER_virtual/kernel ?= "linux-mainline"
 PREFERRED_PROVIDER_virtual/bootloader ?= "u-boot"
 
 KERNEL_DANGLING_FEATURES_WARN_ONLY = "1"
