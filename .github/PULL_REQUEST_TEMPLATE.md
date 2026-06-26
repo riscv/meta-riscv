@@ -1,34 +1,25 @@
-<!--
-Please make sure you've read and understood our contributing guidelines.
+# Description
 
-For additional information on the contribution guidelines:
-https://wiki.yoctoproject.org/wiki/Contribution_Guidelines#General_Information
+Summarize the changes made, your motivation, and include any linkage to issues
+or other PRs here. Use "fixes #xxxx" for fixes and "connected to #xxxx" for
+linked issues.
 
-If this PR fixes an issue, make sure your description includes "fixes #xxxx".
+## Checklist
 
-If this PR connects to an issue, make sure your description includes "connected to #xxxx".
+- [ ] I have read and understood the [Contributing Changes to a Component](https://docs.yoctoproject.org/dev/contributor-guide/submit-changes.html) and [Recipe Style Guide](https://docs.yoctoproject.org/dev/contributor-guide/recipe-style-guide.html#patch-upstream-status) sections in the Yocto Project documentation
+- [ ] I have tested this change (provide brief details below)
+- [ ] Documentation has been added/updated where necessary in the README and `docs/`
+- [ ] If the change is to a BSP in
+  [DEPRECATED.md](https://github.com/riscv/meta-riscv/blob/master/DEPRECATED.md),
+  then it is maintenance-only, i.e. it does not add support for a
+  previously-removed BSP (or significant features to one slated for removal)
+- [ ] (For new/modified BSPs) I have added relevant information in the README [table](https://github.com/riscv/meta-riscv/tree/master?tab=readme-ov-file#available-machines)
+- [ ] (For new/modified BSPs) The bitbake-setup templates in `bitbake-registry/`
+  have been updated, if necessary
+- [ ] (For new/modified BSPs) A `kas` file has been provided in `kas/`
+- [ ] I have added my `Signed-off-by` and any other tags to each commit
 
-If you are adding a new BSP, please review the DEPRECATED.md file to confirm
-that it has not previously been removed. If you are modifying an existing BSP
-which is slated for removal in an upcoming release, consider whether the changes
-are necessary before that occurs. If needed, open a new issue or discussion.
+# How has this been tested?
 
-Please provide the following information:
--->
-
-**- <recipename>: Short log / Statement of what needed to be changed.**
-  
-**-(Optional pointers to external resources, such as defect tracking)**
-  
-**-The intent of your change.**
-  
-**-(Optional, if it's not clear from above) how your change resolves the
-issues in the first part.**
-
-**-(Optional, if you have added a new BSP) indicate which new platforms are
-supported with this change by adding a new row in the README [table](https://github.com/riscv/meta-riscv/tree/master?tab=readme-ov-file#available-machines).**
-  
-**-Tag line(s) at the end.**
-
-**-Signed-off-by: Random J Developer <random@developer.example.org>**
-
+Provide a brief summary here (e.g. build only, build + boot test, something more
+specific). Boot logs, images, or other artifacts are especially helpful.
