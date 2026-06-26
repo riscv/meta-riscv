@@ -35,6 +35,7 @@ This layer depends on:
 
 | MACHINE                  | Platform                                                                                                     | Notes                                                                            |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| ae350-ax45mp             | [Andes AX45MP](https://www.andestech.com/en/products-solutions/andescore-processors/riscv-ax45mp/)           |                                                                                  |
 | bananapi-f3              | [BPI-F3](https://docs.banana-pi.org/en/BPI-F3/BananaPi_BPI-F3)                                               | Mainline Kernel and U-Boot (uses vendor FSBL)                                    |
 | bananapi-cm6-io          | [BPI-CM6](https://docs.banana-pi.org/en/BPI-CM6/BananaPi_BPI-CM6)                                            | Mainline Kernel and U-Boot (uses vendor FSBL)                                    |
 | beaglev-ahead            | [BeagleV-Ahead](https://www.beagleboard.org/boards/beaglev-ahead)                                            |                                                                                  |
