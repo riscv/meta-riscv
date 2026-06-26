@@ -42,9 +42,12 @@
                 "machine": {
                     "description": "Target machines",
                     "options" : [
+                        { "name": "machine/ae350-ax45mp", "description": "Andes AE350 ax45mp" },
+                        { "name": "machine/bananapi-cm6-io", "description": "BananaPi CM6 IO" },
                         { "name": "machine/bananapi-f3", "description": "BananaPi BPI-F3" },
                         { "name": "machine/beaglev-ahead", "description": "BeagleV Ahead" },
                         { "name": "machine/beaglev-starlight-jh7100", "description": "BeagleV" },
+                        { "name": "machine/dc-roma-fml13v01", "description": "DeepComputing DC-ROMA RISC-V Mainboard (FML13V01)" },
                         { "name": "machine/eswin-ebc77", "description": "ESWIN EBC77 (Vendor Kernel)" },
                         { "name": "machine/eswin-ebc77-mainline", "description": "ESWIN EBC77 (Mainline Kernel)" },
                         { "name": "machine/freedom-u540", "description": "Freedom U540" },
@@ -59,7 +62,7 @@
                         { "name": "machine/orangepi-rv2-mainline", "description": "OrangePi RV2 (Mainline Kernel)" },
                         { "name": "machine/star64", "description": "PINE64 Star64" },
                         { "name": "machine/visionfive", "description": "StarFive VisionFive" },
-                        { "name": "machine/visionfive2", "description": "x86_64 (64-bit) PCs and servers" }
+                        { "name": "machine/visionfive2", "description": "StarFive VisionFive 2" }
                     ]
                 }
             }
