@@ -1,0 +1,6 @@
+header:
+  version: 20
+  includes:
+    - kas/base-riscv.yml
+
+machine: milkv-duos
