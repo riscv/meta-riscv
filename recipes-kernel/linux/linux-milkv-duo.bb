@@ -15,6 +15,7 @@ SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git;protoc
 
 KERNEL_FEATURES_RISCV = ""
 KERNEL_DEVICETREE:milkv-duo ?= "sophgo/cv1800b-milkv-duo.dtb"
+KBUILD_DEFCONFIG:milkv-duo = ""
 
 DEPENDS = "u-boot-mkimage-native dtc-native"
 
