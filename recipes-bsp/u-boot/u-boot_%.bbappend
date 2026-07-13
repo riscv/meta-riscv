@@ -56,6 +56,8 @@ SRC_URI:append:milkv-duos = " \
 SRCREV:milkv-duo = "4345a29c08e67044021f74139b4ff307019e9932"
 LIC_FILES_CHKSUM:milkv-duo = "file://Licenses/README;md5=5a7450c57ffe5ae63fd732446b988025"
 
+PV:milkv-duo = "2021.10"
+
 ###############################
 # configure task customizations
 ###############################
