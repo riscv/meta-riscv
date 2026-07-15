@@ -11,6 +11,9 @@ SRCREV = "${AUTOREV}"
 # release JH7110_VF2_6.12_v6.0.0
 SRCREV:visionfive2 = "4cecf169f38eb94b40e307f5f870055e4d9d64f1"
 SRCREV:star64 = "e4c0928f1e42ed82ab9fa8918bc7094d3c0414d8"
+# tip of starfive-tech/linux visionfive branch as of 2026-07-15; pinned since
+# several local patches below only apply cleanly against this exact revision
+SRCREV:visionfive = "e0d906c0ce2d81cc429b4807a71c98f3e6f0253c"
 
 BRANCH = "branch=visionfive"
 BRANCH:visionfive2 = "branch=JH7110_VisionFive2_6.12.y_devel"
@@ -29,13 +32,23 @@ SRC_URI = "git://github.com/${FORK}/${REPO}.git;protocol=https;${BRANCH} \
            file://0001-riscv-fix-building-external-modules.patch \
            file://0001-gcc-plugins-Rename-last_stmt-for-GCC-14.patch \
            file://0001-eswin-Repace-NULL-with-0-where-it-is-converted-from-.patch \
-           file://0001-perf-cpumap-Make-counter-as-unsigned-ints.patch \
            file://modules.cfg \
           "
 
 SRC_URI:append:visionfive = " \
+           file://0001-perf-cpumap-Make-counter-as-unsigned-ints.patch \
            file://extra.cfg \
 "
+
+# Already merged into the starfive-tech/linux visionfive branch HEAD pinned
+# above (these backport patches' context no longer matches and they fail to
+# apply as-is), plus drivers/net/wireless/eswin, which is JH7110
+# (VisionFive2) hardware that doesn't exist in this JH7100 kernel tree at all.
+SRC_URI:remove:visionfive = "file://0001-gcc-plugins-Fix-build-for-upcoming-GCC-release.patch \
+                              file://0001-riscv-fix-building-external-modules.patch \
+                              file://0001-gcc-plugins-Rename-last_stmt-for-GCC-14.patch \
+                              file://0001-eswin-Repace-NULL-with-0-where-it-is-converted-from-.patch \
+                             "
 
 SRC_URI:jh7110 = " \
            git://github.com/${FORK}/${REPO}.git;protocol=https;${BRANCH} \
