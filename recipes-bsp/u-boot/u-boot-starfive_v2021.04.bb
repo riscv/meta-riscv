@@ -14,6 +14,8 @@ SRC_URI = "git://github.com/starfive-tech/u-boot.git;protocol=https;branch=${BRA
 
 SRC_URI:append:visionfive = " \
            file://fix-riscv-isa.patch \
+           file://0002-cmd-misc-fix-incompatible-pointer-type-build-error.patch \
+           file://0003-configs-jh7100-visionfive-disable-unused-MACB-driver.patch \
            file://uEnv-visionfive.txt \
 "
 SRC_URI:append:visionfive2 = " \
