@@ -1,0 +1,39 @@
+cmd: misc: fix incompatible-pointer-types build error with newer GCC
+
+misc_read() takes a "void *buf" and misc_write() takes a "const void *buf".
+Storing both behind a single "int (*)(struct udevice *, int, void *, int)"
+function pointer relies on an implicit qualification conversion that GCC
+14+ treats as a hard error by default (-Werror=incompatible-pointer-types),
+instead of the warning older GCC versions emitted. Call misc_read()/
+misc_write() directly instead of going through a common function pointer,
+matching the fix already applied upstream in mainline U-Boot.
+
+Upstream-Status: Backport [https://github.com/u-boot/u-boot/commit/c4645fc87e96e730a6c140d7d7820be2da1b2743]
+Signed-off-by: Daiane Angolini <daiane.angolini@foundries.io>
+
+Index: u-boot/cmd/misc.c
+===================================================================
+--- u-boot.orig/cmd/misc.c
++++ u-boot/cmd/misc.c
+@@ -44,7 +44,6 @@ static int do_misc_list(struct cmd_tbl
+ static int do_misc_op(struct cmd_tbl *cmdtp, int flag,
+ 		      int argc, char *const argv[], enum misc_op op)
+ {
+-	int (*misc_op)(struct udevice *, int, void *, int);
+ 	struct udevice *dev;
+ 	int offset;
+ 	void *buf;
+@@ -62,11 +61,9 @@ static int do_misc_op(struct cmd_tbl *c
+ 	size = hextoul(argv[3], NULL);
+
+ 	if (op == MISC_OP_READ)
+-		misc_op = misc_read;
++		ret = misc_read(dev, offset, buf, size);
+ 	else
+-		misc_op = misc_write;
+-
+-	ret = misc_op(dev, offset, buf, size);
++		ret = misc_write(dev, offset, buf, size);
+ 	if (ret < 0) {
+ 		if (ret == -ENOSYS) {
+ 			printf("The device does not support %s\n",

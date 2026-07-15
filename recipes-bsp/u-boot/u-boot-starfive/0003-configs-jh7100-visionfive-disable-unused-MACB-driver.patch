@@ -1,0 +1,34 @@
+configs: starfive_jh7100_visionfive_smode: disable unused MACB driver
+
+CONFIG_SIFIVE_FU740=y is enabled for this target (arch/riscv/cpu/fu740/Kconfig),
+and it carries "imply MACB", pulling in the Cadence MACB/GEM ethernet driver
+(drivers/net/macb.c) even though the VisionFive V1 (JH7100) board does not use
+that IP block at all -- its Ethernet MAC is the Synopsys DesignWare GMAC,
+already enabled via CONFIG_ETH_DESIGNWARE=y.
+
+Because CONFIG_DM_ETH/CONFIG_CLK are off for this target, macb.c falls back to
+the legacy get_macb_pclk_rate() clock hook, which is only ever implemented for
+ARM AT91 boards (arch/arm/mach-at91/include/mach/clk.h) -- there's no jh7100
+implementation, only a placeholder header. That produces an
+implicit-function-declaration build error, which newer GCC (14+) treats as a
+hard error instead of a warning.
+
+Since MACB is not the driver this board actually uses, disable it instead of
+trying to implement a clock hook nothing calls.
+
+Upstream-Status: Inappropriate [board-specific Kconfig fix, not applicable
+upstream since the defconfig itself isn't in mainline U-Boot]
+Signed-off-by: Daiane Angolini <daiane.angolini@foundries.io>
+
+Index: u-boot/configs/starfive_jh7100_visionfive_smode_defconfig
+===================================================================
+--- u-boot.orig/configs/starfive_jh7100_visionfive_smode_defconfig
++++ u-boot/configs/starfive_jh7100_visionfive_smode_defconfig
+@@ -143,6 +143,7 @@ CONFIG_PHY_ADDR=3
+ # CONFIG_PHY_MSCC is not set
+ CONFIG_PHY_YUTAI=y
+ # CONFIG_DM_ETH is not set
++# CONFIG_MACB is not set
+ CONFIG_ETH_DESIGNWARE=y
+ CONFIG_RGMII=y
+ # CONFIG_MII is not set
