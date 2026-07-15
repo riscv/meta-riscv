@@ -37,11 +37,12 @@ TFTP_SERVER_IP ?= "127.0.0.1"
 do_configure:prepend() {
     sed -i -e 's,@SERVERIP@,${TFTP_SERVER_IP},g' ${UNPACKDIR}/tftp-mmc-boot.txt
     mkimage -O linux -T script -C none -n "U-Boot boot script" \
-        -d ${UNPACKDIR}/tftp-mmc-boot.txt ${UNPACKDIR}/${UBOOT_ENV_BINARY}
+        -d ${UNPACKDIR}/tftp-mmc-boot.txt ${UNPACKDIR}/boot.scr.uimg
 }
 
 do_deploy:append:visionfive() {
     install -m 644 ${UNPACKDIR}/uEnv-visionfive.txt ${DEPLOYDIR}/uEnv.txt
+    install -Dm 644 ${UNPACKDIR}/boot.scr.uimg ${DEPLOYDIR}/boot.scr.uimg
 }
 
 do_deploy:append:visionfive2() {
