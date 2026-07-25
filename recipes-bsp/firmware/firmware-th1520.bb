@@ -3,7 +3,8 @@ SUMMARY = "th1520 firmware binary"
 HOMEPAGE = "https://github.com/revyos/th1520-boot-firmware"
 
 # no license file provided, but the firmware appears to be protected by an apache license 2.0
-LICENSE = "CLOSED"
+LICENSE = "LicenseRef-Proprietary"
+LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Proprietary;md5=0557f9d92cf58f2ccdd50f62f8ac0b28"
 
 inherit deploy
 

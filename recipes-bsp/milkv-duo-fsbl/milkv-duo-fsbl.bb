@@ -1,5 +1,6 @@
 DESCRIPTION = "FSBL contains OpenSBI and u-boot binaries for Milk-V Duo"
-LICENSE = "CLOSED"
+LICENSE = "LicenseRef-Proprietary"
+LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Proprietary;md5=0557f9d92cf58f2ccdd50f62f8ac0b28"
 
 inherit nopackages deploy
 
