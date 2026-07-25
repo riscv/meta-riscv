@@ -1,7 +1,8 @@
 SUMMARY = "Ky X1 Orange Pi RCPU firmware (esos.elf)"
 DESCRIPTION = "esos.elf is the firmware for the RCPU (Real-Time CPU), responsible for initializing some hardware modules and forwarding HDMI Audio interrupts \
 It is dependent on the Linux kernel and the system will not boot without it. It needs to be installed in the initramfs /lib/firmware directory"
-LICENSE = "CLOSED"
+LICENSE = "LicenseRef-Proprietary"
+LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Proprietary;md5=0557f9d92cf58f2ccdd50f62f8ac0b28"
 
 SRC_URI = "file://esos.elf"
 

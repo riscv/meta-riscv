@@ -3,7 +3,8 @@ DESCRIPTION = "Prebuilt ESOS firmware (esos.itb) for K3 boot image, loaded by FS
 # The spacemit-firmware repository uses a simple copyright notice allowing use
 # and redistribution of firmware binaries as-is and without modification, but
 # it does not otherwise follow typical open-source licensing terms.
-LICENSE = "CLOSED"
+LICENSE = "LicenseRef-Proprietary"
+LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Proprietary;md5=0557f9d92cf58f2ccdd50f62f8ac0b28"
 
 inherit deploy
 

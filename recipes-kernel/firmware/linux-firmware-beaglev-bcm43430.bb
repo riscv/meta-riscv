@@ -3,18 +3,14 @@
 
 SUMMARY = "WIFI/BT Binary Blobs"
 HOMEPAGE = "https://github.com/esmil/linux/blob/starlight/firmware/brcm"
-LICENSE = "\
-    Firmware-broadcom_bcm43xx \
-"
-
-LICENSE:${PN} = "Firmware-broadcom_bcm43xx"
+LICENSE = "LicenseRef-Firmware-broadcom-bcm43xx"
 LIC_FILES_CHKSUM = "\
     file://LICENCE.broadcom_bcm43xx;md5=3160c14df7228891b868060e1951dfbc \
 "
 
 # These are not common licenses, set NO_GENERIC_LICENSE for them
 # so that the license files will be copied from fetched source
-NO_GENERIC_LICENSE[Firmware-broadcom_bcm43xx] = "LICENCE.broadcom_bcm43xx"
+NO_GENERIC_LICENSE[Firmware-broadcom-bcm43xx] = "LICENCE.broadcom_bcm43xx"
 SRC_URI = "https://github.com/esmil/linux/raw/visionfive/firmware/brcm/brcmfmac43430-sdio.bin;name=brcmfmac43430 \
            https://github.com/esmil/linux/raw/visionfive/firmware/brcm/brcmfmac43430-sdio.clm_blob;name=brcmfmac43430-clm \
            https://github.com/esmil/linux/raw/visionfive/firmware/brcm/brcmfmac43430-sdio.AP6212.txt;name=AP6212 \
