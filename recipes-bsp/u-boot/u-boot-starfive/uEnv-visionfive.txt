@@ -7,5 +7,4 @@ kernel_addr_r=0x84000000
 kernel_comp_addr_r=0x90000000
 kernel_cx_addr_r=0x88000000
 ramdisk_addr_r=0x88300000
-load mmc 0:1 0xa0000000 fitImage
-bootm 0xa0000000
+bootcmd=load mmc 0:1 ${kernel_addr_r} Image; load mmc 0:1 ${kernel_cx_addr_r} jh7100-starfive-visionfive-v1.dtb; booti ${kernel_addr_r} - ${kernel_cx_addr_r}
