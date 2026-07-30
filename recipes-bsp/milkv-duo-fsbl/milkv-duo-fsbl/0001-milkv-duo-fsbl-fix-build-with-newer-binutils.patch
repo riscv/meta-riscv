@@ -1,0 +1,34 @@
+From 26f3cbb8c0dfbf4f0fe759c142e0633394888181 Mon Sep 17 00:00:00 2001
+From: Max Krummenacher <max.oss.09@gmail.com>
+Date: Thu, 30 Jul 2026 13:39:11 +0000
+Subject: [PATCH] milkv-duo-fsbl: fix build with newer binutils
+
+With ld 2.47 building fails with the following error:
+
+|   LD      build/cv180x/bl2/bl2.elf
+| riscv64-tdx-linux-musl-ld -o build/cv180x/bl2/bl2.elf -Os --gc-sections   -Map=./build/cv180x/bl2/bl2.map --script ./build/cv180x/bl2/bl2.ld ./build/cv180x/bl2/build_message.o plat/cv180x/bl2_objs/cv1800b_milkv_duo_sd/bl2/*.o ./build/cv180x/bl2/bl2_main.o ./build/cv180x/bl2/bl2_entrypoint.o
+| .../riscv64-tdx-linux-musl-ld: -O requires a numerical argument or '-' or 'fast' or 'default'make: *** [Makefile:206: build/cv180x/bl2/bl2.elf] Error 1
+
+Drop the commandline option '-Os' and depend on the ld's default.
+
+Upstream-Status: Pending
+Signed-off-by: Max Krummenacher <max.oss.09@gmail.com>
+---
+ firmware/lib/cpu/riscv/cpu.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/firmware/lib/cpu/riscv/cpu.mk b/firmware/lib/cpu/riscv/cpu.mk
+index eab03601b77f..357acc347f9e 100644
+--- a/firmware/lib/cpu/riscv/cpu.mk
++++ b/firmware/lib/cpu/riscv/cpu.mk
+@@ -20,7 +20,6 @@ TF_CFLAGS += \
+ 	-fno-delete-null-pointer-checks
+ 
+ TF_LDFLAGS += \
+-	 -Os \
+ 	--gc-sections \
+ 	${TF_LDFLAGS_aarch64}
+ 
+-- 
+2.51.0
+

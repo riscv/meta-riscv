@@ -4,7 +4,10 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Proprietary;md5=0557f9d92cf58f2
 
 inherit nopackages deploy
 
-SRC_URI = "git://github.com/milkv-duo/milkv-duo-buildroot-libraries;protocol=https;branch=main"
+SRC_URI = " \
+    git://github.com/milkv-duo/milkv-duo-buildroot-libraries;protocol=https;branch=main \
+    file://0001-milkv-duo-fsbl-fix-build-with-newer-binutils.patch;patchdir=${UNPACKDIR}/${BP} \
+"
 SRCREV = "f359994bd497f942bb67734280d81f6640c7c168"
 
 COMPATIBLE_MACHINE = "milkv-duo"
