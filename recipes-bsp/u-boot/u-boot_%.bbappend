@@ -5,6 +5,9 @@
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 FILESEXTRAPATHS:prepend:ae350-ax45mp := "${THISDIR}/files/ae350-ax45mp:"
+FILESEXTRAPATHS:prepend:milkv-duo := "${THISDIR}/files/milkv-duo:"
+FILESEXTRAPATHS:prepend:milkv-duo256m := "${THISDIR}/files/milkv-duo:"
+FILESEXTRAPATHS:prepend:milkv-duos := "${THISDIR}/files/milkv-duo:"
 
 DEPENDS:append = " u-boot-tools-native"
 DEPENDS:append:ae350-ax45mp = " opensbi"
@@ -35,6 +38,8 @@ SRC_URI:milkv-duo = " \
             git://github.com/milkv-duo/milkv-duo-u-boot;protocol=https;branch=duo-64mb \
             file://uboot-milkv-duo.env \
             file://uEnv-milkv-duo.txt \
+            file://mmap_conv.py \
+            file://memmap.py \
             file://milkv-duo-support-files.patch \
             file://0001-skip-cvitek-board-init.patch \
             file://0002-Add-milkv-boards-dtbs.patch \
@@ -74,6 +79,10 @@ do_configure:prepend:freedom-u540() {
 }
 
 do_configure:prepend:milkv-duo() {
+    python3 ${UNPACKDIR}/mmap_conv.py --type h \
+        ${UNPACKDIR}/memmap.py \
+        ${S}/include/configs/cvi_board_memmap.h
+
     if [ -f "${UNPACKDIR}/uboot-milkv-duo.env" ]; then
         cp ${UNPACKDIR}/uboot-milkv-duo.env ${S}/include/milkv-duo.env
     fi
@@ -147,6 +156,7 @@ do_deploy:append:milkv-duo() {
         cp ${UNPACKDIR}/uEnv-milkv-duo.txt ${DEPLOYDIR}/uEnv.txt
     fi
     install -m 0644 ${B}/u-boot.dtb ${DEPLOYDIR}
+    install -m 0644 ${S}/include/configs/cvi_board_memmap.h ${DEPLOYDIR}
 }
 
 do_deploy:append:visionfive2() {
