@@ -1,0 +1,33 @@
+From befbba4e32eb2de71ea6ab0ae4db88e6366c5e29 Mon Sep 17 00:00:00 2001
+From: Andrei Lalaev <andrey.lalaev@gmail.com>
+Date: Fri, 10 Jul 2026 20:59:26 +0200
+Subject: [PATCH 3/3] milkv-duo256m: reserve opensbi region
+
+Newer U-Boot should add memory region reserved by OpenSBI, but since
+Milk-V Duo still uses v2021.10, we have to reserve it manually.
+
+Signed-off-by: Andrei Lalaev <andrey.lalaev@gmail.com>
+Upstream-Status: Inappropriate [oe-specific]
+---
+ arch/riscv/boot/dts/sophgo/sg2002-milkv-duo256m.dts | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/arch/riscv/boot/dts/sophgo/sg2002-milkv-duo256m.dts b/arch/riscv/boot/dts/sophgo/sg2002-milkv-duo256m.dts
+index 30ab3a94ffb6..175eaa82eaa2 100644
+--- a/arch/riscv/boot/dts/sophgo/sg2002-milkv-duo256m.dts
++++ b/arch/riscv/boot/dts/sophgo/sg2002-milkv-duo256m.dts
+@@ -46,6 +46,11 @@ coprocessor_rtos: region@8fe00000 {
+ 			reg = <0x8fe00000 0x200000>;
+ 			no-map;
+ 		};
++
++		opensbi {
++			reg = <0x80000000 0x80000>;
++			no-map;
++		};
+ 	};
+ };
+ 
+-- 
+2.55.0
+

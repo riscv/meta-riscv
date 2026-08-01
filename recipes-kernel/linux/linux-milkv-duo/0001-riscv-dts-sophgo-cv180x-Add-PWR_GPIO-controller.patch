@@ -1,0 +1,48 @@
+From 1ecc97487e35c13a412ac868e97df5f98e116142 Mon Sep 17 00:00:00 2001
+From: Chen-Yu Yeh <chenyou910331@gmail.com>
+Date: Fri, 10 Jul 2026 15:59:16 +0800
+Subject: [PATCH 1/3] riscv: dts: sophgo: cv180x: Add PWR_GPIO controller
+
+The CV180x/CV181x family has an additional DesignWare APB GPIO
+controller (PWR_GPIO) located in the always-on power domain at
+0x5021000. Add the node so that boards can reference GPIOs in this
+bank, such as status LEDs.
+
+Signed-off-by: Chen-Yu Yeh <chenyou910331@gmail.com>
+Upstream-Status: Submitted [https://lore.kernel.org/lkml/20260725175346.139173-4-chenyou910331@gmail.com/]
+---
+ arch/riscv/boot/dts/sophgo/cv180x.dtsi | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+diff --git a/arch/riscv/boot/dts/sophgo/cv180x.dtsi b/arch/riscv/boot/dts/sophgo/cv180x.dtsi
+index 06b0ce5a2db7..25ad2bd265d7 100644
+--- a/arch/riscv/boot/dts/sophgo/cv180x.dtsi
++++ b/arch/riscv/boot/dts/sophgo/cv180x.dtsi
+@@ -160,6 +160,24 @@ portd: gpio-controller@0 {
+ 			};
+ 		};
+ 
++		gpio4: gpio@5021000 {
++			compatible = "snps,dw-apb-gpio";
++			reg = <0x5021000 0x1000>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			porte: gpio-controller@0 {
++				compatible = "snps,dw-apb-gpio-port";
++				gpio-controller;
++				#gpio-cells = <2>;
++				ngpios = <32>;
++				reg = <0>;
++				interrupt-controller;
++				#interrupt-cells = <2>;
++				interrupts = <SOC_PERIPHERAL_IRQ(54) IRQ_TYPE_LEVEL_HIGH>;
++			};
++		};
++
+ 		saradc: adc@30f0000 {
+ 			compatible = "sophgo,cv1800b-saradc";
+ 			reg = <0x030f0000 0x1000>;
+-- 
+2.55.0
+
