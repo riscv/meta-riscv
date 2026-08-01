@@ -1,0 +1,161 @@
+From 1b5f1bc55416e9d39261edc402ee84a5cdb77cf0 Mon Sep 17 00:00:00 2001
+From: Chen-Yu Yeh <chenyou910331@gmail.com>
+Date: Sun, 26 Jul 2026 01:53:45 +0800
+Subject: [PATCH 2/3] riscv: dts: sophgo: Add Milk-V Duo 256M board support
+
+The Milk-V Duo 256M is a small form factor development board based on
+the Sophgo SG2002 SoC.
+
+This patch adds basic device tree support for the board, including:
+- UART console
+- SD/MMC controller
+- Onboard blue status LED (connected to PWR_GPIO[2] / porte 2)
+
+Tested on actual Milk-V Duo 256M hardware, verified boot to shell and
+heartbeat LED functionality.
+
+Signed-off-by: Chen-Yu Yeh <chenyou910331@gmail.com>
+Upstream-Status: Submitted [https://lore.kernel.org/lkml/20260725175346.139173-4-chenyou910331@gmail.com/]
+---
+ arch/riscv/boot/dts/sophgo/Makefile           |   1 +
+ .../boot/dts/sophgo/sg2002-milkv-duo256m.dts  | 116 ++++++++++++++++++
+ 2 files changed, 117 insertions(+)
+ create mode 100644 arch/riscv/boot/dts/sophgo/sg2002-milkv-duo256m.dts
+
+diff --git a/arch/riscv/boot/dts/sophgo/Makefile b/arch/riscv/boot/dts/sophgo/Makefile
+index 6f65526d4193..1ff69cf7f178 100644
+--- a/arch/riscv/boot/dts/sophgo/Makefile
++++ b/arch/riscv/boot/dts/sophgo/Makefile
+@@ -2,6 +2,7 @@
+ dtb-$(CONFIG_ARCH_SOPHGO) += cv1800b-milkv-duo.dtb
+ dtb-$(CONFIG_ARCH_SOPHGO) += cv1812h-huashan-pi.dtb
+ dtb-$(CONFIG_ARCH_SOPHGO) += sg2002-licheerv-nano-b.dtb
++dtb-$(CONFIG_ARCH_SOPHGO) += sg2002-milkv-duo256m.dtb
+ dtb-$(CONFIG_ARCH_SOPHGO) += sg2042-milkv-pioneer.dtb
+ dtb-$(CONFIG_ARCH_SOPHGO) += sg2042-evb-v1.dtb
+ dtb-$(CONFIG_ARCH_SOPHGO) += sg2042-evb-v2.dtb
+diff --git a/arch/riscv/boot/dts/sophgo/sg2002-milkv-duo256m.dts b/arch/riscv/boot/dts/sophgo/sg2002-milkv-duo256m.dts
+new file mode 100644
+index 000000000000..dea49898b5ae
+--- /dev/null
++++ b/arch/riscv/boot/dts/sophgo/sg2002-milkv-duo256m.dts
+@@ -0,0 +1,116 @@
++// SPDX-License-Identifier: (GPL-2.0 OR MIT)
++/*
++ * Copyright (C) 2023 Jisheng Zhang <jszhang@kernel.org>
++ * Copyright (C) 2026 Chen-Yu Yeh <chenyou910331@gmail.com>
++ */
++
++/dts-v1/;
++
++#include "sg2002.dtsi"
++#include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/leds/common.h>
++
++/ {
++	model = "Milk-V Duo 256M";
++	compatible = "milkv,duo256m", "sophgo,sg2002";
++
++	aliases {
++		serial0 = &uart0;
++		serial1 = &uart1;
++		serial2 = &uart2;
++		serial3 = &uart3;
++		serial4 = &uart4;
++	};
++
++	chosen {
++		stdout-path = "serial0:115200n8";
++	};
++
++	leds {
++		compatible = "gpio-leds";
++
++		led-0 {
++			gpios = <&porte 2 GPIO_ACTIVE_HIGH>;
++			color = <LED_COLOR_ID_BLUE>;
++			function = LED_FUNCTION_STATUS;
++			linux,default-trigger = "heartbeat";
++		};
++	};
++
++	reserved-memory {
++		#address-cells = <1>;
++		#size-cells = <1>;
++		ranges;
++
++		coprocessor_rtos: region@8fe00000 {
++			reg = <0x8fe00000 0x200000>;
++			no-map;
++		};
++	};
++};
++
++&osc {
++	clock-frequency = <25000000>;
++};
++
++&pinctrl {
++	uart0_cfg: uart0-cfg {
++		uart0-pins {
++			pinmux = <PINMUX(PIN_UART0_TX, 0)>,
++				 <PINMUX(PIN_UART0_RX, 0)>;
++			bias-pull-up;
++			drive-strength-microamp = <10800>;
++			power-source = <3300>;
++		};
++	};
++
++	sdhci0_cfg: sdhci0-cfg {
++		sdhci0-clk-pins {
++			pinmux = <PINMUX(PIN_SD0_CLK, 0)>;
++			bias-pull-up;
++			drive-strength-microamp = <16100>;
++			power-source = <3300>;
++		};
++
++		sdhci0-cmd-pins {
++			pinmux = <PINMUX(PIN_SD0_CMD, 0)>;
++			bias-pull-up;
++			drive-strength-microamp = <10800>;
++			power-source = <3300>;
++		};
++
++		sdhci0-data-pins {
++			pinmux = <PINMUX(PIN_SD0_D0, 0)>,
++				 <PINMUX(PIN_SD0_D1, 0)>,
++				 <PINMUX(PIN_SD0_D2, 0)>,
++				 <PINMUX(PIN_SD0_D3, 0)>;
++			bias-pull-up;
++			drive-strength-microamp = <10800>;
++			power-source = <3300>;
++		};
++
++		sdhci0-cd-pins {
++			pinmux = <PINMUX(PIN_SD0_CD, 0)>;
++			bias-pull-up;
++			drive-strength-microamp = <10800>;
++			power-source = <3300>;
++		};
++	};
++};
++
++&sdhci0 {
++	pinctrl-0 = <&sdhci0_cfg>;
++	pinctrl-names = "default";
++	status = "okay";
++	bus-width = <4>;
++	no-1-8-v;
++	no-mmc;
++	no-sdio;
++	disable-wp;
++};
++
++&uart0 {
++	pinctrl-0 = <&uart0_cfg>;
++	pinctrl-names = "default";
++	status = "okay";
++};
+-- 
+2.55.0
+

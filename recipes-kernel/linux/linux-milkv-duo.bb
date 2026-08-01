@@ -9,12 +9,20 @@ SRCREV = "v6.17.8"
 SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git;protocol=https;branch=${BRANCH} \
            file://dts-exclude-memory-occupied-by-opensbi.patch \
            file://0001-sophgo-add-cv1800-rtcsys-reset-handler.patch \
+           file://0001-riscv-dts-sophgo-cv180x-Add-PWR_GPIO-controller.patch \
+           file://0002-riscv-dts-sophgo-Add-Milk-V-Duo-256M-board-support.patch \
+           file://0003-duo256m-reserve-opensbi-region.patch \
            file://milkv-duo_defconfig \
            file://multi.its \
            "
 
+SRC_URI:append:milkv-duo256m = " \
+           file://milkv-duo256m.cfg \
+"
+
 KERNEL_FEATURES_RISCV = ""
 KERNEL_DEVICETREE:milkv-duo ?= "sophgo/cv1800b-milkv-duo.dtb"
+KERNEL_DEVICETREE:milkv-duo256m ?= "sophgo/sg2002-milkv-duo256m.dtb"
 KBUILD_DEFCONFIG:milkv-duo = ""
 
 DEPENDS = "u-boot-mkimage-native dtc-native"
