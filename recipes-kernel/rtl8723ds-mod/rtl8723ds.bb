@@ -7,7 +7,7 @@ inherit module
 KCFLAGS = "-fno-asynchronous-unwind-tables -fno-unwind-tables"
 KCFLAGS[export] = "1"
 
-SRCREV = "ec85dc6b9f72bfe413bff464ed01a272e29c8dbe"
+SRCREV = "52e593e8c889b68ba58bd51cbdbcad7fe71362e4"
 
 SRC_URI = " \
           git://github.com/lwfinger/rtl8723ds.git;protocol=https;name=rtl8723ds;branch=master \
