@@ -1,4 +1,4 @@
-#@DESCRIPTION: Machine configuration for the beta BeagleV Starlight board
+#@DESCRIPTION: shared machine configuration settings for RISC-V boards
 
 require conf/machine/include/riscv/tune-riscv.inc
 
