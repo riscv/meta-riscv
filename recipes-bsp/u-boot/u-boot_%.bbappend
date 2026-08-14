@@ -29,8 +29,7 @@ SRC_URI:append:freedom-u540 = " \
            "
 SRC_URI:append:freedom-u540_sota = " file://uEnv.txt"
 
-SRC_URI:k1 = " \
-            git://source.denx.de/u-boot/u-boot.git;protocol=https;branch=master \
+SRC_URI:append:k1 = " \
             file://bootcommand.cfg \
             "
 
