@@ -17,7 +17,7 @@ SRC_URI:append:bananapi-cm6-io = " \
            file://0003-riscv-dts-spacemit-k1-Add-Banana-Pi-BPI-CM6-IO-board.patch \
           "
 
-SRCREV = "f5098b6bae761e346ebcd9da7f95622c04733cff"
-LINUX_VERSION = "7.2-rc5"
+SRCREV = "8d3ae59288f1e7d58d76558a6ee96d533bc5019f"
+LINUX_VERSION = "7.2"
 
 COMPATIBLE_MACHINE = "(k1)"
