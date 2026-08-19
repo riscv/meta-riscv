@@ -43,6 +43,7 @@ jobs:
         run: |
           git clone --depth 1 --branch master https://github.com/openembedded/openembedded-core.git
           git clone --depth 1 --branch master https://github.com/openembedded/bitbake.git openembedded-core/bitbake
+          git clone --depth 1 --branch master https://github.com/openembedded/meta-openembedded.git
           chown -R builduser:builduser $GITHUB_WORKSPACE
 
       - name: Run yocto-check-layer-wrapper
@@ -51,5 +52,6 @@ jobs:
           su builduser -s /bin/bash -c "
             export LANG=en_US.UTF-8 &&
             source $GITHUB_WORKSPACE/openembedded-core/oe-init-build-env $GITHUB_WORKSPACE/build &&
+            bitbake-layers add-layer $GITHUB_WORKSPACE/meta-openembedded/meta-oe &&
             bitbake-layers add-layer $GITHUB_WORKSPACE/meta-riscv &&
             yocto-check-layer-wrapper $GITHUB_WORKSPACE/meta-riscv"
