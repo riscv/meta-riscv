@@ -7,24 +7,14 @@ FILESEXTRAPATHS:prepend:eswin-ebc77-mainline := "${THISDIR}/linux-eswin-ebc77-ma
 FILESEXTRAPATHS:prepend:milkv-duo := "${THISDIR}/linux-milkv-duo:"
 
 KERNEL_VERSION_SANITY_SKIP = "1"
-SRCPV = "${@bb.fetch2.get_srcrev(d)}"
+LINUX_VERSION                       ?= "7.2"
+BRANCH                              ?= "master"
+SRCREV                              ?= "8d3ae59288f1e7d58d76558a6ee96d533bc5019f"
 
 # --- DEPENDS ---
 DEPENDS:append:k1                    = " u-boot-tools-native"
 DEPENDS:append:eswin-ebc77-mainline  = " u-boot-mkimage-native dtc-native"
 DEPENDS:append:milkv-duo             = " u-boot-mkimage-native dtc-native"
-
-# --- LINUX_VERSION ---
-LINUX_VERSION                       ?= "7.2"
-LINUX_VERSION:milkv-duo              = "6.17.8"
-
-# --- BRANCH ---
-BRANCH                              ?= "master"
-BRANCH:milkv-duo                     = "linux-6.17.y"
-
-# --- SRCREV ---
-SRCREV                              ?= "${AUTOREV}"
-SRCREV:milkv-duo                     = "v6.17.8"
 
 # --- SRC_URI ---
 SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git;protocol=https;branch=${BRANCH}"
@@ -110,7 +100,7 @@ KERNEL_DEVICETREE:milkv-duo     ?= "sophgo/cv1800b-milkv-duo.dtb"
 KERNEL_DEVICETREE:milkv-duo256m ?= "sophgo/sg2002-milkv-duo256m.dtb"
 KERNEL_FEATURES_RISCV:milkv-duo  = ""
 
-do_deploy:milkv-duo:append() {
+do_deploy:append:milkv-duo() {
 	cp ${B}/arch/riscv/boot/Image.gz ${B}
 	cp ${UNPACKDIR}/multi.its ${B}
 	mkimage -f ${B}/multi.its ${B}/uImage.fit
