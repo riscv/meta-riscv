@@ -1,0 +1,110 @@
+From d5f4baab832855457df6f54473838d0ce3aba061 Mon Sep 17 00:00:00 2001
+From: Samuel Holland <samuel.holland@sifive.com>
+Date: Wed, 12 Nov 2025 17:45:21 -0800
+Subject: [PATCH 04/35] mm: Allow page table accessors to be non-idempotent
+
+Currently, some functions such as pte_offset_map() are passed both
+pointers to hardware page tables, and pointers to previously-read PMD
+entries on the stack. To ensure correctness in the first case, these
+functions must use the page table accessor function (pmdp_get()) to
+dereference the supplied pointer. However, this means pmdp_get() is
+called twice in the second case. This double call must be avoided if
+pmdp_get() applies some non-idempotent transformation to the value.
+
+Avoid the double transformation by calling set_pmd() on the stack
+variables where necessary to keep set_pmd()/pmdp_get() calls balanced.
+
+Signed-off-by: Samuel Holland <samuel.holland@sifive.com>
+
+Upstream-Status: Submitted [https://lore.kernel.org/all/20251113014656.2605447-1-samuel.holland@sifive.com]
+---
+ kernel/events/core.c  | 2 ++
+ mm/gup.c              | 3 +++
+ mm/khugepaged.c       | 6 ++++--
+ mm/page_table_check.c | 3 +++
+ mm/pgtable-generic.c  | 2 ++
+ 5 files changed, 14 insertions(+), 2 deletions(-)
+
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 1a73ba0747df..317c584faf68 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -8528,6 +8528,8 @@ static u64 perf_get_pgtable_size(struct mm_struct *mm, unsigned long addr)
+ 	if (pmd_leaf(pmd))
+ 		return pmd_leaf_size(pmd);
+ 
++	/* transform pmd as if &pmd pointed to a hardware page table */
++	set_pmd(&pmd, pmd);
+ 	ptep = pte_offset_map(&pmd, addr);
+ 	if (!ptep)
+ 		goto again;
+diff --git a/mm/gup.c b/mm/gup.c
+index d714c484164b..504905d061d2 100644
+--- a/mm/gup.c
++++ b/mm/gup.c
+@@ -2833,7 +2833,10 @@ static int gup_fast_pte_range(pmd_t pmd, pmd_t *pmdp, unsigned long addr,
+ 	int ret = 0;
+ 	pte_t *ptep, *ptem;
+ 
++	/* transform pmd as if &pmd pointed to a hardware page table */
++	set_pmd(&pmd, pmd);
+ 	ptem = ptep = pte_offset_map(&pmd, addr);
++	pmd = pmdp_get(&pmd);
+ 	if (!ptep)
+ 		return 0;
+ 	do {
+diff --git a/mm/khugepaged.c b/mm/khugepaged.c
+index 1446742c1284..1ce7304eea97 100644
+--- a/mm/khugepaged.c
++++ b/mm/khugepaged.c
+@@ -2140,7 +2140,7 @@ static void retract_page_tables(struct address_space *mapping, pgoff_t pgoff)
+ 		struct mmu_notifier_range range;
+ 		struct mm_struct *mm;
+ 		unsigned long addr;
+-		pmd_t *pmd, pgt_pmd;
++		pmd_t *pmd, pgt_pmd, pmdval;
+ 		spinlock_t *pml;
+ 		spinlock_t *ptl;
+ 		bool success = false;
+@@ -2179,7 +2179,9 @@ static void retract_page_tables(struct address_space *mapping, pgoff_t pgoff)
+ 		 */
+ 		if (check_pmd_state(pmd) != SCAN_SUCCEED)
+ 			goto drop_pml;
+-		ptl = pte_lockptr(mm, pmd);
++		/* pte_lockptr() needs a value, not a pointer to a page table */
++		pmdval = pmdp_get(pmd);
++		ptl = pte_lockptr(mm, &pmdval);
+ 		if (ptl != pml)
+ 			spin_lock_nested(ptl, SINGLE_DEPTH_NESTING);
+ 
+diff --git a/mm/page_table_check.c b/mm/page_table_check.c
+index 4fed77f65b21..5a3848a3316b 100644
+--- a/mm/page_table_check.c
++++ b/mm/page_table_check.c
+@@ -279,7 +279,10 @@ void __page_table_check_pte_clear_range(struct mm_struct *mm,
+ 		return;
+ 
+ 	if (!pmd_bad(pmd) && !pmd_leaf(pmd)) {
++		/* transform pmd as if &pmd pointed to a hardware page table */
++		set_pmd(&pmd, pmd);
+ 		pte_t *ptep = pte_offset_map(&pmd, addr);
++		pmd = pmdp_get(&pmd);
+ 		unsigned long i;
+ 
+ 		if (WARN_ON(!ptep))
+diff --git a/mm/pgtable-generic.c b/mm/pgtable-generic.c
+index d254272141b0..c0449c469509 100644
+--- a/mm/pgtable-generic.c
++++ b/mm/pgtable-generic.c
+@@ -303,6 +303,8 @@ pte_t *__pte_offset_map(pmd_t *pmd, unsigned long addr, pmd_t *pmdvalp)
+ 		pmd_clear_bad(pmd);
+ 		goto nomap;
+ 	}
++	/* transform pmdval as if &pmdval pointed to a hardware page table */
++	set_pmd(&pmdval, pmdval);
+ 	return __pte_map(&pmdval, addr);
+ nomap:
+ 	rcu_read_unlock();
+-- 
+2.55.0
+

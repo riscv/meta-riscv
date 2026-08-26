@@ -1,0 +1,62 @@
+From 2b7826424e956fbfa6afb55df53c3268f235a621 Mon Sep 17 00:00:00 2001
+From: Samuel Holland <samuel.holland@sifive.com>
+Date: Wed, 12 Nov 2025 17:45:31 -0800
+Subject: [PATCH 14/35] riscv: Fix logic for selecting DMA_DIRECT_REMAP
+
+DMA_DIRECT_REMAP allows the kernel to make pages coherent for DMA by
+remapping them in the page tables with a different pgprot_t value. On
+RISC-V, this is supported by the page-based memory type extensions
+(Svpbmt and Xtheadmae). It is independent from the software cache
+maintenance extensions (Zicbom and Xtheadcmo).
+
+Signed-off-by: Samuel Holland <samuel.holland@sifive.com>
+
+Upstream-Status: Submitted [https://lore.kernel.org/all/20251113014656.2605447-1-samuel.holland@sifive.com]
+---
+ arch/riscv/Kconfig        | 2 +-
+ arch/riscv/Kconfig.errata | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index f7028caaeae0..e8ece8a37f27 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -596,6 +596,7 @@ config RISCV_ISA_SVPBMT
+ 	depends on 64BIT && MMU
+ 	depends on RISCV_ALTERNATIVE
+ 	default y
++	select DMA_DIRECT_REMAP
+ 	help
+ 	   Add support for the Svpbmt ISA-extension (Supervisor-mode:
+ 	   page-based memory types) in the kernel when it is detected at boot.
+@@ -809,7 +810,6 @@ config RISCV_ISA_ZICBOM
+ 	depends on RISCV_ALTERNATIVE
+ 	default y
+ 	select RISCV_DMA_NONCOHERENT
+-	select DMA_DIRECT_REMAP
+ 	help
+ 	   Add support for the Zicbom extension (Cache Block Management
+ 	   Operations) and enable its use in the kernel when it is detected
+diff --git a/arch/riscv/Kconfig.errata b/arch/riscv/Kconfig.errata
+index 3c945d086c7d..f4ea7d7b69de 100644
+--- a/arch/riscv/Kconfig.errata
++++ b/arch/riscv/Kconfig.errata
+@@ -109,6 +109,7 @@ config ERRATA_THEAD
+ config ERRATA_THEAD_MAE
+ 	bool "Apply T-Head's memory attribute extension (XTheadMae) errata"
+ 	depends on ERRATA_THEAD && 64BIT && MMU
++	select DMA_DIRECT_REMAP
+ 	select RISCV_ALTERNATIVE_EARLY
+ 	default y
+ 	help
+@@ -120,7 +121,6 @@ config ERRATA_THEAD_MAE
+ config ERRATA_THEAD_CMO
+ 	bool "Apply T-Head cache management errata"
+ 	depends on ERRATA_THEAD && MMU
+-	select DMA_DIRECT_REMAP
+ 	select RISCV_DMA_NONCOHERENT
+ 	select RISCV_NONSTANDARD_CACHE_OPS
+ 	default y
+-- 
+2.55.0
+
