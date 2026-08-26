@@ -15,20 +15,17 @@ DEPENDS:append:eswin-ebc77-mainline  = " u-boot-mkimage-native dtc-native"
 DEPENDS:append:milkv-duo             = " u-boot-mkimage-native dtc-native"
 
 # --- LINUX_VERSION ---
-LINUX_VERSION                       ?= "7.0+"
-LINUX_VERSION:k1                     = "7.2"
+LINUX_VERSION                       ?= "7.2"
 LINUX_VERSION:eswin-ebc77-mainline   = "6.19.8"
 LINUX_VERSION:milkv-duo              = "6.17.8"
 
 # --- BRANCH ---
-BRANCH                              ?= "linux-7.0.y"
-BRANCH:k1                            = "master"
+BRANCH                              ?= "master"
 BRANCH:eswin-ebc77-mainline          = "linux-6.19.y"
 BRANCH:milkv-duo                     = "linux-6.17.y"
 
 # --- SRCREV ---
 SRCREV                              ?= "${AUTOREV}"
-SRCREV:k1                            = "f5098b6bae761e346ebcd9da7f95622c04733cff"
 SRCREV:eswin-ebc77-mainline          = "86818b2e7d9c22225b15f2ae91d3f35c4a07dfd9"
 SRCREV:milkv-duo                     = "v6.17.8"
 
