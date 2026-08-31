@@ -5,6 +5,9 @@ of the listed releases.
 
 ## Yocto 6.2
 
+Note: The following are deprecated for 6.2, but the layer still supports
+mainline-based BSPs with similar names.
+
 - orangepi-rv2
 - eswin-ebc77
 
