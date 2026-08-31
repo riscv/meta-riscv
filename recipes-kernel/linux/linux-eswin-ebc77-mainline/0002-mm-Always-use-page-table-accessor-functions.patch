@@ -1,7 +1,10 @@
-From 496885bca177507c67c26df8b3ce8b1d62aedd67 Mon Sep 17 00:00:00 2001
+From f396d451629203143e67b150fc981c63a74ab822 Mon Sep 17 00:00:00 2001
+Message-ID: <f396d451629203143e67b150fc981c63a74ab822.1788210197.git.marcel@ziswiler.com>
+In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:19 -0800
-Subject: [PATCH] mm: Always use page table accessor functions
+Subject: [PATCH 02/31] mm: Always use page table accessor functions
 
 Some platforms need to fix up the values when reading or writing page
 tables. Because of this, the accessors must always be used; it is not
@@ -92,15 +95,12 @@ struct vm_fault *vmf;
 Signed-off-by: Samuel Holland <samuel.holland@sifive.com>
 
 Upstream-Status: Submitted [https://lore.kernel.org/all/20251113014656.2605447-1-samuel.holland@sifive.com]
-
-Refresh to apply on Linux 7.2.
-
-Signed-off-by: Trevor Gamblin <tgamblin@baylibre.com>
 ---
  fs/dax.c                |  4 +-
  fs/proc/task_mmu.c      | 25 ++++++------
  include/linux/huge_mm.h |  8 ++--
  include/linux/mm.h      | 14 +++----
+ include/linux/pgtable.h | 40 +++++++++---------
  mm/filemap.c            |  6 +--
  mm/gup.c                | 18 ++++-----
  mm/huge_memory.c        | 90 ++++++++++++++++++++---------------------
@@ -115,7 +115,7 @@ Signed-off-by: Trevor Gamblin <tgamblin@baylibre.com>
  mm/memory.c             | 76 +++++++++++++++++-----------------
  mm/mempolicy.c          |  4 +-
  mm/migrate.c            |  4 +-
- mm/migrate_device.c     | 24 +++++------
+ mm/migrate_device.c     | 26 ++++++------
  mm/mlock.c              |  6 +--
  mm/mprotect.c           |  2 +-
  mm/mremap.c             | 30 +++++++-------
@@ -128,9 +128,9 @@ Signed-off-by: Trevor Gamblin <tgamblin@baylibre.com>
  mm/rmap.c               |  6 +--
  mm/sparse-vmemmap.c     |  8 ++--
  mm/userfaultfd.c        | 10 ++---
- mm/vmalloc.c            | 47 ++++++++++-----------
+ mm/vmalloc.c            | 49 +++++++++++-----------
  mm/vmscan.c             | 14 +++----
- 33 files changed, 272 insertions(+), 269 deletions(-)
+ 34 files changed, 294 insertions(+), 291 deletions(-)
 
 diff --git a/fs/dax.c b/fs/dax.c
 index 6d175cd47a99..0fcd0e370c74 100644
@@ -342,6 +342,165 @@ index 485df9c2dbdd..9cb822b5da01 100644
  		NULL: pte_offset_kernel(pmd, address))
  
  #if defined(CONFIG_SPLIT_PMD_PTLOCKS)
+diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
+index 3014a22bbfd7..fe654b5a3f70 100644
+--- a/include/linux/pgtable.h
++++ b/include/linux/pgtable.h
+@@ -130,14 +130,14 @@ static inline void pud_init(void *addr)
+ #ifndef pte_offset_kernel
+ static inline pte_t *pte_offset_kernel(pmd_t *pmd, unsigned long address)
+ {
+-	return (pte_t *)pmd_page_vaddr(*pmd) + pte_index(address);
++	return (pte_t *)pmd_page_vaddr(pmdp_get(pmd)) + pte_index(address);
+ }
+ #define pte_offset_kernel pte_offset_kernel
+ #endif
+ 
+ #ifdef CONFIG_HIGHPTE
+ #define __pte_map(pmd, address) \
+-	((pte_t *)kmap_local_page(pmd_page(*(pmd))) + pte_index((address)))
++	((pte_t *)kmap_local_page(pmd_page(pmdp_get(pmd))) + pte_index((address)))
+ #define pte_unmap(pte)	do {	\
+ 	kunmap_local((pte));	\
+ 	rcu_read_unlock();	\
+@@ -159,7 +159,7 @@ void pte_free_defer(struct mm_struct *mm, pgtable_t pgtable);
+ #ifndef pmd_offset
+ static inline pmd_t *pmd_offset(pud_t *pud, unsigned long address)
+ {
+-	return pud_pgtable(*pud) + pmd_index(address);
++	return pud_pgtable(pudp_get(pud)) + pmd_index(address);
+ }
+ #define pmd_offset pmd_offset
+ #endif
+@@ -167,7 +167,7 @@ static inline pmd_t *pmd_offset(pud_t *pud, unsigned long address)
+ #ifndef pud_offset
+ static inline pud_t *pud_offset(p4d_t *p4d, unsigned long address)
+ {
+-	return p4d_pgtable(*p4d) + pud_index(address);
++	return p4d_pgtable(p4dp_get(p4d)) + pud_index(address);
+ }
+ #define pud_offset pud_offset
+ #endif
+@@ -211,7 +211,7 @@ static inline pte_t *virt_to_kpte(unsigned long vaddr)
+ {
+ 	pmd_t *pmd = pmd_off_k(vaddr);
+ 
+-	return pmd_none(*pmd) ? NULL : pte_offset_kernel(pmd, vaddr);
++	return pmd_none(pmdp_get(pmd)) ? NULL : pte_offset_kernel(pmd, vaddr);
+ }
+ 
+ #ifndef pmd_young
+@@ -544,7 +544,7 @@ static inline bool ptep_test_and_clear_young(struct vm_area_struct *vma,
+ static inline bool pmdp_test_and_clear_young(struct vm_area_struct *vma,
+ 		unsigned long address, pmd_t *pmdp)
+ {
+-	pmd_t pmd = *pmdp;
++	pmd_t pmd = pmdp_get(pmdp);
+ 	bool young = true;
+ 
+ 	if (!pmd_young(pmd))
+@@ -799,7 +799,7 @@ static inline pmd_t pmdp_huge_get_and_clear(struct mm_struct *mm,
+ 					    unsigned long address,
+ 					    pmd_t *pmdp)
+ {
+-	pmd_t pmd = *pmdp;
++	pmd_t pmd = pmdp_get(pmdp);
+ 
+ 	pmd_clear(pmdp);
+ 	page_table_check_pmd_clear(mm, address, pmd);
+@@ -812,7 +812,7 @@ static inline pud_t pudp_huge_get_and_clear(struct mm_struct *mm,
+ 					    unsigned long address,
+ 					    pud_t *pudp)
+ {
+-	pud_t pud = *pudp;
++	pud_t pud = pudp_get(pudp);
+ 
+ 	pud_clear(pudp);
+ 	page_table_check_pud_clear(mm, address, pud);
+@@ -1237,7 +1237,7 @@ static inline pte_t pte_sw_mkyoung(pte_t pte)
+ static inline void pmdp_set_wrprotect(struct mm_struct *mm,
+ 				      unsigned long address, pmd_t *pmdp)
+ {
+-	pmd_t old_pmd = *pmdp;
++	pmd_t old_pmd = pmdp_get(pmdp);
+ 	set_pmd_at(mm, address, pmdp, pmd_wrprotect(old_pmd));
+ }
+ #else
+@@ -1254,7 +1254,7 @@ static inline void pmdp_set_wrprotect(struct mm_struct *mm,
+ static inline void pudp_set_wrprotect(struct mm_struct *mm,
+ 				      unsigned long address, pud_t *pudp)
+ {
+-	pud_t old_pud = *pudp;
++	pud_t old_pud = pudp_get(pudp);
+ 
+ 	set_pud_at(mm, address, pudp, pud_wrprotect(old_pud));
+ }
+@@ -1278,7 +1278,7 @@ static inline pmd_t pmdp_collapse_flush(struct vm_area_struct *vma,
+ 					pmd_t *pmdp)
+ {
+ 	BUILD_BUG();
+-	return *pmdp;
++	return pmdp_get(pmdp);
+ }
+ #define pmdp_collapse_flush pmdp_collapse_flush
+ #endif /* CONFIG_TRANSPARENT_HUGEPAGE */
+@@ -1306,7 +1306,7 @@ extern pgtable_t pgtable_trans_huge_withdraw(struct mm_struct *mm, pmd_t *pmdp);
+ static inline pmd_t generic_pmdp_establish(struct vm_area_struct *vma,
+ 		unsigned long address, pmd_t *pmdp, pmd_t pmd)
+ {
+-	pmd_t old_pmd = *pmdp;
++	pmd_t old_pmd = pmdp_get(pmdp);
+ 	set_pmd_at(vma->vm_mm, address, pmdp, pmd);
+ 	return old_pmd;
+ }
+@@ -1560,9 +1560,9 @@ void pmd_clear_bad(pmd_t *);
+ 
+ static inline int pgd_none_or_clear_bad(pgd_t *pgd)
+ {
+-	if (pgd_none(*pgd))
++	if (pgd_none(pgdp_get(pgd)))
+ 		return 1;
+-	if (unlikely(pgd_bad(*pgd))) {
++	if (unlikely(pgd_bad(pgdp_get(pgd)))) {
+ 		pgd_clear_bad(pgd);
+ 		return 1;
+ 	}
+@@ -1571,9 +1571,9 @@ static inline int pgd_none_or_clear_bad(pgd_t *pgd)
+ 
+ static inline int p4d_none_or_clear_bad(p4d_t *p4d)
+ {
+-	if (p4d_none(*p4d))
++	if (p4d_none(p4dp_get(p4d)))
+ 		return 1;
+-	if (unlikely(p4d_bad(*p4d))) {
++	if (unlikely(p4d_bad(p4dp_get(p4d)))) {
+ 		p4d_clear_bad(p4d);
+ 		return 1;
+ 	}
+@@ -1582,9 +1582,9 @@ static inline int p4d_none_or_clear_bad(p4d_t *p4d)
+ 
+ static inline int pud_none_or_clear_bad(pud_t *pud)
+ {
+-	if (pud_none(*pud))
++	if (pud_none(pudp_get(pud)))
+ 		return 1;
+-	if (unlikely(pud_bad(*pud))) {
++	if (unlikely(pud_bad(pudp_get(pud)))) {
+ 		pud_clear_bad(pud);
+ 		return 1;
+ 	}
+@@ -1593,9 +1593,9 @@ static inline int pud_none_or_clear_bad(pud_t *pud)
+ 
+ static inline int pmd_none_or_clear_bad(pmd_t *pmd)
+ {
+-	if (pmd_none(*pmd))
++	if (pmd_none(pmdp_get(pmd)))
+ 		return 1;
+-	if (unlikely(pmd_bad(*pmd))) {
++	if (unlikely(pmd_bad(pmdp_get(pmd)))) {
+ 		pmd_clear_bad(pmd);
+ 		return 1;
+ 	}
 diff --git a/mm/filemap.c b/mm/filemap.c
 index d721986d5f46..fda8f05e19be 100644
 --- a/mm/filemap.c
@@ -1439,7 +1598,7 @@ index dd15a84b2a52..839aee6e709c 100644
  unlock:
  	spin_unlock(ptl);
 diff --git a/mm/migrate_device.c b/mm/migrate_device.c
-index 908d2d4ec43a..831bc9ca3d9c 100644
+index 908d2d4ec43a..d64f4e80577c 100644
 --- a/mm/migrate_device.c
 +++ b/mm/migrate_device.c
 @@ -145,26 +145,26 @@ static int migrate_vma_collect_huge_pmd(pmd_t *pmdp, unsigned long start,
@@ -1484,9 +1643,12 @@ index 908d2d4ec43a..831bc9ca3d9c 100644
  		int ret = migrate_vma_collect_huge_pmd(pmdp, start, end, walk, fault_folio);
  
  		if (ret == -EAGAIN)
-@@ -861,7 +861,7 @@ static int migrate_vma_insert_huge_pmd_page(struct migrate_vma *migrate,
+@@ -859,9 +859,9 @@ static int migrate_vma_insert_huge_pmd_page(struct migrate_vma *migrate,
+ 	if (userfaultfd_missing(vma))
+ 		goto unlock_abort;
  
- 	if (is_huge_zero_pmd(*pmdp))
+-	if (is_huge_zero_pmd(*pmdp))
++	if (is_huge_zero_pmd(pmdp_get(pmdp)))
  		flush = true;
 -	else if (!pmd_none(*pmdp))
 +	else if (!pmd_none(pmdp_get(pmdp)))
@@ -1672,7 +1834,7 @@ index e9c8b1d05832..8d7b1fb8992b 100644
  		if (pte_alloc(pmc->new->vm_mm, new_pmd))
  			break;
 diff --git a/mm/page_table_check.c b/mm/page_table_check.c
-index 2403f5a11410..4fed77f65b21 100644
+index 2403f5a11410..11c13072c470 100644
 --- a/mm/page_table_check.c
 +++ b/mm/page_table_check.c
 @@ -248,7 +248,7 @@ void __page_table_check_pmds_set(struct mm_struct *mm, unsigned long addr,
@@ -1689,7 +1851,7 @@ index 2403f5a11410..4fed77f65b21 100644
  
  	for (i = 0; i < nr; i++)
 -		__page_table_check_pud_clear(mm, addr + PUD_SIZE * i, *(pudp + i));
-+		__page_table_check_pud_clear(mm, addr + PUD_SIZE * i, pudp_get((pudp + i)));
++		__page_table_check_pud_clear(mm, addr + PUD_SIZE * i, pudp_get(pudp + i));
  	if (pud_user_accessible_page(mm, addr, pud))
  		page_table_check_set(pud_pfn(pud), stride * nr, pud_write(pud));
  }
@@ -2041,9 +2203,18 @@ index c3adedaaf7d5..f509e92b7bb0 100644
  					err = -ENOENT;
  					break;
 diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index f4fa227a8d7f..7215027a31de 100644
+index f4fa227a8d7f..127a3d9f4275 100644
 --- a/mm/vmalloc.c
 +++ b/mm/vmalloc.c
+@@ -159,7 +159,7 @@ static int vmap_try_huge_pmd(pmd_t *pmd, unsigned long addr, unsigned long end,
+ 	if (!IS_ALIGNED(phys_addr, PMD_SIZE))
+ 		return 0;
+ 
+-	if (!pmd_present(*pmd))
++	if (!pmd_present(pmdp_get(pmd)))
+ 		return pmd_set_huge(pmd, phys_addr, prot);
+ 
+ 	/*
 @@ -222,7 +222,7 @@ static int vmap_try_huge_pud(pud_t *pud, unsigned long addr, unsigned long end,
  	if (!IS_ALIGNED(phys_addr, PUD_SIZE))
  		return 0;
@@ -2230,5 +2401,5 @@ index 56708d1d2dfd..81b6d7a6d12d 100644
  	pud = pud_offset(p4d, start & P4D_MASK);
  restart:
 -- 
-2.55.0
+2.53.0
 

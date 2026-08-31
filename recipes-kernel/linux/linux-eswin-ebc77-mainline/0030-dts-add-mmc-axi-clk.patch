@@ -1,17 +1,20 @@
-From fd6a45fbc3b446814d000d13f9f777d08c69c4c8 Mon Sep 17 00:00:00 2001
+From e617a987ed55258fb07c603cdb506b674c7f3318 Mon Sep 17 00:00:00 2001
+Message-ID: <e617a987ed55258fb07c603cdb506b674c7f3318.1788210197.git.marcel@ziswiler.com>
+In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
 From: Huan He <hehuan1@eswincomputing.com>
 Date: Tue, 24 Feb 2026 15:54:54 +0800
-Subject: [PATCH 34/35] dts: add mmc axi clk
+Subject: [PATCH 30/31] dts: add mmc axi clk
 
 Signed-off-by: Huan He <hehuan1@eswincomputing.com>
 
-Upstream-Status: Pending [https://github.com/hehuaneswincomputing/linux-next/commit/618d334377ea95188b2f87cf068abb9900cb6cf7]
+Upstream-Status: Pending
 ---
  arch/riscv/boot/dts/eswin/eic7700.dtsi | 8 ++++----
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/arch/riscv/boot/dts/eswin/eic7700.dtsi b/arch/riscv/boot/dts/eswin/eic7700.dtsi
-index f7796ab44ba9..decc32a6290a 100644
+index 3f52e77c4a6f..1fd626ef724a 100644
 --- a/arch/riscv/boot/dts/eswin/eic7700.dtsi
 +++ b/arch/riscv/boot/dts/eswin/eic7700.dtsi
 @@ -463,8 +463,8 @@ phy0: ethernet-phy@0 {
@@ -37,5 +40,5 @@ index f7796ab44ba9..decc32a6290a 100644
  				   <&reset 73>,
  				   <&reset 87>,
 -- 
-2.55.0
+2.53.0
 

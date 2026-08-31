@@ -1,7 +1,10 @@
-From 9ff7f6adce87c6811004401a93f1109ee65ace84 Mon Sep 17 00:00:00 2001
+From f9e9925e02fa539dd45a43daffbfe379a8cfb539 Mon Sep 17 00:00:00 2001
+Message-ID: <f9e9925e02fa539dd45a43daffbfe379a8cfb539.1788210197.git.marcel@ziswiler.com>
+In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:33 -0800
-Subject: [PATCH 16/35] riscv: mm: Use physical memory aliases to apply PMAs
+Subject: [PATCH 16/31] riscv: mm: Use physical memory aliases to apply PMAs
 
 On some RISC-V platforms, RAM is mapped simultaneously to multiple
 physical address ranges, with each alias having a different set of
@@ -26,23 +29,20 @@ this behavior is not associated with any particular processor vendor.
 Signed-off-by: Samuel Holland <samuel.holland@sifive.com>
 
 Upstream-Status: Submitted [https://lore.kernel.org/all/20251113014656.2605447-1-samuel.holland@sifive.com]
-
-Refresh to apply on Linux 7.2.
-
-Signed-off-by: Trevor Gamblin <tgamblin@baylibre.com>
 ---
- arch/riscv/Kconfig                    | 17 +++++
- arch/riscv/include/asm/hwcap.h        |  1 +
- arch/riscv/include/asm/pgtable-64.h   | 44 ++++++++++---
- arch/riscv/include/asm/pgtable-bits.h |  5 +-
- arch/riscv/include/asm/pgtable.h      |  8 +++
- arch/riscv/kernel/cpufeature.c        |  6 ++
- arch/riscv/kernel/setup.c             |  1 +
- arch/riscv/mm/Makefile                |  1 +
- arch/riscv/mm/memory-alias.S          | 123 +++++++++++++++++++++++++++++++
- arch/riscv/mm/pgtable.c               | 91 +++++++++++++++++++++++++++
- arch/riscv/mm/ptdump.c                |  6 +-
- 11 files changed, 291 insertions(+), 12 deletions(-)
+ arch/riscv/Kconfig                    |  17 ++++
+ arch/riscv/include/asm/hwcap.h        |   1 +
+ arch/riscv/include/asm/pgtable-64.h   |  44 +++++++--
+ arch/riscv/include/asm/pgtable-bits.h |   5 +-
+ arch/riscv/include/asm/pgtable.h      |   8 ++
+ arch/riscv/kernel/cpufeature.c        |   6 ++
+ arch/riscv/kernel/setup.c             |   1 +
+ arch/riscv/mm/Makefile                |   1 +
+ arch/riscv/mm/memory-alias.S          | 123 ++++++++++++++++++++++++++
+ arch/riscv/mm/pgtable.c               |  91 +++++++++++++++++++
+ arch/riscv/mm/ptdump.c                |   3 +-
+ 11 files changed, 289 insertions(+), 11 deletions(-)
+ create mode 100644 arch/riscv/mm/memory-alias.S
 
 diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
 index e8ece8a37f27..3cb5032fb3c1 100644
@@ -219,10 +219,10 @@ index ab570e017ce5..ecd6cd2dfb4e 100644
  #ifdef CONFIG_RISCV_ISA_SVNAPOT
  #define _PAGE_NAPOT_SHIFT	63
 diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
-index aaea1d23baa5..605d37b60070 100644
+index 6ba41ca043a9..6430770e5444 100644
 --- a/arch/riscv/include/asm/pgtable.h
 +++ b/arch/riscv/include/asm/pgtable.h
-@@ -1275,6 +1275,14 @@ extern u64 satp_mode;
+@@ -1273,6 +1273,14 @@ extern u64 satp_mode;
  void paging_init(void);
  void misc_mem_init(void);
  
@@ -291,117 +291,117 @@ index 000000000000..e37b83d11591
 +#include <asm/asm.h>
 +#include <asm/pgtable.h>
 +
-+#define CACHED_BASE_OFFSET (0 * RISCV_SZPTR)
-+#define NONCACHED_BASE_OFFSET (1 * RISCV_SZPTR)
-+#define SIZE_OFFSET (2 * RISCV_SZPTR)
++#define CACHED_BASE_OFFSET	(0 * RISCV_SZPTR)
++#define NONCACHED_BASE_OFFSET	(1 * RISCV_SZPTR)
++#define SIZE_OFFSET		(2 * RISCV_SZPTR)
 +
-+#define SIZEOF_PAIR (4 * RISCV_SZPTR)
++#define SIZEOF_PAIR		(4 * RISCV_SZPTR)
 +
 +/*
 + * Called from ALT_FIXUP_MT with a non-standard calling convention:
-+ * t0 => return address
-+ * t1 => page table entry
-+ * all other registers are callee-saved
++ *	t0 => return address
++ *	t1 => page table entry
++ *	all other registers are callee-saved
 + */
 +SYM_CODE_START(riscv_fixup_memory_alias)
-+	addi sp, sp, -4 * SZREG
-+	REG_S t2, (0 * SZREG)(sp)
-+	REG_S t3, (1 * SZREG)(sp)
-+	REG_S t4, (2 * SZREG)(sp)
++	addi	sp, sp, -4 * SZREG
++	REG_S	t2, (0 * SZREG)(sp)
++	REG_S	t3, (1 * SZREG)(sp)
++	REG_S	t4, (2 * SZREG)(sp)
 +#ifdef CONFIG_RISCV_ISA_SVNAPOT
-+	REG_S t5, (3 * SZREG)(sp)
++	REG_S	t5, (3 * SZREG)(sp)
 +
 +	/* Save and mask off _PAGE_NAPOT if present. */
-+	li t5, _PAGE_NAPOT
-+	and t5, t1, t5
-+	xor t1, t1, t5
++	li	t5, _PAGE_NAPOT
++	and	t5, t1, t5
++	xor	t1, t1, t5
 +#endif
 +
 +	/* Ignore !pte_present() PTEs, including swap PTEs. */
-+	andi t2, t1, (_PAGE_PRESENT | _PAGE_PROT_NONE)
-+	beqz t2, .Lfixup_end
++	andi	t2, t1, (_PAGE_PRESENT | _PAGE_PROT_NONE)
++	beqz	t2, .Lfixup_end
 +
-+	lla t2, memory_alias_pairs
++	lla	t2, memory_alias_pairs
 +.Lfixup_loop:
-+	REG_L t3, SIZE_OFFSET(t2)
-+	beqz t3, .Lfixup_end
-+	REG_L t4, CACHED_BASE_OFFSET(t2)
-+	sub t4, t1, t4
-+	bltu t4, t3, .Lfixup_found
-+	addi t2, t2, SIZEOF_PAIR
-+	j .Lfixup_loop
++	REG_L	t3, SIZE_OFFSET(t2)
++	beqz	t3, .Lfixup_end
++	REG_L	t4, CACHED_BASE_OFFSET(t2)
++	sub	t4, t1, t4
++	bltu	t4, t3, .Lfixup_found
++	addi	t2, t2, SIZEOF_PAIR
++	j	.Lfixup_loop
 +
 +.Lfixup_found:
-+	REG_L t3, NONCACHED_BASE_OFFSET(t2)
-+	add t1, t3, t4
++	REG_L	t3, NONCACHED_BASE_OFFSET(t2)
++	add	t1, t3, t4
 +
 +.Lfixup_end:
 +#ifdef CONFIG_RISCV_ISA_SVNAPOT
-+	xor t1, t1, t5
++	xor	t1, t1, t5
 +
-+	REG_L t5, (3 * SZREG)(sp)
++	REG_L	t5, (3 * SZREG)(sp)
 +#endif
-+	REG_L t4, (2 * SZREG)(sp)
-+	REG_L t3, (1 * SZREG)(sp)
-+	REG_L t2, (0 * SZREG)(sp)
-+	addi sp, sp, 4 * SZREG
-+	jr t0
++	REG_L	t4, (2 * SZREG)(sp)
++	REG_L	t3, (1 * SZREG)(sp)
++	REG_L	t2, (0 * SZREG)(sp)
++	addi	sp, sp, 4 * SZREG
++	jr	t0
 +SYM_CODE_END(riscv_fixup_memory_alias)
 +EXPORT_SYMBOL(riscv_fixup_memory_alias)
 +
 +/*
 + * Called from ALT_UNFIX_MT with a non-standard calling convention:
-+ * t0 => return address
-+ * t1 => page table entry
-+ * all other registers are callee-saved
++ *	t0 => return address
++ *	t1 => page table entry
++ *	all other registers are callee-saved
 + */
 +SYM_CODE_START(riscv_unfix_memory_alias)
-+	addi sp, sp, -4 * SZREG
-+	REG_S t2, (0 * SZREG)(sp)
-+	REG_S t3, (1 * SZREG)(sp)
-+	REG_S t4, (2 * SZREG)(sp)
++	addi	sp, sp, -4 * SZREG
++	REG_S	t2, (0 * SZREG)(sp)
++	REG_S	t3, (1 * SZREG)(sp)
++	REG_S	t4, (2 * SZREG)(sp)
 +#ifdef CONFIG_RISCV_ISA_SVNAPOT
-+	REG_S t5, (3 * SZREG)(sp)
++	REG_S	t5, (3 * SZREG)(sp)
 +
 +	/* Save and mask off _PAGE_NAPOT if present. */
-+	li t5, _PAGE_NAPOT
-+	and t5, t1, t5
-+	xor t1, t1, t5
++	li	t5, _PAGE_NAPOT
++	and	t5, t1, t5
++	xor	t1, t1, t5
 +#endif
 +
 +	/* Ignore !pte_present() PTEs, including swap PTEs. */
-+	andi t2, t1, (_PAGE_PRESENT | _PAGE_PROT_NONE)
-+	beqz t2, .Lunfix_end
++	andi	t2, t1, (_PAGE_PRESENT | _PAGE_PROT_NONE)
++	beqz	t2, .Lunfix_end
 +
-+	lla t2, memory_alias_pairs
++	lla	t2, memory_alias_pairs
 +.Lunfix_loop:
-+	REG_L t3, SIZE_OFFSET(t2)
-+	beqz t3, .Lunfix_end
-+	REG_L t4, NONCACHED_BASE_OFFSET(t2)
-+	sub t4, t1, t4
-+	bltu t4, t3, .Lunfix_found
-+	addi t2, t2, SIZEOF_PAIR
-+	j .Lunfix_loop
++	REG_L	t3, SIZE_OFFSET(t2)
++	beqz	t3, .Lunfix_end
++	REG_L	t4, NONCACHED_BASE_OFFSET(t2)
++	sub	t4, t1, t4
++	bltu	t4, t3, .Lunfix_found
++	addi	t2, t2, SIZEOF_PAIR
++	j	.Lunfix_loop
 +
 +.Lunfix_found:
-+	REG_L t3, CACHED_BASE_OFFSET(t2)
-+	add t1, t3, t4
++	REG_L	t3, CACHED_BASE_OFFSET(t2)
++	add	t1, t3, t4
 +
 +	/* PFN was in the noncached alias, so mark it as such. */
-+	li t2, _PAGE_NOCACHE
-+	or t1, t1, t2
++	li	t2, _PAGE_NOCACHE
++	or	t1, t1, t2
 +
 +.Lunfix_end:
 +#ifdef CONFIG_RISCV_ISA_SVNAPOT
-+	xor t1, t1, t5
++	xor	t1, t1, t5
 +
-+	REG_L t5, (3 * SZREG)(sp)
++	REG_L	t5, (3 * SZREG)(sp)
 +#endif
-+	REG_L t4, (2 * SZREG)(sp)
-+	REG_L t3, (1 * SZREG)(sp)
-+	REG_L t2, (0 * SZREG)(sp)
-+	addi sp, sp, 4 * SZREG
-+	jr t0
++	REG_L	t4, (2 * SZREG)(sp)
++	REG_L	t3, (1 * SZREG)(sp)
++	REG_L	t2, (0 * SZREG)(sp)
++	addi	sp, sp, 4 * SZREG
++	jr	t0
 +SYM_CODE_END(riscv_unfix_memory_alias)
 +EXPORT_SYMBOL(riscv_unfix_memory_alias)
 diff --git a/arch/riscv/mm/pgtable.c b/arch/riscv/mm/pgtable.c
@@ -513,7 +513,7 @@ index af35ac38ce36..40897b049c9b 100644
 +}
 +#endif /* CONFIG_RISCV_ISA_XLINUXMEMALIAS */
 diff --git a/arch/riscv/mm/ptdump.c b/arch/riscv/mm/ptdump.c
-index 4b30b32d6bbe..583743d61ff2 100644
+index 4b30b32d6bbe..2f9ed33319c7 100644
 --- a/arch/riscv/mm/ptdump.c
 +++ b/arch/riscv/mm/ptdump.c
 @@ -141,7 +141,8 @@ static const struct prot_bits pte_bits[] = {
@@ -526,16 +526,6 @@ index 4b30b32d6bbe..583743d61ff2 100644
  		.mask = _PAGE_MTMASK,
  		.set = "MT(%s)",
  		.clear = "  ..  ",
-@@ -217,7 +218,8 @@ static void dump_prot(struct pg_state *st)
- 		if (val) {
- 			if (pte_bits[i].mask == _PAGE_SOFT)
- 				snprintf(s, sizeof(s), pte_bits[i].set, val >> 8);
--#if defined(CONFIG_RISCV_ISA_SVPBMT) || defined(CONFIG_ERRATA_THEAD_MAE)
-+#if defined(CONFIG_RISCV_ISA_SVPBMT) || defined(CONFIG_RISCV_ISA_XLINUXMEMALIAS) || \
-+	defined(CONFIG_ERRATA_THEAD_MAE)
- 			else if (pte_bits[i].mask == _PAGE_MTMASK) {
- 				if (val == _PAGE_NOCACHE)
- 					snprintf(s, sizeof(s), pte_bits[i].set, "NC");
 -- 
-2.55.0
+2.53.0
 

@@ -1,7 +1,10 @@
-From 2819c13a8c5099c113804cfd3c3f35f7e9e53cf4 Mon Sep 17 00:00:00 2001
+From ffa19d01c46c4806ac4ccc17e54e96147c52e9fd Mon Sep 17 00:00:00 2001
+Message-ID: <ffa19d01c46c4806ac4ccc17e54e96147c52e9fd.1788210197.git.marcel@ziswiler.com>
+In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
 From: Min Lin <linmin@eswincomputing.com>
 Date: Wed, 7 Jan 2026 17:16:09 +0800
-Subject: [PATCH 32/35] riscv: dts: eswin: Add cpu&devices scaling for EIC7700
+Subject: [PATCH 28/31] riscv: dts: eswin: Add cpu&devices scaling for EIC7700
  SoC
 
 Add the operating-points-v2 to support cpu and other devices scaling
@@ -9,7 +12,7 @@ on ESWIN EIC7700 SoC.
 
 Signed-off-by: Min Lin <linmin@eswincomputing.com>
 
-Upstream-Status: Pending [https://github.com/hehuaneswincomputing/linux-next/commit/4eae506c3597ccdc6c6c3a1ca62fe961ce00210e]
+Upstream-Status: Pending
 ---
  .../boot/dts/eswin/eic7700-opptable.dtsi      | 256 ++++++++++++++++++
  arch/riscv/boot/dts/eswin/eic7700.dtsi        |  35 +++
@@ -279,7 +282,7 @@ index 000000000000..5d55a419ef64
 +	};
 +};
 diff --git a/arch/riscv/boot/dts/eswin/eic7700.dtsi b/arch/riscv/boot/dts/eswin/eic7700.dtsi
-index 5f7d359a8fb8..f7796ab44ba9 100644
+index 25bc90092db3..3f52e77c4a6f 100644
 --- a/arch/riscv/boot/dts/eswin/eic7700.dtsi
 +++ b/arch/riscv/boot/dts/eswin/eic7700.dtsi
 @@ -6,6 +6,7 @@
@@ -360,5 +363,5 @@ index 5f7d359a8fb8..f7796ab44ba9 100644
  				compatible = "riscv,cpu-intc";
  				#interrupt-cells = <1>;
 -- 
-2.55.0
+2.53.0
 

@@ -1,7 +1,10 @@
-From 295313cd9363edaccc8e1f5faf21dec0e4a1ec37 Mon Sep 17 00:00:00 2001
+From fe938e98127f3eb758120f1b6b69612ce87a47db Mon Sep 17 00:00:00 2001
+Message-ID: <fe938e98127f3eb758120f1b6b69612ce87a47db.1788210197.git.marcel@ziswiler.com>
+In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:25 -0800
-Subject: [PATCH 08/35] riscv: mm: Deduplicate _PAGE_CHG_MASK definition
+Subject: [PATCH 08/31] riscv: mm: Deduplicate _PAGE_CHG_MASK definition
 
 The two existing definitions are equivalent because _PAGE_MTMASK is
 defined as 0 on riscv32.
@@ -75,5 +78,5 @@ index 76e53fe945fd..aa03f47f8fc4 100644
  extern pgd_t trampoline_pg_dir[];
  extern pgd_t early_pg_dir[];
 -- 
-2.55.0
+2.53.0
 

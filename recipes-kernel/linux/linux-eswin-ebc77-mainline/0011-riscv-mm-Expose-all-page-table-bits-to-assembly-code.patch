@@ -1,7 +1,10 @@
-From a8e46ec4400171f9850cb2badc67d66263318f11 Mon Sep 17 00:00:00 2001
+From 3a14b3f7b644a8339ea9aea16868e2134b997b8c Mon Sep 17 00:00:00 2001
+Message-ID: <3a14b3f7b644a8339ea9aea16868e2134b997b8c.1788210197.git.marcel@ziswiler.com>
+In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:28 -0800
-Subject: [PATCH 11/35] riscv: mm: Expose all page table bits to assembly code
+Subject: [PATCH 11/31] riscv: mm: Expose all page table bits to assembly code
 
 pgtable-32.h and pgtable-64.h are not usable by assembly code files, so
 move all page table field definitions to pgtable-bits.h. This allows
@@ -161,5 +164,5 @@ index b422d9691e60..ab570e017ce5 100644
   * when all of R/W/X are zero, the PTE is a pointer to the next level
   * of the page table; otherwise, it is a leaf PTE.
 -- 
-2.55.0
+2.53.0
 

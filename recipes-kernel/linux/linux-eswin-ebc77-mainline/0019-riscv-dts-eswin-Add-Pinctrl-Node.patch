@@ -1,11 +1,14 @@
-From 3f0c957866ac3a89daa5cadb427d7a695785a201 Mon Sep 17 00:00:00 2001
+From 0ee968b0eb2e2b894008979d38c382cba3999bf0 Mon Sep 17 00:00:00 2001
+Message-ID: <0ee968b0eb2e2b894008979d38c382cba3999bf0.1788210197.git.marcel@ziswiler.com>
+In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
 From: Pritesh Patel <pritesh.patel@einfochips.com>
 Date: Tue, 4 Nov 2025 14:40:11 +0530
-Subject: [PATCH 23/35] riscv: dts: eswin: Add Pinctrl Node
+Subject: [PATCH 19/31] riscv: dts: eswin: Add Pinctrl Node
 
 Signed-off-by: Pritesh Patel <pritesh.patel@einfochips.com>
 
-Upstream-Status: Pending [https://github.com/hehuaneswincomputing/linux-next/commit/81129382b2f81be9698c22b5e448b0c3605c6a26]
+Upstream-Status: Pending
 ---
  .../boot/dts/eswin/eic7700-hifive-premier-p550.dts | 14 ++++++++++++++
  arch/riscv/boot/dts/eswin/eic7700.dtsi             |  7 +++++++
@@ -58,5 +61,5 @@ index d566bca4e09e..43456ccd2057 100644
  	};
  };
 -- 
-2.55.0
+2.53.0
 

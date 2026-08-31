@@ -1,12 +1,15 @@
-From eafa6c1776e019496a851ea1a1ea6798c37d739d Mon Sep 17 00:00:00 2001
+From 5afd647080ecfe9e236c6c717946eef98e67232c Mon Sep 17 00:00:00 2001
+Message-ID: <5afd647080ecfe9e236c6c717946eef98e67232c.1788210197.git.marcel@ziswiler.com>
+In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
 From: Pritesh Patel <pritesh.patel@einfochips.com>
 Date: Tue, 11 Nov 2025 17:25:02 +0530
-Subject: [PATCH 29/35] riscv: Add sata, sata_phy node in dtsi and add sata
+Subject: [PATCH 25/31] riscv: Add sata, sata_phy node in dtsi and add sata
  related configs in defconfig
 
 Signed-off-by: Pritesh Patel <pritesh.patel@einfochips.com>
 
-Upstream-Status: Pending [https://github.com/hehuaneswincomputing/linux-next/commit/820e1ef2916c3b4ac463937afcac0877ed1e0399]
+Upstream-Status: Pending
 ---
  .../dts/eswin/eic7700-hifive-premier-p550.dts |  8 +++++++
  arch/riscv/boot/dts/eswin/eic7700.dtsi        | 21 +++++++++++++++++++
@@ -67,5 +70,5 @@ index dd89c2d40d51..928e309c022d 100644
  	};
  };
 -- 
-2.55.0
+2.53.0
 

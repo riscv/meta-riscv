@@ -1,7 +1,10 @@
-From 0e477b2f4d2adec2c6a4d8847efef086e510dfa3 Mon Sep 17 00:00:00 2001
+From c2f53836bafd521ebd1f74adc0645deaf9a03584 Mon Sep 17 00:00:00 2001
+Message-ID: <c2f53836bafd521ebd1f74adc0645deaf9a03584.1788210197.git.marcel@ziswiler.com>
+In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:32 -0800
-Subject: [PATCH 15/35] dt-bindings: riscv: Describe physical memory regions
+Subject: [PATCH 15/31] dt-bindings: riscv: Describe physical memory regions
 
 Information about physical memory regions is needed by both the kernel
 and M-mode firmware. For example, the kernel needs to know about
@@ -173,5 +176,5 @@ index 000000000000..d6ed8015c535
 +
 +#endif /* _DT_BINDINGS_RISCV_PHYSICAL_MEMORY_H */
 -- 
-2.55.0
+2.53.0
 

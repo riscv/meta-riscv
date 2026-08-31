@@ -1,7 +1,10 @@
-From 54a19eba824522653d4cbbeb428f3c4d4aa7569f Mon Sep 17 00:00:00 2001
+From 8a33e28f3da02b23f3dc0ea279deeceedf837852 Mon Sep 17 00:00:00 2001
+Message-ID: <8a33e28f3da02b23f3dc0ea279deeceedf837852.1788210197.git.marcel@ziswiler.com>
+In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
 From: Min Lin <linmin@eswincomputing.com>
 Date: Wed, 14 Jan 2026 13:13:08 +0800
-Subject: [PATCH 33/35] riscv: dts: eswin:set 1.4GHz as the maximum cpu
+Subject: [PATCH 29/31] riscv: dts: eswin:set 1.4GHz as the maximum cpu
  frequency
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -13,7 +16,7 @@ for that voltage boost hasn’t been merged yet.
 
 Signed-off-by: Min Lin <linmin@eswincomputing.com>
 
-Upstream-Status: Pending [https://github.com/hehuaneswincomputing/linux-next/commit/020d14159a5b672b77d03cd14fc1e7d6f3898780]
+Upstream-Status: Pending
 ---
  arch/riscv/boot/dts/eswin/eic7700-opptable.dtsi | 2 ++
  1 file changed, 2 insertions(+)
@@ -39,5 +42,5 @@ index 5d55a419ef64..d065dcdf1be1 100644
  
  	dsp_opp_table: opp-table@dsp {
 -- 
-2.55.0
+2.53.0
 

@@ -1,7 +1,10 @@
-From 8a812f34c61bb40dbbe202bd38c0f72f53410d16 Mon Sep 17 00:00:00 2001
+From b0f1256839ac00cb364acac9c19d7ecbb21cf0eb Mon Sep 17 00:00:00 2001
+Message-ID: <b0f1256839ac00cb364acac9c19d7ecbb21cf0eb.1788210197.git.marcel@ziswiler.com>
+In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:24 -0800
-Subject: [PATCH 07/35] riscv: mm: Simplify set_p4d() and set_pgd()
+Subject: [PATCH 07/31] riscv: mm: Simplify set_p4d() and set_pgd()
 
 RISC-V uses the same page table entry format and has the same atomicity
 requirements at all page table levels, so these setter functions use the
@@ -45,5 +48,5 @@ index 6e789fa58514..5532f8515450 100644
  
  static inline int pgd_none(pgd_t pgd)
 -- 
-2.55.0
+2.53.0
 

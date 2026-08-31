@@ -1,11 +1,14 @@
-From c5fb76f9c2fd87adc368113b43a8ebd1827a34fa Mon Sep 17 00:00:00 2001
+From 94635900b62789c12082e0a14832b43e147f8baa Mon Sep 17 00:00:00 2001
+Message-ID: <94635900b62789c12082e0a14832b43e147f8baa.1788210197.git.marcel@ziswiler.com>
+In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
 From: Pritesh Patel <pritesh.patel@einfochips.com>
 Date: Tue, 4 Nov 2025 15:02:00 +0530
-Subject: [PATCH 26/35] riscv: dts: eswin: Add emmc Node
+Subject: [PATCH 22/31] riscv: dts: eswin: Add emmc Node
 
 Signed-off-by: Pritesh Patel <pritesh.patel@einfochips.com>
 
-Upstream-Status: Pending [https://github.com/hehuaneswincomputing/linux-next/commit/a7ee4d74ab46c5a5a5dff343d1f5416fd57bfa1f]
+Upstream-Status: Pending
 ---
  .../boot/dts/eswin/eic7700-hifive-premier-p550.dts   |  4 ++++
  arch/riscv/boot/dts/eswin/eic7700.dtsi               | 12 ++++++++++++
@@ -46,5 +49,5 @@ index 22ad6dabafe1..d3f96c248f3f 100644
  	};
  };
 -- 
-2.55.0
+2.53.0
 

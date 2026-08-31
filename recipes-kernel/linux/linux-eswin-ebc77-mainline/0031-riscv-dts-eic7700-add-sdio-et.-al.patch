@@ -1,7 +1,10 @@
-From 3147881403aed9cb35c1816fc3a5043bfef52839 Mon Sep 17 00:00:00 2001
+From 47cc75dd078d911df04881e642441a778f8c592b Mon Sep 17 00:00:00 2001
+Message-ID: <47cc75dd078d911df04881e642441a778f8c592b.1788210197.git.marcel@ziswiler.com>
+In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
 From: Marcel Ziswiler <marcel@ziswiler.com>
 Date: Mon, 5 Jan 2026 16:40:22 +0100
-Subject: [PATCH 35/35] riscv: dts: eic7700: add sdio et. al.
+Subject: [PATCH 31/31] riscv: dts: eic7700: add sdio et. al.
 
 Upstream-Status: Pending
 ---
@@ -265,7 +268,7 @@ index 000000000000..2b490b32b152
 +	status = "okay";
 +};
 diff --git a/arch/riscv/boot/dts/eswin/eic7700.dtsi b/arch/riscv/boot/dts/eswin/eic7700.dtsi
-index decc32a6290a..e815783a905a 100644
+index 1fd626ef724a..3a73638d50f6 100644
 --- a/arch/riscv/boot/dts/eswin/eic7700.dtsi
 +++ b/arch/riscv/boot/dts/eswin/eic7700.dtsi
 @@ -14,7 +14,7 @@ / {
@@ -2730,5 +2733,5 @@ index 000000000000..4716365ab43d
 +CONFIG_TEST_BLACKHOLE_DEV=m
 +CONFIG_MEMTEST=y
 -- 
-2.55.0
+2.53.0
 

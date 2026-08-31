@@ -1,7 +1,10 @@
-From f8ccf32d2b6aa5c15e60fa9deba03bb5eb87fe92 Mon Sep 17 00:00:00 2001
+From 8fba7ab334aa1fac6a581e4f662eeae965eeb423 Mon Sep 17 00:00:00 2001
+Message-ID: <8fba7ab334aa1fac6a581e4f662eeae965eeb423.1788210197.git.marcel@ziswiler.com>
+In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:27 -0800
-Subject: [PATCH 10/35] riscv: mm: Fix up memory types when writing page tables
+Subject: [PATCH 10/31] riscv: mm: Fix up memory types when writing page tables
 
 Currently, Linux on RISC-V has three ways to specify the cacheability
 and ordering PMAs of a page:
@@ -55,18 +58,14 @@ memory type bits from ptdump on platforms with XTheadMae.
 Signed-off-by: Samuel Holland <samuel.holland@sifive.com>
 
 Upstream-Status: Submitted [https://lore.kernel.org/all/20251113014656.2605447-1-samuel.holland@sifive.com]
-
-Refresh to apply on Linux 7.2.
-
-Signed-off-by: Trevor Gamblin <tgamblin@baylibre.com>
 ---
  arch/riscv/include/asm/errata_list.h |  45 -------
  arch/riscv/include/asm/pgtable-32.h  |   3 +
  arch/riscv/include/asm/pgtable-64.h  | 171 ++++++++++++++++++++++-----
- arch/riscv/include/asm/pgtable.h     |  47 ++++----
+ arch/riscv/include/asm/pgtable.h     |  45 +++----
  arch/riscv/mm/pgtable.c              |  14 +--
  arch/riscv/mm/ptdump.c               |  12 +-
- 6 files changed, 174 insertions(+), 118 deletions(-)
+ 6 files changed, 172 insertions(+), 118 deletions(-)
 
 diff --git a/arch/riscv/include/asm/errata_list.h b/arch/riscv/include/asm/errata_list.h
 index 6694b5ccdcf8..fa03021b7074 100644
@@ -406,7 +405,7 @@ index 093f0f41fd23..aad34c754325 100644
  #ifdef CONFIG_TRANSPARENT_HUGEPAGE
  static inline pte_t pmd_pte(pmd_t pmd);
 diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
-index aa03f47f8fc4..aaea1d23baa5 100644
+index aa03f47f8fc4..6ba41ca043a9 100644
 --- a/arch/riscv/include/asm/pgtable.h
 +++ b/arch/riscv/include/asm/pgtable.h
 @@ -245,6 +245,7 @@ static inline bool pmd_leaf(pmd_t pmd)
@@ -485,7 +484,7 @@ index aa03f47f8fc4..aaea1d23baa5 100644
  	page_table_check_pmd_clear(mm, address, pmd);
  
  	return pmd;
-@@ -1051,7 +1043,11 @@ static inline pmd_t pmdp_establish(struct vm_area_struct *vma,
+@@ -1051,7 +1043,10 @@ static inline pmd_t pmdp_establish(struct vm_area_struct *vma,
  				unsigned long address, pmd_t *pmdp, pmd_t pmd)
  {
  	page_table_check_pmd_set(vma->vm_mm, address, pmdp, pmd);
@@ -493,12 +492,11 @@ index aa03f47f8fc4..aaea1d23baa5 100644
 +	ALT_FIXUP_MT(pmd);
 +	pmd = __pmd(atomic_long_xchg((atomic_long_t *)pmdp, pmd_val(pmd)));
 +	ALT_UNFIX_MT(pmd);
-+
 +	return pmd;
  }
  
  #define pmdp_collapse_flush pmdp_collapse_flush
-@@ -1120,14 +1116,9 @@ static inline bool pudp_test_and_clear_young(struct vm_area_struct *vma,
+@@ -1120,14 +1115,9 @@ static inline bool pudp_test_and_clear_young(struct vm_area_struct *vma,
  static inline pud_t pudp_huge_get_and_clear(struct mm_struct *mm,
  					    unsigned long address,  pud_t *pudp)
  {
@@ -515,7 +513,7 @@ index aa03f47f8fc4..aaea1d23baa5 100644
  	page_table_check_pud_clear(mm, address, pud);
  
  	return pud;
-@@ -1150,7 +1141,11 @@ static inline pud_t pudp_establish(struct vm_area_struct *vma,
+@@ -1150,7 +1140,10 @@ static inline pud_t pudp_establish(struct vm_area_struct *vma,
  				   unsigned long address, pud_t *pudp, pud_t pud)
  {
  	page_table_check_pud_set(vma->vm_mm, address, pudp, pud);
@@ -523,7 +521,6 @@ index aa03f47f8fc4..aaea1d23baa5 100644
 +	ALT_FIXUP_MT(pud);
 +	pud = __pud(atomic_long_xchg((atomic_long_t *)pudp, pud_val(pud)));
 +	ALT_UNFIX_MT(pud);
-+
 +	return pud;
  }
  
@@ -590,5 +587,5 @@ index cc7ced9fc737..4b30b32d6bbe 100644
  				else
  					snprintf(s, sizeof(s), pte_bits[i].set, "??");
 -- 
-2.55.0
+2.53.0
 

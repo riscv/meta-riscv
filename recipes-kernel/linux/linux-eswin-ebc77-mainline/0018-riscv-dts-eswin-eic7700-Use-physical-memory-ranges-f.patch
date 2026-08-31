@@ -1,7 +1,10 @@
-From d98ab70e6fec7b1a7836863552e53bc821b75997 Mon Sep 17 00:00:00 2001
+From ca5da0ac3093e16a6463590238d4d09e5766c57a Mon Sep 17 00:00:00 2001
+Message-ID: <ca5da0ac3093e16a6463590238d4d09e5766c57a.1788210197.git.marcel@ziswiler.com>
+In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:35 -0800
-Subject: [PATCH 18/35] riscv: dts: eswin: eic7700: Use physical memory ranges
+Subject: [PATCH 18/31] riscv: dts: eswin: eic7700: Use physical memory ranges
  for DMA
 
 EIC7700 provides a physical memory region which is a noncached alias of
@@ -50,5 +53,5 @@ index c3ed93008bca..d566bca4e09e 100644
  	cpus {
  		#address-cells = <1>;
 -- 
-2.55.0
+2.53.0
 

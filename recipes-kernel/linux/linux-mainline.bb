@@ -55,23 +55,19 @@ SRC_URI:append:eswin-ebc77-mainline = " \
            file://0016-riscv-mm-Use-physical-memory-aliases-to-apply-PMAs.patch \
            file://0017-riscv-dts-starfive-jh7100-Use-physical-memory-ranges.patch \
            file://0018-riscv-dts-eswin-eic7700-Use-physical-memory-ranges-f.patch \
-           file://0019-dt-bindings-clock-eswin-Documentation-for-eic7700-So.patch \
-           file://0020-clk-divider-Add-devm_clk_hw_register_divider_parent_.patch \
-           file://0021-clk-eswin-Add-eic7700-clock-driver.patch \
-           file://0022-MAINTAINERS-Add-entry-for-ESWIN-EIC7700-clock-driver.patch \
-           file://0023-riscv-dts-eswin-Add-Pinctrl-Node.patch \
-           file://0024-riscv-dts-eswin-eic7700-clock-controller-node.patch \
-           file://0025-riscv-dts-eswin-eic7700-Reset-controller-node.patch \
-           file://0026-riscv-dts-eswin-Add-emmc-Node.patch \
-           file://0027-riscv-dts-Dts-changes-for-emmc-boot.patch \
-           file://0028-riscv-dts-eswin-Dts-Changes-for-SD-Card-Boot.patch \
-           file://0029-riscv-Add-sata-sata_phy-node-in-dtsi-and-add-sata-re.patch \
-           file://0030-riscv-dts-eswin-Add-ethernet-node-and-defconfig.patch \
-           file://0031-riscv-dts-eswin-Add-ethernet0-aliase.patch \
-           file://0032-riscv-dts-eswin-Add-cpu-devices-scaling-for-EIC7700-.patch \
-           file://0033-riscv-dts-eswin-set-1.4GHz-as-the-maximum-cpu-freque.patch \
-           file://0034-dts-add-mmc-axi-clk.patch \
-           file://0035-riscv-dts-eic7700-add-sdio-et.-al.patch \
+           file://0019-riscv-dts-eswin-Add-Pinctrl-Node.patch \
+           file://0020-riscv-dts-eswin-eic7700-clock-controller-node.patch \
+           file://0021-riscv-dts-eswin-eic7700-Reset-controller-node.patch \
+           file://0022-riscv-dts-eswin-Add-emmc-Node.patch \
+           file://0023-riscv-dts-Dts-changes-for-emmc-boot.patch \
+           file://0024-riscv-dts-eswin-Dts-Changes-for-SD-Card-Boot.patch \
+           file://0025-riscv-Add-sata-sata_phy-node-in-dtsi-and-add-sata-re.patch \
+           file://0026-riscv-dts-eswin-Add-ethernet-node-and-defconfig.patch \
+           file://0027-riscv-dts-eswin-Add-ethernet0-aliase.patch \
+           file://0028-riscv-dts-eswin-Add-cpu-devices-scaling-for-EIC7700-.patch \
+           file://0029-riscv-dts-eswin-set-1.4GHz-as-the-maximum-cpu-freque.patch \
+           file://0030-dts-add-mmc-axi-clk.patch \
+           file://0031-riscv-dts-eic7700-add-sdio-et.-al.patch \
            file://hifive-premier-p550_defconfig \
            file://iwd-wifi.cfg \
 "

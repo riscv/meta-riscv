@@ -1,7 +1,10 @@
-From e7d4c561f6792a61457bb200b32d407f8f2baf4d Mon Sep 17 00:00:00 2001
+From dbbad06933a2e44e581d80e2b71d7840100d587c Mon Sep 17 00:00:00 2001
+Message-ID: <dbbad06933a2e44e581d80e2b71d7840100d587c.1788210197.git.marcel@ziswiler.com>
+In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:23 -0800
-Subject: [PATCH 06/35] riscv: mm: Always use page table accessor functions
+Subject: [PATCH 06/31] riscv: mm: Always use page table accessor functions
 
 Use the semantically appropriate accessor function instead of a raw
 pointer dereference. This will become important once these functions
@@ -10,16 +13,12 @@ start transforming the PTE value on some platforms.
 Signed-off-by: Samuel Holland <samuel.holland@sifive.com>
 
 Upstream-Status: Submitted [https://lore.kernel.org/all/20251113014656.2605447-1-samuel.holland@sifive.com]
-
-Refresh to apply on Linux 7.2.
-
-Signed-off-by: Trevor Gamblin <tgamblin@baylibre.com>
 ---
  arch/riscv/include/asm/pgtable.h |  8 ++--
- arch/riscv/kvm/gstage.c          |  6 +--
+ arch/riscv/kvm/gstage.c          |  8 ++--
  arch/riscv/mm/init.c             | 68 +++++++++++++++++---------------
  arch/riscv/mm/pgtable.c          |  9 +++--
- 4 files changed, 49 insertions(+), 42 deletions(-)
+ 4 files changed, 50 insertions(+), 43 deletions(-)
 
 diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
 index 5d5756bda82e..76e53fe945fd 100644
@@ -53,18 +52,20 @@ index 5d5756bda82e..76e53fe945fd 100644
  })
  #endif /* !__ASSEMBLER__ */
 diff --git a/arch/riscv/kvm/gstage.c b/arch/riscv/kvm/gstage.c
-index b0474fcf065a..eb2fbd88114a 100644
+index b0474fcf065a..657efe4773fa 100644
 --- a/arch/riscv/kvm/gstage.c
 +++ b/arch/riscv/kvm/gstage.c
-@@ -172,7 +172,7 @@ int kvm_riscv_gstage_set_pte(struct kvm_gstage *gstage,
+@@ -172,8 +172,8 @@ int kvm_riscv_gstage_set_pte(struct kvm_gstage *gstage,
  		ptep = &next_ptep[gstage_pte_index(gstage, map->addr, current_level)];
  	}
  
 -	if (pte_val(*ptep) != pte_val(map->pte)) {
+-		bool was_invalid = !pte_val(*ptep);
 +	if (pte_val(ptep_get(ptep)) != pte_val(map->pte)) {
- 		bool was_invalid = !pte_val(*ptep);
++		bool was_invalid = !pte_val(ptep_get(ptep));
  		set_pte(ptep, map->pte);
  		if (gstage_pte_leaf(ptep) &&
+ 		    !(was_invalid && riscv_has_extension_unlikely(RISCV_ISA_EXT_SVVPTC)))
 @@ -393,12 +393,12 @@ bool kvm_riscv_gstage_op_pte(struct kvm_gstage *gstage, gpa_t addr,
  		if (op == GSTAGE_OP_CLEAR)
  			put_page(virt_to_page(next_ptep));
@@ -304,5 +305,5 @@ index 9c4427d0b187..87ae1b6ad1c0 100644
  	flush_pud_tlb_range(vma, address, address + HPAGE_PUD_SIZE);
  	return old;
 -- 
-2.55.0
+2.53.0
 

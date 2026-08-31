@@ -1,11 +1,14 @@
-From b053230f827c15cc14bb43f92ff94557d2a61ece Mon Sep 17 00:00:00 2001
+From b9c1fb32e8dd010ac4c431a7c85367de43000a50 Mon Sep 17 00:00:00 2001
+Message-ID: <b9c1fb32e8dd010ac4c431a7c85367de43000a50.1788210197.git.marcel@ziswiler.com>
+In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
 From: Pritesh Patel <pritesh.patel@einfochips.com>
 Date: Fri, 7 Nov 2025 15:05:57 +0530
-Subject: [PATCH 28/35] riscv: dts: eswin: Dts Changes for SD Card Boot
+Subject: [PATCH 24/31] riscv: dts: eswin: Dts Changes for SD Card Boot
 
 Signed-off-by: Pritesh Patel <pritesh.patel@einfochips.com>
 
-Upstream-Status: Pending [https://github.com/hehuaneswincomputing/linux-next/commit/564d37542f00c274620828a82093538f6d6ad23a]
+Upstream-Status: Pending
 ---
  .../dts/eswin/eic7700-hifive-premier-p550.dts |  6 +++++
  arch/riscv/boot/dts/eswin/eic7700.dtsi        | 24 +++++++++++++++++++
@@ -67,5 +70,5 @@ index 21597df25325..dd89c2d40d51 100644
  	};
  };
 -- 
-2.55.0
+2.53.0
 

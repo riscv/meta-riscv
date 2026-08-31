@@ -1,7 +1,10 @@
-From 8c26b0a5b18457a0f4815934f8c89e0ce8036c49 Mon Sep 17 00:00:00 2001
+From beb4b8a2019443cd27adc483dfcfabc8e87b6c2a Mon Sep 17 00:00:00 2001
+Message-ID: <beb4b8a2019443cd27adc483dfcfabc8e87b6c2a.1788210197.git.marcel@ziswiler.com>
+In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:30 -0800
-Subject: [PATCH 13/35] riscv: alternative: Allow calls with alternate link
+Subject: [PATCH 13/31] riscv: alternative: Allow calls with alternate link
  registers
 
 Alternative assembly code may wish to use an alternate link register to
@@ -31,5 +34,5 @@ index 104dc0862c5c..29d9f227e43c 100644
  
  			riscv_alternative_fix_auipc_jalr(alt_ptr + i * sizeof(u32),
 -- 
-2.55.0
+2.53.0
 

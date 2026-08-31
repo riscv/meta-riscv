@@ -1,7 +1,10 @@
-From d5f4baab832855457df6f54473838d0ce3aba061 Mon Sep 17 00:00:00 2001
+From 14b6c294f6f9afbe6eb31f9acd58a393e58a9c9f Mon Sep 17 00:00:00 2001
+Message-ID: <14b6c294f6f9afbe6eb31f9acd58a393e58a9c9f.1788210197.git.marcel@ziswiler.com>
+In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:21 -0800
-Subject: [PATCH 04/35] mm: Allow page table accessors to be non-idempotent
+Subject: [PATCH 04/31] mm: Allow page table accessors to be non-idempotent
 
 Currently, some functions such as pte_offset_map() are passed both
 pointers to hardware page tables, and pointers to previously-read PMD
@@ -39,7 +42,7 @@ index 1a73ba0747df..317c584faf68 100644
  	if (!ptep)
  		goto again;
 diff --git a/mm/gup.c b/mm/gup.c
-index d714c484164b..504905d061d2 100644
+index cd2cbcb6108f..71d3bccdba5e 100644
 --- a/mm/gup.c
 +++ b/mm/gup.c
 @@ -2833,7 +2833,10 @@ static int gup_fast_pte_range(pmd_t pmd, pmd_t *pmdp, unsigned long addr,
@@ -78,7 +81,7 @@ index 1446742c1284..1ce7304eea97 100644
  			spin_lock_nested(ptl, SINGLE_DEPTH_NESTING);
  
 diff --git a/mm/page_table_check.c b/mm/page_table_check.c
-index 4fed77f65b21..5a3848a3316b 100644
+index 11c13072c470..2d5c37c1ddf3 100644
 --- a/mm/page_table_check.c
 +++ b/mm/page_table_check.c
 @@ -279,7 +279,10 @@ void __page_table_check_pte_clear_range(struct mm_struct *mm,
@@ -106,5 +109,5 @@ index d254272141b0..c0449c469509 100644
  nomap:
  	rcu_read_unlock();
 -- 
-2.55.0
+2.53.0
 

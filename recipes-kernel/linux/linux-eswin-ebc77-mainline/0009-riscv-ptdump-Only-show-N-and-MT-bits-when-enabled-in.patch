@@ -1,7 +1,10 @@
-From 05018ed080ab8d16f22f14217796b2941744bec4 Mon Sep 17 00:00:00 2001
+From eb05f79da6943a269db7642927b0182e4c056749 Mon Sep 17 00:00:00 2001
+Message-ID: <eb05f79da6943a269db7642927b0182e4c056749.1788210197.git.marcel@ziswiler.com>
+In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:26 -0800
-Subject: [PATCH 09/35] riscv: ptdump: Only show N and MT bits when enabled in
+Subject: [PATCH 09/31] riscv: ptdump: Only show N and MT bits when enabled in
  the kernel
 
 When the Svnapot or Svpbmt extension is not implemented, the
@@ -18,10 +21,6 @@ Reviewed-by: Alexandre Ghiti <alexghiti@rivosinc.com>
 Signed-off-by: Samuel Holland <samuel.holland@sifive.com>
 
 Upstream-Status: Submitted [https://lore.kernel.org/all/20251113014656.2605447-1-samuel.holland@sifive.com]
-
-Refresh to apply on Linux 7.2.
-
-Signed-off-by: Trevor Gamblin <tgamblin@baylibre.com>
 ---
  arch/riscv/mm/ptdump.c | 6 ++++--
  1 file changed, 4 insertions(+), 2 deletions(-)
@@ -55,5 +54,5 @@ index f4b4a9fcbbd8..cc7ced9fc737 100644
  				if (val == _PAGE_NOCACHE_SVPBMT)
  					snprintf(s, sizeof(s), pte_bits[i].set, "NC");
 -- 
-2.55.0
+2.53.0
 

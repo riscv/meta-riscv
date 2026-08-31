@@ -1,11 +1,14 @@
-From b1e37d4624265364ae3b5a9ccc4a05d44b52a0a8 Mon Sep 17 00:00:00 2001
+From 626c820e99899ca95564ba18daec2f7c8f14051c Mon Sep 17 00:00:00 2001
+Message-ID: <626c820e99899ca95564ba18daec2f7c8f14051c.1788210197.git.marcel@ziswiler.com>
+In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
 From: Xuyang Dong <dongxuyang@eswincomputing.com>
 Date: Mon, 24 Nov 2025 17:45:15 +0800
-Subject: [PATCH 31/35] riscv: dts: eswin: Add ethernet0 aliase
+Subject: [PATCH 27/31] riscv: dts: eswin: Add ethernet0 aliase
 
 Signed-off-by: Xuyang Dong <dongxuyang@eswincomputing.com>
 
-Upstream-Status: Pending [https://github.com/hehuaneswincomputing/linux-next/commit/0febc86634e67ae7ced627bf0adf56330d14b3ad]
+Upstream-Status: Pending
 ---
  arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts | 1 +
  1 file changed, 1 insertion(+)
@@ -23,5 +26,5 @@ index 8100a8f35b93..7fcfab41eb14 100644
  
  	chosen {
 -- 
-2.55.0
+2.53.0
 

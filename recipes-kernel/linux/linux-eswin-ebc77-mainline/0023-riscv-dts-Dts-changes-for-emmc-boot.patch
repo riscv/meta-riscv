@@ -1,11 +1,14 @@
-From c96738466e50a0f1df498fb362c4b6c8c98a2622 Mon Sep 17 00:00:00 2001
+From fb7a035c522c3c7c95cb9843c788388e9045be75 Mon Sep 17 00:00:00 2001
+Message-ID: <fb7a035c522c3c7c95cb9843c788388e9045be75.1788210197.git.marcel@ziswiler.com>
+In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
 From: Pritesh Patel <pritesh.patel@einfochips.com>
 Date: Wed, 5 Nov 2025 18:36:09 +0530
-Subject: [PATCH 27/35] riscv: dts: Dts changes for emmc boot
+Subject: [PATCH 23/31] riscv: dts: Dts changes for emmc boot
 
 Signed-off-by: Pritesh Patel <pritesh.patel@einfochips.com>
 
-Upstream-Status: Pending [https://github.com/hehuaneswincomputing/linux-next/commit/18645728f26aa68b99cc7f3fb91744b3b8dfe559]
+Upstream-Status: Pending
 ---
  .../dts/eswin/eic7700-hifive-premier-p550.dts | 142 ++-
  .../riscv/boot/dts/eswin/eic7700-pinctrl.dtsi | 887 ++++++++++++++++++
@@ -1145,5 +1148,5 @@ index d3f96c248f3f..21597df25325 100644
  		};
  	};
 -- 
-2.55.0
+2.53.0
 

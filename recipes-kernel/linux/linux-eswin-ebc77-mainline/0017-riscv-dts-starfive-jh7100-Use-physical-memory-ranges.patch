@@ -1,7 +1,10 @@
-From d2e42da51375a03e26cea9627709deb4bb779aab Mon Sep 17 00:00:00 2001
+From 162ebcee1441c891fe1fbddad6b67e8e71fc262e Mon Sep 17 00:00:00 2001
+Message-ID: <162ebcee1441c891fe1fbddad6b67e8e71fc262e.1788210197.git.marcel@ziswiler.com>
+In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:34 -0800
-Subject: [PATCH 17/35] riscv: dts: starfive: jh7100: Use physical memory
+Subject: [PATCH 17/31] riscv: dts: starfive: jh7100: Use physical memory
  ranges for DMA
 
 JH7100 provides a physical memory region which is a noncached alias of
@@ -120,5 +123,5 @@ index 7de0732b8eab..c7d7ec9ed8c9 100644
  	cpus: cpus {
  		#address-cells = <1>;
 -- 
-2.55.0
+2.53.0
 
