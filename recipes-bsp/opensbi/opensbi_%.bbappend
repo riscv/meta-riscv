@@ -33,6 +33,11 @@ DEPENDS:append:orangepi-rv2 = " u-boot-tools-native"
 EXTRA_OEMAKE:append:milkv-duo = "FW_FDT_PATH=${DEPLOY_DIR_IMAGE}/u-boot.dtb"
 EXTRA_OEMAKE:append:orangepi-rv2 = " PLATFORM_DEFCONFIG=k1_defconfig"
 
+# opensbi's own Makefile hardcodes CFLAGS and ignores TARGET_CFLAGS, so its
+# debug info embeds raw TMPDIR/HOME source paths. Skip the buildpaths QA check
+# on the dbg package.
+INSANE_SKIP:${PN}-dbg:append:dc-roma-fml13v01 = "buildpaths"
+
 _DEPS = ""
 _DEPS:milkv-duo = "u-boot:do_deploy"
 
