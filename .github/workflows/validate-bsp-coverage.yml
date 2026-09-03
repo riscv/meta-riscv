@@ -6,6 +6,7 @@ on:
       - conf/machine/**
       - kas/**
       - bitbake-registry/**
+      - tools/validate-bsp-coverage.py
   workflow_dispatch:
 
 jobs:
