@@ -3,14 +3,16 @@
 The following is a list of `MACHINE` values which will no longer be supported as
 of the listed releases.
 
-## Yocto 6.2
+## Yocto 6.1
 
-Note: The following are deprecated for 6.2, but the layer still supports
+- ae350-ax45mp
+- beaglev-starlight-jh7100
+- milkv-megrez
+- nezha-allwinner-d1
+- star64
+- visionfive
+
+Note: The following are deprecated for 6.1, but the layer still supports
 mainline-based BSPs with similar names.
 
 - eswin-ebc77
-
-## Yocto 6.1
-
-- beaglev
-- visionfive
