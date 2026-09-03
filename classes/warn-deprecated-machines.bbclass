@@ -3,8 +3,12 @@
 
 python warn_deprecated_machines() {
     deprecated_machines = {
-        "eswin-ebc77": "Yocto 6.2",
+        "ae350-ax45mp": "Yocto 6.1",
         "beaglev-starlight-jh7100": "Yocto 6.1",
+        "eswin-ebc77": "Yocto 6.1",
+        "milkv-megrez": "Yocto 6.1",
+        "nezha-allwinner-d1": "Yocto 6.1",
+        "star64": "Yocto 6.1",
         "visionfive": "Yocto 6.1",
     }
 
