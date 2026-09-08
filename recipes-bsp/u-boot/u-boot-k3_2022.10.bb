@@ -11,7 +11,10 @@ DEPENDS += "bc-native dtc-native bison-native flex-native u-boot-tools-native"
 B = "${WORKDIR}/build"
 
 BRANCH = "k3-br-v1.0.y"
-SRC_URI = "git://github.com/spacemit-com/uboot-2022.10.git;protocol=https;branch=${BRANCH}"
+SRC_URI = " \
+            git://github.com/spacemit-com/uboot-2022.10.git;protocol=https;branch=${BRANCH} \
+            file://0001-Add-support-for-OpenSSL-Provider-API.patch \
+            "
 
 SRCREV = "6747f87ae4cd359ff6e22daa38b06c3ecc2fecb4"
 
@@ -21,8 +24,6 @@ UBOOT_MAKE_TARGET = "all"
 # K3 U-Boot may not generate this file
 SPL_BINARY = ""
 UBOOT_ENV = ""
-
-EXTRA_OEMAKE:append = " HOSTCFLAGS_rsa-sign.o=-DOPENSSL_ENGINE_STUBS -Wno-deprecated-declarations"
 
 do_deploy:append() {
     # cmd_build_itb in config.mk fails silently for out-of-tree builds (srctree/objtree mismatch).
