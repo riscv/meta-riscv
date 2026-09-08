@@ -50,7 +50,7 @@ FSBL.bin -> Mainline U-Boot -> Mainline Linux
             -> Mainline OpenSBI
 ```
 
-`FSBL.bin` is built from SpacemiT's U-Boot tree, see `recipes-bsp/u-boot/u-boot-spl-k1.bb`
+`FSBL.bin` is built from SpacemiT's U-Boot tree, see `recipes-bsp/u-boot/u-boot-spl-spacemit.bb`
 
 It then loads `boot-bundle.itb` to RAM (instead of just `u-boot.itb`), containing:
 
