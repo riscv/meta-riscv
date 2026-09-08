@@ -15,7 +15,7 @@ PREFERRED_PROVIDER_opensbi ?= "opensbi-k3"
 SERIAL_CONSOLES = "115200;ttyS0"
 
 # Add esos-k3 firmware as image dependency
-EXTRA_IMAGEDEPENDS += "esos-k3 u-boot-k3 u-boot-spl-k3"
+EXTRA_IMAGEDEPENDS += "esos-k3 u-boot-k3 u-boot-spl-spacemit"
 
 UBOOT_MACHINE = "k3_defconfig"
 
