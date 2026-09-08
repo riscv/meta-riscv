@@ -10,7 +10,11 @@ DEPENDS += "flex-native bison-native python3-setuptools-native"
 
 COMPATIBLE_MACHINE = "(k1|k3)"
 
-SRC_URI    = "git://github.com/spacemit-com/uboot-2022.10.git;protocol=https;branch=${BRANCH}"
+SRC_URI = " \
+            git://github.com/spacemit-com/uboot-2022.10.git;protocol=https;branch=${BRANCH} \
+            file://0001-Add-support-for-OpenSSL-Provider-API.patch \
+            "
+
 BRANCH:k1  ?= "k1-bl-v2.2.y"
 BRANCH:k3  ?= "k3-br-v1.0.y"
 SRCREV:k1  ?= "c6f2746cb7993a6fb6c9f51b2bff318921e13f98"
@@ -25,7 +29,6 @@ EXTRA_OEMAKE = "\
     HOSTCC='${BUILD_CC} ${BUILD_CFLAGS} ${BUILD_LDFLAGS}' \
     HOSTCXX='${BUILD_CXX}' \
 "
-EXTRA_OEMAKE:append = " HOSTCFLAGS_rsa-sign.o=-DOPENSSL_ENGINE_STUBS -Wno-deprecated-declarations"
 
 do_configure() {
 	oe_runmake ${UBOOT_SPL_MACHINE}
