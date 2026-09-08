@@ -19,7 +19,11 @@ SRC_URI = "git://github.com/orangepi-xunlong/linux-orangepi.git;protocol=https;b
 
 SRC_URI:append:k1 = " file://disable-focaltech-touchscreen.cfg \
 				file://disable-rtl8852bs.cfg \
-				file://bcmdhd-fix-typedefs-header-not-found.patch"
+				file://bcmdhd-fix-typedefs-header-not-found.patch \
+				file://0001-sign-file-extract-cert-move-common-SSL-helper-functi.patch \
+				file://0001-sign-file-extract-cert-avoid-using-deprecated-ERR_ge.patch \
+				file://0001-sign-file-extract-cert-use-pkcs11-provider-for-OPENS.patch \
+				"
 SRC_URI:append:orangepi-r2s = " file://enable-r8125.cfg"
 
 INITRAMFS_IMAGE:k1 = "core-image-minimal-initramfs"
