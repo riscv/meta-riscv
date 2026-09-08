@@ -10,7 +10,9 @@ BRANCH:k1 = "v2022.10-ky"
 SRCREV:k1 = "89bff4a7e4cadfb5f130edb1ec44c39bff20a427"
 
 SRC_URI = "git://github.com/orangepi-xunlong/u-boot-orangepi.git;protocol=https;branch=${BRANCH}"
-SRC_URI:append:k1 = " file://drop-intree-opensbi-build.patch"
+SRC_URI:append:k1 = " file://drop-intree-opensbi-build.patch \
+                      file://0001-Add-support-for-OpenSSL-Provider-API.patch \
+                      "
 
 SRC_URI:append:orangepi-r2s = " file://boot.cmd"
 
