@@ -1,0 +1,42 @@
+From f1cac22a3a5e95348f3f65fe53e1dbf3dc118fff Mon Sep 17 00:00:00 2001
+From: Michael Opdenacker <michael.opdenacker@rootcommit.com>
+Date: Thu, 10 Sep 2026 17:37:01 +0200
+Subject: [PATCH] arch: riscv: k1: hot fix for RAM detection for boards with
+ unpopulated CS0
+
+This hotfix allows to report a correct amount of RAM for boards
+like OrangePi RV2 and OrangePi R2S with 2 GB of RAM.
+
+However, this also causes Orange Pi RV2 with 8 GB of RAM to
+report only 4 GB of RAM.
+
+See https://lore.kernel.org/u-boot/9c92963c-4a46-4052-ad3c-d9a4852b818e@rootcommit.com/T/#t
+for details about the issue.
+
+Signed-off-by: Michael Opdenacker <michael.opdenacker@rootcommit.com>
+Upstream-Status: Inappropriate
+---
+ arch/riscv/cpu/k1/dram.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/arch/riscv/cpu/k1/dram.c b/arch/riscv/cpu/k1/dram.c
+index cc1e903c9dd..a23641c53fd 100644
+--- a/arch/riscv/cpu/k1/dram.c
++++ b/arch/riscv/cpu/k1/dram.c
+@@ -41,8 +41,14 @@ static phys_size_t ddr_map_size(u32 val)
+ phys_size_t ddr_get_density(void)
+ {
+ 	phys_size_t cs0_size = ddr_map_size(readl((void *)DDR_BASE + 0x200));
+-	phys_size_t cs1_size = ddr_map_size(readl((void *)DDR_BASE + 0x208));
+-	phys_size_t ddr_size = cs0_size + cs1_size;
++
++	/* Hotfix to avoid reporting more RAM that available on boards like OrangePIs with 2 GB of RAM */
++	/* The drawback is to run with 4 GB of RAM when you have 8 GB */
++
++	// phys_size_t cs1_size = ddr_map_size(readl((void *)DDR_BASE + 0x208));
++	// phys_size_t ddr_size = cs0_size + cs1_size;
++
++	phys_size_t ddr_size = cs0_size;
+ 
+ 	return ddr_size;
+ }

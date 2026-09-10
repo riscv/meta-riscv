@@ -33,6 +33,10 @@ SRC_URI:append:k1 = " \
             file://bootcommand.cfg \
             "
 
+SRC_URI:append:orangepi-r2s = " \
+            file://0001-arch-riscv-k1-hot-fix-for-RAM-detection-for-boards-w.patch \
+            "
+
 SRC_URI:milkv-duo = " \
             git://github.com/milkv-duo/milkv-duo-u-boot;protocol=https;branch=duo-64mb \
             file://uboot-milkv-duo.env \
