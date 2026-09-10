@@ -27,31 +27,74 @@ Build your image:
 $ bitbake core-image-minimal
 ```
 
+How to Build - Using Kas
+========================
+
+```
+$ kas build /path/to/meta-riscv/kas/orangepi-r2s.yml
+```
+
+The `kas` tool can be installed as a package on your distribution or
+be obtained from the [kas repository](https://github.com/siemens/kas/).
+
 How the Image Boots
 ===================
 
-The board as supported here boots as follows:
+The board as supported here boots through the below stages:
 
-- ROM loads the bootloader from the internal eMMC boot partition (mmcblk2boot0)
-- U-boot tries to read USB (as per its default eMMC-stored environment) first, and then the internal eMMC.
-- If the first partition on USB contains boot.scr, that script is loaded.
-- The boot.scr script will load the kernel, the devicetree, the initramfs and boot the kernel.
+```
+FSBL.bin -> Mainline U-Boot -> Mainline Linux
+            -> Mainline OpenSBI
+```
 
-Note: this image does not cover reflashing the eMMC yet.
+`FSBL.bin` is built from SpacemiT's U-Boot tree, see `recipes-bsp/u-boot/u-boot-spl-spacemit.bb`
+
+It then loads `boot-bundle.itb` to RAM (instead of just `u-boot.itb`), containing:
+
+* `u-boot-nodtb.bin`: mainline U-Boot
+* `fw_dynamic.bin`: mainline OpenSBI
+* `u-boot.dtb`: U-Boot device tree
+* `Image`: mainline Linux kernel
+* `k1-orangepi-rv2.dtb`: device tree for Linux
+
+This way, when mainline U-Boot starts, the kernel and its device tree are
+already loaded in RAM.
 
 Flashing the Image
 ==================
 
-Flash `core-image-minimal-orangepi-r2s.rootfs.wic.gz` onto a USB stick (assuming it's accessed through `/dev/sdx`):
+We are going to flash the image directly the board eMMC through `fastboot`.
+
+First, install needed packages:
 
 ```
-$ sudo bmaptool copy build/tmp/deploy/images/orangepi-r2s/core-image-minimal-orangepi-r2s.rootfs.wic.gz /dev/sdx
+sudo apt install fastboot android-sdk-libsparse-utils
 ```
+
+Then prepare a sparse image `fastboot` can use:
+
+```
+gzip -dc core-image-full-cmdline-orangepi-r2s.rootfs.wic.gz > orangepi-r2s.img
+img2simg orangepi-r2s.img orangepi-r2s-sparse.img
+```
+
+Then, put the board in DFU mode:
+
+* Connect the board USB 2.0 port (white port) to your PC.
+  OrangePi docs suggest to use a USB-A to USB-A cable, but that's hard to find.
+  Instead, you can use a USB-A to USB-C cable, connecting the USB-C side to your PC,
+  and the USB-A side to your board.
+* Press and hold the `BOOT` button next to the USB port
+* Power up the board using a USB-C cable
+* Release the `BOOT` button.
+
+You can then flash the image to the board:
+```
+fastboot flash emmc orangepi-r2s-sparse.img
+``` 
 
 Boot the Board
 ==============
-
-Insert the USB stick in the USB3 port (top port) of the board.
 
 Connect a USB to serial dongle to your board and to your PC, and
 start your favorite terminal emulator:
