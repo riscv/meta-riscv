@@ -16,7 +16,10 @@ DEPENDS += "u-boot-tools-native dtc-native"
 PROVIDES += "opensbi"
 
 SRCREV = "e5fc30394ac18263fa045dcaef52f86f180ed512"
-SRC_URI = "git://github.com/spacemit-com/opensbi.git;branch=k3-br-v1.0.y;protocol=https"
+SRC_URI = " \
+            git://github.com/spacemit-com/opensbi.git;branch=k3-br-v1.0.y;protocol=https \
+            file://0001-Makefile-don-t-grep-when-setting-CC_SUPPORT_ZICSR_ZI.patch \
+            "
 
 RISCV_SBI_PLAT = "generic"
 OPENSBI_DEFCONFIG = "k3_defconfig"
