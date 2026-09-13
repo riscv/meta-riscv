@@ -35,7 +35,7 @@ IMAGE_BOOT_FILES ??= " \
 #============================================
 # Common Hardware Configuration
 SERIAL_CONSOLES = "115200;ttyS0"
-MACHINE_FEATURES = "screen keyboard ext2 ext3 serial"
+MACHINE_FEATURES = "screen keyboard ext2 serial"
 MACHINE_EXTRA_RRECOMMENDS += " kernel-modules"
 #============================================
 
