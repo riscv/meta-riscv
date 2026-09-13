@@ -5,3 +5,8 @@ header:
 
 machine: beaglev-ahead
 target: core-image-minimal
+
+local_conf_header:
+  beaglev-ahead: |
+    # Add "bmaptool" for flashing eMMC from board booted for SD
+    IMAGE_INSTALL:append = " bmaptool"
