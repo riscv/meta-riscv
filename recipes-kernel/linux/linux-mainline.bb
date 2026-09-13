@@ -13,6 +13,7 @@ SRCREV                              ?= "52c36105f76e96b638152a42e735f2e7767ed946
 
 # --- DEPENDS ---
 DEPENDS:append:k1                    = " u-boot-tools-native"
+DEPENDS:append:beaglev-ahead	     = " opensbi e2fsprogs-native firmware-th1520"
 DEPENDS:append:eswin-ebc77-mainline  = " u-boot-mkimage-native dtc-native"
 DEPENDS:append:milkv-duo             = " u-boot-mkimage-native dtc-native"
 
@@ -34,6 +35,15 @@ SRC_URI:append:bananapi-cm6-io = " \
         file://0001-dt-bindings-riscv-spacemit-Add-Banana-Pi-BPI-CM6-com.patch \
         file://0002-riscv-dts-spacemit-k1-Split-gmac_clk_ref-into-indepe.patch \
         file://0003-riscv-dts-spacemit-k1-Add-Banana-Pi-BPI-CM6-IO-board.patch \
+"
+
+SRC_URI:append:beaglev-ahead = " \
+        file://extlinux.conf \
+	file://0001-dt-binding-riscv-add-T-HEAD-CPU-reset.patch \
+	file://0002-th1520-add-cpu-reset-node.patch \
+	file://0001-dt-bindings-usb-Add-T-HEAD-TH1520-USB-controller.patch \
+	file://0002-usb-dwc3-add-T-HEAD-TH1520-usb-driver.patch \
+	file://0003-riscv-dts-thead-Add-TH1520-USB-nodes.patch \
 "
 
 SRC_URI:append:eswin-ebc77-mainline = " \
@@ -102,4 +112,33 @@ do_deploy:append:milkv-duo() {
 	mkimage -f ${B}/multi.its ${B}/uImage.fit
 	install -m 744 ${B}/uImage.fit ${DEPLOYDIR}
 	install -m 744 ${B}/arch/riscv/boot/dts/${KERNEL_DEVICETREE} ${DEPLOYDIR}/default.dtb
+}
+
+# beaglev-ahead: package a separate partition boot.ext4 that can be flashed via fastboot to partition boot
+do_deploy:append:beaglev-ahead() {
+    [ -d ${DEPLOYDIR}/.boot ] && rm -rf ${DEPLOYDIR}/.boot
+
+    if [ ! -d ${DEPLOYDIR}/.boot ]; then
+        mkdir -p ${DEPLOYDIR}/.boot
+    fi
+    if [ ! -d ${DEPLOYDIR}/.boot/overlays ]; then
+        mkdir -p ${DEPLOYDIR}/.boot/overlays
+    fi
+    if [ ! -d ${DEPLOYDIR}/.boot/extlinux ]; then
+        mkdir -p ${DEPLOYDIR}/.boot/extlinux
+    fi
+
+    sleep 1
+
+    cp ${DEPLOY_DIR_IMAGE}/fw_dynamic.bin ${DEPLOYDIR}/.boot/fw_dynamic.bin
+    cp ${DEPLOY_DIR_IMAGE}/light_aon_fpga.bin ${DEPLOYDIR}/.boot/
+    cp -f ${DEPLOYDIR}/th1520-beaglev-ahead.dtb ${DEPLOYDIR}/.boot/
+    cp -f ${DEPLOYDIR}/Image ${DEPLOYDIR}/.boot/
+    cp -f ${UNPACKDIR}/extlinux.conf ${DEPLOYDIR}/.boot/extlinux/
+    
+    cp -f ${UNPACKDIR}/extlinux.conf ${DEPLOYDIR}/extlinux_sd.conf
+    sed -i 's/\/dev\/mmcblk0p3/\/dev\/mmcblk1p3/g' ${DEPLOYDIR}/extlinux_sd.conf
+
+    dd if=/dev/zero of=${DEPLOYDIR}/boot.ext4 bs=1 count=0 seek=190M
+    mkfs.ext4 -F ${DEPLOYDIR}/boot.ext4 -d ${DEPLOYDIR}/.boot
 }
