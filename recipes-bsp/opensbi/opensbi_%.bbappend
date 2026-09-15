@@ -21,6 +21,7 @@ SRC_URI:append:dc-roma-fml13v01 = "\
 	file://0002-include-sbi-Fix-compiling-with-C23-enabled-compilers.patch \
 	"
 
+DEPENDS:append:beaglev-fire = " hss-payload-generator-native"
 DEPENDS:append:jh7110 = " u-boot-tools-native dtc-native"
 
 EXTRA_OEMAKE:append:milkv-duo = "FW_FDT_PATH=${DEPLOY_DIR_IMAGE}/u-boot.dtb"
@@ -34,6 +35,25 @@ _DEPS = ""
 _DEPS:milkv-duo = "u-boot:do_deploy"
 
 do_compile[depends] += "${_DEPS}"
+
+# BeagleV-Fire boots from the Hart Software Services (HSS) stored in eNVM and
+# HSS only starts payloads that are wrapped in its own boot image format. The
+# OpenSBI fw_payload.bin already holds U-Boot as its S-mode payload, so
+# starting it in M-mode gives a mainline OpenSBI control of M-mode instead of
+# the OpenSBI that is built into HSS. skip-opensbi makes HSS start
+# fw_payload.bin on all four U54 harts directly. Without it the OpenSBI in HSS
+# keeps the secondary harts and Linux brings up a single CPU.
+do_deploy:append:beaglev-fire() {
+	cd ${WORKDIR}
+	cp ${DEPLOYDIR}/fw_payload.bin fw_payload.bin
+	cat > hss-payload.yaml <<-EOF
+		set-name: 'PolarFire-SoC-HSS::OpenSBI'
+		hart-entry-points: {u54_1: '${RISCV_SBI_FW_TEXT_START}', u54_2: '${RISCV_SBI_FW_TEXT_START}', u54_3: '${RISCV_SBI_FW_TEXT_START}', u54_4: '${RISCV_SBI_FW_TEXT_START}'}
+		payloads:
+		  fw_payload.bin: {exec-addr: '${RISCV_SBI_FW_TEXT_START}', owner-hart: u54_1, secondary-hart: u54_2, secondary-hart: u54_3, secondary-hart: u54_4, priv-mode: prv_m, skip-opensbi: true}
+	EOF
+	hss-payload-generator -c hss-payload.yaml -v ${DEPLOYDIR}/payload.bin
+}
 
 do_deploy:append:star64() {
 	install -m 0644 ${UNPACKDIR}/visionfive2-uboot-fit-image.its ${DEPLOYDIR}/visionfive2-uboot-fit-image.its

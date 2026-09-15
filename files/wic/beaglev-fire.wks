@@ -1,0 +1,9 @@
+# short-description: Create eMMC image for the BeagleV-Fire board
+#
+# HSS boots its payload from the partition typed 21686148-6449-6E6F-744E-656564454649.
+
+part /boot --source bootimg-partition --ondisk mmcblk0 --fstype=vfat --label boot --active --fixed-size 64M --align 4096
+part hssboot --source rawcopy --sourceparams="file=payload.bin" --ondisk mmcblk0 --fixed-size 8M --align 1 --part-type 21686148-6449-6E6F-744E-656564454649
+part / --source rootfs --ondisk mmcblk0 --fstype=ext4 --label root --align 4096
+
+bootloader --ptable gpt
