@@ -51,6 +51,7 @@
                         { "name": "machine/bananapi-cm6-io", "description": "BananaPi CM6 IO" },
                         { "name": "machine/bananapi-f3", "description": "BananaPi BPI-F3" },
                         { "name": "machine/beaglev-ahead", "description": "BeagleV Ahead" },
+                        { "name": "machine/beaglev-fire", "description": "BeagleV-Fire" },
                         { "name": "machine/beaglev-starlight-jh7100", "description": "BeagleV" },
                         { "name": "machine/dc-roma-fml13v01", "description": "DeepComputing DC-ROMA RISC-V Mainboard (FML13V01)" },
                         { "name": "machine/eswin-ebc77", "description": "ESWIN EBC77 (Vendor Kernel)" },
