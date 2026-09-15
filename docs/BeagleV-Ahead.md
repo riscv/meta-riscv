@@ -2,7 +2,8 @@ BeagleV-Ahead
 =======
 
 BeagleV-Ahead is a RISC-V platform with an Alibaba T-Head TH1520 SoC (2GHz quad-core 64-bit Xuantee C910).
-The board provides both a eMMC based startup and booting from U-Boot (the current configuration only allows startup via eMMC and flashing via fastboot).
+
+The board supports booting from both eMMC and SD card. eMMC can be flashed using fastboot, while the generated WIC image can be flashed directly to an SD card.
 
 How to Build
 ============
@@ -46,10 +47,13 @@ After building, you will obtain the following artifacts:
 - u-boot-with-spl.bin : the SPL boot loader
 - boot.ext4 : a generated ext4 partition containing `fw_dynamic.bin`, `Image`, and `th1520-beaglev-ahead.dtb`
 - core-image-minimal-beaglev-ahead.rootfs.ext4 : the root file system
+- core-image-minimal-beaglev-ahead.rootfs.wic.gz : the complete SD card image
 
 Flashing Linux
 ==============
-Currently, there is only working support for flashing to eMMC via fastboot.
+
+Flashing to eMMC
+----------------
 
 0. Install `fastboot` via distro packages.
 1. Enter flash mode (see Quickstart guide for details): press USB-button and while pressing, click `RESET`-button; then release `USB`-button only after device started
@@ -65,6 +69,25 @@ fastboot flash boot ./boot.ext4
 fastboot flash root ./core-image-minimal-beaglev-ahead.rootfs.ext4
 fastboot reboot
 ```
+
+Flashing to SD card
+-------------------
+
+Enter the deploy folder:
+
+```shell
+cd tmp/deploy/images/beaglev-ahead/
+```
+
+Flash the generated WIC image to the SD card using `bmaptool`, assuming the SD card is `/dev/sdX`:
+
+```shell
+sudo bmaptool copy core-image-minimal-beaglev-ahead.rootfs.wic.gz /dev/sdX
+```
+
+Replace `/dev/sdX` with the block device corresponding to the SD card.
+
+Insert the SD card into the BeagleV-Ahead and power on the board.
 
 Check Functionality
 ===================
