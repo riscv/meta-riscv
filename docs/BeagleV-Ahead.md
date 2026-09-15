@@ -74,6 +74,19 @@ Follow the Quickstart-Guide and connect an RS232-to-USB device, then connect to 
 picocom -b 115200 /dev/ttyUSB0
 ```
 
+Known Issues
+============
+
+Please help us address them!
+
+With mainline OpenSBI, only 1 CPU Core out of 4 is detected.
+This surfaces in kernel boot up messages:
+
+[    0.089851] smp: Bringing up secondary CPUs ...
+[   10.165542] CPU1 failed to report alive state
+[   20.241632] CPU2 failed to report alive state
+[   30.316980] CPU3 failed to report alive state
+
 Resources
 =========
 
