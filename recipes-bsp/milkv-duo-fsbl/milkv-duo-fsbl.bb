@@ -34,26 +34,11 @@ DDR_CFG:milkv-duo = "ddr2_1333_x16"
 DDR_CFG:milkv-duo256m = "ddr3_1866_x16"
 DDR_CFG:milkv-duos = "ddr3_1866_x16"
 
-DEFINES  = " \
-            -DBOARD_${@'${MACHINE}'.upper().replace('-', '_')} \
-            -DRTOS_DUMP_PRINT_ENABLE=1 \
-            -DRTOS_DUMP_PRINT_SZ_IDX=17 \
-            -DRTOS_ENABLE_FREERTOS=y \
-            -DRTOS_FAST_IMAGE_TYPE=0 \
-           "
-
 do_compile () {
     cp ${DEPLOY_DIR_IMAGE}/cvi_board_memmap.h ${S}/include/cvi_board_memmap.h
 
-    # this is a risc-v bin that contains a busy loop instruction
-    # using wfi instruction, this is needed to initialize the
-    # secondary core.
-
-    printf '\163\000\120\020\157\360\337\377' > ${B}/blank.bin
-
     unset LDFLAGS
 
-    export DEFINES='${DEFINES}'
     export ARCH=riscv
     export BOOT_CPU=riscv
     export CHIP_ARCH=${CHIP_ARCH}
@@ -61,9 +46,20 @@ do_compile () {
 
     oe_runmake -C ${S} \
         CROSS_COMPILE=${HOST_PREFIX} \
-        BLCP_2ND_PATH=${B}/blank.bin \
-        LOADER_2ND_PATH=${DEPLOY_DIR_IMAGE}/u-boot.bin \
-        MONITOR_PATH=${DEPLOY_DIR_IMAGE}/fw_dynamic.bin
+        fip-dep
+
+    MONITOR_RUNADDR="$(sed -n 's/^MONITOR_RUNADDR=//p' ${B}/${CHIP_ARCH}/blmacros.env)"
+
+    ${S}/plat/${CHIP_ARCH}/fiptool.py genfip \
+            --CHIP_CONF ${B}/${CHIP_ARCH}/chip_conf.bin \
+            --NOR_INFO=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF \
+            --NAND_INFO=00000000 \
+            --MONITOR=${DEPLOY_DIR_IMAGE}/fw_dynamic.bin \
+            --MONITOR_RUNADDR=${MONITOR_RUNADDR} \
+            --LOADER_2ND=${DEPLOY_DIR_IMAGE}/u-boot.bin \
+            --BL2=${B}/${CHIP_ARCH}/bl2.bin \
+            --compress='lzma' \
+            ${B}/${CHIP_ARCH}/fip.bin
 }
 
 do_deploy () {
