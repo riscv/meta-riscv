@@ -24,6 +24,11 @@ SRC_URI:append:ae350-ax45mp = " \
             file://tftp-mmc-boot.txt \
             file://uEnv-ae350.txt \
             "
+SRC_URI:append:beaglev-ahead = " \
+            file://0001-ram-thead-th1520-Support-single-rank-firmware.patch \
+            file://0002-Add-Support-for-Beagle-V-Ahead-board.patch \
+            file://beaglev-ahead-boot.cfg \
+            "
 SRC_URI:append:beaglev-fire = " \
             file://boot.cmd \
             "
@@ -111,10 +116,16 @@ _DEPS:riscv32 = "opensbi:do_deploy"
 _DEPS:riscv64 = "opensbi:do_deploy"
 _DEPS:beaglev-fire = ""
 _DEPS:milkv-duo = ""
+_DEPS:append:beaglev-ahead = " firmware-ddr-training-th1520:do_deploy" 
 
 do_compile[depends] += "${_DEPS}"
 
 do_compile:prepend:ae350-ax45mp() {
+    export OPENSBI=${DEPLOY_DIR_IMAGE}/fw_dynamic.bin
+}
+
+do_compile:prepend:beaglev-ahead() {
+    cp ${DEPLOY_DIR_IMAGE}/th1520-ddr-firmware.bin ${B}
     export OPENSBI=${DEPLOY_DIR_IMAGE}/fw_dynamic.bin
 }
 
@@ -142,6 +153,10 @@ do_deploy:append:ae350-ax45mp() {
     if [ -f "${UNPACKDIR}/uEnv-ae350.txt" ]; then
         install -Dm 644 ${UNPACKDIR}/uEnv-ae350.txt ${DEPLOYDIR}/uEnv.txt
     fi
+}
+
+do_deploy:append:beaglev-ahead() {
+    install -m 644 ${B}/u-boot-with-spl.bin ${DEPLOYDIR}
 }
 
 do_deploy:append:freedom-u540() {

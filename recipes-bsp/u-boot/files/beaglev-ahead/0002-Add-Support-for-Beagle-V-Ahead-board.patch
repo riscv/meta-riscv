@@ -1,0 +1,466 @@
+From 8558fdf4340185b69a97fec9139ad5c86d7c30a4 Mon Sep 17 00:00:00 2001
+From: Michael Opdenacker <michael.opdenacker@rootcommit.com>
+Date: Sun, 23 Aug 2026 11:17:50 +0200
+Subject: [PATCH 2/2] Add Support for Beagle-V-Ahead board
+
+From: Alex Bee <knaerzche@gmail.com>
+
+Signed-off-by: Alex Bee <knaerzche@gmail.com>
+Upstream-Status: Pending
+
+--
+U-Boot SPL 2026.07-00002-g78ce29cb0fe3 (Aug 23 2026 - 11:33:54 +0200)
+Trying to boot from RAM
+
+OpenSBI 8.95.002-23436-gc791894f1a
+   ____                    _____ ____ _____
+  / __ \                  / ____|  _ \_   _|
+ | |  | |_ __   ___ _ __ | (___ | |_) || |
+ | |  | | '_ \ / _ \ '_ \ \___ \|  _ < | |
+ | |__| | |_) |  __/ | | |____) | |_) || |_
+  \____/| .__/ \___|_| |_|_____/|____/_____|
+        | |
+        |_|
+
+Platform Name               : BeagleV Ahead
+Platform Features           : medeleg
+Platform HART Count         : 4
+Platform HART Protection    : ---
+Platform IPI Device         : aclint-mswi
+Platform Timer Device       : aclint-mtimer @ 3000000Hz
+Platform Console Device     : uart8250
+Platform HSM Device         : ---
+Platform PMU Device         : thead,c900-pmu
+Platform Reboot Device      : ---
+Platform Shutdown Device    : ---
+Platform Suspend Device     : ---
+Platform CPPC Device        : ---
+Firmware Base               : 0x80000000
+Firmware Size               : 357 KB
+Firmware RW Offset          : 0x40000
+Firmware RW Size            : 101 KB
+Firmware Heap Offset        : 0x4d000
+Firmware Heap Size          : 49 KB (total), 0 KB (reserved), 16 KB (used), 32 KB (free)
+Firmware Scratch Size       : 4096 B (total), 504 B (used), 3592 B (free)
+Runtime SBI Version         : 3.0
+Standard SBI Extensions     : time,rfnc,ipi,base,hsm,pmu,dbcn,fwft,legacy,sse
+Experimental SBI Extensions : none
+
+Domain0 Name                : root
+Domain0 Boot HART           : 1
+Domain0 HARTs               : 0x0*,0x1*,0x2*,0x3*
+Domain0 Region00            : 0x0000000080040000-0x000000008005ffff M: (F,R,W) S/U: ()
+Domain0 Region01            : 0x0000000080000000-0x000000008003ffff M: (F,R,X) S/U: ()
+Domain0 Region02            : 0x000000ffe7014000-0x000000ffe7014fff M: (I,R,W) S/U: (R,W)
+Domain0 Region03            : 0x000000ffdc008000-0x000000ffdc00bfff M: (I,R,W) S/U: ()
+Domain0 Region04            : 0x000000ffdc000000-0x000000ffdc007fff M: (I,R,W) S/U: ()
+Domain0 Region05            : 0x000000ffd8000000-0x000000ffd8ffffff M: (I,R,W) S/U: (R,W)
+Domain0 Region06            : 0x0000000000000000-0xffffffffffffffff M: () S/U: (R,W,X)
+Domain0 Next Address        : 0x0000000001b00000
+Domain0 Next Arg1           : 0x0000000001b7cef8
+Domain0 Next Mode           : S-mode
+Domain0 SysReset            : yes
+Domain0 SysSuspend          : yes
+
+Boot HART ID                : 1
+Boot HART Domain            : root
+Boot HART Priv Version      : v1.11
+Boot HART Base ISA          : rv64imafdcvx
+Boot HART ISA Extensions    : zicntr,zihpm,f,d
+Boot HART PMP Count         : 0
+Boot HART PMP Granularity   : 0 bits
+Boot HART PMP Address Bits  : 0
+Boot HART MHPM Info         : 16 (0x0007fff8)
+Boot HART Debug Triggers    : 0 triggers
+Boot HART MIDELEG           : 0x0000000000020222
+Boot HART MEDELEG           : 0x000000000000b109
+
+U-Boot 2026.07-00002-g78ce29cb0fe3 (Aug 23 2026 - 11:33:54 +0200)
+
+CPU:   thead,c910
+Model: BeagleV Ahead
+DRAM:  4 GiB
+Core:  137 devices, 16 uclasses, devicetree: separate
+MMC:   mmc@ffe7080000: 0, mmc@ffe7090000: 1
+Loading Environment from <NULL>... OK
+In:    serial@ffe7014000
+Out:   serial@ffe7014000
+Err:   serial@ffe7014000
+Model: BeagleV Ahead
+Net:   dwmac_thead ethernet@ffe7070000: Can't get reset: -524
+
+Warning: ethernet@ffe7070000 (eth0) using random MAC address - b6:65:b7:c5:bb:98
+eth0: ethernet@ffe7070000
+BeagleVAhead=>
+--
+---
+ arch/riscv/Kconfig                            |   5 +
+ .../dts/th1520-beaglev-ahead-u-boot.dtsi      |  28 +++++
+ board/beagle/beaglev_ahead/Kconfig            |  43 +++++++
+ board/beagle/beaglev_ahead/MAINTAINERS        |   5 +
+ board/beagle/beaglev_ahead/Makefile           |   6 +
+ board/beagle/beaglev_ahead/board.c            |  14 +++
+ board/beagle/beaglev_ahead/spl.c              |  51 ++++++++
+ configs/th1520_beaglev_ahead_defconfig        | 110 ++++++++++++++++++
+ include/configs/th1520_beaglev_ahead.h        |  23 ++++
+ 9 files changed, 285 insertions(+)
+ create mode 100644 arch/riscv/dts/th1520-beaglev-ahead-u-boot.dtsi
+ create mode 100644 board/beagle/beaglev_ahead/Kconfig
+ create mode 100644 board/beagle/beaglev_ahead/MAINTAINERS
+ create mode 100644 board/beagle/beaglev_ahead/Makefile
+ create mode 100644 board/beagle/beaglev_ahead/board.c
+ create mode 100644 board/beagle/beaglev_ahead/spl.c
+ create mode 100644 configs/th1520_beaglev_ahead_defconfig
+ create mode 100644 include/configs/th1520_beaglev_ahead.h
+
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index c1b2890f1f3..893053593bf 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -57,6 +57,10 @@ config TARGET_STARFIVE_VISIONFIVE2
+ 	bool "Support StarFive VisionFive2 Board"
+ 	select BOARD_LATE_INIT
+ 
++config TARGET_TH1520_BEAGLEV_AHEAD
++	bool "Support Beagleboard's BeagleV-Ahead Board"
++	select SYS_CACHE_SHIFT_6
++
+ config TARGET_TH1520_LPI4A
+ 	bool "Support Sipeed's TH1520 Lichee PI 4A Board"
+ 	select SYS_CACHE_SHIFT_6
+@@ -112,6 +116,7 @@ config SPL_ZERO_MEM_BEFORE_USE
+ source "board/andestech/ae350/Kconfig"
+ source "board/andestech/voyager/Kconfig"
+ source "board/aspeed/ibex_ast2700/Kconfig"
++source "board/beagle/beaglev_ahead/Kconfig"
+ source "board/beagle/beaglev_fire/Kconfig"
+ source "board/canaan/k230_canmv/Kconfig"
+ source "board/emulation/qemu-riscv/Kconfig"
+diff --git a/arch/riscv/dts/th1520-beaglev-ahead-u-boot.dtsi b/arch/riscv/dts/th1520-beaglev-ahead-u-boot.dtsi
+new file mode 100644
+index 00000000000..66459b386e7
+--- /dev/null
++++ b/arch/riscv/dts/th1520-beaglev-ahead-u-boot.dtsi
+@@ -0,0 +1,28 @@
++// SPDX-License-Identifier: GPL-2.0
++
++#include "th1520-u-boot.dtsi"
++#include "thead-th1520-binman.dtsi"
++
++&{/memory@0} {
++	bootph-pre-ram;
++};
++
++&clk {
++	bootph-some-ram;
++};
++
++&padctrl0_apsys {
++	bootph-some-ram;
++};
++
++&uart0_pins {
++	bootph-some-ram;
++
++	tx-pins {
++		bootph-some-ram;
++	};
++
++	rx-pins {
++		bootph-some-ram;
++	};
++};
+diff --git a/board/beagle/beaglev_ahead/Kconfig b/board/beagle/beaglev_ahead/Kconfig
+new file mode 100644
+index 00000000000..21aa7608697
+--- /dev/null
++++ b/board/beagle/beaglev_ahead/Kconfig
+@@ -0,0 +1,43 @@
++if TARGET_TH1520_BEAGLEV_AHEAD
++
++config ARCH_THEAD
++	bool
++	default y
++
++config SYS_BOARD
++	default "beaglev_ahead"
++
++config SYS_VENDOR
++	default "beagle"
++
++config SYS_CPU
++	default "th1520"
++
++config SYS_CONFIG_NAME
++	default "th1520_beaglev_ahead"
++
++config TEXT_BASE
++	default 0x01b00000 if SPL
++	default 0x01c00000 if !RISCV_SMODE
++	default 0x01c00000 if RISCV_SMODE
++
++config SPL_TEXT_BASE
++	default 0xffe0000000
++
++config SPL_OPENSBI_LOAD_ADDR
++	default 0x80000000
++
++config BOARD_SPECIFIC_OPTIONS
++	def_bool y
++	select ARCH_EARLY_INIT_R
++	select THEAD_TH1520
++	imply CPU
++	imply CPU_RISCV
++	imply RISCV_TIMER if RISCV_SMODE
++	imply CMD_CPU
++	imply SMP
++	imply SUPPORT_OF_CONTROL
++	imply OF_CONTROL
++	imply OF_REAL
++
++endif
+diff --git a/board/beagle/beaglev_ahead/MAINTAINERS b/board/beagle/beaglev_ahead/MAINTAINERS
+new file mode 100644
+index 00000000000..f13f18ff12d
+--- /dev/null
++++ b/board/beagle/beaglev_ahead/MAINTAINERS
+@@ -0,0 +1,5 @@
++BeagleV-Ahead
++M:	Alex Bee <knaerzche@gmail.com>
++S:	Maintained
++F:	board/beagle/beaglev_ahead/
++F:	configs/th1520_beaglev_ahead_defconfig
+diff --git a/board/beagle/beaglev_ahead/Makefile b/board/beagle/beaglev_ahead/Makefile
+new file mode 100644
+index 00000000000..a7ddfc48d40
+--- /dev/null
++++ b/board/beagle/beaglev_ahead/Makefile
+@@ -0,0 +1,6 @@
++# SPDX-License-Identifier: GPL-2.0+
++#
++# Copyright (c) 2023, Yixun Lan <dlan@gentoo.org>
++
++obj-y += board.o
++obj-$(CONFIG_XPL_BUILD) += spl.o
+diff --git a/board/beagle/beaglev_ahead/board.c b/board/beagle/beaglev_ahead/board.c
+new file mode 100644
+index 00000000000..bb83e7561f4
+--- /dev/null
++++ b/board/beagle/beaglev_ahead/board.c
+@@ -0,0 +1,14 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (c) 2023, Yixun Lan <dlan@gentoo.org>
++ *
++ */
++
++#include <cpu_func.h>
++
++int board_init(void)
++{
++	enable_caches();
++
++	return 0;
++}
+diff --git a/board/beagle/beaglev_ahead/spl.c b/board/beagle/beaglev_ahead/spl.c
+new file mode 100644
+index 00000000000..d75fa6f3eff
+--- /dev/null
++++ b/board/beagle/beaglev_ahead/spl.c
+@@ -0,0 +1,51 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (c) 2025, Yao Zi <ziyao@disroot.org>
++ */
++
++#include <asm/io.h>
++#include <asm/spl.h>
++#include <asm/arch/cpu.h>
++#include <asm/arch/spl.h>
++#include <cpu_func.h>
++#include <dm.h>
++#include <hang.h>
++#include <spl.h>
++
++u32 spl_boot_device(void)
++{
++	/*
++	 * We don't bother to load proper U-Boot from an external device as
++	 * it fits in the integrated SRAM nicely.
++	 */
++	return BOOT_DEVICE_RAM;
++}
++
++void board_init_f(ulong dummy)
++{
++	int ret = spl_early_init();
++	struct udevice *dev;
++
++	if (ret)
++		panic("spl_early_init() failed %d\n", ret);
++
++	preloader_console_init();
++
++	/*
++	 * Manually bind CPU ahead of time to make sure in-core timers are
++	 * available in SPL.
++	 */
++	ret = uclass_get_device(UCLASS_CPU, 0, &dev);
++	if (ret)
++		panic("failed to bind CPU: %d\n", ret);
++
++	riscv_cpu_setup();
++	th1520_kick_secondary_cores();
++
++	spl_dram_init();
++
++	icache_enable();
++	dcache_enable();
++
++	th1520_invalidate_pmp();
++}
+diff --git a/configs/th1520_beaglev_ahead_defconfig b/configs/th1520_beaglev_ahead_defconfig
+new file mode 100644
+index 00000000000..7fdf1b28c26
+--- /dev/null
++++ b/configs/th1520_beaglev_ahead_defconfig
+@@ -0,0 +1,110 @@
++CONFIG_RISCV=y
++CONFIG_SYS_MALLOC_LEN=0x800000
++CONFIG_SYS_MALLOC_F_LEN=0x10000
++CONFIG_SPL_GPIO=y
++CONFIG_NR_DRAM_BANKS=1
++CONFIG_HAS_CUSTOM_SYS_INIT_SP_ADDR=y
++CONFIG_CUSTOM_SYS_INIT_SP_ADDR=0x80200000
++CONFIG_DM_GPIO=y
++CONFIG_DEFAULT_DEVICE_TREE="thead/th1520-beaglev-ahead"
++CONFIG_SPL_STACK=0xffe0170000
++CONFIG_SPL_BSS_START_ADDR=0xffe0160000
++CONFIG_SPL_BSS_MAX_SIZE=0x10000
++CONFIG_SYS_LOAD_ADDR=0x80200000
++CONFIG_SPL=y
++CONFIG_TARGET_TH1520_BEAGLEV_AHEAD=y
++CONFIG_ARCH_RV64I=y
++CONFIG_RISCV_SMODE=y
++CONFIG_SYS_BOOT_GET_CMDLINE=y
++CONFIG_SYS_BOOT_GET_KBD=y
++# CONFIG_EFI_LOADER is not set
++CONFIG_FIT=y
++# CONFIG_FIT_FULL_CHECK is not set
++# CONFIG_FIT_PRINT is not set
++CONFIG_SPL_LOAD_FIT_ADDRESS=0xffe0040000
++CONFIG_BOOTSTD_FULL=y
++CONFIG_DISTRO_DEFAULTS=y
++CONFIG_BOOTARGS_SUBST=y
++CONFIG_BOOTCOMMAND=""
++CONFIG_DEFAULT_FDT_FILE="thead/th1520-beaglev-ahead.dtb"
++CONFIG_SYS_CBSIZE=256
++CONFIG_SYS_PBSIZE=276
++CONFIG_LOG=y
++CONFIG_DISPLAY_CPUINFO=y
++CONFIG_DISPLAY_BOARDINFO=y
++CONFIG_DISPLAY_BOARDINFO_LATE=y
++CONFIG_SPL_MAX_SIZE=0x40000
++# CONFIG_SPL_SHARES_INIT_SP_ADDR is not set
++CONFIG_SPL_HAVE_INIT_STACK=y
++CONFIG_SPL_SYS_MALLOC=y
++CONFIG_SPL_HAS_CUSTOM_MALLOC_START=y
++CONFIG_SPL_CUSTOM_SYS_MALLOC_ADDR=0x10000000
++CONFIG_SPL_SYS_MALLOC_SIZE=0x400000
++CONFIG_SPL_RAM_DEVICE=y
++CONFIG_SYS_PROMPT="BeagleVAhead=> "
++CONFIG_CMD_CONFIG=y
++CONFIG_CMD_LICENSE=y
++CONFIG_CMD_BOOTZ=y
++# CONFIG_BOOTM_PLAN9 is not set
++# CONFIG_BOOTM_RTEMS is not set
++# CONFIG_BOOTM_VXWORKS is not set
++CONFIG_CMD_BOOTMENU=y
++# CONFIG_CMD_ELF is not set
++# CONFIG_CMD_IMI is not set
++# CONFIG_CMD_XIMG is not set
++# CONFIG_CMD_EXPORTENV is not set
++# CONFIG_CMD_IMPORTENV is not set
++# CONFIG_CMD_EDITENV is not set
++# CONFIG_CMD_SAVEENV is not set
++# CONFIG_CMD_CRC32 is not set
++# CONFIG_CMD_LZMADEC is not set
++# CONFIG_CMD_UNLZ4 is not set
++# CONFIG_CMD_UNZIP is not set
++CONFIG_CMD_GPIO=y
++# CONFIG_CMD_LOADB is not set
++# CONFIG_CMD_LOADS is not set
++CONFIG_CMD_MMC=y
++CONFIG_MMC_SPEED_MODE_SET=y
++# CONFIG_CMD_ITEST is not set
++# CONFIG_CMD_SOURCE is not set
++# CONFIG_CMD_SETEXPR is not set
++CONFIG_CMD_CACHE=y
++# CONFIG_CMD_SLEEP is not set
++CONFIG_PARTITION_TYPE_GUID=y
++CONFIG_ENV_RELOC_GD_ENV_ADDR=y
++CONFIG_VERSION_VARIABLE=y
++CONFIG_NET_RANDOM_ETHADDR=y
++# CONFIG_BLOCK_CACHE is not set
++CONFIG_DWAPB_GPIO=y
++# CONFIG_I2C is not set
++# CONFIG_INPUT is not set
++CONFIG_MMC=y
++CONFIG_MMC_IO_VOLTAGE=y
++CONFIG_MMC_UHS_SUPPORT=y
++CONFIG_MMC_HS400_ES_SUPPORT=y
++CONFIG_MMC_HS400_SUPPORT=y
++CONFIG_MMC_SDHCI=y
++CONFIG_MMC_SDHCI_ADMA=y
++CONFIG_MMC_SDHCI_SNPS=y
++# CONFIG_MTD is not set
++CONFIG_PHY_REALTEK=y
++CONFIG_DM_MDIO=y
++CONFIG_DM_ETH_PHY=y
++CONFIG_ETH_DESIGNWARE=y
++CONFIG_ETH_DESIGNWARE_THEAD=y
++CONFIG_PINCTRL=y
++# CONFIG_POWER is not set
++CONFIG_RAM=y
++CONFIG_SPL_RAM=y
++CONFIG_SPL_THEAD_TH1520_DDR=y
++CONFIG_SYS_NS16550=y
++CONFIG_AES=y
++CONFIG_BLAKE2=y
++CONFIG_SHA512=y
++CONFIG_LZ4=y
++CONFIG_LZMA=y
++CONFIG_LZO=y
++CONFIG_ZLIB_UNCOMPRESS=y
++CONFIG_BZIP2=y
++CONFIG_ZSTD=y
++CONFIG_LIB_RATIONAL=y
+diff --git a/include/configs/th1520_beaglev_ahead.h b/include/configs/th1520_beaglev_ahead.h
+new file mode 100644
+index 00000000000..4372b741d89
+--- /dev/null
++++ b/include/configs/th1520_beaglev_ahead.h
+@@ -0,0 +1,23 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++
++#ifndef __TH1520_BEAGLEV_AHEAD_H
++#define __TH1520_BEAGLEV_AHEAD_H
++
++#include <linux/sizes.h>
++
++#define CFG_SYS_NS16550_CLK		100000000
++#define CFG_SYS_SDRAM_BASE		0x00000000
++
++#define UART_BASE	0xffe7014000
++#define UART_REG_WIDTH  32
++
++/* Environment options */
++
++#define CFG_EXTRA_ENV_SETTINGS \
++	"pxefile_addr_r=0x30000000\0" \
++	"kernel_addr_r=0x31000000\0" \
++	"ramdisk_addr_r=0x34000000\0" \
++	"fdt_addr_r=0x40000000\0" \
++	"PS1=[BeagleVAhead]# \0"
++
++#endif /* __TH1520_BEAGLEV_AHEAD_H */
