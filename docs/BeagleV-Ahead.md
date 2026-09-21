@@ -61,10 +61,15 @@ fastboot reboot
 sleep 10
 fastboot oem format
 fastboot flash uboot ./u-boot-with-spl.bin
-fastboot flash boot ./boot.ext4
-fastboot flash root ./core-image-minimal-beaglev-ahead.rootfs.ext4
+fastboot flash boot ./boot.ext4.simg
+fastboot flash root ./core-image-minimal-beaglev-ahead.rootfs.ext4.simg
 fastboot reboot
 ```
+
+> **_NOTE:_**  You can also use the helper script:
+> ```shell
+> ./flash.sh
+> ```
 
 Check Functionality
 ===================

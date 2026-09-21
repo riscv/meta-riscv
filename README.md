@@ -27,6 +27,9 @@ This layer depends on:
 * URI: https://github.com/openembedded/openembedded-core
   * branch: master
   * revision: HEAD
+* URI: https://github.com/openembedded/meta-openembedded.git
+  * branch: master
+  * revision: HEAD
 * URI: https://github.com/openembedded/bitbake
   * branch: master
   * revision: HEAD
