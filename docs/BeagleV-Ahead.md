@@ -3,7 +3,7 @@ BeagleV-Ahead
 
 BeagleV-Ahead is a RISC-V platform with an Alibaba T-Head TH1520 SoC (2GHz quad-core 64-bit Xuantee C910).
 
-The board supports booting from both eMMC and SD card. eMMC can be flashed using fastboot, while the generated WIC image can be flashed directly to an SD card.
+The board supports booting from both eMMC and SD card. eMMC can be flashed using fastboot, while the generated WIC image can be flashed directly to an SD card. U-Boot looks for a bootable SD card first and falls back to eMMC, so the same image boots from the medium it is written to.
 
 How to Build
 ============
