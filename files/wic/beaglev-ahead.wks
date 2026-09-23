@@ -1,5 +1,5 @@
 # short-description: Create SD card image for BeagleV-ahead
 bootloader --ptable gpt --source beaglev_boot
 part                                                --label empty --part-name empty --align 8192 --size=2M
-part /boot --source bootimg-partition --fstype=ext4 --label boot  --part-name boot  --align 4096 --size=100M
+part /boot --source bootimg-partition --fstype=ext4 --label boot  --part-name boot  --align 4096 --size=100M --active
 part /     --source rootfs            --fstype=ext4 --label root  --part-name root  --align 4096 --size 1G
