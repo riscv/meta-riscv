@@ -60,6 +60,17 @@ are written for the vendor device tree and are not applied. The peripherals
 that only they describe, such as UART2, UART4 and the PWMs of the cape header,
 are not available.
 
+Limitations
+===========
+
+* Linux cannot reboot or power off the board and the `reset` command of U-Boot
+  does not work either. The system reset of PolarFire SoC is implemented in the
+  OpenSBI that is built into HSS and mainline OpenSBI has no reset driver for
+  this SoC. Power cycle the board instead.
+* PCIe on the M.2 slot is not supported. The mainline device tree has no PCIe
+  node and the gateware sends PCIe DMA past the L2 cache, which mainline Linux
+  does not support on PolarFire SoC.
+
 Flashing the Image
 ==================
 
