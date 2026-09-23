@@ -49,17 +49,17 @@ class BeagleVBootPlugin(SourcePlugin):
                 "BeagleV boot plugin: U-Boot image is too small"
             )
 
-        if uboot_size > 1024 * 1024:
+        if uboot_size > 4 * 1024 * 1024:
             raise WicError(
-                "BeagleV boot plugin: U-Boot image exceeds the 1 MiB boot area"
+                "BeagleV boot plugin: U-Boot image exceeds the 4 MiB boot area"
             )
 
         logger.debug(
-            "=== Moving GPT entry array to LBA 4096 ==="
+            "=== Moving GPT entry array to LBA 8192 ==="
         )
 
         exec_native_cmd(
-            "sgdisk -j 4096 %s" % image,
+            "sgdisk -j 8192 %s" % image,
             native_sysroot
         )
 
@@ -68,12 +68,12 @@ class BeagleVBootPlugin(SourcePlugin):
             protected_metadata = img.read(164)
 
         logger.debug(
-            "=== Clearing disk area from 1 MiB to 2 MiB ==="
+            "=== Clearing disk area from 1 MiB to 4 MiB ==="
         )
 
         with open(image, "r+b") as img:
             img.seek(1024 * 1024)
-            img.write(b"\x00" * (1024 * 1024))
+            img.write(b"\x00" * (3 * 1024 * 1024))
 
         logger.debug(
             "=== Writing U-Boot bytes 0..439 ==="
