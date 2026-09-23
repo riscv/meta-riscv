@@ -7,8 +7,8 @@ require jh7110.inc
 
 #============================================
 # Common Preferred Providers
-PREFERRED_PROVIDER_virtual/kernel ?= "linux-starfive-dev"
-PREFERRED_PROVIDER_virtual/bootloader ?= "u-boot-starfive"
+PREFERRED_PROVIDER_virtual/kernel = "linux-starfive-dev"
+PREFERRED_PROVIDER_virtual/bootloader = "u-boot-starfive"
 PREFERRED_PROVIDER_virtual/libgl ?= "mesa-pvr"
 PREFERRED_PROVIDER_virtual/libglx ?= "mesa-pvr"
 PREFERRED_PROVIDER_virtual/mesa ?= "mesa-pvr"

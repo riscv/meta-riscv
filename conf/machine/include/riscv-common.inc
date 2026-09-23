@@ -10,6 +10,12 @@ UBOOT_ENV_SUFFIX = "scr.uimg"
 #============================================
 
 #============================================
+# Common Preferred Providers
+PREFERRED_PROVIDER_virtual/kernel ?= "linux-mainline"
+PREFERRED_PROVIDER_virtual/bootloader ?= "u-boot"
+#============================================
+
+#============================================
 # Common Preferred Versions
 PREFERRED_VERSION_openocd-native = "riscv"
 PREFERRED_VERSION_openocd = "riscv"

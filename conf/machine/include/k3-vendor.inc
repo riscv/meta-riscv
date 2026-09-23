@@ -8,8 +8,8 @@ require conf/machine/include/soc-family.inc
 
 SOC_FAMILY = "k3"
 
-PREFERRED_PROVIDER_virtual/kernel ?= "linux-k3"
-PREFERRED_PROVIDER_virtual/bootloader ?= "u-boot-k3"
+PREFERRED_PROVIDER_virtual/kernel = "linux-k3"
+PREFERRED_PROVIDER_virtual/bootloader = "u-boot-k3"
 PREFERRED_PROVIDER_opensbi ?= "opensbi-k3"
 
 SERIAL_CONSOLES = "115200;ttyS0"
