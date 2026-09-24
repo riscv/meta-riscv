@@ -42,7 +42,6 @@
                 "machine": {
                     "description": "Target machines",
                     "options" : [
-                        { "name": "machine/ae350-ax45mp", "description": "Andes AE350 ax45mp" },
                         { "name": "machine/bananapi-cm6-io", "description": "BananaPi CM6 IO" },
                         { "name": "machine/bananapi-f3", "description": "BananaPi BPI-F3" },
                         { "name": "machine/beaglev-ahead", "description": "BeagleV Ahead" },
