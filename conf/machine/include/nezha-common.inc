@@ -6,8 +6,8 @@ require riscv-common.inc
 
 #============================================
 # Preferred Providers
-PREFERRED_PROVIDER_virtual/kernel ?= "linux-allwinnerd1-dev"
-PREFERRED_PROVIDER_virtual/bootloader ?= "u-boot-allwinnerd1"
+PREFERRED_PROVIDER_virtual/kernel = "linux-allwinnerd1-dev"
+PREFERRED_PROVIDER_virtual/bootloader = "u-boot-allwinnerd1"
 #============================================
 
 #============================================
