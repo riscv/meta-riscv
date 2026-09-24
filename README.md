@@ -39,7 +39,6 @@ This layer depends on:
 | bananapi-cm6-io          | [BPI-CM6](https://docs.banana-pi.org/en/BPI-CM6/BananaPi_BPI-CM6)                                            | Mainline Kernel and U-Boot (uses vendor FSBL)                                    |
 | beaglev-ahead            | [BeagleV-Ahead](https://www.beagleboard.org/boards/beaglev-ahead)                                            |                                                                                  |
 | beaglev-fire             | [BeagleV-Fire](https://www.beagleboard.org/boards/beaglev-fire)                                              | Mainline Kernel, U-Boot and OpenSBI (uses vendor HSS)                            |
-| beaglev-starlight-jh7100 | [BeagleV](https://old.beagleboard.org/static/beagleV/beagleV.html)                                           | No longer produced                                                               |
 | dc-roma-fml13v01         | [DC-ROMA RISC-V Mainboard](https://deepcomputing.io/product/dc-roma-risc-v-mainboard/)                       | Upstream mainline kernel (7.0) with the in-tree `jh7110-deepcomputing-fml13v01` DTS, Framework Laptop 13 compatible mainboard |
 | eswin-ebc77              | ESWIN EBC77                                                                                                  | Vendor kernel. Use `eswin-ebc77-mainline` for upstream version                   |
 | eswin-ebc77-mainline     | ESWIN EBC77                                                                                                  |                                                                                  |
@@ -55,8 +54,6 @@ This layer depends on:
 | nezha-allwinner-d1       | [Nezha D1-H](https://docs.aw-ol.com/d1/en/d1_dev/)                                                           |                                                                                  |
 | orangepi-r2s             | [OrangePi R2S](http://www.orangepi.org/html/hardWare/computerAndMicrocontrollers/details/Orange-Pi-R2S.html) | Mainline Kernel and U-Boot (uses vendor FSBL)                                    |
 | orangepi-rv2             | [OrangePi RV2](http://www.orangepi.org/html/hardWare/computerAndMicrocontrollers/details/Orange-Pi-RV2.html) | Mainline Kernel and U-Boot (uses vendor FSBL)                                    |
-| star64                   | [PINE64 STAR64](https://pine64.org/devices/star64/)                                                          | 5.15 Kernel [fork](https://github.com/fishwaldo/Star64_linux)                    |
-| visionfive               | StarFive VisionFive                                                                                          | No product page found                                                            |
 | visionfive2              | [StarFive VisionFive 2](https://www.starfivetech.com/en/index.php?s=hardware&c=show&id=14)                   |                                                                                  |
 
 Note that this layer also provides improvements and features for the
