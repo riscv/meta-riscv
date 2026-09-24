@@ -113,12 +113,6 @@ runqemu core-image-minimal nographic
 kas build kas/nezha.yml
 ```
 
-- For `beaglev` build:
-
-```bash
-kas build kas/beaglev.yml
-```
-
 - For more machines check `kas` folder.
 
 ---
@@ -143,7 +137,7 @@ repos:
 target: custom-image # Or nezha default image: riscv-nezha-image
 ```
 
-For more details on `nezha`, `beaglev` and other boards steps check `doc` folder.
+For more details on `nezha` and other boards steps check `doc` folder.
 
 ---
 
@@ -155,19 +149,12 @@ A console-only image for the 64-bit QEMU machine
 
 ```bash
 MACHINE=qemuriscv64 bitbake core-image-full-cmdline
-MACHINE=beaglev-starlight-jh7100 bitbake core-image-full-cmdline
 ```
 
 To build an image to run on the HiFive Unleashed using Wayland run the following
 
 ```bash
 MACHINE=freedom-u540 bitbake core-image-weston
-```
-
-To build an image to run on the BeagleV using Wayland run the following
-
-```bash
-MACHINE=beaglev-starlight-jh7100 bitbake core-image-weston
 ```
 
 To build an image to run on the MangoPi MQ Pro (console only has been tested so far) run the following:
@@ -222,7 +209,7 @@ sudo bmaptool copy --bmap image.bmap ./freedom-u540-opensbi-201812181337-mmcblk.
 
 ### dding wic.gz
 
-The output of a ```freedom-u540```, ```beaglev-starlight-jh7100``` or ```mangopi-mq-pro```  build will be a ```<image>.wic.gz``` file. You can write this file to an sd card using:
+The output of a ```freedom-u540``` or ```mangopi-mq-pro```  build will be a ```<image>.wic.gz``` file. You can write this file to an sd card using:
 
 ```bash
 zcat <image>-<machine>.wic.gz | sudo dd of=/dev/sdX bs=4M iflag=fullblock oflag=direct conv=fsync status=progress
