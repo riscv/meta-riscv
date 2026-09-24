@@ -4,26 +4,13 @@
 ###########################################################################
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
-FILESEXTRAPATHS:prepend:ae350-ax45mp := "${THISDIR}/files/ae350-ax45mp:"
 FILESEXTRAPATHS:prepend:milkv-duo := "${THISDIR}/files/milkv-duo:"
 FILESEXTRAPATHS:prepend:milkv-duo256m := "${THISDIR}/files/milkv-duo:"
 FILESEXTRAPATHS:prepend:milkv-duos := "${THISDIR}/files/milkv-duo:"
 
 DEPENDS:append = " u-boot-tools-native"
-DEPENDS:append:ae350-ax45mp = " opensbi"
 DEPENDS:append:milkv-duo = " xxd-native"
 
-SRC_URI:append:ae350-ax45mp = " \
-            file://0001-mmc-ftsdc010_mci-Support-DTS-of-ftsdc010-driver-for-.patch \
-            file://0002-spl-Align-device-tree-blob-address-at-8-byte-boundar.patch \
-            file://0003-riscv-andes_plic.c-use-modified-IPI-scheme.patch \
-            file://0004-riscv-Rename-Andes-PLIC-to-PLICSW.patch \
-            file://mmc-support.cfg \
-            file://opensbi-options.cfg \
-            file://display-info.cfg \
-            file://tftp-mmc-boot.txt \
-            file://uEnv-ae350.txt \
-            "
 SRC_URI:append:th1520 = " \
             file://0001-ram-thead-th1520-Support-single-rank-firmware.patch \
             file://0002-Add-Support-for-Beagle-V-Ahead-board.patch \
@@ -76,15 +63,6 @@ PV:milkv-duo = "2021.10"
 # configure task customizations
 ###############################
 
-TFTP_SERVER_IP:ae350-ax45mp ?= "127.0.0.1"
-do_configure:prepend:ae350-ax45mp() {
-    if [ -f "${UNPACKDIR}/tftp-mmc-boot.txt" ]; then
-        sed -i -e 's,@SERVERIP@,${TFTP_SERVER_IP},g' ${UNPACKDIR}/tftp-mmc-boot.txt
-        mkimage -A riscv -O linux -T script -C none -n "U-Boot boot script" \
-            -d ${UNPACKDIR}/tftp-mmc-boot.txt ${UNPACKDIR}/boot.scr.uimg
-    fi
-}
-
 do_configure:prepend:freedom-u540() {
     sed -i -e 's,@SERVERIP@,${TFTP_SERVER_IP},g' ${UNPACKDIR}/tftp-mmc-boot.txt
 
@@ -122,10 +100,6 @@ _DEPS:append:th1520 = " firmware-ddr-training-th1520:do_deploy"
 
 do_compile[depends] += "${_DEPS}"
 
-do_compile:prepend:ae350-ax45mp() {
-    export OPENSBI=${DEPLOY_DIR_IMAGE}/fw_dynamic.bin
-}
-
 do_compile:prepend:th1520() {
     cp ${DEPLOY_DIR_IMAGE}/th1520-ddr-firmware.bin ${B}
     export OPENSBI=${DEPLOY_DIR_IMAGE}/fw_dynamic.bin
@@ -146,16 +120,6 @@ do_compile:prepend:visionfive2() {
 #############################
 # deploy task customizations
 #############################
-
-do_deploy:append:ae350-ax45mp() {
-    if [ -f "${UNPACKDIR}/boot.scr.uimg" ]; then
-        install -Dm 644 ${UNPACKDIR}/boot.scr.uimg ${DEPLOYDIR}/boot.scr.uimg
-    fi
-
-    if [ -f "${UNPACKDIR}/uEnv-ae350.txt" ]; then
-        install -Dm 644 ${UNPACKDIR}/uEnv-ae350.txt ${DEPLOYDIR}/uEnv.txt
-    fi
-}
 
 do_deploy:append:th1520() {
     install -m 644 ${B}/u-boot-with-spl.bin ${DEPLOYDIR}
