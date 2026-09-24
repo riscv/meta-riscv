@@ -52,24 +52,6 @@ After building, you will obtain the following artifacts:
 Flashing Linux
 ==============
 
-Flashing to eMMC
-----------------
-
-0. Install `fastboot` via distro packages.
-1. Enter flash mode (see Quickstart guide for details): press USB-button and while pressing, click `RESET`-button; then release `USB`-button only after device started
-2. Enter deploy folder `tmp/deploy/images/beaglev-ahead/` and flash artifacts with sudo rights:
-
-```shell
-fastboot flash ram ./u-boot-with-spl.bin
-fastboot reboot
-sleep 10
-fastboot oem format
-fastboot flash uboot ./u-boot-with-spl.bin
-fastboot flash boot ./boot.ext4
-fastboot flash root ./core-image-minimal-beaglev-ahead.rootfs.ext4
-fastboot reboot
-```
-
 Flashing to SD card
 -------------------
 
@@ -88,6 +70,36 @@ sudo bmaptool copy core-image-minimal-beaglev-ahead.rootfs.wic.gz /dev/sdX
 Replace `/dev/sdX` with the block device corresponding to the SD card.
 
 Insert the SD card into the BeagleV-Ahead and power on the board.
+
+Flashing to eMMC
+----------------
+
+The easiest way to flash eMMC is by first flashing an SD card and booting it (see above).
+
+Then, copy the `core-image-minimal-beaglev-ahead.rootfs.wic.gz` and
+`core-image-minimal-beaglev-ahead.rootfs.wic.bmap` files from the deploy folder
+to an ext4 formatted USB flash drive.
+
+Power your board with a 5V power supply (using the 5.5 mm barrel connector),
+and use the USB type-B to USB-A F cable provided with your board to connect
+the USB flash drive to the board.
+
+Once booted, mount the USB drive on the command line shell
+(see the "Check Functionality" section below to access the serial console):
+
+```shell
+mkdir /mnt/sda1
+mount /dev/sda1 /mnt/sda1
+```
+
+You can then flash eMMC:
+
+```shell
+cd /mnt/sda1
+bmaptool copy core-image-minimal-beaglev-ahead.rootfs.wic.gz /dev/mmcblk0
+```
+
+You can then remove the SD card and reboot.
 
 Check Functionality
 ===================
