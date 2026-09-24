@@ -12,7 +12,6 @@ BRANCH = "Star64"
 SRC_URI = "git://github.com/Fishwaldo/u-boot.git;protocol=https;branch=${BRANCH} \
            file://0004-Add-support-for-OpenSSL-Provider-API.patch \
            file://tftp-mmc-boot.txt \
-           file://uEnv-star64.txt \
            file://uEnv-dc-roma-fml13v01.txt \
           "
 
@@ -28,8 +27,7 @@ EXTRA_OEMAKE += 'HOSTCFLAGS=-Wno-error=int-conversion'
 # Overwrite this for your server
 TFTP_SERVER_IP ?= "127.0.0.1"
 
-UBOOT_VF2_ENV ?= "uEnv-star64.txt"
-UBOOT_VF2_ENV:dc-roma-fml13v01 = "uEnv-dc-roma-fml13v01.txt"
+UBOOT_VF2_ENV ?= "uEnv-dc-roma-fml13v01.txt"
 
 do_configure:prepend() {
     sed -i -e 's,@SERVERIP@,${TFTP_SERVER_IP},g' ${UNPACKDIR}/tftp-mmc-boot.txt
@@ -44,6 +42,6 @@ do_deploy:append() {
     ln -sf ${SPL_IMAGE}.normal.out ${DEPLOYDIR}/${SPL_SYMLINK}.normal.out
 }
 
-COMPATIBLE_MACHINE = "(star64|dc-roma-fml13v01)"
+COMPATIBLE_MACHINE = "(dc-roma-fml13v01)"
 
 TOOLCHAIN = "gcc"
