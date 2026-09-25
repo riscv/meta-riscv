@@ -107,32 +107,20 @@ runqemu core-image-minimal nographic
 
 **NOTE** `nographic` is needed for this image, because it has no graphical support for graphical Qemu run.
 
-- For `nezha` build:
-
-```bash
-kas build kas/nezha.yml
-```
-
-- For `beaglev` build:
-
-```bash
-kas build kas/beaglev.yml
-```
-
 - For more machines check `kas` folder.
 
 ---
 
 ## Custom Project
 
-If you have your own layer that depends on this layer, you can create a kas `yml` file in your layer with the following content (`nezha` build as an example):
+If you have your own layer that depends on this layer, you can create a kas `yml` file in your layer with the following content (`bananapi-f3` build as an example):
 
 ```yml
 header:
   version: 20
   includes:
     - repo: meta-riscv
-      file: kas/nezha.yml
+      file: kas/bananapi-f3.yml
 
 repos:
   meta-riscv:
@@ -140,10 +128,10 @@ repos:
     path: layers/meta-riscv
     branch: scarthgap
 
-target: custom-image # Or nezha default image: riscv-nezha-image
+target: custom-image
 ```
 
-For more details on `nezha`, `beaglev` and other boards steps check `doc` folder.
+For more details on board-specific steps check `doc` folder.
 
 ---
 
@@ -155,7 +143,6 @@ A console-only image for the 64-bit QEMU machine
 
 ```bash
 MACHINE=qemuriscv64 bitbake core-image-full-cmdline
-MACHINE=beaglev-starlight-jh7100 bitbake core-image-full-cmdline
 ```
 
 To build an image to run on the HiFive Unleashed using Wayland run the following
@@ -164,17 +151,6 @@ To build an image to run on the HiFive Unleashed using Wayland run the following
 MACHINE=freedom-u540 bitbake core-image-weston
 ```
 
-To build an image to run on the BeagleV using Wayland run the following
-
-```bash
-MACHINE=beaglev-starlight-jh7100 bitbake core-image-weston
-```
-
-To build an image to run on the MangoPi MQ Pro (console only has been tested so far) run the following:
-
-```bash
-MACHINE=mangopi-mq-pro bitbake core-image-base
-```
 
 To build a full GUI equipped image running Plasma Mobile see the in-tree documentation [here](https://github.com/riscv/meta-riscv/blob/master/docs/Plasma-Mobile-on-Unleashed.md).
 
@@ -222,7 +198,7 @@ sudo bmaptool copy --bmap image.bmap ./freedom-u540-opensbi-201812181337-mmcblk.
 
 ### dding wic.gz
 
-The output of a ```freedom-u540```, ```beaglev-starlight-jh7100``` or ```mangopi-mq-pro```  build will be a ```<image>.wic.gz``` file. You can write this file to an sd card using:
+The output of a ```freedom-u540``` build will be a ```<image>.wic.gz``` file. You can write this file to an sd card using:
 
 ```bash
 zcat <image>-<machine>.wic.gz | sudo dd of=/dev/sdX bs=4M iflag=fullblock oflag=direct conv=fsync status=progress

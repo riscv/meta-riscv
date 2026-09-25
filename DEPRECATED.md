@@ -11,8 +11,3 @@ of the listed releases.
 - nezha-allwinner-d1
 - star64
 - visionfive
-
-Note: The following are deprecated for 6.1, but the layer still supports
-mainline-based BSPs with similar names.
-
-- eswin-ebc77
