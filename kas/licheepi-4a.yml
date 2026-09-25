@@ -1,0 +1,12 @@
+header:
+  version: 20
+  includes:
+    - kas/base-riscv.yml
+
+machine: licheepi-4a
+target: core-image-minimal
+
+local_conf_header:
+  licheepi-4a: |
+    # Add "bmaptool" for flashing eMMC from board booted for SD
+    IMAGE_INSTALL:append = " bmaptool"

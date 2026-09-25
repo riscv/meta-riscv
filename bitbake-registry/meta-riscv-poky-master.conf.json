@@ -59,6 +59,7 @@
                         { "name": "machine/freedom-u540", "description": "Freedom U540" },
                         { "name": "machine/k3-com260", "description": "K3 CoM260" },
                         { "name": "machine/k3-pico-itx", "description": "K3 Pico-ITX" },
+                        { "name": "machine/licheepi-4a", "description": "LicheePi 4A" },
                         { "name": "machine/mangopi-mq-pro", "description": "MangoPi MQ Pro" },
                         { "name": "machine/milkv-duo", "description": "Milk-V Duo" },
                         { "name": "machine/milkv-duo256m", "description": "Milk-V Duo-256M" },
