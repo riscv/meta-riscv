@@ -17,5 +17,5 @@ do_deploy() {
 
 addtask deploy before do_build after do_compile
 
-COMPATIBLE_MACHINE = "(beaglev-ahead)"
+COMPATIBLE_MACHINE = "(th1520)"
 
