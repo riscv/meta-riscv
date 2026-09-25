@@ -13,7 +13,7 @@ SRCREV                              ?= "52c36105f76e96b638152a42e735f2e7767ed946
 
 # --- DEPENDS ---
 DEPENDS:append:k1                    = " u-boot-tools-native"
-DEPENDS:append:beaglev-ahead	     = " opensbi e2fsprogs-native firmware-th1520"
+DEPENDS:append:th1520                = " opensbi e2fsprogs-native firmware-th1520"
 DEPENDS:append:eswin-ebc77-mainline  = " u-boot-mkimage-native dtc-native"
 DEPENDS:append:milkv-duo             = " u-boot-mkimage-native dtc-native"
 
@@ -37,7 +37,7 @@ SRC_URI:append:bananapi-cm6-io = " \
         file://0003-riscv-dts-spacemit-k1-Add-Banana-Pi-BPI-CM6-IO-board.patch \
 "
 
-SRC_URI:append:beaglev-ahead = " \
+SRC_URI:append:th1520 = " \
         file://extlinux.conf \
 	file://0001-dt-binding-riscv-add-T-HEAD-CPU-reset.patch \
 	file://0002-th1520-add-cpu-reset-node.patch \
@@ -116,6 +116,6 @@ do_deploy:append:milkv-duo() {
 	install -m 744 ${B}/arch/riscv/boot/dts/${KERNEL_DEVICETREE} ${DEPLOYDIR}/default.dtb
 }
 
-do_deploy:append:beaglev-ahead() {
+do_deploy:append:th1520() {
     cp -f ${UNPACKDIR}/extlinux.conf ${DEPLOYDIR}/extlinux.conf
 }
