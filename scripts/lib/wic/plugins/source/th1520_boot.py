@@ -9,8 +9,8 @@ from wic.misc import exec_native_cmd
 logger = logging.getLogger('wic')
 
 
-class BeagleVBootPlugin(SourcePlugin):
-    name = 'beaglev_boot'
+class Thead1520BootPlugin(SourcePlugin):
+    name = 'th1520_boot'
 
     @classmethod
     def do_install_disk(cls, disk, disk_name, creator, workdir,
@@ -21,37 +21,37 @@ class BeagleVBootPlugin(SourcePlugin):
         uboot = os.path.join(kernel_dir, "u-boot-with-spl.bin")
 
         logger.debug(
-            "=== BEAGLEV BOOT PLUGIN: do_install_disk() WAS CALLED ==="
+            "=== TH1520 BOOT PLUGIN: do_install_disk() WAS CALLED ==="
         )
         logger.debug(
-            "=== BEAGLEV BOOT PLUGIN: disk image = %s ===",
+            "=== TH1520 BOOT PLUGIN: disk image = %s ===",
             image
         )
         logger.debug(
-            "=== BEAGLEV BOOT PLUGIN: U-Boot image = %s ===",
+            "=== TH1520 BOOT PLUGIN: U-Boot image = %s ===",
             uboot
         )
 
         if not os.path.isfile(uboot):
             raise WicError(
-                "BeagleV boot plugin: U-Boot image not found: %s" % uboot
+                "TH1520 boot plugin: U-Boot image not found: %s" % uboot
             )
 
         if disk.sector_size != 512:
             raise WicError(
-                "BeagleV boot plugin requires a 512-byte sector size"
+                "TH1520 boot plugin requires a 512-byte sector size"
             )
 
         uboot_size = os.path.getsize(uboot)
 
         if uboot_size <= 604:
             raise WicError(
-                "BeagleV boot plugin: U-Boot image is too small"
+                "TH1520 boot plugin: U-Boot image is too small"
             )
 
         if uboot_size > 4 * 1024 * 1024:
             raise WicError(
-                "BeagleV boot plugin: U-Boot image exceeds the 4 MiB boot area"
+                "TH1520 boot plugin: U-Boot image exceeds the 4 MiB boot area"
             )
 
         logger.debug(
@@ -84,7 +84,7 @@ class BeagleVBootPlugin(SourcePlugin):
 
             if len(first_part) != 440:
                 raise WicError(
-                    "BeagleV boot plugin: failed to read first 440 U-Boot bytes"
+                    "TH1520 boot plugin: failed to read first 440 U-Boot bytes"
                 )
 
             dst.seek(0)
@@ -104,9 +104,9 @@ class BeagleVBootPlugin(SourcePlugin):
 
         if metadata_after != protected_metadata:
             raise WicError(
-                "BeagleV boot plugin: protected PMBR/GPT metadata was modified"
+                "TH1520 BOOT PLUGIN: protected PMBR/GPT metadata was modified"
             )
 
         logger.debug(
-            "=== BEAGLEV BOOT PLUGIN: disk layout completed successfully ==="
+            "=== TH1520 BOOT PLUGIN: disk layout completed successfully ==="
         )
