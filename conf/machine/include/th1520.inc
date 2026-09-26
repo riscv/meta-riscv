@@ -9,7 +9,7 @@ require conf/machine/include/soc-family.inc
 SOC_FAMILY = "th1520"
 
 WKS_FILE ?= "th1520.wks"
-WKS_FILE_DEPENDS:append = " gptfdisk-native"
+WKS_FILE_DEPENDS:append = " gptfdisk-native u-boot"
 
 # SBI Configuration
 unset RISCV_SBI_PAYLOAD
