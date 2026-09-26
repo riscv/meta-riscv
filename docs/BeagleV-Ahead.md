@@ -3,7 +3,7 @@ BeagleV-Ahead
 
 BeagleV-Ahead is a RISC-V platform with an Alibaba T-Head TH1520 SoC (2GHz quad-core 64-bit Xuantee C910).
 
-The board supports booting from both eMMC and SD card. eMMC can be flashed using fastboot, while the generated WIC image can be flashed directly to an SD card. U-Boot looks for a bootable SD card first and falls back to eMMC, so the same image boots from the medium it is written to.
+The board supports booting Linux from both eMMC and SD card. The boot ROM starts U-Boot from the eMMC boot area, not from the SD card, so U-Boot has to be installed to eMMC once (see "Installing U-Boot to eMMC" below). U-Boot looks for a bootable SD card first and falls back to eMMC, so the same image boots from the medium it is written to.
 
 How to Build
 ============
@@ -22,6 +22,7 @@ Set these variables in a configuration file:
 * `MACHINE = "beaglev-ahead"`
 * `DISTRO = "poky-altcfg"`
 * `EXTRA_IMAGE_FEATURES = "allow-empty-password empty-root-password allow-root-login post-install-logging"`
+* `IMAGE_INSTALL:append = " bmaptool"` (used to flash eMMC from the board)
 
 Build your image:
 
@@ -45,9 +46,9 @@ Build artifacts
 After building, you will obtain the following artifacts: 
 
 - u-boot-with-spl.bin : the SPL boot loader
-- boot.ext4 : a generated ext4 partition containing `fw_dynamic.bin`, `Image`, and `th1520-beaglev-ahead.dtb`
 - core-image-minimal-beaglev-ahead.rootfs.ext4 : the root file system
 - core-image-minimal-beaglev-ahead.rootfs.wic.gz : the complete SD card image
+- core-image-minimal-beaglev-ahead.rootfs.wic.bmap : bmap description for the wic image
 
 Flashing Linux
 ==============
@@ -69,12 +70,47 @@ sudo bmaptool copy core-image-minimal-beaglev-ahead.rootfs.wic.gz /dev/sdX
 
 Replace `/dev/sdX` with the block device corresponding to the SD card.
 
-Insert the SD card into the BeagleV-Ahead and power on the board.
+Insert the SD card into the BeagleV-Ahead and power on the board. This needs U-Boot in eMMC, see the next section if it is not installed yet.
+
+Installing U-Boot to eMMC
+-------------------------
+
+This is needed once and again when you want to update U-Boot.
+
+Mainline U-Boot does not support USB on the TH1520 yet, so it cannot flash eMMC
+over fastboot. Instead, the boot ROM loads U-Boot to RAM, this U-Boot boots
+Linux from the SD card and Linux writes U-Boot to the eMMC boot area.
+
+Insert the SD card flashed as described above. Then enter the boot ROM USB mode
+(see the Quickstart guide for details): press the USB button and while
+pressing, click the RESET button, then release the USB button after the board
+has started.
+
+From the deploy folder, load U-Boot to RAM and start it:
+
+```shell
+fastboot flash ram u-boot-with-spl.bin
+fastboot reboot
+```
+
+U-Boot starts from RAM and boots Linux from the SD card. On the serial console
+(see "Check Functionality" below), write the copy of U-Boot from the SD card
+boot partition to the eMMC boot area:
+
+```shell
+mount /dev/mmcblk1p2 /mnt
+echo 0 > /sys/block/mmcblk0boot0/force_ro
+dd if=/mnt/u-boot-with-spl.bin of=/dev/mmcblk0boot0
+sync
+umount /mnt
+```
+
+After a reboot, U-Boot starts from eMMC.
 
 Flashing to eMMC
 ----------------
 
-The easiest way to flash eMMC is by first flashing an SD card and booting it (see above).
+The easiest way to flash eMMC is by first flashing an SD card and booting it, with U-Boot installed to eMMC (see above).
 
 Then, copy the `core-image-minimal-beaglev-ahead.rootfs.wic.gz` and
 `core-image-minimal-beaglev-ahead.rootfs.wic.bmap` files from the deploy folder

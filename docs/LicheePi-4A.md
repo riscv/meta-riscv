@@ -81,5 +81,5 @@ picocom -b 115200 /dev/ttyUSB0
 Resources
 =========
 
-* [BeagleV_Ahead landing page](https://www.beagleboard.org/boards/beaglev-ahead)
-* [BeagleV-Ahead Getting Started](https://docs.beagle.cc/latest/boards/beaglev/ahead/02-quick-start.html)
+* [LicheePi 4A landing page](https://wiki.sipeed.com/hardware/en/lichee/th1520/lpi4a/1_intro.html)
+* [U-Boot documentation for LicheePi 4A](https://docs.u-boot.org/en/latest/board/thead/lpi4a.html)
