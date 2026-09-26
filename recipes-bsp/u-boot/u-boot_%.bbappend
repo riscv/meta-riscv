@@ -27,6 +27,7 @@ SRC_URI:append:ae350-ax45mp = " \
 SRC_URI:append:th1520 = " \
             file://0001-ram-thead-th1520-Support-single-rank-firmware.patch \
             file://0002-Add-Support-for-Beagle-V-Ahead-board.patch \
+            file://0003-riscv-cpu-th1520-Keep-the-partition-table-area-free-in-SPL.patch \
             file://th1520-boot.cfg \
             "
 SRC_URI:append:beaglev-fire = " \
