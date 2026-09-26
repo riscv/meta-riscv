@@ -12,26 +12,31 @@ linux-stable/drivers/net/wireless/ap12275/aiutils.c:25:10: fatal error: typedefs
 compilation terminated.
 make[7]: *** [linux-stable/scripts/Makefile.build:243: drivers/net/wireless/ap12275/aiutils.o] Error 1
 
+Only prefix the include paths with $(srctree). DHD_COMPILED has to keep
+$(src), otherwise the absolute source path ends up in bcmdhd.ko and
+do_package_qa fails with a buildpaths error.
+
 Upstream-Status: Inappropriate [Downstream-specific]
 
 Signed-off-by: Marcel Ziswiler <marcel@ziswiler.com>
+Signed-off-by: Alper Ak <alperyasinak1@gmail.com>
 ---
  drivers/net/wireless/ap12275/Makefile | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/net/wireless/ap12275/Makefile b/drivers/net/wireless/ap12275/Makefile
-index cb41a87bc81e..5c620aa3e8a2 100644
+index cb41a87bc81e..ea65bbf0dba9 100644
 --- a/drivers/net/wireless/ap12275/Makefile
 +++ b/drivers/net/wireless/ap12275/Makefile
-@@ -460,7 +460,7 @@ endif
- endif
- 
- ARCH ?= riscv
--BCMDHD_ROOT = $(src)
-+BCMDHD_ROOT = $(srctree)/$(src)
+@@ -464,7 +464,7 @@ BCMDHD_ROOT = $(src)
  #$(warning "BCMDHD_ROOT=$(BCMDHD_ROOT)")
  EXTRA_CFLAGS = $(DHDCFLAGS)
  EXTRA_CFLAGS += -DDHD_COMPILED=\"$(BCMDHD_ROOT)\"
+-EXTRA_CFLAGS += -I$(BCMDHD_ROOT)/include/ -I$(BCMDHD_ROOT)/
++EXTRA_CFLAGS += -I$(srctree)/$(BCMDHD_ROOT)/include/ -I$(srctree)/$(BCMDHD_ROOT)/
+ ifeq ($(CONFIG_BCMDHD),m)
+ EXTRA_LDFLAGS += --strip-debug
+ endif
 -- 
 2.49.0
 
