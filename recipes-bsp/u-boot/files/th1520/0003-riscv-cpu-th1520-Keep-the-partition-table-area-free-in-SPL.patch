@@ -1,0 +1,66 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Alper Ak <alperyasinak1@gmail.com>
+Date: Sat, 26 Sep 2026 08:48:01 +0300
+Subject: [PATCH] riscv: cpu: th1520: Keep the partition table area free in SPL
+
+The TH1520 boot ROM loads SPL from the first sector of an SD card. When the
+card also has a GPT, its protective MBR and header sit in bytes 440 to 603 of
+SPL, so the code linked there is overwritten and SPL crashes.
+
+Add SPL_KEEP_PARTITION_TABLE_FREE, which moves the code after the start code
+to offset 0x400, and select it for TH1520.
+
+Upstream-Status: Pending
+Signed-off-by: Alper Ak <alperyasinak1@gmail.com>
+---
+ arch/riscv/Kconfig            | 9 +++++++++
+ arch/riscv/cpu/th1520/Kconfig | 1 +
+ arch/riscv/cpu/u-boot-spl.lds | 3 +++
+ 3 files changed, 13 insertions(+)
+
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 8320c1aa..8b0875e1 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -109,6 +109,15 @@ config SPL_ZERO_MEM_BEFORE_USE
+ 	  Zero stack/GD/malloc area in SPL before using them, this is needed for
+ 	  Sifive core devices that uses L2 cache to store SPL.
+ 
++config SPL_KEEP_PARTITION_TABLE_FREE
++	bool
++	depends on SPL
++	help
++	  Some boot ROMs run SPL from the first sector of a disk, which also
++	  holds the partition table. Place the code that follows the start
++	  code at offset 0x400, so that bytes 440 to 1023 of SPL stay empty
++	  for an MBR or a GPT header.
++
+ # board-specific options below
+ source "board/andestech/ae350/Kconfig"
+ source "board/andestech/voyager/Kconfig"
+diff --git a/arch/riscv/cpu/th1520/Kconfig b/arch/riscv/cpu/th1520/Kconfig
+index a02f5f24..df609b7a 100644
+--- a/arch/riscv/cpu/th1520/Kconfig
++++ b/arch/riscv/cpu/th1520/Kconfig
+@@ -9,6 +9,7 @@ config THEAD_TH1520
+ 	select SYS_CACHE_SHIFT_6
+ 	select SUPPORT_SPL
+ 	select BINMAN if SPL
++	select SPL_KEEP_PARTITION_TABLE_FREE if SPL
+ 	select SYS_CACHE_THEAD_CMO
+ 	select CLK_THEAD
+ 	select PINCTRL_TH1520
+diff --git a/arch/riscv/cpu/u-boot-spl.lds b/arch/riscv/cpu/u-boot-spl.lds
+index 35de28db..ddcb1e31 100644
+--- a/arch/riscv/cpu/u-boot-spl.lds
++++ b/arch/riscv/cpu/u-boot-spl.lds
+@@ -19,6 +19,9 @@ SECTIONS
+ 	__image_copy_start = ADDR(.text);
+ 	.text : {
+ 		arch/riscv/cpu/start.o	(.text)
++#ifdef CONFIG_SPL_KEEP_PARTITION_TABLE_FREE
++		. = 0x400;
++#endif
+ 		*(.text*)
+ 	} > .spl_mem
+ 
