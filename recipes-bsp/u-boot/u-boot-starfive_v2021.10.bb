@@ -10,6 +10,7 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 BRANCH = "Star64"
 
 SRC_URI = "git://github.com/Fishwaldo/u-boot.git;protocol=https;branch=${BRANCH} \
+           file://0004-Add-support-for-OpenSSL-Provider-API.patch \
            file://tftp-mmc-boot.txt \
            file://uEnv-star64.txt \
            file://uEnv-dc-roma-fml13v01.txt \
