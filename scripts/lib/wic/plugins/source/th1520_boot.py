@@ -54,6 +54,14 @@ class Thead1520BootPlugin(SourcePlugin):
                 "TH1520 boot plugin: U-Boot image exceeds the 4 MiB boot area"
             )
 
+        with open(uboot, "rb") as src:
+            src.seek(440)
+            if any(src.read(164)):
+                raise WicError(
+                    "TH1520 boot plugin: U-Boot has data in bytes 440..603, "
+                    "which the partition table overwrites"
+                )
+
         logger.debug(
             "=== Moving GPT entry array to LBA 8192 ==="
         )
@@ -62,10 +70,6 @@ class Thead1520BootPlugin(SourcePlugin):
             "sgdisk -j 8192 %s" % image,
             native_sysroot
         )
-
-        with open(image, "rb") as img:
-            img.seek(440)
-            protected_metadata = img.read(164)
 
         logger.debug(
             "=== Clearing disk area from 1 MiB to 4 MiB ==="
@@ -97,15 +101,6 @@ class Thead1520BootPlugin(SourcePlugin):
             src.seek(604)
             dst.seek(604)
             shutil.copyfileobj(src, dst)
-
-        with open(image, "rb") as img:
-            img.seek(440)
-            metadata_after = img.read(164)
-
-        if metadata_after != protected_metadata:
-            raise WicError(
-                "TH1520 BOOT PLUGIN: protected PMBR/GPT metadata was modified"
-            )
 
         logger.debug(
             "=== TH1520 BOOT PLUGIN: disk layout completed successfully ==="
