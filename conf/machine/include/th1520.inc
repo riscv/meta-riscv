@@ -14,6 +14,14 @@ WKS_FILE_DEPENDS:append = " gptfdisk-native u-boot"
 # SBI Configuration
 unset RISCV_SBI_PAYLOAD
 
+# U-Boot configuration
+UBOOT_ENV = ""
+UBOOT_EXTLINUX = "1"
+UBOOT_EXTLINUX_CONSOLE ?= ""
+UBOOT_EXTLINUX_KERNEL_ARGS ?= "ro rootfstype=ext4 rootwait console=ttyS0,115200 earlycon clk_ignore_unused"
+UBOOT_EXTLINUX_ROOT ?= "root=/dev/${rootdev}p3"
+UBOOT_EXTLINUX_KERNEL_IMAGE ?= "/Image"
+
 # Kernel configuration
 KERNEL_IMAGETYPE = "Image"
 MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS:append = " kernel-modules"
