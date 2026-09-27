@@ -97,7 +97,7 @@ do_install:append() {
     fi
 }
 
-DEPENDS = "expat makedepend-native flex-native bison-native libxml2-native zlib chrpath-replacement-native python3-mako-native gettext-native"
+DEPENDS = "expat flex-native bison-native libxml2-native zlib chrpath-replacement-native python3-mako-native gettext-native"
 EXTRANATIVEPATH += "chrpath-native"
 # note: different to upstream Mesa, here is not PROVIDES for gles2, which conflicts with the way the visionfive2 binary driver is integrated
 PROVIDES = " \
