@@ -37,7 +37,6 @@ SRC_URI:append:bananapi-cm6-io = " \
 "
 
 SRC_URI:append:th1520 = " \
-        file://extlinux.conf \
 	file://0001-dt-binding-riscv-add-T-HEAD-CPU-reset.patch \
 	file://0002-th1520-add-cpu-reset-node.patch \
 	file://0001-dt-bindings-usb-Add-T-HEAD-TH1520-USB-controller.patch \
@@ -113,8 +112,4 @@ do_deploy:append:milkv-duo() {
 	mkimage -f ${B}/multi.its ${B}/uImage.fit
 	install -m 744 ${B}/uImage.fit ${DEPLOYDIR}
 	install -m 744 ${B}/arch/riscv/boot/dts/${KERNEL_DEVICETREE} ${DEPLOYDIR}/default.dtb
-}
-
-do_deploy:append:th1520() {
-    cp -f ${UNPACKDIR}/extlinux.conf ${DEPLOYDIR}/extlinux.conf
 }
