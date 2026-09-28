@@ -19,6 +19,7 @@ SRC_URI:append:dc-roma-fml13v01 = "\
 	file://visionfive2-uboot-fit-image.its \
 	file://0001-inclue-sbi_utils-Cleanup-int-vs-bool-in-semihosting_.patch \
 	file://0002-include-sbi-Fix-compiling-with-C23-enabled-compilers.patch \
+	file://0003-Makefile-don-t-grep-when-setting-CC_SUPPORT_ZICSR_ZI.patch \
 	"
 
 DEPENDS:append:beaglev-fire = " hss-payload-generator-native"

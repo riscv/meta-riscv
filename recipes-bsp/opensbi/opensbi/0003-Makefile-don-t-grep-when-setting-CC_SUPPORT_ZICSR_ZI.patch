@@ -1,0 +1,28 @@
+From: Trevor Gamblin <tgamblin@baylibre.com>
+Subject: [PATCH] Makefile: don't grep when setting CC_SUPPORT_ZICSR_ZIFENCEI
+
+Upstream-Status: Submitted [https://lists.infradead.org/pipermail/opensbi/2026-September/010606.html]
+
+Check exit status from the compiler/linker check directly (similar to
+OPENSBI_LD_PIE), rather than using grep to search for a pattern. This
+avoids potential unrelated matches in the command, e.g. when the build
+path contains "zicsr" or "zifencei".
+
+Rebased onto the StarFive JH7110_VisionFive2_devel branch.
+
+Signed-off-by: Trevor Gamblin <tgamblin@baylibre.com>
+---
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/Makefile
++++ b/Makefile
+@@ -171,7 +171,7 @@
+ CC_SUPPORT_SAVE_RESTORE := $(shell $(CC) $(CLANG_TARGET) $(RELAX_FLAG) -nostdlib -mno-save-restore -x c /dev/null -o /dev/null 2>&1 | grep "\-save\-restore" >/dev/null && echo n || echo y)
+ 
+ # Check whether the assembler and the compiler support the Zicsr and Zifencei extensions
+-CC_SUPPORT_ZICSR_ZIFENCEI := $(shell $(CC) $(CLANG_TARGET) $(RELAX_FLAG) -nostdlib -march=rv$(OPENSBI_CC_XLEN)imafd_zicsr_zifencei -x c /dev/null -o /dev/null 2>&1 | grep "zicsr\|zifencei" > /dev/null && echo n || echo y)
++CC_SUPPORT_ZICSR_ZIFENCEI := $(shell $(CC) $(CLANG_TARGET) $(RELAX_FLAG) -nostdlib -march=rv$(OPENSBI_CC_XLEN)imafd_zicsr_zifencei -x c /dev/null -o /dev/null >/dev/null 2>&1 && echo y || echo n)
+ 
+ # Build Info:
+ # OPENSBI_BUILD_TIME_STAMP -- the compilation time stamp
