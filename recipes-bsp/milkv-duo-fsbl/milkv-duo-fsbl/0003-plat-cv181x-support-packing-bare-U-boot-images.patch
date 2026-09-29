@@ -1,0 +1,99 @@
+From f321c1b412efb1a054dad151b1d1a1ad06f7b7c6 Mon Sep 17 00:00:00 2001
+From: Hiago De Franco <hfranco@baylibre.com>
+Date: Wed, 26 Feb 2025 06:50:07 +0000
+Subject: [PATCH 3/3] plat: cv181x: support packing bare U-boot images
+
+Mainline U-boot usually generates images without headers. Let's adjust
+fiptool.py to support packing unofficial bare images.
+
+An image without a loader_2nd magic is treated as bare, and a header is
+prepended to it. An argument, LOADER_2ND_BASE, is added to specify the
+loading address of that header, as we don't have a header for the
+information, the image itself runs at LOADER_2ND_BASE + 0x20. The
+argument is required for bare images and ignored for images that already
+carry a header, which are packed as before.
+
+fiptool.py accepts --LOADER_2ND_BASE to pack bare loader_2nd images,
+such as mainline U-Boot, but the fip-all target never passes it. Forward
+LOADER_2ND_BASE when it is set, e.g.:
+
+  make ... LOADER_2ND_PATH=u-boot.bin LOADER_2ND_BASE=0x801fffe0 fip
+
+The fip-all recipe ends with a duplicated --compress argument and [LS]
+line, left over from an earlier merge. The --compress line is run by the
+shell as a command of its own, which fails and makes the fip target
+return an error even though fip.bin has been generated.
+
+FSBL was created to work with their own SDK [1], which currently uses the
+downstream u-boot. Therefore, this changes are needed only to make the
+script easier to work with u-boot upstream, from oe-core.
+
+[1] https://github.com/milkv-duo/duo-buildroot-sdk-v2
+
+Upstream-Status: Inappropriate [oe specific]
+Signed-off-by: Hiago De Franco <hfranco@baylibre.com>
+---
+ make_helpers/fip.mk    |  3 +--
+ plat/cv181x/fiptool.py | 21 ++++++++++++++++++++-
+ 2 files changed, 21 insertions(+), 3 deletions(-)
+
+diff --git a/make_helpers/fip.mk b/make_helpers/fip.mk
+index ba2c850..44c9510 100644
+--- a/make_helpers/fip.mk
++++ b/make_helpers/fip.mk
+@@ -109,11 +109,10 @@ fip-all: fip-dep
+ 		--BLCP_2ND='${BLCP_2ND_PATH}' \
+ 		--MONITOR='${MONITOR_PATH}' \
+ 		--LOADER_2ND='${LOADER_2ND_PATH}' \
++		$(if ${LOADER_2ND_BASE},--LOADER_2ND_BASE=${LOADER_2ND_BASE}) \
+ 		--compress='${FIP_COMPRESS}'\
+ 		--LOADER_2ND_B='${LOADER_2ND_PATH_B}'
+ 	${Q}echo "  [LS] " $$(ls -l '${BUILD_PLAT}/fip.bin')
+-		--compress='${FIP_COMPRESS}'
+-	${Q}echo "  [LS] " $$(ls -l '${BUILD_PLAT}/fip.bin')
+ 
+ ifeq (${FSBL_SECURE_BOOT_SUPPORT},1)
+ .PHONY: fip-sign fip-sign-enc boot0-sign boot0-sign-enc
+diff --git a/plat/cv181x/fiptool.py b/plat/cv181x/fiptool.py
+index abb842b..d689b64 100755
+--- a/plat/cv181x/fiptool.py
++++ b/plat/cv181x/fiptool.py
+@@ -498,8 +498,21 @@ class FIP:
+ 
+         e = self.ldr_2nd_hdr["MAGIC"]
+         magic = loader_2nd[e.addr : e.end]
+-        if magic != LOADER_2ND_MAGIC_ORIG:
++        if magic == LOADER_2ND_MAGIC_ORIG:
++            if args.LOADER_2ND_BASE is not None:
++                logging.warning("loader_2nd has a header, ignoring LOADER_2ND_BASE")
++        elif magic in LOADER_2ND_MAGIC_LIST:
+             raise ValueError("loader_2nd's magic should be %r, but %r" % (LOADER_2ND_MAGIC_ORIG, magic))
++        else:
++            # Bare image (e.g. mainline U-Boot): prepend a loader_2nd header
++            if args.LOADER_2ND_BASE is None:
++                raise ValueError("loader_2nd has no header, LOADER_2ND_BASE is required")
++
++            logging.info("loader_2nd is a bare image, base=%#x", args.LOADER_2ND_BASE)
++            hdr = self.ldr_2nd_hdr
++            hdr["MAGIC"].content = LOADER_2ND_MAGIC_ORIG
++            hdr["RUNADDR"].content = args.LOADER_2ND_BASE
++            loader_2nd = b"".join(e.content for e in hdr.values()) + loader_2nd
+ 
+         self.compress_algo = args.compress
+         self.body2["LOADER_2ND"].content = loader_2nd
+@@ -780,6 +793,12 @@ def parse_args():
+     pr_gen.add_argument("--OLD_FIP", type=str)
+     pr_gen.add_argument("--BLOCK_SIZE", type=auto_int)
+     pr_gen.add_argument("--BL2_FILL", type=auto_int)
++    pr_gen.add_argument(
++        "--LOADER_2ND_BASE",
++        type=auto_int,
++        help="Address to load a bare LOADER_2ND image (without header) to. "
++        "A 0x20-byte header is placed there and the image runs at LOADER_2ND_BASE + 0x20",
++    )
+ 
+     pr_gen.add_argument("output", type=str, help="Output filename")
+ 
+-- 
+2.53.0
+
