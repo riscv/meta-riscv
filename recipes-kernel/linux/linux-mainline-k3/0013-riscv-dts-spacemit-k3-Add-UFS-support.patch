@@ -1,0 +1,83 @@
+From bbff2d526b9db91db8ae490d26a0a4a6b5467a11 Mon Sep 17 00:00:00 2001
+From: Yixun Lan <dlan@kernel.org>
+Date: Wed, 16 Sep 2026 02:59:55 +0000
+Subject: [PATCH 1/3] riscv: dts: spacemit: k3: Add UFS support
+
+Add UFS Host Controller support for SpacemiT K3 SoC, and enable
+it both on Pico-ITX and CoM260-IFX boards.
+
+Tested-by: Aurelien Jarno <aurelien@aurel32.net>
+Tested-by: Anirudh Srinivasan <asrinivasan@oss.tenstorrent.com>
+Signed-off-by: Yixun Lan <dlan@kernel.org>
+
+Upstream-Status: Submitted [https://lore.kernel.org/spacemit/20260916-08-k3-ufs-support-v5-3-1f5d71f1027d@kernel.org/]
+Signed-off-by: Trevor Gamblin <tgamblin@baylibre.com>
+---
+ arch/riscv/boot/dts/spacemit/k3-com260.dtsi  |  4 ++++
+ arch/riscv/boot/dts/spacemit/k3-pico-itx.dts |  4 ++++
+ arch/riscv/boot/dts/spacemit/k3.dtsi         | 22 ++++++++++++++++++++
+ 3 files changed, 30 insertions(+)
+
+diff --git a/arch/riscv/boot/dts/spacemit/k3-com260.dtsi b/arch/riscv/boot/dts/spacemit/k3-com260.dtsi
+index 054bfff7413a..2e8e8bf6c028 100644
+--- a/arch/riscv/boot/dts/spacemit/k3-com260.dtsi
++++ b/arch/riscv/boot/dts/spacemit/k3-com260.dtsi
+@@ -238,3 +238,7 @@ &uart0 {
+ 	pinctrl-0 = <&uart0_0_cfg>;
+ 	status = "okay";
+ };
++
++&ufshc {
++	status = "okay";
++};
+diff --git a/arch/riscv/boot/dts/spacemit/k3-pico-itx.dts b/arch/riscv/boot/dts/spacemit/k3-pico-itx.dts
+index dda420900aa2..3ebf28d19d50 100644
+--- a/arch/riscv/boot/dts/spacemit/k3-pico-itx.dts
++++ b/arch/riscv/boot/dts/spacemit/k3-pico-itx.dts
+@@ -321,6 +321,10 @@ &uart0 {
+ 	status = "okay";
+ };
+ 
++&ufshc {
++	status = "okay";
++};
++
+ &usb2_host {
+ 	#address-cells = <1>;
+ 	#size-cells = <0>;
+diff --git a/arch/riscv/boot/dts/spacemit/k3.dtsi b/arch/riscv/boot/dts/spacemit/k3.dtsi
+index a5fb72e23dcf..11e39042f259 100644
+--- a/arch/riscv/boot/dts/spacemit/k3.dtsi
++++ b/arch/riscv/boot/dts/spacemit/k3.dtsi
+@@ -570,6 +570,28 @@ usb2_phy: phy@c0a20000 {
+ 			status = "disabled";
+ 		};
+ 
++		ufshc: ufshc@c0e00000 {
++			compatible = "spacemit,k3-ufshc";
++			reg = <0x0 0xc0e00000 0x0 0x40000>;
++			clocks = <&syscon_apmu CLK_APMU_UFS_ACLK>,
++				 <&syscon_apmu CLK_APMU_UFS_REFCLK>;
++			clock-names = "axi", "ref";
++			resets = <&syscon_apmu RESET_APMU_UFS_ACLK>;
++			interrupts = <135 IRQ_TYPE_LEVEL_HIGH>;
++			lanes-per-direction = <2>;
++			operating-points-v2 = <&ufs_opp_table>;
++			status = "disabled";
++
++			ufs_opp_table: opp-table {
++				compatible = "operating-points-v2";
++
++				opp-1 {
++					opp-hz = /bits/ 64 <491520000>,
++						 /bits/ 64 <19200000>;
++				};
++			};
++		};
++
+ 		eth0: ethernet@cac80000 {
+ 			compatible = "spacemit,k3-dwmac", "snps,dwmac-5.40a";
+ 			reg = <0x0 0xcac80000 0x0 0x2000>;
+-- 
+2.56.0
+
