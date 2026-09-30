@@ -64,4 +64,4 @@ do_deploy:append() {
     install -m 0644 ${S}/include/configs/cvi_board_memmap.h ${DEPLOYDIR}
 }
 
-COMPATIBLE_MACHINE = "milkv-duo"
+COMPATIBLE_MACHINE = "milkv-duo-common"

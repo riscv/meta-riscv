@@ -4,7 +4,7 @@ SUMMARY = "Mainline Linux Kernel recipe for RISC-V platforms"
 
 FILESEXTRAPATHS:prepend:k1 := "${THISDIR}/linux-mainline-k1:"
 FILESEXTRAPATHS:prepend:eswin-ebc77-mainline := "${THISDIR}/linux-eswin-ebc77-mainline:"
-FILESEXTRAPATHS:prepend:milkv-duo := "${THISDIR}/linux-milkv-duo:"
+FILESEXTRAPATHS:prepend:milkv-duo-common := "${THISDIR}/linux-milkv-duo:"
 
 KERNEL_VERSION_SANITY_SKIP = "1"
 LINUX_VERSION                       ?= "7.2.2"
@@ -14,7 +14,7 @@ SRCREV                              ?= "52c36105f76e96b638152a42e735f2e7767ed946
 # --- DEPENDS ---
 DEPENDS:append:k1                    = " u-boot-tools-native"
 DEPENDS:append:eswin-ebc77-mainline  = " u-boot-mkimage-native dtc-native"
-DEPENDS:append:milkv-duo             = " u-boot-mkimage-native dtc-native"
+DEPENDS:append:milkv-duo-common = " u-boot-mkimage-native dtc-native"
 
 # --- SRC_URI ---
 SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git;protocol=https;branch=${BRANCH}"
@@ -82,7 +82,7 @@ SRC_URI:append:eswin-ebc77-mainline = " \
            file://iwd-wifi.cfg \
 "
 
-SRC_URI:append:milkv-duo = " \
+SRC_URI:append:milkv-duo-common = " \
         file://dts-exclude-memory-occupied-by-opensbi.patch \
         file://0001-sophgo-add-cv1800-rtcsys-reset-handler.patch \
         file://0001-riscv-dts-sophgo-cv180x-Add-PWR_GPIO-controller.patch \
@@ -101,12 +101,14 @@ INSANE_SKIP:append:eswin-ebc77-mainline                 = " textrel"
 KERNEL_DANGLING_FEATURES_WARN_ONLY:eswin-ebc77-mainline = "1"
 
 KBUILD_DEFCONFIG:eswin-ebc77-mainline = ""
-KBUILD_DEFCONFIG:milkv-duo            = ""
+KBUILD_DEFCONFIG:milkv-duo-common = ""
 KERNEL_DEVICETREE:milkv-duo     ?= "sophgo/cv1800b-milkv-duo.dtb"
 KERNEL_DEVICETREE:milkv-duo256m ?= "sophgo/sg2002-milkv-duo256m.dtb"
-KERNEL_FEATURES_RISCV:milkv-duo  = ""
+# duos used to inherit the duo dtb through the old shared :milkv-duo override.
+KERNEL_DEVICETREE:milkv-duos    ?= "sophgo/cv1800b-milkv-duo.dtb"
+KERNEL_FEATURES_RISCV:milkv-duo-common = ""
 
-do_deploy:append:milkv-duo() {
+do_deploy:append:milkv-duo-common() {
 	cp ${B}/arch/riscv/boot/Image.gz ${B}
 	cp ${UNPACKDIR}/multi.its ${B}
 	mkimage -f ${B}/multi.its ${B}/uImage.fit

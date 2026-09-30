@@ -14,7 +14,7 @@ SRC_URI:append:dc-roma-fml13v01 = "\
 DEPENDS:append:beaglev-fire = " hss-payload-generator-native"
 DEPENDS:append:jh7110 = " u-boot-tools-native dtc-native"
 
-EXTRA_OEMAKE:append:milkv-duo = "FW_FDT_PATH=${DEPLOY_DIR_IMAGE}/u-boot.dtb"
+EXTRA_OEMAKE:append:milkv-duo-common = " FW_FDT_PATH=${DEPLOY_DIR_IMAGE}/u-boot.dtb"
 
 # opensbi's own Makefile hardcodes CFLAGS and ignores TARGET_CFLAGS, so its
 # debug info embeds raw TMPDIR/HOME source paths. Skip the buildpaths QA check
@@ -22,7 +22,7 @@ EXTRA_OEMAKE:append:milkv-duo = "FW_FDT_PATH=${DEPLOY_DIR_IMAGE}/u-boot.dtb"
 INSANE_SKIP:${PN}-dbg:append:dc-roma-fml13v01 = "buildpaths"
 
 _DEPS = ""
-_DEPS:milkv-duo = "virtual/bootloader:do_deploy"
+_DEPS:milkv-duo-common = "virtual/bootloader:do_deploy"
 
 do_compile[depends] += "${_DEPS}"
 
