@@ -1,0 +1,27 @@
+From e0b4cb1a5573ce5c2fa3511f10e9490d7a315a1b Mon Sep 17 00:00:00 2001
+From: Yao Zi <ziyao@disroot.org>
+Date: Wed, 1 Oct 2025 02:55:09 +0000
+Subject: [PATCH 07/16] riscv: cpu: th1520: Select reset driver by default
+
+Signed-off-by: Yao Zi <ziyao@disroot.org>
+Upstream-Status: Pending
+
+---
+ arch/riscv/cpu/th1520/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/riscv/cpu/th1520/Kconfig b/arch/riscv/cpu/th1520/Kconfig
+index df609b7af71..bb98cdfee5c 100644
+--- a/arch/riscv/cpu/th1520/Kconfig
++++ b/arch/riscv/cpu/th1520/Kconfig
+@@ -13,6 +13,7 @@ config THEAD_TH1520
+ 	select SYS_CACHE_THEAD_CMO
+ 	select CLK_THEAD
+ 	select PINCTRL_TH1520
++	select RESET_TH1520
+ 	imply CPU
+ 	imply CPU_RISCV
+ 	imply RISCV_TIMER if (RISCV_SMODE || SPL_RISCV_SMODE)
+-- 
+2.53.0
+

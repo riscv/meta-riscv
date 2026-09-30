@@ -1,0 +1,137 @@
+From bde363f4c69bd6a15af9d36254aeef07548fa2da Mon Sep 17 00:00:00 2001
+From: Yao Zi <ziyao@disroot.org>
+Date: Wed, 1 Oct 2025 02:49:05 +0000
+Subject: [PATCH 05/16] reset: th1520: Add reset driver for AON subsystem
+
+Signed-off-by: Yao Zi <ziyao@disroot.org>
+Upstream-Status: Pending
+
+---
+ drivers/reset/Kconfig        |  8 ++++
+ drivers/reset/Makefile       |  1 +
+ drivers/reset/reset-th1520.c | 83 ++++++++++++++++++++++++++++++++++++
+ 3 files changed, 92 insertions(+)
+ create mode 100644 drivers/reset/reset-th1520.c
+
+diff --git a/drivers/reset/Kconfig b/drivers/reset/Kconfig
+index e7c0870c918..df70049b489 100644
+--- a/drivers/reset/Kconfig
++++ b/drivers/reset/Kconfig
+@@ -277,5 +277,13 @@ config RESET_SPACEMIT_K1
+ 	  Support for SPACEMIT's K1 Reset system. Basic Assert/Deassert
+ 	  is supported.
+ 
++config RESET_TH1520
++	bool "Support for T-Head TH1520 Reset driver"
++	depends on DM_RESET
++	help
++	  Support for T-Head TH1520 reset driver. Only resets for AO region
++	  are implemented, and are necessary for the integrated E902
++	  coprocessor to operate.
++
+ source "drivers/reset/stm32/Kconfig"
+ endmenu
+diff --git a/drivers/reset/Makefile b/drivers/reset/Makefile
+index 2c83f858895..e1e8ff8719c 100644
+--- a/drivers/reset/Makefile
++++ b/drivers/reset/Makefile
+@@ -37,6 +37,7 @@ obj-$(CONFIG_RESET_AT91) += reset-at91.o
+ obj-$(CONFIG_$(PHASE_)RESET_JH7110) += reset-jh7110.o
+ obj-$(CONFIG_RESET_RZG2L_USBPHY_CTRL) += reset-rzg2l-usbphy-ctrl.o
+ obj-$(CONFIG_RESET_SPACEMIT_K1) += reset-spacemit-k1.o
++obj-$(CONFIG_RESET_TH1520) += reset-th1520.o
+ 
+ obj-$(CONFIG_ARCH_STM32) += stm32/
+ obj-$(CONFIG_ARCH_STM32MP) += stm32/
+diff --git a/drivers/reset/reset-th1520.c b/drivers/reset/reset-th1520.c
+new file mode 100644
+index 00000000000..e34a722d06b
+--- /dev/null
++++ b/drivers/reset/reset-th1520.c
+@@ -0,0 +1,83 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * T-Head TH1520 reset driver
++ * Copyright (C) 2025 Yao Zi <ziyao@disroot.org>
++ */
++
++#include <asm/io.h>
++#include <dm.h>
++#include <reset-uclass.h>
++#include <dt-bindings/reset/thead,th1520-reset.h>
++
++struct th1520_reset {
++	void __iomem *base;
++};
++
++struct th1520_reset_map {
++	u32 off;
++	u32 bit;
++};
++
++struct th1520_reset_map th1520_ao_resets[] = {
++	[TH1520_RESET_ID_E902_CORE] = {
++		.off = 0x24,
++		.bit = BIT(0),
++	},
++	[TH1520_RESET_ID_E902_HAD] = {
++		.off = 0x24,
++		.bit = BIT(1),
++	},
++};
++
++static int th1520_reset_update(struct reset_ctl *rst, bool assert)
++{
++	struct th1520_reset *priv = dev_get_priv(rst->dev);
++	struct th1520_reset_map *map = &th1520_ao_resets[rst->id];
++
++	if (assert)
++		clrbits_le32(priv->base + map->off, map->bit);
++	else
++		setbits_le32(priv->base + map->off, map->bit);
++
++	return 0;
++}
++
++static int th1520_reset_assert(struct reset_ctl *rst)
++{
++	return th1520_reset_update(rst, true);
++}
++
++static int th1520_reset_deassert(struct reset_ctl *rst)
++{
++	return th1520_reset_update(rst, false);
++}
++
++struct reset_ops th1520_reset_ops = {
++	.rst_assert	= th1520_reset_assert,
++	.rst_deassert	= th1520_reset_deassert,
++};
++
++static int th1520_reset_probe(struct udevice *dev)
++{
++	struct th1520_reset *reset = dev_get_priv(dev);
++
++	reset->base = dev_remap_addr(dev);
++	if (!reset->base)
++		return -EINVAL;
++
++	return 0;
++}
++
++static const struct udevice_id th1520_reset_ids[] = {
++	{ .compatible = "thead,th1520-reset-ao" },
++	{ },
++};
++
++U_BOOT_DRIVER(th1520_reset) = {
++	.name = "th1520-reset",
++	.id = UCLASS_RESET,
++	.of_match = th1520_reset_ids,
++	.probe = th1520_reset_probe,
++	.priv_auto = sizeof(struct th1520_reset),
++	.ops = &th1520_reset_ops,
++};
+-- 
+2.53.0
+

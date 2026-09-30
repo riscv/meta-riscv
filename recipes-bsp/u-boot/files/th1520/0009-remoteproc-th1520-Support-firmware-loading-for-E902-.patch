@@ -1,0 +1,177 @@
+From 1a06bb9ed0ae32ed98f3dda7977584ae8ff323b1 Mon Sep 17 00:00:00 2001
+From: Yao Zi <ziyao@disroot.org>
+Date: Wed, 1 Oct 2025 03:02:39 +0000
+Subject: [PATCH 09/16] remoteproc: th1520: Support firmware loading for E902
+ core
+
+We will probably need an extra devicetree node for the E902 core. I'm
+still not sure about what its binding should be.
+
+Signed-off-by: Yao Zi <ziyao@disroot.org>
+Upstream-Status: Pending
+
+---
+ drivers/remoteproc/Kconfig              |  10 ++
+ drivers/remoteproc/Makefile             |   1 +
+ drivers/remoteproc/thead_th1520_rproc.c | 116 ++++++++++++++++++++++++
+ 3 files changed, 127 insertions(+)
+ create mode 100644 drivers/remoteproc/thead_th1520_rproc.c
+
+diff --git a/drivers/remoteproc/Kconfig b/drivers/remoteproc/Kconfig
+index 7f9e35283f9..710952b5687 100644
+--- a/drivers/remoteproc/Kconfig
++++ b/drivers/remoteproc/Kconfig
+@@ -76,6 +76,16 @@ config REMOTEPROC_STM32_COPRO
+ 	  Say 'y' here to add support for STM32 Cortex-M4 coprocessors via the
+ 	  remoteproc framework.
+ 
++config REMOTEPROC_THEAD_TH1520
++	bool "Support for TH1520 E902 coprocessor"
++	select REMOTEPROC
++	default THEAD_TH1520
++	depends on DM
++	depends on DM_RESET
++	help
++	  Say 'y' here to add support for T-Head TH1520 E902 coprocessor via
++	  the remoteproc framework.
++
+ config REMOTEPROC_TI_K3_ARM64
+ 	bool "Support for TI's K3 based ARM64 remoteproc driver"
+ 	select REMOTEPROC
+diff --git a/drivers/remoteproc/Makefile b/drivers/remoteproc/Makefile
+index 250915d0de4..6d7fbe95930 100644
+--- a/drivers/remoteproc/Makefile
++++ b/drivers/remoteproc/Makefile
+@@ -14,6 +14,7 @@ obj-$(CONFIG_REMOTEPROC_RENESAS_APMU) += renesas_apmu.o
+ obj-$(CONFIG_REMOTEPROC_RENESAS_RSIP) += renesas_rsip.o
+ obj-$(CONFIG_REMOTEPROC_SANDBOX) += sandbox_testproc.o
+ obj-$(CONFIG_REMOTEPROC_STM32_COPRO) += stm32_copro.o
++obj-$(CONFIG_REMOTEPROC_THEAD_TH1520) += thead_th1520_rproc.o
+ obj-$(CONFIG_REMOTEPROC_TI_K3_ARM64) += ti_k3_arm64_rproc.o
+ obj-$(CONFIG_REMOTEPROC_TI_K3_DSP) += ti_k3_dsp_rproc.o
+ obj-$(CONFIG_REMOTEPROC_TI_K3_M4F) += ti_k3_m4_rproc.o
+diff --git a/drivers/remoteproc/thead_th1520_rproc.c b/drivers/remoteproc/thead_th1520_rproc.c
+new file mode 100644
+index 00000000000..01a5d735c93
+--- /dev/null
++++ b/drivers/remoteproc/thead_th1520_rproc.c
+@@ -0,0 +1,116 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Remoteproc support for E902 core in T-Head TH1520 SoC
++ * Copyright (C) 2025 Yao Zi <ziyao@disroot.org>
++ */
++
++#include <asm/io.h>
++#include <cpu_func.h>
++#include <dm.h>
++#include <dm/device_compat.h>
++#include <remoteproc.h>
++#include <reset.h>
++
++struct th1520_rproc_priv {
++	struct reset_ctl rst_core, rst_had;
++	void __iomem *sysreg;
++};
++
++#define TH1520_E902_RST_ADDR		0x44
++
++static void *th1520_rproc_device_to_virt(struct udevice *dev, ulong da,
++					 ulong size)
++{
++	if (da >= 0xffef8000 && da <= 0xfff40000)
++		return (void __iomem *)0xffffef8000;
++
++	return NULL;
++}
++
++static int th1520_rproc_load(struct udevice *dev, ulong addr, ulong size)
++{
++	struct th1520_rproc_priv *priv = dev_get_priv(dev);
++
++	writel(rproc_elf_get_boot_addr(dev, addr),
++	       priv->sysreg + TH1520_E902_RST_ADDR);
++
++	return rproc_elf32_load_image(dev, addr, size);
++}
++
++static int th1520_rproc_start(struct udevice *dev)
++{
++	struct th1520_rproc_priv *priv = dev_get_priv(dev);
++	int ret;
++
++	ret = reset_assert(&priv->rst_core);
++	if (ret) {
++		dev_err(dev, "failed to assert core reset: %d\n", ret);
++		return ret;
++	}
++
++	ret = reset_assert(&priv->rst_had);
++	if (ret) {
++		dev_err(dev, "failed to assert had reset: %d\n", ret);
++		return ret;
++	}
++
++	ret = reset_deassert(&priv->rst_had);
++	if (ret) {
++		dev_err(dev, "failed to deassert had reset: %d\n", ret);
++		return ret;
++	}
++
++	ret = reset_deassert(&priv->rst_core);
++	if (ret) {
++		dev_err(dev, "failed to deassert core reset: %d\n", ret);
++		return ret;
++	}
++
++	return 0;
++}
++
++struct dm_rproc_ops th1520_rproc_ops = {
++	.load = th1520_rproc_load,
++	.start = th1520_rproc_start,
++	.device_to_virt = th1520_rproc_device_to_virt,
++};
++
++static int th1520_rproc_probe(struct udevice *dev)
++{
++	struct th1520_rproc_priv *priv = dev_get_priv(dev);
++	int ret;
++
++	priv->sysreg = dev_remap_addr(dev);
++	if (!priv->sysreg) {
++		dev_err(dev, "failed to map sysreg\n");
++		return -EINVAL;
++	}
++
++	ret = reset_get_by_name(dev, "core", &priv->rst_core);
++	if (ret) {
++		dev_err(dev, "failed to get core reset: %d\n", ret);
++		return ret;
++	}
++
++	ret = reset_get_by_name(dev, "had", &priv->rst_had);
++	if (ret) {
++		dev_err(dev, "failed to get had reset: %d\n", ret);
++		return ret;
++	}
++
++	return 0;
++}
++
++static const struct udevice_id th1520_rproc_ids[] = {
++	{ .compatible = "thead,th1520-sysreg-ao" },
++	{ },
++};
++
++U_BOOT_DRIVER(th1520_rproc) = {
++	.name = "th1520-rproc",
++	.of_match = th1520_rproc_ids,
++	.id = UCLASS_REMOTEPROC,
++	.ops = &th1520_rproc_ops,
++	.probe = th1520_rproc_probe,
++	.priv_auto = sizeof(struct th1520_rproc_priv),
++};
+-- 
+2.53.0
+

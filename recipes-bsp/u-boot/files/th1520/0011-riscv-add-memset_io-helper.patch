@@ -1,0 +1,27 @@
+From f4ec325a2ae94f40f47cfe6baef3faf1d8ba7e5b Mon Sep 17 00:00:00 2001
+From: Adn Elkawass <elkawasadn@gmail.com>
+Date: Mon, 28 Sep 2026 14:27:15 +0300
+Subject: [PATCH 11/16] riscv: add memset_io helper
+
+Signed-off-by: Adn Elkawass <elkawasadn@gmail.com>
+Upstream-Status: Pending
+
+---
+ arch/riscv/include/asm/io.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/riscv/include/asm/io.h b/arch/riscv/include/asm/io.h
+index da165858034..6f382c5b68b 100644
+--- a/arch/riscv/include/asm/io.h
++++ b/arch/riscv/include/asm/io.h
+@@ -36,6 +36,7 @@ static inline void sync(void)
+ #define __raw_readq(a)			__arch_getq(a)
+ 
+ /* adding for cadence_qspi_apb.c */
++#define memset_io(c, v, l)		memset((void *)(c), (v), (l))
+ #define memcpy_fromio(a, c, l)		memcpy((a), (c), (l))
+ #define memcpy_toio(c, a, l)		memcpy((c), (a), (l))
+ 
+-- 
+2.53.0
+
