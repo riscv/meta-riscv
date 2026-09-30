@@ -1,0 +1,33 @@
+From bf009fc4417c7f0dc930514681c97ec86875e525 Mon Sep 17 00:00:00 2001
+From: Yao Zi <ziyao@disroot.org>
+Date: Wed, 1 Oct 2025 03:06:49 +0000
+Subject: [PATCH 13/16] riscv: dts: th1520: Describe AON reset controller
+
+Signed-off-by: Yao Zi <ziyao@disroot.org>
+Upstream-Status: Pending
+
+---
+ arch/riscv/dts/th1520-u-boot.dtsi | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/arch/riscv/dts/th1520-u-boot.dtsi b/arch/riscv/dts/th1520-u-boot.dtsi
+index 45ffccbb847..624c76d791a 100644
+--- a/arch/riscv/dts/th1520-u-boot.dtsi
++++ b/arch/riscv/dts/th1520-u-boot.dtsi
+@@ -13,6 +13,13 @@
+ 		reg-names = "phy-0", "phy-1", "ctrl", "sys";
+ 		bootph-pre-ram;
+ 	};
++
++	rst_ao: reset-controller@fffff44000 {
++		compatible = "thead,th1520-reset-ao";
++		reg = <0xff 0xfff44000 0x0 0x2000>;
++		#reset-cells = <1>;
++		status = "okay";
++	};
+ };
+ 
+ &cpus {
+-- 
+2.53.0
+
