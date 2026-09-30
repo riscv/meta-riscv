@@ -1,0 +1,36 @@
+From f8fd7f664f8a44565b40b5b0ea6813d90c29f94f Mon Sep 17 00:00:00 2001
+From: Hiago De Franco <hfranco@baylibre.com>
+Date: Tue, 29 Sep 2026 15:11:48 -0300
+Subject: [PATCH 1/2] board: sophgo: milkv_duo_256m: fix fdtfile quoting
+
+CONFIG_DEFAULT_DEVICE_TREE is a quoted string, so the quotes end up in
+the environment:
+
+  fdtfile="sg2002-milkv-duo256m".dtb
+
+Use DEFAULT_DEVICE_TREE instead, which the build passes to the
+environment preprocessor without the quotes:
+
+  fdtfile=sophgo/sg2002-milkv-duo256m.dtb
+
+Upstream-Status: Submitted [https://lore.kernel.org/all/20260930-256m-fixes-v1-0-69546876ff28@baylibre.com/]
+Fixes: 98b59e181daa ("board: sophgo: add support for Milk-V Duo 256M")
+Signed-off-by: Hiago De Franco <hfranco@baylibre.com>
+---
+ board/sophgo/milkv_duo_256m/milkv_duo_256m.env | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/board/sophgo/milkv_duo_256m/milkv_duo_256m.env b/board/sophgo/milkv_duo_256m/milkv_duo_256m.env
+index 4c1e17b53ca..4c9f53d0811 100644
+--- a/board/sophgo/milkv_duo_256m/milkv_duo_256m.env
++++ b/board/sophgo/milkv_duo_256m/milkv_duo_256m.env
+@@ -1,5 +1,5 @@
+ fdt_addr_r=0x84000000
+-fdtfile=CONFIG_DEFAULT_DEVICE_TREE.dtb
++fdtfile=DEFAULT_DEVICE_TREE.dtb
+ kernel_addr_r=0x80200000
+ kernel_comp_addr_r=0x88000000
+ kernel_comp_size=0x4000000
+-- 
+2.53.0
+

@@ -1,0 +1,52 @@
+From bdf9011ec3d0b3080461cfcd6675912fe0c1144d Mon Sep 17 00:00:00 2001
+From: Hiago De Franco <hfranco@baylibre.com>
+Date: Tue, 29 Sep 2026 14:33:07 -0300
+Subject: [PATCH 2/3] configs: milkv_duo: enable BOOTSTD_DEFAULTS
+
+Enable CONFIG_BOOTSTD_DEFAULTS so the board can boot an extlinux.conf
+with standard boot. This sets bootcmd to "bootflow scan" and enables
+the script bootmeth, the ext4 commands and ping.
+
+Disable CONFIG_BOOTMETH_EFI_BOOTMGR, as the Milk-V Duo 256M does. There
+is no EFI system partition to store variables, and the EFI boot manager
+fails on every boot before extlinux is tried.
+
+The rest of the diff comes from savedefconfig.
+
+Upstream-Status: Submitted [https://lore.kernel.org/all/20260929-milkv-duo-bootstd-v1-0-1b75c9ad6483@baylibre.com/]
+Signed-off-by: Hiago De Franco <hfranco@baylibre.com>
+---
+ configs/milkv_duo_defconfig | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
+
+diff --git a/configs/milkv_duo_defconfig b/configs/milkv_duo_defconfig
+index f1f3930564b..20e19fde712 100644
+--- a/configs/milkv_duo_defconfig
++++ b/configs/milkv_duo_defconfig
+@@ -11,18 +11,16 @@ CONFIG_TARGET_MILKV_DUO=y
+ CONFIG_ARCH_RV64I=y
+ CONFIG_RISCV_SMODE=y
+ CONFIG_FIT=y
+-CONFIG_SUPPORT_RAW_INITRD=y
++CONFIG_BOOTSTD_DEFAULTS=y
++# CONFIG_BOOTMETH_EFI_BOOTMGR is not set
+ CONFIG_SYS_CBSIZE=512
+ CONFIG_SYS_PBSIZE=544
+-CONFIG_HUSH_PARSER=y
+ CONFIG_SYS_PROMPT="milkv_duo# "
+ CONFIG_CMD_MMC=y
+-CONFIG_CMD_PART=y
+ CONFIG_CMD_POWEROFF=y
+-CONFIG_CMD_DHCP=y
+-CONFIG_CMD_PXE=y
+-CONFIG_CMD_FAT=y
+-CONFIG_CMD_FS_GENERIC=y
++# CONFIG_CMD_MII is not set
++# CONFIG_ISO_PARTITION is not set
++# CONFIG_EFI_PARTITION is not set
+ CONFIG_ENV_OVERWRITE=y
+ CONFIG_NET_RANDOM_ETHADDR=y
+ CONFIG_CLK_SOPHGO_CV1800B=y
+-- 
+2.53.0
+

@@ -1,0 +1,75 @@
+From 404e9ccfd5cff456e1ea0a9476f238dc74c0d0ca Mon Sep 17 00:00:00 2001
+From: Hiago De Franco <hfranco@baylibre.com>
+Date: Tue, 29 Sep 2026 19:12:50 -0300
+Subject: [PATCH 2/2] riscv: cpu: cv1800b: keep U-Boot out of reserved memory
+
+The upstream devicetrees reserve the end of DRAM for the coprocessor
+firmware, as a no-map region:
+
+  cv1800b-milkv-duo:    region@83f40000, size 0xc0000
+  sg2002-milkv-duo256m: region@8fe00000, size 0x200000
+
+ram_top is the end of DRAM, so U-Boot relocates into that region. On the
+Milk-V Duo, relocaddr is 0x83f76000, and LMB then fails to reserve the
+region:
+
+ERROR: reserving fdt memory region failed (addr=83f40000 size=c0000
+flags=2): -17
+
+Implement board_get_usable_ram_top() with get_mem_top(), which returns
+the highest free window below the devicetree reserved regions, as the
+Xilinx boards do.
+
+Upstream-Status: Submitted [https://lore.kernel.org/all/20260930-256m-fixes-v1-0-69546876ff28@baylibre.com/]
+Signed-off-by: Hiago De Franco <hfranco@baylibre.com>
+---
+ arch/riscv/cpu/cv1800b/dram.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+
+diff --git a/arch/riscv/cpu/cv1800b/dram.c b/arch/riscv/cpu/cv1800b/dram.c
+index 5d7659887b9..abcc239a289 100644
+--- a/arch/riscv/cpu/cv1800b/dram.c
++++ b/arch/riscv/cpu/cv1800b/dram.c
+@@ -3,10 +3,14 @@
+  * Copyright (C) 2018, Bin Meng <bmeng.cn@gmail.com>
+  */
+ 
++#include <asm/global_data.h>
+ #include <fdtdec.h>
+ #include <init.h>
++#include <memtop.h>
+ #include <linux/sizes.h>
+ 
++DECLARE_GLOBAL_DATA_PTR;
++
+ int dram_init(void)
+ {
+ 	return fdtdec_setup_mem_size_base();
+@@ -16,3 +20,24 @@ int dram_init_banksize(void)
+ {
+ 	return fdtdec_setup_memory_banksize();
+ }
++
++phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
++{
++	phys_size_t size;
++	phys_addr_t reg;
++
++	if (!total_size)
++		return gd->ram_top;
++
++	/*
++	 * The coprocessor firmware is reserved at the end of DRAM, keep
++	 * U-Boot out of it and of any other reserved region.
++	 */
++	size = ALIGN(CONFIG_SYS_MALLOC_LEN + total_size, SZ_1M);
++	reg = get_mem_top(gd->ram_base, gd->ram_size, size,
++			  (void *)gd->fdt_blob);
++	if (!reg)
++		return gd->ram_top;
++
++	return reg + size;
++}
+-- 
+2.53.0
+
