@@ -1,0 +1,53 @@
+From 69f95409f0053f787ad60175944080621a8b7d95 Mon Sep 17 00:00:00 2001
+From: "GUO Ren (XuanTie)" <guoren@kernel.org>
+Date: Mon, 17 Aug 2026 03:30:38 +0000
+Subject: [PATCH] riscv: dts: spacemit: k3: fix IMSIC num-guest-ids
+
+The initial K3 device tree used generic/placeholder values for the
+IMSIC guest configuration:
+
+  riscv,num-guest-ids    = <511>;
+
+According to the SpacemiT K3 User Manual this values is incorrect
+for the X100 cores:
+
+ - Advanced Interrupt Architecture (AIA):
+    - M-mode MSI: 512
+    - S-mode MSI: 512
+    - VS-mode MSI: 64
+
+Therefore, S-mode IMSIC (simsic) needs num-guest-ids = 63.
+
+Fixes: 56f37e391a62 ("riscv: dts: spacemit: add initial support for K3 SoC")
+Cc: stable@vger.kernel.org
+Cc: Guodong Xu <docular.xu@gmail.com>
+Cc: Yixun Lan <dlan@kernel.org>
+Signed-off-by: GUO Ren (XuanTie) <guoren@kernel.org>
+Reviewed-by: Yixun Lan <dlan@kernel.org>
+Reviewed-by: Junhui Liu <junhui.liu@pigmoral.tech>
+Link: https://patch.msgid.link/20260817033038.2286436-1-guoren@kernel.org
+Signed-off-by: Yixun Lan <dlan@kernel.org>
+
+Upstream-Status: Backport [https://git.kernel.org/pub/scm/linux/kernel/git/spacemit/linux.git/commit/?id=69f95409f0053f787ad60175944080621a8b7d95]
+
+Signed-off-by: Trevor Gamblin <tgamblin@baylibre.com>
+---
+ arch/riscv/boot/dts/spacemit/k3.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/riscv/boot/dts/spacemit/k3.dtsi b/arch/riscv/boot/dts/spacemit/k3.dtsi
+index 2d022e1364f1..86ccfb82e295 100644
+--- a/arch/riscv/boot/dts/spacemit/k3.dtsi
++++ b/arch/riscv/boot/dts/spacemit/k3.dtsi
+@@ -1248,7 +1248,7 @@ simsic: interrupt-controller@e0400000 {
+ 			msi-controller;
+ 			riscv,guest-index-bits = <6>;
+ 			riscv,hart-index-bits = <4>;
+-			riscv,num-guest-ids = <511>;
++			riscv,num-guest-ids = <63>;
+ 			riscv,num-ids = <511>;
+ 		};
+ 
+-- 
+2.56.0
+

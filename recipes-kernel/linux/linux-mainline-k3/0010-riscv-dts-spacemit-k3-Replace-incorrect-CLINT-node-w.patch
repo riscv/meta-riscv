@@ -1,0 +1,98 @@
+From cc6371a7f5195387584e56054f3af671ff7354dc Mon Sep 17 00:00:00 2001
+From: Junhui Liu <junhui.liu@pigmoral.tech>
+Date: Fri, 18 Sep 2026 00:29:38 +0800
+Subject: [PATCH] riscv: dts: spacemit: k3: Replace incorrect CLINT node with
+ ACLINT nodes
+
+The K3 implements separate ACLINT MSWI, MTIMER and SSWI devices. The
+existing CLINT node at 0xe081c000 incorrectly describes the SSWI
+register space in the non-secure window as a legacy CLINT.
+
+The ACLINT register space is mapped at two base addresses: a secure
+window at 0xf1810000 and a non-secure window at 0xe0810000. The
+secure window exposes all three components, while the non-secure
+window only exposes SSWI; the MSWI and MTIMER offsets are reserved
+there. Moreover, depending on the eFuse configuration, the non-secure
+window may be entirely inaccessible, whereas the secure window is
+always available.
+
+Replace the CLINT node with the three ACLINT devices, all using
+secure-window addresses: MSWI and MTIMER for machine-level firmware
+such as OpenSBI, and SSWI for supervisor software interrupts.
+
+Fixes: 56f37e391a62 ("riscv: dts: spacemit: add initial support for K3 SoC")
+Signed-off-by: Junhui Liu <junhui.liu@pigmoral.tech>
+Reviewed-by: Yixun Lan <dlan@kernel.org>
+Link: https://patch.msgid.link/20260918-k3-aclint-v3-6-cf4fd4050e14@pigmoral.tech
+Signed-off-by: Yixun Lan <dlan@kernel.org>
+
+Upstream-Status: Backport [https://git.kernel.org/pub/scm/linux/kernel/git/spacemit/linux.git/commit/?id=cc6371a7f5195387584e56054f3af671ff7354dc]
+
+Signed-off-by: Trevor Gamblin <tgamblin@baylibre.com>
+---
+ arch/riscv/boot/dts/spacemit/k3.dtsi | 43 +++++++++++++++++++---------
+ 1 file changed, 30 insertions(+), 13 deletions(-)
+
+diff --git a/arch/riscv/boot/dts/spacemit/k3.dtsi b/arch/riscv/boot/dts/spacemit/k3.dtsi
+index cf1c8b572c86..a5fb72e23dcf 100644
+--- a/arch/riscv/boot/dts/spacemit/k3.dtsi
++++ b/arch/riscv/boot/dts/spacemit/k3.dtsi
+@@ -1437,19 +1437,6 @@ saplic: interrupt-controller@e0804000 {
+ 			riscv,num-sources = <512>;
+ 		};
+ 
+-		clint: timer@e081c000 {
+-			compatible = "spacemit,k3-clint", "sifive,clint0";
+-			reg = <0x0 0xe081c000 0x0 0x4000>;
+-			interrupts-extended = <&cpu0_intc 3>, <&cpu0_intc 7>,
+-					      <&cpu1_intc 3>, <&cpu1_intc 7>,
+-					      <&cpu2_intc 3>, <&cpu2_intc 7>,
+-					      <&cpu3_intc 3>, <&cpu3_intc 7>,
+-					      <&cpu4_intc 3>, <&cpu4_intc 7>,
+-					      <&cpu5_intc 3>, <&cpu5_intc 7>,
+-					      <&cpu6_intc 3>, <&cpu6_intc 7>,
+-					      <&cpu7_intc 3>, <&cpu7_intc 7>;
+-		};
+-
+ 		/* sec_i2c3: 0xf0614000, not available from Linux */
+ 
+ 		mimsic: interrupt-controller@f1000000 {
+@@ -1479,5 +1466,35 @@ maplic: interrupt-controller@f1800000 {
+ 			riscv,num-sources = <512>;
+ 			status = "reserved";
+ 		};
++
++		aclint_mswi: interrupt-controller@f1810000 {
++			compatible = "spacemit,k3-aclint-mswi";
++			reg = <0x0 0xf1810000 0x0 0x4000>;
++			interrupts-extended = <&cpu0_intc 3>, <&cpu1_intc 3>,
++					      <&cpu2_intc 3>, <&cpu3_intc 3>,
++					      <&cpu4_intc 3>, <&cpu5_intc 3>,
++					      <&cpu6_intc 3>, <&cpu7_intc 3>;
++		};
++
++		aclint_mtimer: timer@f1814000 {
++			compatible = "spacemit,k3-aclint-mtimer";
++			reg = <0x0 0xf1814000 0x0 0x8000>;
++			reg-names = "mtimecmp";
++			interrupts-extended = <&cpu0_intc 7>, <&cpu1_intc 7>,
++					      <&cpu2_intc 7>, <&cpu3_intc 7>,
++					      <&cpu4_intc 7>, <&cpu5_intc 7>,
++					      <&cpu6_intc 7>, <&cpu7_intc 7>;
++		};
++
++		aclint_sswi: interrupt-controller@f181c000 {
++			compatible = "spacemit,k3-aclint-sswi";
++			reg = <0x0 0xf181c000 0x0 0x4000>;
++			#interrupt-cells = <0>;
++			interrupt-controller;
++			interrupts-extended = <&cpu0_intc 1>, <&cpu1_intc 1>,
++					      <&cpu2_intc 1>, <&cpu3_intc 1>,
++					      <&cpu4_intc 1>, <&cpu5_intc 1>,
++					      <&cpu6_intc 1>, <&cpu7_intc 1>;
++		};
+ 	};
+ };
+-- 
+2.56.0
+

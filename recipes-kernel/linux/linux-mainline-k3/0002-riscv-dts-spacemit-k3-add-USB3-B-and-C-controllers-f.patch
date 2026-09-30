@@ -1,0 +1,136 @@
+From 2b9612eceb96fb23bb81b044ce13f3bf5bab954f Mon Sep 17 00:00:00 2001
+From: Aurelien Jarno <aurelien@aurel32.net>
+Date: Mon, 28 Sep 2026 22:49:07 +0200
+Subject: [PATCH] riscv: dts: spacemit: k3: add USB3 B and C controllers for
+ Pico-ITX board
+
+The SpacemiT K3 has 4 USB3 controllers labelled A to D.
+
+On the K3 Pico-ITX board, the controllers B and C are used in USB2 mode
+only respectively for the M.2 B-Key slot and for the RTL8852BE Bluetooth
+controller.
+
+Add the two controller nodes. On the K3 Pico-ITX board, enable the
+controllers nodes and add the two corresponding USB2 PHY nodes.
+
+Tested-by: Anirudh Srinivasan <asrinivasan@oss.tenstorrent.com>
+Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
+Reviewed-by: Yixun Lan <dlan@kernel.org>
+Link: https://patch.msgid.link/20260928205012.3689405-3-aurelien@aurel32.net
+Signed-off-by: Yixun Lan <dlan@kernel.org>
+
+Upstream-Status: Backport [https://git.kernel.org/pub/scm/linux/kernel/git/spacemit/linux.git/commit/?id=2b9612eceb96fb23bb81b044ce13f3bf5bab954f]
+
+Signed-off-by: Trevor Gamblin <tgamblin@baylibre.com>
+---
+ arch/riscv/boot/dts/spacemit/k3-pico-itx.dts | 22 +++++++
+ arch/riscv/boot/dts/spacemit/k3.dtsi         | 60 ++++++++++++++++++++
+ 2 files changed, 82 insertions(+)
+
+diff --git a/arch/riscv/boot/dts/spacemit/k3-pico-itx.dts b/arch/riscv/boot/dts/spacemit/k3-pico-itx.dts
+index 0a6f669d509a..5aa6fa89cab5 100644
+--- a/arch/riscv/boot/dts/spacemit/k3-pico-itx.dts
++++ b/arch/riscv/boot/dts/spacemit/k3-pico-itx.dts
+@@ -323,6 +323,28 @@ &usb2_phy {
+ 	status = "okay";
+ };
+ 
++&usb3b {
++	phys = <&usb3b_u2phy>;
++	phy-names = "usb2-phy";
++	maximum-speed = "high-speed";
++	status = "okay";
++};
++
++&usb3b_u2phy {
++	status = "okay";
++};
++
++&usb3c {
++	phys = <&usb3c_u2phy>;
++	phy-names = "usb2-phy";
++	maximum-speed = "high-speed";
++	status = "okay";
++};
++
++&usb3c_u2phy {
++	status = "okay";
++};
++
+ &usb3d_u2phy {
+ 	status = "okay";
+ };
+diff --git a/arch/riscv/boot/dts/spacemit/k3.dtsi b/arch/riscv/boot/dts/spacemit/k3.dtsi
+index 1af47b7f1c8a..cf1c8b572c86 100644
+--- a/arch/riscv/boot/dts/spacemit/k3.dtsi
++++ b/arch/riscv/boot/dts/spacemit/k3.dtsi
+@@ -441,6 +441,66 @@ soc: soc {
+ 		dma-noncoherent;
+ 		ranges;
+ 
++		usb3b: usb@81400000 {
++			compatible = "spacemit,k3-dwc3";
++			reg = <0x0 0x81400000 0x0 0x10000>;
++			interrupts = <125 IRQ_TYPE_LEVEL_HIGH>;
++			interrupt-parent = <&saplic>;
++			clocks = <&syscon_apmu CLK_APMU_USB3_PORTB_BUS>;
++			clock-names = "usbdrd30";
++			resets = <&syscon_apmu RESET_APMU_USB3_B_AHB>,
++				 <&syscon_apmu RESET_APMU_USB3_B_VCC>,
++				 <&syscon_apmu RESET_APMU_USB3_B_PHY>;
++			reset-names = "ahb", "vcc", "phy";
++			phy_type = "utmi";
++			snps,dis_enblslpm_quirk;
++			snps,dis_u2_susphy_quirk;
++			snps,dis_u3_susphy_quirk;
++			snps,dis-del-phy-power-chg-quirk;
++			snps,dis-tx-ipgap-linecheck-quirk;
++			snps,parkmode-disable-ss-quirk;
++			dr_mode = "host";
++			status = "disabled";
++		};
++
++		usb3b_u2phy: phy@81500000 {
++			compatible = "spacemit,k3-usb2-phy";
++			reg = <0x0 0x81500000 0x0 0x200>;
++			clocks = <&syscon_apmu CLK_APMU_USB3_PORTB_BUS>;
++			#phy-cells = <0>;
++			status = "disabled";
++		};
++
++		usb3c: usb@81700000 {
++			compatible = "spacemit,k3-dwc3";
++			reg = <0x0 0x81700000 0x0 0x10000>;
++			interrupts = <148 IRQ_TYPE_LEVEL_HIGH>;
++			interrupt-parent = <&saplic>;
++			clocks = <&syscon_apmu CLK_APMU_USB3_PORTC_BUS>;
++			clock-names = "usbdrd30";
++			resets = <&syscon_apmu RESET_APMU_USB3_C_AHB>,
++				 <&syscon_apmu RESET_APMU_USB3_C_VCC>,
++				 <&syscon_apmu RESET_APMU_USB3_C_PHY>;
++			reset-names = "ahb", "vcc", "phy";
++			phy_type = "utmi";
++			snps,dis_enblslpm_quirk;
++			snps,dis_u2_susphy_quirk;
++			snps,dis_u3_susphy_quirk;
++			snps,dis-del-phy-power-chg-quirk;
++			snps,dis-tx-ipgap-linecheck-quirk;
++			snps,parkmode-disable-ss-quirk;
++			dr_mode = "host";
++			status = "disabled";
++		};
++
++		usb3c_u2phy: phy@81800000 {
++			compatible = "spacemit,k3-usb2-phy";
++			reg = <0x0 0x81800000 0x0 0x200>;
++			clocks = <&syscon_apmu CLK_APMU_USB3_PORTC_BUS>;
++			#phy-cells = <0>;
++			status = "disabled";
++		};
++
+ 		usb3d: usb@81a00000 {
+ 			compatible = "spacemit,k3-dwc3";
+ 			reg = <0x0 0x81a00000 0x0 0x10000>;
+-- 
+2.56.0
+

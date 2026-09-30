@@ -1,0 +1,36 @@
+From b424b3b0ab920a25c23fbd7d226a0174b38d0de7 Mon Sep 17 00:00:00 2001
+From: Junhui Liu <junhui.liu@pigmoral.tech>
+Date: Fri, 18 Sep 2026 00:29:37 +0800
+Subject: [PATCH] irqchip/aclint-sswi: Add support for SpacemiT K3
+
+Add a match entry for the spacemit,k3-aclint-sswi compatible. The K3
+SSWI device requires no special handling and can use the existing
+generic ACLINT SSWI initialization function.
+
+Signed-off-by: Junhui Liu <junhui.liu@pigmoral.tech>
+Reviewed-by: Yixun Lan <dlan@kernel.org>
+Link: https://patch.msgid.link/20260918-k3-aclint-v3-5-cf4fd4050e14@pigmoral.tech
+Signed-off-by: Yixun Lan <dlan@kernel.org>
+
+Upstream-Status: Backport [https://git.kernel.org/pub/scm/linux/kernel/git/spacemit/linux.git/commit/?id=b424b3b0ab920a25c23fbd7d226a0174b38d0de7]
+
+Signed-off-by: Trevor Gamblin <tgamblin@baylibre.com>
+---
+ drivers/irqchip/irq-aclint-sswi.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/irqchip/irq-aclint-sswi.c b/drivers/irqchip/irq-aclint-sswi.c
+index ca06efd86fa1..d3ef2cd3b5c5 100644
+--- a/drivers/irqchip/irq-aclint-sswi.c
++++ b/drivers/irqchip/irq-aclint-sswi.c
+@@ -179,6 +179,7 @@ static int __init generic_aclint_sswi_early_probe(struct device_node *node,
+ }
+ IRQCHIP_DECLARE(mips_p8700_sswi, "mips,p8700-aclint-sswi", generic_aclint_sswi_early_probe);
+ IRQCHIP_DECLARE(nuclei_ux900_sswi, "nuclei,ux900-aclint-sswi", generic_aclint_sswi_early_probe);
++IRQCHIP_DECLARE(spacemit_k3_sswi, "spacemit,k3-aclint-sswi", generic_aclint_sswi_early_probe);
+ 
+ /* THEAD variant */
+ #define THEAD_C9XX_CSR_SXSTATUS			0x5c0
+-- 
+2.56.0
+

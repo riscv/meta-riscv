@@ -3,6 +3,7 @@ require recipes-kernel/linux/linux-mainline-common.inc
 SUMMARY = "Mainline Linux Kernel recipe for RISC-V platforms"
 
 FILESEXTRAPATHS:prepend:k1 := "${THISDIR}/linux-mainline-k1:"
+FILESEXTRAPATHS:prepend:k3 := "${THISDIR}/linux-mainline-k3:"
 FILESEXTRAPATHS:prepend:eswin-ebc77-mainline := "${THISDIR}/linux-eswin-ebc77-mainline:"
 FILESEXTRAPATHS:prepend:milkv-duo-common := "${THISDIR}/linux-milkv-duo:"
 
@@ -27,6 +28,25 @@ SRC_URI:append:k1 = " \
         file://misc.cfg \
         file://k1-i2c.cfg \
         file://no-vector-unaligned-probe.cfg \
+"
+
+SRC_URI:append:k3 = " \
+        file://0001-riscv-dts-spacemit-k3-move-USB3-phy-to-board-level.patch \
+        file://0002-riscv-dts-spacemit-k3-add-USB3-B-and-C-controllers-f.patch \
+        file://0003-riscv-dts-spacemit-k3-add-rfkill-node-for-Bluetooth-.patch \
+        file://0004-riscv-dts-spacemit-k3-add-rfkill-node-for-WLAN-on-th.patch \
+        file://0005-dt-bindings-timer-thead-c900-aclint-mtimer-Add-Space.patch \
+        file://0006-dt-bindings-interrupt-controller-thead-c900-aclint-m.patch \
+        file://0007-dt-bindings-interrupt-controller-thead-c900-aclint-s.patch \
+        file://0008-dt-bindings-timer-sifive-clint-Remove-spacemit-k3-cl.patch \
+        file://0009-irqchip-aclint-sswi-Add-support-for-SpacemiT-K3.patch \
+        file://0010-riscv-dts-spacemit-k3-Replace-incorrect-CLINT-node-w.patch \
+        file://0011-riscv-dts-spacemit-k3-Drop-guest-properties-from-M-l.patch \
+        file://0012-riscv-dts-spacemit-k3-fix-IMSIC-num-guest-ids.patch \
+        file://0013-riscv-dts-spacemit-k3-Add-UFS-support.patch \
+        file://0014-scsi-ufs-spacemit-dt-bindings-Add-UFS-controller-for.patch \
+        file://0015-scsi-ufs-spacemit-k3-Add-UFS-Host-Controller-driver.patch \
+        file://k3.cfg \
 "
 
 SRC_URI:append:th1520 = " \

@@ -1,0 +1,45 @@
+From 2f3b7240a4c27745ec327f3f1a2f28d897e6aab6 Mon Sep 17 00:00:00 2001
+From: Aurelien Jarno <aurelien@aurel32.net>
+Date: Mon, 28 Sep 2026 22:49:09 +0200
+Subject: [PATCH] riscv: dts: spacemit: k3: add rfkill node for WLAN on the K3
+ Pico-ITX board
+
+On the K3 Pico-ITX board, by default the GPIO pin that connects to the
+RTL8852BE WLAN enable signal is driven low, resulting in impossibility
+to connect to any network. Add a DT node to expose it as an RFKILL
+device, which lets the WLAN driver or userspace toggle it as required.
+
+Tested-by: Anirudh Srinivasan <asrinivasan@oss.tenstorrent.com>
+Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
+Reviewed-by: Yixun Lan <dlan@kernel.org>
+Link: https://patch.msgid.link/20260928205012.3689405-5-aurelien@aurel32.net
+Signed-off-by: Yixun Lan <dlan@kernel.org>
+
+Upstream-Status: Backport [https://git.kernel.org/pub/scm/linux/kernel/git/spacemit/linux.git/commit/?id=2f3b7240a4c27745ec327f3f1a2f28d897e6aab6]
+
+Signed-off-by: Trevor Gamblin <tgamblin@baylibre.com>
+---
+ arch/riscv/boot/dts/spacemit/k3-pico-itx.dts | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/arch/riscv/boot/dts/spacemit/k3-pico-itx.dts b/arch/riscv/boot/dts/spacemit/k3-pico-itx.dts
+index d3f256dffb4f..dda420900aa2 100644
+--- a/arch/riscv/boot/dts/spacemit/k3-pico-itx.dts
++++ b/arch/riscv/boot/dts/spacemit/k3-pico-itx.dts
+@@ -44,6 +44,13 @@ reg_aux_vcc5v: regulator-aux-vcc5v {
+ 		regulator-always-on;
+ 	};
+ 
++	rfkill-pcie-wlan {
++		compatible = "rfkill-gpio";
++		label = "rfkill-pcie-wlan";
++		radio-type = "wlan";
++		shutdown-gpios = <&gpio 1 3 GPIO_ACTIVE_HIGH>;
++	};
++
+ 	rfkill-usb-bt {
+ 		compatible = "rfkill-gpio";
+ 		label = "rfkill-usb-bt";
+-- 
+2.56.0
+
