@@ -22,7 +22,7 @@ EXTRA_OEMAKE:append:milkv-duo = "FW_FDT_PATH=${DEPLOY_DIR_IMAGE}/u-boot.dtb"
 INSANE_SKIP:${PN}-dbg:append:dc-roma-fml13v01 = "buildpaths"
 
 _DEPS = ""
-_DEPS:milkv-duo = "u-boot:do_deploy"
+_DEPS:milkv-duo = "virtual/bootloader:do_deploy"
 
 do_compile[depends] += "${_DEPS}"
 
