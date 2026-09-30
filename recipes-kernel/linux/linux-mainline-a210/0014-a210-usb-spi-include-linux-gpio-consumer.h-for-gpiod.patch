@@ -1,0 +1,50 @@
+From 3bb3915096f958045c0fadbba6d4fdbce300cf7f Mon Sep 17 00:00:00 2001
+From: Lance Albertson <lance@osuosl.org>
+Date: Fri, 12 Jun 2026 11:13:17 -0700
+Subject: [PATCH 14/31] a210: usb/spi: include <linux/gpio/consumer.h> for
+ gpiod API
+
+dwc3-thead.c and spi-dw-mmio-quad.c use the gpiod consumer API
+(devm_gpiod_get, gpiod_set_value, GPIOD_OUT_*) but only include the legacy
+<linux/gpio.h>, which transitively pulled in <linux/gpio/consumer.h> on the
+vendor's 6.6.0 base. That transitive include was pruned by v6.6.141, so the
+build fails with implicit-declaration errors. Include the consumer header
+explicitly.
+
+Surfaced when bootstrapping the A210 enablement onto kernel.org v6.6.141; the
+vendor sources were synced verbatim and assumed the old transitive include.
+
+Signed-off-by: Lance Albertson <lance@osuosl.org>
+Upstream-Status: Pending
+---
+ drivers/spi/spi-dw-mmio-quad.c | 1 +
+ drivers/usb/dwc3/dwc3-thead.c  | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/drivers/spi/spi-dw-mmio-quad.c b/drivers/spi/spi-dw-mmio-quad.c
+index ae801fb216cf1..b7297daf2123c 100644
+--- a/drivers/spi/spi-dw-mmio-quad.c
++++ b/drivers/spi/spi-dw-mmio-quad.c
+@@ -7,6 +7,7 @@
+ 
+ #include <linux/clk.h>
+ #include <linux/err.h>
++#include <linux/gpio/consumer.h>
+ #include <linux/interrupt.h>
+ #include <linux/platform_device.h>
+ #include <linux/slab.h>
+diff --git a/drivers/usb/dwc3/dwc3-thead.c b/drivers/usb/dwc3/dwc3-thead.c
+index ccdbb8e0b37e4..90a1b8da1b5a2 100644
+--- a/drivers/usb/dwc3/dwc3-thead.c
++++ b/drivers/usb/dwc3/dwc3-thead.c
+@@ -11,6 +11,7 @@
+ 
+ #include <linux/io.h>
+ #include <linux/gpio.h>
++#include <linux/gpio/consumer.h>
+ #include <linux/clk.h>
+ #include <linux/kernel.h>
+ #include <linux/of_platform.h>
+-- 
+2.43.0
+

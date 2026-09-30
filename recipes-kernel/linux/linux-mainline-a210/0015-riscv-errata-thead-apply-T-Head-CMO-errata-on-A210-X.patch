@@ -1,0 +1,60 @@
+From aed121362c337badcaae9fa0d6fbba9a15bd3b2d Mon Sep 17 00:00:00 2001
+From: Lance Albertson <lance@osuosl.org>
+Date: Fri, 12 Jun 2026 14:21:06 -0700
+Subject: [PATCH 15/31] riscv: errata: thead: apply T-Head CMO errata on A210
+ XuanTie core
+
+errata_probe_cmo() refuses to apply the T-Head cache-management-operation
+errata unless the hart reports arch_id == 0 && impid == 0, which upstream
+documents as 'target-c9xx cores report arch_id and impid as 0'. The XuanTie
+core on the Zhihe A210 is a later revision that reports non-zero arch_id/impid
+while still implementing the same T-Head custom cache ops, so the gate rejects
+it. As a result riscv_noncoherent_supported() is never called and
+riscv_cbom_block_size stays 0, turning every non-coherent DMA cache flush into
+a no-op.
+
+The effect is silent DMA data corruption: the GMAC (marked dma-noncoherent in
+DT) transmits stale, still-zeroed TX buffers -- DHCP/ARP frames leave the board
+as 342 bytes of 0x00 -- and RX/eMMC masters read stale cache. This presented as
+'ethernet RX is broken' but is really the cache-op no-op.
+
+Drop the arch_id/impid gate so the errata applies to any THEAD_VENDOR_ID core
+(the dispatch is already vendor-id gated), matching the vendor tree
+osl/a210-v2.9.0.
+
+Co-developed-by: Claude Opus 4.8 <noreply@anthropic.com>
+Signed-off-by: Lance Albertson <lance@osuosl.org>
+Upstream-Status: Pending
+---
+ arch/riscv/errata/thead/errata.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/arch/riscv/errata/thead/errata.c b/arch/riscv/errata/thead/errata.c
+index 6f1c683f0ec03..5a5571f1c77ba 100644
+--- a/arch/riscv/errata/thead/errata.c
++++ b/arch/riscv/errata/thead/errata.c
+@@ -112,8 +112,19 @@ static bool errata_probe_cmo(unsigned int stage,
+ 	if (!IS_ENABLED(CONFIG_ERRATA_THEAD_CMO))
+ 		return false;
+ 
+-	if (arch_id != 0 || impid != 0)
+-		return false;
++	/*
++	 * A210/OSL: do NOT gate on "arch_id == 0 && impid == 0". Upstream
++	 * restricts the T-Head CMO errata to the original C9xx cores, which
++	 * report both IDs as 0. The XuanTie core on this SoC reports non-zero
++	 * arch_id/impid but uses the same T-Head custom cache ops, so the gate
++	 * wrongly rejects it -- riscv_noncoherent_supported() then never runs,
++	 * riscv_cbom_block_size stays 0, and every non-coherent DMA cache flush
++	 * becomes a no-op. The result is silent data corruption on DMA: the
++	 * GMAC transmits stale (zeroed) buffers and eMMC/other masters read
++	 * stale data. The whole errata is already THEAD_VENDOR_ID-gated, so
++	 * applying CMO for any T-Head core here is safe. Matches the vendor
++	 * tree (osl/a210-v2.9.0).
++	 */
+ 
+ 	if (stage == RISCV_ALTERNATIVES_EARLY_BOOT)
+ 		return false;
+-- 
+2.43.0
+

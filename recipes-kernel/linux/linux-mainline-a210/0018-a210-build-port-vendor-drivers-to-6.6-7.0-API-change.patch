@@ -1,0 +1,515 @@
+From 01ada4416be7c2f7bd07ec817e6cafa9c3febfe3 Mon Sep 17 00:00:00 2001
+From: Lance Albertson <lance@osuosl.org>
+Date: Fri, 12 Jun 2026 20:02:11 -0700
+Subject: [PATCH 18/31] a210: build: port vendor drivers to 6.6->7.0 API
+ changes
+
+First batch of mechanical API-drift fixes for the v7.0 build:
+
+- platform_driver::remove now returns void (since 6.11). Convert the 19
+  vendor platform drivers whose *_remove(struct platform_device *) still
+  returned int, dropping the return values (remove must not fail).
+- strlcpy() was removed; use strscpy() in pmdomain/zhihe/a210-pd.c.
+- dw_pcie_host_ops::host_init was renamed to ::init; update pcie-zh.c.
+- ida_simple_get()/ida_simple_remove() were removed; use ida_alloc()/
+  ida_free() in soc/thead/th1520-ddr-pmu.c and soc/zhihe/a210-bmu.c.
+
+Co-developed-by: Claude Opus 4.8 <noreply@anthropic.com>
+Signed-off-by: Lance Albertson <lance@osuosl.org>
+Upstream-Status: Pending
+---
+ drivers/cpufreq/th1520-cpufreq.c           |  4 ++--
+ drivers/hwspinlock/th1520_hwspinlock.c     |  6 +++---
+ drivers/iio/adc/th1520-adc.c               |  4 ++--
+ drivers/mailbox/th1520-mailbox.c           |  4 ++--
+ drivers/mailbox/zhihe-mailbox.c            |  4 ++--
+ drivers/mmc/host/sdhci-of-kendryte.c       |  4 ++--
+ drivers/pci/controller/dwc/pcie-zh.c       |  6 +++---
+ drivers/phy/zhihe/phy-zhihe-snps-c10phy.c  |  4 ++--
+ drivers/phy/zhihe/phy-zhihe-snps-mipidsi.c |  4 ++--
+ drivers/pmdomain/zhihe/a210-pd.c           |  4 ++--
+ drivers/rpmsg/th1520_rpmsg.c               |  4 ++--
+ drivers/soc/thead/th1520-ddr-pmu.c         | 10 +++++-----
+ drivers/soc/thead/th1520-iopmp.c           |  4 ++--
+ drivers/soc/thead/th1520_event.c           |  4 ++--
+ drivers/soc/zhihe/a210-bmu.c               | 10 +++++-----
+ drivers/soc/zhihe/a210-d2d.c               |  4 ++--
+ drivers/soc/zhihe/a210-memtester.c         |  4 ++--
+ drivers/spi/spi-dw-mmio-quad.c             |  4 ++--
+ drivers/usb/dwc3/dwc3-thead.c              |  4 ++--
+ drivers/usb/dwc3/dwc3-zhihe.c              |  4 ++--
+ 20 files changed, 48 insertions(+), 48 deletions(-)
+
+diff --git a/drivers/cpufreq/th1520-cpufreq.c b/drivers/cpufreq/th1520-cpufreq.c
+index 6e4186808c96b..6a4f229664a8e 100644
+--- a/drivers/cpufreq/th1520-cpufreq.c
++++ b/drivers/cpufreq/th1520-cpufreq.c
+@@ -546,7 +546,7 @@ static int th1520_cpufreq_probe(struct platform_device *pdev)
+ 	return ret;
+ }
+ 
+-static int th1520_cpufreq_remove(struct platform_device *pdev)
++static void th1520_cpufreq_remove(struct platform_device *pdev)
+ {
+ 	cpufreq_unregister_driver(&th1520_cpufreq_driver);
+ 	dev_pm_opp_free_cpufreq_table(cpu_dev, &freq_table);
+@@ -560,7 +560,7 @@ static int th1520_cpufreq_remove(struct platform_device *pdev)
+ #endif
+ 	clk_bulk_put(num_clks, clks);
+ 
+-	return 0;
++	return;
+ }
+ 
+ static const struct of_device_id th1520_cpufreq_match[] = {
+diff --git a/drivers/hwspinlock/th1520_hwspinlock.c b/drivers/hwspinlock/th1520_hwspinlock.c
+index 913746dc53872..c9fe08dc11c28 100644
+--- a/drivers/hwspinlock/th1520_hwspinlock.c
++++ b/drivers/hwspinlock/th1520_hwspinlock.c
+@@ -91,7 +91,7 @@ static int th1520_hwspinlock_probe(struct platform_device *pdev)
+ 	return ret;
+ }
+ 
+-static int th1520_hwspinlock_remove(struct platform_device *pdev)
++static void th1520_hwspinlock_remove(struct platform_device *pdev)
+ {
+ 	struct th1520_hwspinlock *hwspin = platform_get_drvdata(pdev);
+ 	int ret;
+@@ -99,14 +99,14 @@ static int th1520_hwspinlock_remove(struct platform_device *pdev)
+ 	ret = hwspin_lock_unregister(&hwspin->bank);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "%s failed: %d\n", __func__, ret);
+-		return ret;
++		return;
+ 	}
+ 
+ 	pm_runtime_disable(&pdev->dev);
+ 
+ 	iounmap(hwspin->io_base);
+ 
+-	return 0;
++	return;
+ }
+ 
+ static const struct of_device_id th1520_hwpinlock_ids[] = {
+diff --git a/drivers/iio/adc/th1520-adc.c b/drivers/iio/adc/th1520-adc.c
+index c013d6bb61c8f..fe7235cfeec9a 100644
+--- a/drivers/iio/adc/th1520-adc.c
++++ b/drivers/iio/adc/th1520-adc.c
+@@ -602,7 +602,7 @@ static int th1520_adc_probe(struct platform_device *pdev)
+ 	return ret;
+ }
+ 
+-static int th1520_adc_remove(struct platform_device *pdev)
++static void th1520_adc_remove(struct platform_device *pdev)
+ {
+ 	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
+ 	struct th1520_adc *info = iio_priv(indio_dev);
+@@ -612,7 +612,7 @@ static int th1520_adc_remove(struct platform_device *pdev)
+ 	regulator_disable(info->vref);
+ 	clk_disable_unprepare(info->clk);
+ 
+-	return 0;
++	return;
+ }
+ 
+ static int __maybe_unused th1520_adc_suspend(struct device *dev)
+diff --git a/drivers/mailbox/th1520-mailbox.c b/drivers/mailbox/th1520-mailbox.c
+index 71c983bd631c9..ab87a858103f5 100644
+--- a/drivers/mailbox/th1520-mailbox.c
++++ b/drivers/mailbox/th1520-mailbox.c
+@@ -521,13 +521,13 @@ static int th1520_mbox_probe(struct platform_device *pdev)
+ 	return devm_mbox_controller_register(dev, &priv->mbox);
+ }
+ 
+-static int th1520_mbox_remove(struct platform_device *pdev)
++static void th1520_mbox_remove(struct platform_device *pdev)
+ {
+ 	struct th1520_mbox_priv *priv = platform_get_drvdata(pdev);
+ 
+ 	clk_disable_unprepare(priv->clk);
+ 
+-	return 0;
++	return;
+ }
+ 
+ static const struct of_device_id th1520_mbox_dt_ids[] = {
+diff --git a/drivers/mailbox/zhihe-mailbox.c b/drivers/mailbox/zhihe-mailbox.c
+index 786500975bae7..19f8825be004a 100644
+--- a/drivers/mailbox/zhihe-mailbox.c
++++ b/drivers/mailbox/zhihe-mailbox.c
+@@ -646,9 +646,9 @@ static int zhihe_mbox_probe(struct platform_device *pdev)
+ 	return devm_mbox_controller_register(dev, &priv->mbox);
+ }
+ 
+-static int zhihe_mbox_remove(struct platform_device *pdev)
++static void zhihe_mbox_remove(struct platform_device *pdev)
+ {
+-	return 0;
++	return;
+ }
+ 
+ static const struct of_device_id zhihe_mbox_dt_ids[] = {
+diff --git a/drivers/mmc/host/sdhci-of-kendryte.c b/drivers/mmc/host/sdhci-of-kendryte.c
+index 0955bbb2079fd..2d2fbcd2df710 100644
+--- a/drivers/mmc/host/sdhci-of-kendryte.c
++++ b/drivers/mmc/host/sdhci-of-kendryte.c
+@@ -423,7 +423,7 @@ static int dwcmshc_probe(struct platform_device *pdev)
+ 	return err;
+ }
+ 
+-static int dwcmshc_remove(struct platform_device *pdev)
++static void dwcmshc_remove(struct platform_device *pdev)
+ {
+ 	struct sdhci_host *host = platform_get_drvdata(pdev);
+ 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
+@@ -438,7 +438,7 @@ static int dwcmshc_remove(struct platform_device *pdev)
+ 
+ 	sdhci_pltfm_free(pdev);
+ 
+-	return 0;
++	return;
+ }
+ 
+ #ifdef CONFIG_PM_SLEEP
+diff --git a/drivers/pci/controller/dwc/pcie-zh.c b/drivers/pci/controller/dwc/pcie-zh.c
+index bc595e070be67..b4ce7d4998da9 100644
+--- a/drivers/pci/controller/dwc/pcie-zh.c
++++ b/drivers/pci/controller/dwc/pcie-zh.c
+@@ -277,7 +277,7 @@ static int zhihe_pcie_host_init(struct dw_pcie_rp *pp)
+ }
+ 
+ static const struct dw_pcie_host_ops zhihe_pcie_host_ops = {
+-	.host_init = zhihe_pcie_host_init,
++	.init = zhihe_pcie_host_init,
+ };
+ 
+ static int zhihe_add_pcie_port(struct zhihe_pcie *pcie, struct platform_device *pdev)
+@@ -359,7 +359,7 @@ static int zhihe_pcie_probe(struct platform_device *pdev)
+ 	return ret;
+ }
+ 
+-static int zhihe_pcie_remove(struct platform_device *pdev)
++static void zhihe_pcie_remove(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+ 	struct zhihe_pcie *pcie = platform_get_drvdata(pdev);
+@@ -368,7 +368,7 @@ static int zhihe_pcie_remove(struct platform_device *pdev)
+ 	pm_runtime_put_sync(dev);
+ 	pm_runtime_disable(dev);
+ 
+-	return 0;
++	return;
+ }
+ 
+ static const struct zhihe_pcie_of_data zhihe_pcie_rc_of_data = {
+diff --git a/drivers/phy/zhihe/phy-zhihe-snps-c10phy.c b/drivers/phy/zhihe/phy-zhihe-snps-c10phy.c
+index 4a878a8a2b13c..aade20282c2ba 100644
+--- a/drivers/phy/zhihe/phy-zhihe-snps-c10phy.c
++++ b/drivers/phy/zhihe/phy-zhihe-snps-c10phy.c
+@@ -1009,13 +1009,13 @@ static int c10phy_probe(struct platform_device *pdev)
+ 	return ret;
+ }
+ 
+-static int c10phy_remove(struct platform_device *pdev)
++static void c10phy_remove(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+ 
+ 	sysfs_remove_group(&dev->kobj, &c10phy_attr_group);
+ 
+-	return 0;
++	return;
+ }
+ 
+ static const struct of_device_id c10phy_of_match[] = {
+diff --git a/drivers/phy/zhihe/phy-zhihe-snps-mipidsi.c b/drivers/phy/zhihe/phy-zhihe-snps-mipidsi.c
+index b33e84a6e23ad..837122a6a10cc 100644
+--- a/drivers/phy/zhihe/phy-zhihe-snps-mipidsi.c
++++ b/drivers/phy/zhihe/phy-zhihe-snps-mipidsi.c
+@@ -703,11 +703,11 @@ static int dw_dphy_probe(struct platform_device *pdev)
+ 	return PTR_ERR_OR_ZERO(provider);
+ }
+ 
+-static int dw_dphy_remove(struct platform_device *pdev)
++static void dw_dphy_remove(struct platform_device *pdev)
+ {
+ 	pm_runtime_disable(&pdev->dev);
+ 
+-	return 0;
++	return;
+ }
+ 
+ static const struct of_device_id dw_dphy_of_match[] = {
+diff --git a/drivers/pmdomain/zhihe/a210-pd.c b/drivers/pmdomain/zhihe/a210-pd.c
+index b3341f491e4b1..935faffe5bcc4 100644
+--- a/drivers/pmdomain/zhihe/a210-pd.c
++++ b/drivers/pmdomain/zhihe/a210-pd.c
+@@ -217,7 +217,7 @@ static ssize_t a210_power_domain_write(struct file *file,
+ 		end++;
+ 
+ 	*end = '\0';
+-	strlcpy(pd_name, start, sizeof(pd_name));
++	strscpy(pd_name, start, sizeof(pd_name));
+ 
+ 	/* find the target power domain */
+ 	for (idx = 0; idx < soc->num_domains; idx++) {
+@@ -241,7 +241,7 @@ static ssize_t a210_power_domain_write(struct file *file,
+ 		end++;
+ 
+ 	*end = '\0';
+-	strlcpy(pd_state, start, sizeof(pd_state));
++	strscpy(pd_state, start, sizeof(pd_state));
+ 
+ 	if (!strcmp(pd_state, "on")) {
+ 		ret = domain->power_on(domain);
+diff --git a/drivers/rpmsg/th1520_rpmsg.c b/drivers/rpmsg/th1520_rpmsg.c
+index 546663c3b1916..b6e753d872cf0 100644
+--- a/drivers/rpmsg/th1520_rpmsg.c
++++ b/drivers/rpmsg/th1520_rpmsg.c
+@@ -985,7 +985,7 @@ static int mbox_client_th1520_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-static int mbox_client_th1520_remove(struct platform_device *pdev)
++static void mbox_client_th1520_remove(struct platform_device *pdev)
+ {
+ 	struct mbox_client_th1520_device *tdev = platform_get_drvdata(pdev);
+ 
+@@ -997,7 +997,7 @@ static int mbox_client_th1520_remove(struct platform_device *pdev)
+ 	if (tdev->rx_channel && tdev->rx_channel != tdev->tx_channel)
+ 		mbox_free_channel(tdev->rx_channel);
+ 
+-	return 0;
++	return;
+ }
+ 
+ static const struct of_device_id mbox_client_th1520_match[] = {
+diff --git a/drivers/soc/thead/th1520-ddr-pmu.c b/drivers/soc/thead/th1520-ddr-pmu.c
+index a748021656b24..7ee7fa4907a13 100644
+--- a/drivers/soc/thead/th1520-ddr-pmu.c
++++ b/drivers/soc/thead/th1520-ddr-pmu.c
+@@ -1617,7 +1617,7 @@ static int ddr_perf_init(struct ddr_pmu *pmu, void __iomem *base[],
+ 
+ 	pmu->period = PMU_PERIOD_CNT;
+ 	pmu->freq_khz = APB_CLK / 1000; // unit KHz
+-	pmu->id = ida_simple_get(&ddr_ida, 0, 0, GFP_KERNEL);
++	pmu->id = ida_alloc(&ddr_ida, GFP_KERNEL);
+ 
+ 	pmu_trace.trace_data_fmt = FMT_DECIMAL;
+ 
+@@ -1861,12 +1861,12 @@ static int ddr_perf_probe(struct platform_device *pdev)
+ 	return 0;
+ 
+ ddr_perf_err:
+-	ida_simple_remove(&ddr_ida, pmu->id);
++	ida_free(&ddr_ida, pmu->id);
+ 	dev_warn(&pdev->dev, " DDR Perf PMU failed (%d), disabled\n", ret);
+ 	return ret;
+ }
+ 
+-static int ddr_perf_remove(struct platform_device *pdev)
++static void ddr_perf_remove(struct platform_device *pdev)
+ {
+ 	struct ddr_pmu *pmu = platform_get_drvdata(pdev);
+ 
+@@ -1879,9 +1879,9 @@ static int ddr_perf_remove(struct platform_device *pdev)
+ 
+ 	perf_pmu_unregister(&pmu->pmu);
+ 
+-	ida_simple_remove(&ddr_ida, pmu->id);
++	ida_free(&ddr_ida, pmu->id);
+ 
+-	return 0;
++	return;
+ }
+ 
+ static struct platform_driver light_ddr_pmu_driver = {
+diff --git a/drivers/soc/thead/th1520-iopmp.c b/drivers/soc/thead/th1520-iopmp.c
+index e005e74070ae4..76ab61c216f60 100644
+--- a/drivers/soc/thead/th1520-iopmp.c
++++ b/drivers/soc/thead/th1520-iopmp.c
+@@ -654,10 +654,10 @@ static int th1520_iopmp_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-static int th1520_iopmp_remove(struct platform_device *pdev)
++static void th1520_iopmp_remove(struct platform_device *pdev)
+ {
+ 	platform_set_drvdata(pdev, NULL);
+-	return 0;
++	return;
+ }
+ 
+ static int __maybe_unused th1520_iopmp_noirq_suspend(struct device *dev)
+diff --git a/drivers/soc/thead/th1520_event.c b/drivers/soc/thead/th1520_event.c
+index 9d7123921638c..8f6f19f685cc7 100644
+--- a/drivers/soc/thead/th1520_event.c
++++ b/drivers/soc/thead/th1520_event.c
+@@ -251,11 +251,11 @@ static int th1520_event_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-static int th1520_event_remove(struct platform_device *pdev)
++static void th1520_event_remove(struct platform_device *pdev)
+ {
+ 	misc_deregister(&th1520_event_misc);
+ 
+-	return 0;
++	return;
+ }
+ 
+ static const struct of_device_id th1520_event_of_match[] = {
+diff --git a/drivers/soc/zhihe/a210-bmu.c b/drivers/soc/zhihe/a210-bmu.c
+index a067d9caa1dc7..bd6c98d0e67bc 100644
+--- a/drivers/soc/zhihe/a210-bmu.c
++++ b/drivers/soc/zhihe/a210-bmu.c
+@@ -2385,7 +2385,7 @@ static int ddr_perf_init(struct ddr_pmu *pmu, void __iomem *base[],
+ 	pmu->active_events = 0;
+ 	pmu->period = PMU_PERIOD_CNT;
+ 	pmu->freq_khz = APB_CLK / 1000; // unit KHz
+-	pmu->id = ida_simple_get(&ddr_ida, 0, 0, GFP_KERNEL);
++	pmu->id = ida_alloc(&ddr_ida, GFP_KERNEL);
+ 	pmu_trace.trace_data_fmt = FMT_DECIMAL;
+ 
+ 	return pmu->id;
+@@ -5332,12 +5332,12 @@ static int bmu_perf_probe(struct platform_device *pdev)
+ 	return 0;
+ 
+ ddr_perf_err:
+-	ida_simple_remove(&ddr_ida, pmu->id);
++	ida_free(&ddr_ida, pmu->id);
+ 	dev_err(&pdev->dev, " DDR Perf PMU failed (%d), disabled\n", ret);
+ 	return ret;
+ }
+ 
+-static int bmu_perf_remove(struct platform_device *pdev)
++static void bmu_perf_remove(struct platform_device *pdev)
+ {
+ 	struct ddr_pmu *pmu = platform_get_drvdata(pdev);
+ 	struct bmu3_para *private;
+@@ -5368,9 +5368,9 @@ static int bmu_perf_remove(struct platform_device *pdev)
+ 
+ 	misc_deregister(&pmu->misc);
+ 	perf_pmu_unregister(&pmu->pmu);
+-	ida_simple_remove(&ddr_ida, pmu->id);
++	ida_free(&ddr_ida, pmu->id);
+ 
+-	return 0;
++	return;
+ }
+ 
+ static struct platform_driver a210_bmu_driver = {
+diff --git a/drivers/soc/zhihe/a210-d2d.c b/drivers/soc/zhihe/a210-d2d.c
+index 6dec0b8b5ed00..ad66bc0957780 100644
+--- a/drivers/soc/zhihe/a210-d2d.c
++++ b/drivers/soc/zhihe/a210-d2d.c
+@@ -870,7 +870,7 @@ static int a210_d2d_probe(struct platform_device *pdev)
+  *
+  * Return: 0 on success
+  */
+-static int a210_d2d_remove(struct platform_device *pdev)
++static void a210_d2d_remove(struct platform_device *pdev)
+ {
+ 	struct a210_d2d_dev *d2d = platform_get_drvdata(pdev);
+ 	int i;
+@@ -894,7 +894,7 @@ static int a210_d2d_remove(struct platform_device *pdev)
+ 
+ 	dev_info(d2d->dev, "A210 D2D device removed\n");
+ 
+-	return 0;
++	return;
+ }
+ 
+ /* Device tree match table */
+diff --git a/drivers/soc/zhihe/a210-memtester.c b/drivers/soc/zhihe/a210-memtester.c
+index fe653527935ec..c26928a5d3f3e 100644
+--- a/drivers/soc/zhihe/a210-memtester.c
++++ b/drivers/soc/zhihe/a210-memtester.c
+@@ -650,7 +650,7 @@ static int zh_memtester_probe(struct platform_device *pdev)
+ 	return ret;
+ }
+ 
+-static int zh_memtester_remove(struct platform_device *pdev)
++static void zh_memtester_remove(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+ 	struct zh_memtester_device *mt = dev_get_drvdata(dev);
+@@ -674,7 +674,7 @@ static int zh_memtester_remove(struct platform_device *pdev)
+ 		kfree(mt->sgt);
+ 	}
+ 
+-	return 0;
++	return;
+ }
+ 
+ static const struct of_device_id zh_memtester_of_match[] = {
+diff --git a/drivers/spi/spi-dw-mmio-quad.c b/drivers/spi/spi-dw-mmio-quad.c
+index b7297daf2123c..d2a283e6e0526 100644
+--- a/drivers/spi/spi-dw-mmio-quad.c
++++ b/drivers/spi/spi-dw-mmio-quad.c
+@@ -228,7 +228,7 @@ static int dw_qspi_mmio_probe(struct platform_device *pdev)
+ 	return ret;
+ }
+ 
+-static int dw_qspi_mmio_remove(struct platform_device *pdev)
++static void dw_qspi_mmio_remove(struct platform_device *pdev)
+ {
+ 	struct dw_qspi_mmio *dwsmmio = platform_get_drvdata(pdev);
+ 
+@@ -236,7 +236,7 @@ static int dw_qspi_mmio_remove(struct platform_device *pdev)
+ 	clk_disable_unprepare(dwsmmio->pclk);
+ 	clk_disable_unprepare(dwsmmio->clk);
+ 
+-	return 0;
++	return;
+ }
+ 
+ static const struct of_device_id dw_qspi_mmio_of_match[] = {
+diff --git a/drivers/usb/dwc3/dwc3-thead.c b/drivers/usb/dwc3/dwc3-thead.c
+index 90a1b8da1b5a2..9c0845bb2e061 100644
+--- a/drivers/usb/dwc3/dwc3-thead.c
++++ b/drivers/usb/dwc3/dwc3-thead.c
+@@ -221,7 +221,7 @@ static int dwc3_thead_probe(struct platform_device *pdev)
+ 	return ret;
+ }
+ 
+-static int dwc3_thead_remove(struct platform_device *pdev)
++static void dwc3_thead_remove(struct platform_device *pdev)
+ {
+ 	struct dwc3_thead	*thead = platform_get_drvdata(pdev);
+ 
+@@ -235,7 +235,7 @@ static int dwc3_thead_remove(struct platform_device *pdev)
+ 	pm_runtime_disable(thead->dev);
+ 	pm_runtime_set_suspended(thead->dev);
+ 
+-	return 0;
++	return;
+ }
+ 
+ #ifdef CONFIG_PM_SLEEP
+diff --git a/drivers/usb/dwc3/dwc3-zhihe.c b/drivers/usb/dwc3/dwc3-zhihe.c
+index 0bb17ef926fe4..ac6906022c036 100644
+--- a/drivers/usb/dwc3/dwc3-zhihe.c
++++ b/drivers/usb/dwc3/dwc3-zhihe.c
+@@ -84,7 +84,7 @@ static int dwc3_zhihe_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-static int dwc3_zhihe_remove(struct platform_device *pdev)
++static void dwc3_zhihe_remove(struct platform_device *pdev)
+ {
+ 	struct dwc3_zhihe *zhihe = platform_get_drvdata(pdev);
+ 	struct device *dev = &pdev->dev;
+@@ -96,7 +96,7 @@ static int dwc3_zhihe_remove(struct platform_device *pdev)
+ 	pm_runtime_disable(dev);
+ 	pm_runtime_set_suspended(dev);
+ 
+-	return 0;
++	return;
+ }
+ 
+ static const struct of_device_id dwc3_zhihe_of_match[] = {
+-- 
+2.43.0
+

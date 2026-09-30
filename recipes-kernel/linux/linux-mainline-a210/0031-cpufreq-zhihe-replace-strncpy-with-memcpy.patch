@@ -1,0 +1,38 @@
+From 1747f9819d67c0ab08811458ca199f0c66ed244b Mon Sep 17 00:00:00 2001
+From: Lance Albertson <lance@osuosl.org>
+Date: Wed, 2 Sep 2026 13:23:48 -0700
+Subject: [PATCH 31/31] cpufreq: zhihe: replace strncpy() with memcpy()
+
+Upstream commit 079a028d6327 ("string: Remove strncpy() from the
+kernel", v7.2) completed the long-running deprecation and deleted the
+function, so this driver no longer builds.
+
+find_supply_name() copies a fixed len - 7 byte prefix of the property
+name into a zeroed buffer of len - 7 + 1, so this was never a string
+copy at all -- the length is exact and kzalloc already provides the
+terminator.  Use memcpy() and drop the now-redundant manual NUL.
+
+Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>
+Signed-off-by: Lance Albertson <lance@osuosl.org>
+Upstream-Status: Pending
+---
+ drivers/cpufreq/zhihe-cpufreq.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/cpufreq/zhihe-cpufreq.c b/drivers/cpufreq/zhihe-cpufreq.c
+index 5ea26d03b7c55..be58235f836ae 100644
+--- a/drivers/cpufreq/zhihe-cpufreq.c
++++ b/drivers/cpufreq/zhihe-cpufreq.c
+@@ -199,8 +199,7 @@ static int find_supply_name(struct device *dev, struct device_node *cpu_np, cons
+ 			if (!reg_name_buf)
+ 				return -ENOMEM;
+ 
+-			strncpy(reg_name_buf, prop_name, len - 7);
+-			reg_name_buf[len - 7] = '\0';
++			memcpy(reg_name_buf, prop_name, len - 7);
+ 			names_array[count] = reg_name_buf;
+ 			count++;
+ 		}
+-- 
+2.43.0
+

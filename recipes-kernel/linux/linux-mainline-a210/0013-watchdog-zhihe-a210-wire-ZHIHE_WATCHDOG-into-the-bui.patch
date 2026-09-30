@@ -1,0 +1,63 @@
+From 5514bbd9ed64b779453a088b927165bccd8f87a0 Mon Sep 17 00:00:00 2001
+From: Lance Albertson <lance@osuosl.org>
+Date: Fri, 12 Jun 2026 11:02:59 -0700
+Subject: [PATCH 13/31] watchdog: zhihe: a210: wire ZHIHE_WATCHDOG into the
+ build
+
+Group 20 imported drivers/watchdog/zhihe_wdt.c but its Kconfig symbol and
+Makefile object line live in vendor group 30, which this subset does not
+apply, so the driver was never compiled on this branch. zhihe_wdt is the only
+working reset/poweroff path on this SoC (it issues the AON E902 RPC from a
+reboot notifier), and a210_evb_defconfig already carries
+CONFIG_ZHIHE_WATCHDOG=y, so without this wiring reboot and poweroff regress to
+a manual power-cycle.
+
+Add the ZHIHE_WATCHDOG Kconfig stanza (depends on ZHIHE_MBOX, selects
+WATCHDOG_CORE) and the obj-$(CONFIG_ZHIHE_WATCHDOG) Makefile line, matching the
+vendor branch, in the same minimal-wiring spirit as group 35.
+
+Signed-off-by: Lance Albertson <lance@osuosl.org>
+Upstream-Status: Pending
+---
+ drivers/watchdog/Kconfig  | 12 ++++++++++++
+ drivers/watchdog/Makefile |  1 +
+ 2 files changed, 13 insertions(+)
+
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 08cb8612d41fe..6c4dc21bf73c6 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -2124,6 +2124,18 @@ config STARFIVE_WATCHDOG
+ 	  Say Y here to support the watchdog of StarFive JH7100 and JH7110
+ 	  SoC. This driver can also be built as a module if choose M.
+ 
++config ZHIHE_WATCHDOG
++	tristate "Zhihe watchdog"
++	depends on ZHIHE_MBOX
++	select WATCHDOG_CORE
++	help
++	  This is the driver for the hardware watchdog on the Zhihe A210 board.
++	  The reset/poweroff path on this SoC is an RPC to the AON E902
++	  co-processor that this driver issues, so it is required for working
++	  reboot and poweroff (see drivers/watchdog/zhihe_wdt.c).
++
++	  To compile this driver as a module, choose M here.
++
+ # S390 Architecture
+ 
+ config DIAG288_WATCHDOG
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index bc1d52220f223..4cdec58f2baed 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -199,6 +199,7 @@ obj-$(CONFIG_WATCHDOG_RTAS) += wdrtas.o
+ # RISC-V Architecture
+ obj-$(CONFIG_ATCWDT200_WATCHDOG) += atcwdt200_wdt.o
+ obj-$(CONFIG_STARFIVE_WATCHDOG) += starfive-wdt.o
++obj-$(CONFIG_ZHIHE_WATCHDOG) += zhihe_wdt.o
+ 
+ # S390 Architecture
+ obj-$(CONFIG_DIAG288_WATCHDOG) += diag288_wdt.o
+-- 
+2.43.0
+

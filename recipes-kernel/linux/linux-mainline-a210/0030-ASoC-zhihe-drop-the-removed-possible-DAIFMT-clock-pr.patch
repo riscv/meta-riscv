@@ -1,0 +1,43 @@
+From ca32fb3cb539e6b85229dd951f240dbe6aed07d4 Mon Sep 17 00:00:00 2001
+From: Lance Albertson <lance@osuosl.org>
+Date: Wed, 2 Sep 2026 12:46:35 -0700
+Subject: [PATCH 30/31] ASoC: zhihe: drop the removed possible-DAIFMT
+ clock-provider bits
+
+Upstream commit 04c93ea9ce14 ("ASoC: remove SND_SOC_POSSIBLE_xBx_xFx",
+v7.2) deleted the clock provider/consumer bits from the possible-format
+mask: provider selection is a board property, so software cannot choose
+it automatically and the auto-selection core no longer consults those
+bits.  In-tree DAI drivers were converted by simply dropping them from
+auto_selectable_formats.
+
+Do the same for the A210 dummy PCM DAI.  No functional change: the
+format actually used still comes from the DT link as before.
+
+Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>
+Signed-off-by: Lance Albertson <lance@osuosl.org>
+Upstream-Status: Pending
+---
+ sound/soc/zhihe/zhihe-dummy-pcm.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
+
+diff --git a/sound/soc/zhihe/zhihe-dummy-pcm.c b/sound/soc/zhihe/zhihe-dummy-pcm.c
+index 2567976fddaa2..10c4d0bb00139 100644
+--- a/sound/soc/zhihe/zhihe-dummy-pcm.c
++++ b/sound/soc/zhihe/zhihe-dummy-pcm.c
+@@ -43,11 +43,7 @@ static u64 zhihe_dummy_pcm_dai_formats =
+ 	SND_SOC_POSSIBLE_DAIFMT_NB_NF	|
+ 	SND_SOC_POSSIBLE_DAIFMT_NB_IF	|
+ 	SND_SOC_POSSIBLE_DAIFMT_IB_NF	|
+-	SND_SOC_POSSIBLE_DAIFMT_IB_IF	|
+-	SND_SOC_POSSIBLE_DAIFMT_CBP_CFP	|
+-	SND_SOC_POSSIBLE_DAIFMT_CBP_CFC	|
+-	SND_SOC_POSSIBLE_DAIFMT_CBC_CFP	|
+-	SND_SOC_POSSIBLE_DAIFMT_CBC_CFC;
++	SND_SOC_POSSIBLE_DAIFMT_IB_IF;
+ 
+ static const struct snd_soc_dai_ops zhihe_dummy_dai_ops = {
+ 	.auto_selectable_formats	= &zhihe_dummy_pcm_dai_formats,
+-- 
+2.43.0
+

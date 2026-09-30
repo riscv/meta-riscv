@@ -1,0 +1,3703 @@
+From 20c4db18a6c86bdb4483e513fdfddbeb36bbb1c8 Mon Sep 17 00:00:00 2001
+From: Lance Albertson <lance@osuosl.org>
+Date: Fri, 12 Jun 2026 10:42:32 -0700
+Subject: [PATCH 06/31] a210: vendor import: 50-dt-bindings
+
+Cherry-picked vendor enablement group 50 (50-dt-bindings) onto Linux v6.6.141 as
+the maintained A210 LTS branch (one commit per kernel/patches group). Applied
+with git apply --recount; reconciled against vendor branch osl/a210-v2.9.0.
+See kernel/patches/README.md and kernel/T2-DESIGN.md for group rationale.
+
+Signed-off-by: Lance Albertson <lance@osuosl.org>
+
+v7.0 port: took upstream for all binding docs that upstream now maintains
+(plic, dwcmshc, dwmac, th1520-pinctrl/-pwm/-reset, clint) and accepted
+upstream\x27s removal of the legacy rtc/xgene-rtc.txt. Binding YAML is docs
+only (dt_binding_check); A210 DT compatibles bind regardless.
+
+Signed-off-by: Lance Albertson <lance@osuosl.org>
+Upstream-Status: Pending
+---
+ .../hwlock/xuantie,th1520-hwspinlock.yaml     |  34 +
+ .../bindings/iio/adc/thead,th1520-adc.yaml    |  52 ++
+ .../mailbox/xuantie-th1520-mailbox.txt        |  57 ++
+ .../misc/xuantie,iso7816-smart-card.txt       |  19 +
+ .../devicetree/bindings/net/thead,dwmac.yaml  |  77 +++
+ .../bindings/nvmem/xuantie,th1520-efuse.txt   |  18 +
+ .../devicetree/bindings/riscv/canaan.yaml     |   8 +-
+ .../soc/thead/thead,th1520-event.yaml         |  37 ++
+ .../bindings/sound/everest,es7210.txt         |  12 +
+ .../bindings/sound/everest,es8156.yaml        |  42 ++
+ .../bindings/sound/xuantie,th1520-i2s.yaml    |  91 +++
+ .../bindings/sound/xuantie,th1520-spdif.yaml  |  77 +++
+ .../bindings/sound/xuantie,th1520-tdm.yaml    |  86 +++
+ .../bindings/spi/thead,th1520-qspi.yaml       |  52 ++
+ .../bindings/spi/thead,th1520-spi.yaml        |  58 ++
+ .../devicetree/bindings/usb/dwc2.yaml         |   3 +
+ .../bindings/usb/thead,th1520-usb.yaml        |  76 +++
+ .../bindings/watchdog/thead,th1520-wdt.yaml   |  19 +
+ include/dt-bindings/clock/a210-clock.h        | 614 ++++++++++++++++++
+ include/dt-bindings/clock/a210-fm-ap-clock.h  | 539 +++++++++++++++
+ include/dt-bindings/clock/th1520-audiosys.h   |  35 +
+ include/dt-bindings/clock/th1520-dspsys.h     |  33 +
+ .../dt-bindings/clock/th1520-fm-ap-clock.h    | 513 +++++++++++++++
+ include/dt-bindings/clock/th1520-miscsys.h    |  28 +
+ include/dt-bindings/clock/th1520-visys.h      |  54 ++
+ include/dt-bindings/clock/th1520-vosys.h      |  41 ++
+ include/dt-bindings/clock/th1520-vpsys.h      |  26 +
+ include/dt-bindings/firmware/thead/rsrc.h     |  18 +
+ include/dt-bindings/iommu/zh-iommu.h          | 130 ++++
+ include/dt-bindings/iopmp/zh-iopmp.h          |  94 +++
+ include/dt-bindings/power/a210-power.h        |  30 +
+ include/dt-bindings/reset/a210-reset.h        | 338 ++++++++++
+ .../dt-bindings/soc/th1520_system_status.h    |  38 ++
+ .../dt-bindings/soc/xuantie,th1520-iopmp.h    |  41 ++
+ 34 files changed, 3389 insertions(+), 1 deletion(-)
+ create mode 100644 Documentation/devicetree/bindings/hwlock/xuantie,th1520-hwspinlock.yaml
+ create mode 100644 Documentation/devicetree/bindings/iio/adc/thead,th1520-adc.yaml
+ create mode 100644 Documentation/devicetree/bindings/mailbox/xuantie-th1520-mailbox.txt
+ create mode 100644 Documentation/devicetree/bindings/misc/xuantie,iso7816-smart-card.txt
+ create mode 100644 Documentation/devicetree/bindings/net/thead,dwmac.yaml
+ create mode 100644 Documentation/devicetree/bindings/nvmem/xuantie,th1520-efuse.txt
+ create mode 100644 Documentation/devicetree/bindings/soc/thead/thead,th1520-event.yaml
+ create mode 100644 Documentation/devicetree/bindings/sound/everest,es7210.txt
+ create mode 100644 Documentation/devicetree/bindings/sound/everest,es8156.yaml
+ create mode 100644 Documentation/devicetree/bindings/sound/xuantie,th1520-i2s.yaml
+ create mode 100644 Documentation/devicetree/bindings/sound/xuantie,th1520-spdif.yaml
+ create mode 100644 Documentation/devicetree/bindings/sound/xuantie,th1520-tdm.yaml
+ create mode 100644 Documentation/devicetree/bindings/spi/thead,th1520-qspi.yaml
+ create mode 100644 Documentation/devicetree/bindings/spi/thead,th1520-spi.yaml
+ create mode 100644 Documentation/devicetree/bindings/usb/thead,th1520-usb.yaml
+ create mode 100644 Documentation/devicetree/bindings/watchdog/thead,th1520-wdt.yaml
+ create mode 100644 include/dt-bindings/clock/a210-clock.h
+ create mode 100644 include/dt-bindings/clock/a210-fm-ap-clock.h
+ create mode 100644 include/dt-bindings/clock/th1520-audiosys.h
+ create mode 100644 include/dt-bindings/clock/th1520-dspsys.h
+ create mode 100644 include/dt-bindings/clock/th1520-fm-ap-clock.h
+ create mode 100644 include/dt-bindings/clock/th1520-miscsys.h
+ create mode 100644 include/dt-bindings/clock/th1520-visys.h
+ create mode 100644 include/dt-bindings/clock/th1520-vosys.h
+ create mode 100644 include/dt-bindings/clock/th1520-vpsys.h
+ create mode 100644 include/dt-bindings/firmware/thead/rsrc.h
+ create mode 100644 include/dt-bindings/iommu/zh-iommu.h
+ create mode 100644 include/dt-bindings/iopmp/zh-iopmp.h
+ create mode 100644 include/dt-bindings/power/a210-power.h
+ create mode 100644 include/dt-bindings/reset/a210-reset.h
+ create mode 100644 include/dt-bindings/soc/th1520_system_status.h
+ create mode 100644 include/dt-bindings/soc/xuantie,th1520-iopmp.h
+
+diff --git a/Documentation/devicetree/bindings/hwlock/xuantie,th1520-hwspinlock.yaml b/Documentation/devicetree/bindings/hwlock/xuantie,th1520-hwspinlock.yaml
+new file mode 100644
+index 0000000000000..8d36beae9676d
+--- /dev/null
++++ b/Documentation/devicetree/bindings/hwlock/xuantie,th1520-hwspinlock.yaml
+@@ -0,0 +1,34 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/hwlock/xuantie,th1520-hwspinlock.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: XUANTIE th1520 SoC HwSpinlock
++
++maintainers:
++  - Liu Yibin <jiulong@linux.alibaba.com>
++
++properties:
++  compatible:
++    items:
++      - const: th1520,hwspinlock
++
++  reg:
++    maxItems: 1
++
++
++required:
++  - compatible
++  - reg
++
++additionalProperties: false
++
++examples:
++
++  - |
++    hwspinlock: hwspinlock@ffefc10000 {
++        compatible = "th1520,hwspinlock";
++        reg = <0xff 0xefc10000 0x0 0x10000>;
++        status = "disabled";
++    };
+diff --git a/Documentation/devicetree/bindings/iio/adc/thead,th1520-adc.yaml b/Documentation/devicetree/bindings/iio/adc/thead,th1520-adc.yaml
+new file mode 100644
+index 0000000000000..94b72a2d0ca5b
+--- /dev/null
++++ b/Documentation/devicetree/bindings/iio/adc/thead,th1520-adc.yaml
+@@ -0,0 +1,52 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/iio/adc/thead,th1520-adc.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: THEAD TH1520 Analog to Digital Converter (ADC)
++
++maintainers:
++  - Fugang Duan <duanfugang.dfg@linux.alibaba.com>
++  - Xiangyi Zeng <xiangyi.zeng@linux.alibaba.com>
++  - Wei Fu <wefu@redhat.com>
++
++description: |
++  12-Bit Analog to Digital Converter (ADC) on XuanTie TH1520
++properties:
++  compatible:
++    const: thead,th1520
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  clocks:
++    maxItems: 1
++
++  clock-names:
++    const: adc
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - clocks
++  - clock-names
++  - status
++
++additionalProperties: false
++
++examples:
++  - |
++    adc: adc@0xfffff51000 {
++        compatible = "thead,th1520-adc";
++        reg = <0xff 0xfff51000 0x0 0x1000>;
++        interrupts = <61 IRQ_TYPE_LEVEL_HIGH>;
++        clocks = <&aonsys_clk>;
++        clock-names = "adc";
++        /* ADC pin is proprietary,no need to config pinctrl */
++        status = "disabled";
++    };
+diff --git a/Documentation/devicetree/bindings/mailbox/xuantie-th1520-mailbox.txt b/Documentation/devicetree/bindings/mailbox/xuantie-th1520-mailbox.txt
+new file mode 100644
+index 0000000000000..e93195bdb651b
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mailbox/xuantie-th1520-mailbox.txt
+@@ -0,0 +1,57 @@
++XuanTie TH1520 mailbox controller
++--------------------------------------------------------------------
++
++The XuanTie TH1520 mailbox controller enables two cores within the SoC to
++communicate and coordinate by passing messages (e.g. data, status
++and control) through the mailbox chan. It also provides the ability
++for one core to signal the other processor using interrupts.
++
++TH1520 mailbox Device Node:
++=============================
++
++Required properties:
++-------------------
++- compatible :	Should be "xuantie,th1520-mbox".
++- reg :		Should contain the registers location and length
++- interrupts :	Interrupt number. The interrupt specifier format depends
++		on the interrupt controller parent.
++- icu_cpu_id :  Should be the ICU CPU ID defined in SOC.
++- #mbox-cells:  Must be 2.
++			  <&phandle type channel>
++			    phandle	: Label name of controller
++			    channel	: Channel number
++			    type	: Channel type
++
++		This TH1520 mailbox support 4 channels and 2 types.
++		channel supported:
++			support 4 channels: 0,1,2,3
++
++		types supported:
++			0 - TX & RX channel share the same channel with 7 info registers to
++			    share data, and with IRQ support.
++			1 - TX & RX doorbell channel. Without own info registers and no ACK support.
++
++Optional properties:
++-------------------
++- clocks :	phandle to the input clock.
++
++Examples:
++--------
++mbox_910t: mbox@ffffc38000 {
++  compatible = "xuantie,th1520-mbox";
++  reg = <0xff 0xffc38000 0x0 0x4000>,
++        <0xff 0xffc44000 0x0 0x1000>,
++        <0xff 0xffc4c000 0x0 0x1000>,
++        <0xff 0xffc54000 0x0 0x1000>;
++  reg-names = "local_base",
++        "remote_icu0",
++        "remote_icu1",
++        "remote_icu2";
++  interrupt-parent = <&intc>;
++  interrupts = <28>;
++  clocks = <&dummy_clock_apb>;
++  clock-names = "ipg";
++  icu_cpu_id = <0>;
++  #mbox-cells = <2>;
++};
++
+diff --git a/Documentation/devicetree/bindings/misc/xuantie,iso7816-smart-card.txt b/Documentation/devicetree/bindings/misc/xuantie,iso7816-smart-card.txt
+new file mode 100644
+index 0000000000000..9e5b97c724db4
+--- /dev/null
++++ b/Documentation/devicetree/bindings/misc/xuantie,iso7816-smart-card.txt
+@@ -0,0 +1,19 @@
++= XUANTIE TH1520 dcd smart card which complies with ISO7816 protocol msic device tree bindings =
++
++This binding is intended to represent TH1520-ISO7816 DCD SMART CARD which is found in XUANTIE SoCs
++
++Required properties:
++- compatible:	should be
++		"xuantie,th1520-fm-efuse": for th1520 fullmask
++- reg:	should contain registers location and length
++- interrupts:	the interrupt number for this device
++- interrupt-parent:	the interrupt controller to manage this device interrupt
++
++Example:
++
++	iso7816: iso7816-card@fff7f30000 {
++		compatible = "xuantie,th1520-iso7816-card";
++		reg = <0xff 0xf7f30000 0x0 0x4000>;
++		interrupts = <69 IRQ_TYPE_LEVEL_HIGH>;
++		status = "disabled";
++	};
+diff --git a/Documentation/devicetree/bindings/net/thead,dwmac.yaml b/Documentation/devicetree/bindings/net/thead,dwmac.yaml
+new file mode 100644
+index 0000000000000..bf8ec8ca27534
+--- /dev/null
++++ b/Documentation/devicetree/bindings/net/thead,dwmac.yaml
+@@ -0,0 +1,77 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/net/thead,dwmac.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: T-HEAD DWMAC Ethernet controller
++
++maintainers:
++  - Jisheng Zhang <jszhang@kernel.org>
++
++select:
++  properties:
++    compatible:
++      contains:
++        enum:
++          - thead,th1520-dwmac
++  required:
++    - compatible
++
++properties:
++  compatible:
++    items:
++      - enum:
++          - thead,th1520-dwmac
++      - const: snps,dwmac-3.70a
++
++  reg:
++    maxItems: 1
++
++  thead,gmacapb:
++    $ref: /schemas/types.yaml#/definitions/phandle
++    description:
++      The phandle to the syscon node that control ethernet
++      interface and timing delay.
++
++required:
++  - compatible
++  - reg
++  - clocks
++  - clock-names
++  - interrupts
++  - interrupt-names
++  - phy-mode
++  - thead,gmacapb
++
++allOf:
++  - $ref: snps,dwmac.yaml#
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    gmac0: ethernet@e7070000 {
++        compatible = "thead,th1520-dwmac", "snps,dwmac-3.70a";
++        reg = <0xe7070000 0x2000>;
++        clocks = <&clk 1>, <&clk 2>;
++        clock-names = "stmmaceth", "pclk";
++        interrupts = <66>;
++        interrupt-names = "macirq";
++        phy-mode = "rgmii-id";
++        snps,fixed-burst;
++        snps,axi-config = <&stmmac_axi_setup>;
++        snps,pbl = <32>;
++        thead,gmacapb = <&gmacapb_syscon>;
++        phy-handle = <&phy0>;
++
++        mdio {
++            #address-cells = <1>;
++            #size-cells = <0>;
++            compatible = "snps,dwmac-mdio";
++
++            phy0: ethernet-phy@0 {
++                reg = <0>;
++            };
++        };
++    };
+diff --git a/Documentation/devicetree/bindings/nvmem/xuantie,th1520-efuse.txt b/Documentation/devicetree/bindings/nvmem/xuantie,th1520-efuse.txt
+new file mode 100644
+index 0000000000000..f99d6913ef86d
+--- /dev/null
++++ b/Documentation/devicetree/bindings/nvmem/xuantie,th1520-efuse.txt
+@@ -0,0 +1,18 @@
++= XuanTie TH1520-EFUSE device tree bindings =
++
++This binding is intended to represent TH1520-EFUSE which is found in XuanTie
++SoCs
++
++Required properties:
++- compatible:	should be
++		"xuantie,th1520-efuse": for th1520 fullmask
++- reg:	should contain registers location and length
++- xuantie,secsys: the syscon phandle to read and write sec system registers
++
++Example:
++
++	nvmem_controller: efuse@ffff210000 {
++		compatible = "xuantie,th1520-efuse";
++		reg = <0xff 0xff210000 0x0 0x10000>;
++		xuantie,secsys = <&secsys_reg>;
++	};
+diff --git a/Documentation/devicetree/bindings/riscv/canaan.yaml b/Documentation/devicetree/bindings/riscv/canaan.yaml
+index 41fd11f70a49b..f9854ff43ac68 100644
+--- a/Documentation/devicetree/bindings/riscv/canaan.yaml
++++ b/Documentation/devicetree/bindings/riscv/canaan.yaml
+@@ -10,7 +10,7 @@ maintainers:
+   - Damien Le Moal <dlemoal@kernel.org>
+ 
+ description:
+-  Canaan Kendryte K210 SoC-based boards
++  Canaan Kendryte SoC-based boards
+ 
+ properties:
+   $nodename:
+@@ -42,6 +42,12 @@ properties:
+       - items:
+           - const: canaan,kendryte-k210
+ 
++      - items:
++          - enum:
++              - canaan,canmv-k230
++              - canaan,k230-usip-lp3-evb
++          - const: canaan,kendryte-k230
++
+ additionalProperties: true
+ 
+ ...
+diff --git a/Documentation/devicetree/bindings/soc/thead/thead,th1520-event.yaml b/Documentation/devicetree/bindings/soc/thead/thead,th1520-event.yaml
+new file mode 100644
+index 0000000000000..5116257eba85a
+--- /dev/null
++++ b/Documentation/devicetree/bindings/soc/thead/thead,th1520-event.yaml
+@@ -0,0 +1,37 @@
++# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/soc/thead/thead,th1520-event.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Thead TH1520 SOC Rebootmode Feature
++
++maintainers:
++  - Hao Li <ben.lihao@linux.alibaba.com>
++  - Xiangyi Zeng <xiangyi.zeng@linux.alibaba.com>
++
++description:
++  This driver supports check rebootmode feature in th1520 FM platform.
++  When the system reboots, event driver recording the reboot cause to a
++  piece of always-on ram, which is data-hold during the system reboot.
++
++properties:
++  compatible:
++      - items:
++          - const: thead,th1520-event
++
++  aon-iram-regmap:
++    description:
++      always-on ram address range for driver to save rebootmode
++
++required:
++  - compatible
++  - aon-iram-regmap
++
++examples:
++  - |
++    th1520_event: th1520-event {
++        compatible = "thead,th1520-event";
++        aon-iram-regmap = <&aon_iram>;
++        status = "okay";
++    };
+diff --git a/Documentation/devicetree/bindings/sound/everest,es7210.txt b/Documentation/devicetree/bindings/sound/everest,es7210.txt
+new file mode 100644
+index 0000000000000..76ac2a820eff5
+--- /dev/null
++++ b/Documentation/devicetree/bindings/sound/everest,es7210.txt
+@@ -0,0 +1,12 @@
++ES7210 i2s DA converter
++
++Required properties:
++- compatible : "everest,es7210" or
++- VDD-supply : regulator phandle for the VDD supply
++- PVDD-supply: regulator phandle for the PVDD supply for the es7210
++
++Example:
++i2s_codec: external-codec {
++	compatible = "everest,es7210";
++	VDD-supply = <&vcc_5v>;
++};
+diff --git a/Documentation/devicetree/bindings/sound/everest,es8156.yaml b/Documentation/devicetree/bindings/sound/everest,es8156.yaml
+new file mode 100644
+index 0000000000000..87412a7ee7c74
+--- /dev/null
++++ b/Documentation/devicetree/bindings/sound/everest,es8156.yaml
+@@ -0,0 +1,42 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/sound/everest,es8156.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Everest ES8156 audio CODEC
++
++maintainers:
++  - shuofeng.ren <shuofeng.rsf@linux.alibaba.com>
++
++allOf:
++  - $ref: dai-common.yaml#
++
++properties:
++  compatible:
++    const: everest,es8156
++
++  reg:
++    maxItems: 1
++
++  "#sound-dai-cells":
++    const: 0
++
++required:
++  - compatible
++  - reg
++  - "#sound-dai-cells"
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    i2c {
++      #address-cells = <1>;
++      #size-cells = <0>;
++      es8156: codec@8 {
++        compatible = "everest,es8156";
++        reg = <0x08>;
++        #sound-dai-cells = <0>;
++      };
++    };
+diff --git a/Documentation/devicetree/bindings/sound/xuantie,th1520-i2s.yaml b/Documentation/devicetree/bindings/sound/xuantie,th1520-i2s.yaml
+new file mode 100644
+index 0000000000000..b051fef084311
+--- /dev/null
++++ b/Documentation/devicetree/bindings/sound/xuantie,th1520-i2s.yaml
+@@ -0,0 +1,91 @@
++# SPDX-License-Identifier: GPL-2.0
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/sound/xuantie,th1520-i2s.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: XuanTie Th1520 I2S controller
++
++maintainers:
++  - David Li <davidli.li@linux.alibaba.com>
++
++properties:
++  compatible:
++    oneOf:
++      - const: xuantie,th1520-i2s
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  clocks:
++    items:
++      - description: clock for I2S controller
++
++  clock-names:
++    items:
++      - const: i2s_pclk
++
++  dmas:
++    minItems: 1
++    maxItems: 2
++
++  dma-names:
++    oneOf:
++      - const: rx
++      - items:
++          - const: tx
++          - const: rx
++
++  pinctrl-names:
++    oneOf:
++      - const: default
++      - items:
++          - const: bclk
++          - const: lrck
++		  - const: dout
++		  - const: din
++
++  reset-names:
++    items:
++      - const: reset_i2s
++
++  resets:
++    maxItems: 1
++
++  audio-cpr-regmap:
++    description:
++      The phandle of the syscon node for the CPR register.
++
++  "#sound-dai-cells":
++    const: 1
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - clocks
++  - clock-names
++  - dmas
++  - dma-names
++  - resets
++  - "#sound-dai-cells"
++
++examples:
++  - |
++    i2s1: audio_i2s1@ffcb015000 {
++        compatible = "xuantie,th1520-i2s";
++        reg = <0xff 0xcb015000 0x0 0x1000>;
++        pinctrl-names = "default";
++        interrupts = <175, IRQ_TYPE_LEVEL_HIGH>;
++        dmas = <&dmac2 11>, <&dmac2 10>;
++        dma-names = "tx", "rx";
++        #dma-cells = <1>;
++        clocks = <&audiosys_clk_gate TH1520_CLKGEN_AUDIO_I2S1>;
++        clock-names = "pclk";
++        resets = <&audiosys_rst TH1520_RESET_AUD_I2S1>;
++        xuantie,audio-cpr-regmap = <&audio_cpr>;
++        #sound-dai-cells = <1>;
++    };
+diff --git a/Documentation/devicetree/bindings/sound/xuantie,th1520-spdif.yaml b/Documentation/devicetree/bindings/sound/xuantie,th1520-spdif.yaml
+new file mode 100644
+index 0000000000000..00934c46e1cf5
+--- /dev/null
++++ b/Documentation/devicetree/bindings/sound/xuantie,th1520-spdif.yaml
+@@ -0,0 +1,77 @@
++# SPDX-License-Identifier: GPL-2.0
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/sound/xuantie,th1520-spdif.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: TH1520 SPDIF transceiver
++
++description:
++  The S/PDIF audio block is a stereo transceiver that allows the
++  processor to receive and transmit digital audio via a coaxial or
++  fibre cable.
++
++maintainers:
++  - nanli.yd <nanli.yd@alibaba-inc.com>
++
++properties:
++  compatible:
++    oneOf:
++      - const: xuantie,th1520-spdif
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  clocks:
++    items:
++      - description: clock for SPDIF controller
++
++  clock-names:
++    items:
++      - const: pclk
++
++  dmas:
++    minItems: 1
++    maxItems: 2
++
++  dma-names:
++    oneOf:
++      - const: tx
++      - items:
++          - const: tx
++          - const: rx
++
++  audio-cpr-regmap:
++    description:
++      The phandle of the syscon node for the CPR register.
++
++  "#sound-dai-cells":
++    const: 0
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - clocks
++  - clock-names
++  - dmas
++  - dma-names
++  - "#sound-dai-cells"
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    spdif: spdif@ffcb018000 {
++      compatible = "xuantie,th1520-spdif";
++      reg = <0xff 0xcb018000 0x0 0x1000>;
++      interrupts = <179 IRQ_TYPE_LEVEL_HIGH>;
++      clocks = <&audiosys_clk_gate TH1520_CLKGEN_AUDIO_SPDIF0>;
++      clock-names = "pclk";
++      dmas = <&dmac2 25>, <&dmac2 24>;;
++      dma-names = "tx", "rx";
++      #sound-dai-cells = <0>;
++    };
+diff --git a/Documentation/devicetree/bindings/sound/xuantie,th1520-tdm.yaml b/Documentation/devicetree/bindings/sound/xuantie,th1520-tdm.yaml
+new file mode 100644
+index 0000000000000..17835597e8ec4
+--- /dev/null
++++ b/Documentation/devicetree/bindings/sound/xuantie,th1520-tdm.yaml
+@@ -0,0 +1,86 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/sound/xuantie,th1520-tdm.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: TH1520 TDM Controller
++
++description:
++  The TH1520 TDM Controller is a Time Division Multiplexed
++  audio interface in TH1520 SoCs, allowing up to 8 channels
++  of audio over a serial interface.
++
++maintainers:
++  - nanli.yd <nanli.yd@alibaba-inc.com>
++
++properties:
++  compatible:
++    enum:
++      - xuantie,th1520-tdm
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  dmas:
++    maxItems: 1
++
++  dma-names:
++    maxItems: 1
++    items:
++      enum:
++        - rx
++
++  clocks:
++    minItems: 1
++    items:
++      - description: tdm_pclk
++
++  clock-names:
++    minItems: 1
++    items:
++      - const: pclk
++
++  resets:
++    maxItems: 1
++    description: reset tdm
++
++  reset-names:
++    maxItems: 1
++
++  audio-cpr-regmap:
++    description:
++      The phandle of the syscon node for the CPR register.
++
++  "#sound-dai-cells":
++    const: 0
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - dmas
++  - dma-names
++  - clocks
++  - clock-names
++  - resets
++  - reset-names
++  - "#sound-dai-cells"
++
++examples:
++  - |
++    tdm: audio_tdm@ffcb012000 {
++        compatible = "xuantie,th1520-tdm";
++        reg = <0xff 0xcb012000 0x0 0x1000>;
++        audio-cpr-regmap = <&audio_cpr>;
++        interrupts = <178, IRQ_TYPE_LEVEL_HIGH>;
++        dmas = <&dmac2 28>;
++        dma-names = "rx";
++        clocks = <&audiosys_clk_gate TH1520_CLKGEN_AUDIO_TDM>;
++        clock-names = "pclk";
++        resets = <&audiosys_rst TH1520_RESET_AUD_TDM>;
++        #sound-dai-cells = <0>;
++    };
+diff --git a/Documentation/devicetree/bindings/spi/thead,th1520-qspi.yaml b/Documentation/devicetree/bindings/spi/thead,th1520-qspi.yaml
+new file mode 100644
+index 0000000000000..a31709236820d
+--- /dev/null
++++ b/Documentation/devicetree/bindings/spi/thead,th1520-qspi.yaml
+@@ -0,0 +1,52 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/spi/thead,th1520-spi.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: THEAD TH1520 Quad Serial Peripheral Interface (QSPI)
++
++maintainers:
++  - linghui zeng<linghui.zlh@linux.alibaba.com>
++  - Xiangyi Zeng <xiangyi.zeng@linux.alibaba.com>
++properties:
++  compatible:
++    const: thead,th1520
++
++  reg:
++    maxItems: 1
++
++  clocks:
++    maxItems: 1
++
++  clock-names:
++    items:
++      - const: sclk
++      - const: pclk
++
++  interrupts:
++    maxItems: 1
++
++required:
++  - compatible
++  - reg
++  - clocks
++  - clock-names
++  - interrupts
++  - status
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    qspi0: qspi@ffea000000 {
++        compatible = "snps,dw-apb-ssi-quad";
++        reg = <0xff 0xea000000 0x0 0x1000>;
++        interrupts = <52 IRQ_TYPE_LEVEL_HIGH>;
++        clocks = <&clk CLKGEN_QSPI0_SSI_CLK>,
++            <&clk CLKGEN_QSPI0_PCLK>;
++        clock-names = "sclk", "pclk";
++        #address-cells = <1>;
++        #size-cells = <0>;
++        status = "disabled";
++    };
+diff --git a/Documentation/devicetree/bindings/spi/thead,th1520-spi.yaml b/Documentation/devicetree/bindings/spi/thead,th1520-spi.yaml
+new file mode 100644
+index 0000000000000..f042dc788ba24
+--- /dev/null
++++ b/Documentation/devicetree/bindings/spi/thead,th1520-spi.yaml
+@@ -0,0 +1,58 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/spi/thead,th1520-spi.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: THEAD TH1520 SPI Controller
++
++description: |
++  The THEAD TH1520 SPI controller is used to communicate with external devices using
++  the Serial Peripheral Interface. It supports full-duplex, half-duplex and
++  simplex synchronous serial communication with external devices. It supports
++  from 4 to 32-bit data size.
++
++maintainers:
++  - linghui zeng<linghui.zlh@linux.alibaba.com>
++  - Xiangyi Zeng <xiangyi.zeng@linux.alibaba.com>
++properties:
++  compatible:
++    const: thead,th1520
++
++  reg:
++    maxItems: 1
++
++  clocks:
++    maxItems: 1
++
++  clock-names:
++    items:
++      - const: sclk
++      - const: pclk
++
++  interrupts:
++    maxItems: 1
++
++required:
++  - compatible
++  - reg
++  - clocks
++  - clock-names
++  - interrupts
++  - status
++
++additionalProperties: false
++
++examples:
++  - |
++    spi: spi@ffe700c000 {
++        compatible = "snps,dw-apb-ssi";
++        reg = <0xff 0xe700c000 0x0 0x1000>;
++        interrupts = <54 IRQ_TYPE_LEVEL_HIGH>;
++        clocks = <&clk CLKGEN_SPI_SSI_CLK>,
++            <&clk CLKGEN_SPI_PCLK>;
++        clock-names = "sclk", "pclk";
++        #address-cells = <1>;
++        #size-cells = <0>;
++        status = "disabled";
++    };
+diff --git a/Documentation/devicetree/bindings/usb/dwc2.yaml b/Documentation/devicetree/bindings/usb/dwc2.yaml
+index 6c3a10991b8b6..c6f79440a5215 100644
+--- a/Documentation/devicetree/bindings/usb/dwc2.yaml
++++ b/Documentation/devicetree/bindings/usb/dwc2.yaml
+@@ -17,6 +17,9 @@ properties:
+   compatible:
+     oneOf:
+       - const: brcm,bcm2835-usb
++      - items:
++          - const: canaan,k230-otg
++          - const: snps,dwc2
+       - const: hisilicon,hi6220-usb
+       - const: ingenic,jz4775-otg
+       - const: ingenic,jz4780-otg
+diff --git a/Documentation/devicetree/bindings/usb/thead,th1520-usb.yaml b/Documentation/devicetree/bindings/usb/thead,th1520-usb.yaml
+new file mode 100644
+index 0000000000000..6e18e37fdb63f
+--- /dev/null
++++ b/Documentation/devicetree/bindings/usb/thead,th1520-usb.yaml
+@@ -0,0 +1,76 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/usb/thead,th1520-usb.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: T-HEAD TH1520 DWC3 USB Controller Glue
++
++maintainers:
++  - Jisheng Zhang <jszhang@kernel.org>
++
++properties:
++  compatible:
++    const: thead,th1520-usb
++
++  reg:
++    maxItems: 1
++
++  clocks:
++    maxItems: 4
++
++  clock-names:
++    items:
++      - const: ref
++      - const: bus_early
++      - const: phy
++      - const: suspend
++
++  ranges: true
++
++  '#address-cells':
++    enum: [ 1, 2 ]
++
++  '#size-cells':
++    enum: [ 1, 2 ]
++
++# Required child node:
++
++patternProperties:
++  "^usb@[0-9a-f]+$":
++    $ref: snps,dwc3.yaml#
++
++required:
++  - compatible
++  - reg
++  - clocks
++  - clock-names
++  - ranges
++
++additionalProperties: false
++
++examples:
++  - |
++		usb: usb@ffec03f000 {
++			compatible = "thead,th1520-usb";
++			usb3-misc-regmap = <&misc_sysreg>;
++			reg = <0xff 0xec03f000 0x0 0x1000>;
++			thead,misc-sysreg = <&misc_sysreg>;
++			clocks = <&miscsys_clk_gate CLKGEN_MISCSYS_USB3_DRD_CLK>,
++					<&miscsys_clk_gate CLKGEN_MISCSYS_USB3_DRD_CTRL_REF_CLK>,
++					<&miscsys_clk_gate CLKGEN_MISCSYS_USB3_DRD_PHY_REF_CLK>,
++					<&miscsys_clk_gate CLKGEN_MISCSYS_USB3_DRD_SUSPEND_CLK>;
++			clock-names = "drd", "ctrl", "phy", "suspend";
++			#address-cells = <2>;
++			#size-cells = <2>;
++			ranges;
++
++			usb_dwc3: usb@ffe7040000 {
++				compatible = "snps,dwc3";
++				reg = <0xff 0xe7040000 0x0 0x10000>;
++				interrupts = <68 IRQ_TYPE_LEVEL_HIGH>;
++				dr_mode = "host";
++				snps,usb3_lpm_capable;
++				status = "disabled";
++			};
++		};
+\ No newline at end of file
+diff --git a/Documentation/devicetree/bindings/watchdog/thead,th1520-wdt.yaml b/Documentation/devicetree/bindings/watchdog/thead,th1520-wdt.yaml
+new file mode 100644
+index 0000000000000..50625d4798b38
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/thead,th1520-wdt.yaml
+@@ -0,0 +1,19 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/watchdog/thead,th1520-wdt.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: THEAD PMIC Watchdog for TH1520 SoC
++
++maintainers:
++  - Wei.Liu <lw312886@linux.alibaba.com>
++  - Xiangyi Zeng <xiangyi.zeng@linux.alibaba.com>
++
++description:
++  This is the driver for the hardware watchdog on TH1520 product Board.
++  This watchdog simply watches your kernel to make sure it doesn't freeze,
++  and if it does, it reboots your computer after a certain amount of time.
++
++allOf:
++  - $ref: watchdog.yaml#
+diff --git a/include/dt-bindings/clock/a210-clock.h b/include/dt-bindings/clock/a210-clock.h
+new file mode 100644
+index 0000000000000..3b6995d86d9fa
+--- /dev/null
++++ b/include/dt-bindings/clock/a210-clock.h
+@@ -0,0 +1,614 @@
++#ifndef _A210_CLK_H
++#define _A210_CLK_H
++
++// PLL_WRAP
++#define AUDIO0_PLL_FOUTVCO                                 0
++#define AUDIO0_PLL_FOUTPOSTDIV                             1
++#define AUDIO0_PLL_FOUT2                                   2
++#define AUDIO1_PLL_FOUTVCO                                 3
++#define AUDIO1_PLL_FOUTPOSTDIV                             4
++#define AUDIO1_PLL_FOUT2                                   5
++#define GMAC_PLL_FOUTVCO                                   6
++#define GMAC_PLL_FOUTPOSTDIV                               7
++#define GMAC_PLL_FOUT1PH0                                  8
++#define DVFS_PLL_FOUTVCO                                   9
++#define DPU0_PLL_FOUTPOSTDIV                               10
++#define DPU1_PLL_FOUTVCO                                   11
++#define DPU1_PLL_FOUTPOSTDIV                               12
++#define DPU2_PLL_FOUTVCO                                   13
++#define DPU2_PLL_FOUTPOSTDIV                               14
++#define VIDEO_PLL_FOUTVCO                                  15
++#define VIDEO_PLL_FOUTPOSTDIV                              16
++#define VIDEO_PLL_FOUT1PH0                                 17
++#define VIDEO_PLL_FOUT3                                    18
++#define TEE_PLL_FOUTVCO                                    19
++// TOP_CRG
++#define IOMMU_PTW_ACLK_DIV                                 20
++#define NOC_CCLK_DIV                                       21
++#define NOC_CCLK_MUX                                       22
++#define TOP_CFG_ACLK_DIV                                   23
++#define TOP_PCLK_DIV                                       24
++#define TOP_CPU_BAK_PLL0_CLK_DIV4                          25
++#define TOP_CPUSYS_PIC_CLK_DIV                             26
++#define TOP_CPU_DDR1_ACLK_MUX                              27
++#define TOP_CPU_DDR0_ACLK_MUX                              28
++#define TOP_CPU_BAK_PLL0_CLK_MUX0                          29
++#define TOP_CPU_BAK_PLL0_CLK_DIV0                          30
++#define TOP_CPU_BAK_PLL0_CLK_DIV1                          31
++#define TOP_CPU_BAK_PLL0_CLK_DIV3                          32
++#define TOP_CPUSYS_PIC_CLK_MUX                             33
++#define TOP_CPU_BAK_PLL0_CLK_MUX                           34
++#define TOP_CPU_BAK_PLL1_CLK_DIV1                          35
++#define TOP_CPUSYS_BUS_CLK_DIV                             36
++#define TOP_CPUSYS_BUS_CLK_MUX                             37
++#define TOP_CPU_BAK_PLL1_CLK_DIV0                          38
++#define TOP_CPU_BAK_PLL1_CLK_MUX0                          39
++#define TOP_CPU_BAK_PLL1_CLK_DIV3                          40
++#define TOP_CPU_BAK_PLL1_CLK_MUX                           41
++#define TOP_D2D_REF_CLK_MUX                                42
++#define TOP_D2D_SCAN_CLK0_DIV                              43
++#define TOP_D2D_SCAN_CLK1_DIV                              44
++#define TOP_D2D_ACLK_DIV                                   45
++#define TOP_D2D_ACLK_MUX                                   46
++#define AMUX_CLK_DIV                                       47
++#define TOP_GPU_CORE_CLK_DIV                               48
++#define TOP_GPU_CORE_CLK_MUX                               49
++#define TOP_PCIE_SCAN_REF_CLK1_DIV                         50
++#define TOP_PCIE_SCAN_REF_CLK0_DIV                         51
++#define TOP_PCIE_AXI_M_ACLK_DIV                            52
++#define TOP_PCIE_AXI_M_ACLK_MUX                            53
++#define TOP_PERI_SPI_SSI_CLK0_DIV                          54
++#define TOP_PERI_MST_ACLK0_DIV                             55
++#define TOP_PERI_TIMER_CLK_MUX                             56
++#define TOP_PERI_I2S_8CH0_SRC_CLK_MUX                      57
++#define TOP_PERI_I2S_2CH0_SRC_CLK_MUX                      58
++#define TOP_PERI_QSPI_SSI_CLK_MUX0                         59
++#define TOP_PERI_QSPI0_SSI_CLK_DIV0                        60
++#define TOP_PERI_QSPI0_SSI_CLK_DIV1                        61
++#define TOP_PERI_SPI_SSI_CLK1_DIV                          62
++#define TOP_PERI_HIRES_CLK0_DIV                            63
++#define TOP_PERI_HIRES_CLK1_DIV                            64
++#define TOP_PERI_TDM_SRC_CLK_MUX                           65
++#define TOP_UART_SCLK_MUX                                  66
++#define TOP_PERI_I2S_2CH1_SRC_CLK_MUX                      67
++#define TOP_PERI_PDM_MCLK_MUX                              68
++#define TOP_PERI_I2S_2CH2_SRC_CLK_MUX                      69
++#define TOP_PERI_QSPI_SSI_CLK_MUX1                         70
++#define TOP_PERI_QSPI1_SSI_CLK_DIV0                        71
++#define TOP_PERI_QSPI1_SSI_CLK_DIV1                        72
++#define TOP_PERI_MST_CLK1_DIV                              73
++#define TOP_PERI_EMMC_REF_CLK_DIV                          74
++#define TOP_PERI_PDM_MCLK_DIV                              75
++#define TOP_PERI_EMMC_REF_CLK_MUX                          76
++#define TOP_PAD_SENSOR_VCLK_MUX1                           77
++#define TOP_PAD_SENSOR_VCLK_MUX0                           78
++#define TOP_PAD_SENSOR_VCLK1_DIV                           79
++#define TOP_PAD_SENSOR_VCLK0_DIV                           80
++#define TOP_TEE_CLK_DIV                                    81
++#define TOP_TEE_CLK_MUX                                    82
++#define TOP_USB_BUS_ACLK_DIV                               83
++#define TOP_USB_DP_AUX_CLK_DIV                             84
++#define TOP_VP_ACLK_MUX                                    85
++#define TOP_VP_ACLK_DIV                                    86
++#define TOP_VP_G2D_CCLK_DIV                                87
++#define TOP_VP_G2D_CCLK_MUX                                88
++#define TOP_VP_VDEC_CCLK_DIV                               89
++#define TOP_VP_VDEC_CCLK_MUX                               90
++#define TOP_VP_VENC_CCLK_DIV                               91
++#define TOP_VP_VENC_CCLK_MUX                               92
++#define TOP_NPU_ACLK_DIV                                   93
++#define TOP_NPU_ACLK_MUX                                   94
++#define TOP_NPU_CCLK_DIV                                   95
++#define TOP_NPU_CCLK_MUX                                   96
++#define TOP_USB_USB20_SCAN_REF_CLK_DIV                     97
++#define TOP_USB_SCAN_REF_CLK3_DIV                          98
++#define TOP_USB_SCAN_REF_CLK2_DIV                          99
++#define TOP_USB_SCAN_REF_CLK1_DIV                          100
++#define TOP_USB_SCAN_REF_CLK0_DIV                          101
++#define TOP_CPU_BAK_PLL1_CLK_DIV4                          102
++#define SW_TOP_PAD_SENSOR_VCLK1_EN                         103
++#define SW_TOP_PAD_SENSOR_VCLK0_EN                         104
++#define SW_NOC_CCLK_EN                                     105
++#define SW_TOP_OSC_CLK_LOGIC_EN                            106
++#define SW_IOMMU_PTW_330_ACLK_EN                           107
++#define SW_AMUX_660_CLK_EN                                 108
++#define SW_NPU_SS_CLK_EN                                   109
++#define SW_CPU_SS_CLK_EN                                   110
++#define SW_DDR_SS_CLK_EN                                   111
++#define SW_D2D_SS_CLK_EN                                   112
++#define SW_VP_SS_CLK_EN                                    113
++#define SW_VO_SS_CLK_EN                                    114
++#define SW_VI_SS_CLK_EN                                    115
++#define SW_PCIE_SS_CLK_EN                                  116
++#define SW_USB_SS_CLK_EN                                   117
++#define SW_PERI1_SS_CLK_EN                                 118
++#define SW_PERI3_SS_CLK_EN                                 119
++#define SW_GPU_SS_CLK_EN                                   120
++// CPU_SS_CLK_SYSREG
++#define C908_CPU_TO_CDE_CLK_MUX                            121
++#define C920_CPU_TO_CDE_CLK_MUX                            122
++// CPU_SS_CPU_PLL
++#define C908_PLL_FOUTVCO                                   123
++#define C920_PLL_FOUTVCO                                   124
++// GPU_SS_SYSREG
++#define SW_PWR_WRAP_X2P_PCLK_EN                            125
++#define SW_PWR_WRAP_SYSREG_PCLK_EN                         126
++#define SW_PWR_WRAP_DFMU_PCLK_EN                           127
++#define SW_PWR_WRAP_X2P_ACLK_EN                            128
++#define SW_PWR_WRAP_CFG_ACLK_EN                            129
++#define SW_PWR_WRAP_CFG_AAB_MST_ACLK_EN                    130
++#define SW_PWR_WRAP_GPU_SYS_CLK_EN                         131
++#define SW_PWR_WRAP_MEMIF_AAB_SLV_CORE_CLK_EN              132
++#define SW_PWR_WRAP_DFMU_CORE_CLK_EN                       133
++#define SW_PWR_WRAP_GPU_CORE_CLK_EN                        134
++// GPU_SS_TOP_SYSREG
++#define SW_TOP_CFG_AAB_SLV_ACLK_EN                         135
++#define SW_TOP_X2P_PCLK_EN                                 136
++#define SW_TOP_SYSREG_PCLK_EN                              137
++#define SW_TOP_X2P_ACLK_EN                                 138
++#define SW_TOP_CFG_ACLK_EN                                 139
++#define SW_TOP_AFENCE_ACLK_EN                              140
++#define SW_MEMIF_AAB_MST_BUS_CLK_EN                        141
++// NPU_CRG
++#define NPU_CCLK_BUF_CDE_RATIO                             142
++#define NPU_CCLK_BUF_CDE_MUX                               143
++#define NPU_ACLK_BUF_CDE_RATIO                             144
++#define NPU_ACLK_BUF_CDE_MUX                               145
++#define SW_DROOP_PCLK_EN                                   146
++#define SW_DROOP_CLK_EN                                    147
++#define SW_DROOP_CCTRL_PCLK_EN                             148
++#define SW_DROOP_CCTRL_CLK_EN                              149
++#define SW_SEMA_PCLK_EN                                    150
++#define SW_SEMA_ACLK_EN                                    151
++#define SW_NPU_X2P_ACLK_EN                                 152
++#define SW_NPU_X2H_ACLK_EN                                 153
++#define SW_NPU_PTW_CCU_PCLK_EN                             154
++#define SW_NPU_PTW_CCU_CLK_EN                              155
++#define SW_NPU_PCTRL_PCLK_EN                               156
++#define SW_NPU_PCTRL_EN                                    157
++#define SW_NPU_LPE_C_PCLK_EN                               158
++#define SW_NPU_LPE_C_CLK_EN                                159
++#define SW_NPU_LPC_C_CLK_EN                                160
++#define SW_NPU_IP_HCLK_EN                                  161
++#define SW_NPU_IP_CCLK_EN                                  162
++#define SW_NPU_IP_ACLK_EN                                  163
++#define SW_NPU_DFMU_PTWCLK_EN                              164
++#define SW_NPU_DFMU_PCLK_EN                                165
++#define SW_NPU_CLK_CALC_EN                                 166
++#define SW_NPU_AXI_M2S1_ACLK_EN                            167
++#define SW_NPU_AXI_CCU_PCLK_EN                             168
++#define SW_NPU_AXI_CCU_CLK_EN                              169
++#define SW_NPU_AXI_ACLK_EN                                 170
++#define SW_NPU_AFENCE_EN                                   171
++#define SW_NPU_AAB_MST_ACLK_EN                             172
++#define SW_DFMU_ACLK_EN                                    173
++// NPU_TOP_CRG
++#define SW_NPUSS_AAB_SLV_CLK_EN                            174
++#define SW_NPUSS_FENCE_CLK_EN                              175
++// DDR0_SYSREG
++#define DDR0_PHY_DFICLK_EN                                 176
++#define DDR0_DDRC_ACLK_EN                                  177
++#define DDR0_DDRC_CCLK_EN                                  178
++#define DDR0_SBR_CLK_EN                                    179
++// DDR1_SYSREG
++#define DDR1_PHY_DFICLK_EN                                 180
++#define DDR1_DDRC_ACLK_EN                                  181
++#define DDR1_DDRC_CCLK_EN                                  182
++#define DDR1_SBR_CLK_EN                                    183
++// SLC_DUAL_SYSREG
++#define DDR_PLL_FOUTVCO                                    184
++#define DDR_PLL_FOUTPOSTDIV                                185
++#define DDR_PLL_FOUT1PH0                                   186
++#define DDR_PLL_FOUT2                                      187
++#define DDR_PLL_FOUT4                                      188
++#define DDR_PLL_CLK_SEL                                    505
++#define DDR_PLL_CLK_EN                                     506
++#define DDR_CBUS2DDR_ACLK0                                 507
++#define DDR_CBUS2DDR_ACLK1                                 508
++// D2D_CRG_REG_T
++#define D2D_SS_CTRL0_CLK_EN                                189
++#define D2D_SS_CTRL1_CLK_EN                                190
++// PCIE_CPR
++#define AXI4_PCIE_MST_PCLK_EN                              191
++#define AXI4_PCIE_MST_ACLK_EN                              192
++#define X2X_PERI3_MST_ACLK_EN                              193
++#define X2X_PERI3_SLV_ACLK_EN                              194
++#define PCIE_SS_DFMU_ACLK_EN                               195
++#define PCIE_SS_DFMU_IOMMU_PTW_ACLK_EN                     196
++#define PCIE_SS_DFMU_PCLK_EN                               197
++#define E16PHY_PCLK_EN                                     198
++#define SATA_MST_AFENCE_ACLK_EN                            199
++#define SATA_SLV_AFENCE_ACLK_EN                            200
++#define SATA_GEN3X2_ACLK_EN                                201
++#define X2X_SATA_SLV_ACLK_EN                               202
++#define X2X_SATA_MST_ACLK_EN                               203
++#define SATA_RXOOB1_CLK_EN                                 204
++#define SATA_RXOOB0_CLK_EN                                 205
++#define SATA_PMALIVE_CLK_EN                                206
++#define PCIE_DM_MST_AFENCE_ACLK_EN                         207
++#define PCIE_DM_SLV_AFENCE_ACLK_EN                         208
++#define PCIE_DM_GEN3X4_AUX_CLK_EN                          209
++#define PCIE_DM_GEN3X4_MST_ACLK_EN                         210
++#define PCIE_DM_GEN3X4_PCLK_EN                             211
++#define PCIE_DM_GEN3X4_SLV_ACLK_EN                         212
++#define PCIE_RP_MST_AFENCE_ACLK_EN                         213
++#define PCIE_RP_SLV_AFENCE_ACLK_EN                         214
++#define PCIE_RP_GEN3X1_AUX_CLK_EN                          215
++#define PCIE_RP_GEN3X1_MST_ACLK_EN                         216
++#define PCIE_RP_GEN3X1_PCLK_EN                             217
++#define PCIE_RP_GEN3X1_SLV_ACLK_EN                         218
++// USB_CPR
++#define USB_SS_AXI_MST_PCLK_EN                             219
++#define USB_SS_AXI_MST_ACLK_EN                             220
++#define USB_SS_DFMU_IOMMU_PTW_ACLK_EN                      221
++#define USB_SS_DFMU_ACLK_EN                                222
++#define USB_SS_DFMU_PCLK_EN                                223
++#define DPTX_I2S_CLK_EN                                    224
++#define DPTX_IPI_CLK_EN                                    225
++#define DPTX_AUX_CLK_EN                                    226
++#define DPTX_GTC_CLK_EN                                    227
++#define DPTX_PCLK_EN                                       228
++#define USB31_SLV_AFENCE_ACLK_EN                           229
++#define USB31_REF_CLK_EN                                   230
++#define USB31_SUSPEND_CLK_EN                               231
++#define USB31_BUS_CLK_EN                                   232
++#define USB31_PCLK_EN                                      233
++#define C10PHY_SUSPEND_CLK_EN                              234
++#define C10PHY_PCLK_EN                                     235
++#define USB2_SYSREG_PCLK_EN                                236
++#define USB2_AXI_MST_ACLK_EN                               237
++#define USB2_AHB_SLV_HCLK_EN                               238
++#define USB2_H2P_HCLK_EN                                   239
++#define USB2_SLV_AFENCE_ACLK_EN                            240
++#define USB2_X2H_ACLK_EN                                   241
++#define USB2_X2H_HCLK_EN                                   242
++#define USB2_WRAP_A2X1_ACLK_EN                             243
++#define USB2_WRAP_A2X1_HCLK_EN                             244
++#define USB2_WRAP_A2X0_ACLK_EN                             245
++#define USB2_WRAP_A2X0_HCLK_EN                             246
++#define USB2_WRAP1_HCLK_EN                                 247
++#define USB2_WRAP0_HCLK_EN                                 248
++#define USB_SS_PERI2_SLV_AFENCE_ACLK_EN                    249
++#define USB_SS_PERI2_CFG_ACLK_EN                           250
++// VI_SYSREG
++#define VI_DW_SCLK_EN                                      251
++#define VI_VSE_CLK_EN                                      252
++#define VI_DWE_CLK_EN                                      253
++#define VI_DW200_ACLK_EN                                   254
++#define VI_DW200_HCLK_EN                                   255
++#define VI_DECOMP_CLK_EN                                   256
++#define VI_COMP1_CLK_EN                                    257
++#define VI_COMP0_CLK_EN                                    258
++#define VI_VSEOUT_CLK_EN                                   259
++#define VI_DECOUT_CLK_EN                                   260
++#define VI_ISPOUT_CLK_EN                                   261
++#define VI_COMP_ACLK_EN                                    262
++#define VI_COMP_PCLK_EN                                    263
++#define VI_ISP_CLK_EN                                      264
++#define VI_VIPRE_ACLK_EN                                   265
++#define VI_VIPRE_SCLK_EN                                   266
++#define VI_VIPRE_I1_PIXCLK_EN                              267
++#define VI_VIPRE_I0_PIXCLK_EN                              268
++#define VI_VIPRE_PCLK_EN                                   269
++#define VI_MIPI1_CSI1_PIXCLK_EN                            270
++#define VI_MIPI1_CSI0_PIXCLK_EN                            271
++#define VI_MIPI1B_CFGCLK_EN                                272
++#define VI_MIPI1A_CFGCLK_EN                                273
++#define VI_MIPI1CSI1_PCLK_EN                               274
++#define VI_MIPI1CSI0_PCLK_EN                               275
++#define VI_MIPI0_CSI1_PIXCLK_EN                            276
++#define VI_MIPI0_CSI0_PIXCLK_EN                            277
++#define VI_MIPI0B_CFGCLK_EN                                278
++#define VI_MIPI0A_CFGCLK_EN                                279
++#define VI_MIPI0CSI1_PCLK_EN                               280
++#define VI_MIPI0CSI0_PCLK_EN                               281
++#define VI_REC_ACLK_EN                                     282
++#define VI_REC_PCLK_EN                                     283
++#define VI_FENCE_ACLK_EN                                   284
++#define VI_MIPI1CSI1_FPCLK_EN                              285
++#define VI_MIPI1CSI0_FPCLK_EN                              286
++#define VI_MIPI0CSI1_FPCLK_EN                              287
++#define VI_MIPI0CSI0_FPCLK_EN                              288
++#define VI_X2H2_CLK_EN                                     289
++#define VI_X2H1_CLK_EN                                     290
++#define VI_X2H0_CLK_EN                                     291
++#define VI_ARB_ACLK_EN                                     292
++#define VI_ARB_PCLK_EN                                     293
++#define VI_PTW_ACLK_EN                                     294
++#define VI_DFMU_ACLK_EN                                    295
++#define VI_DFMU_PCLK_EN                                    296
++#define VI_PRE_ISP_CORE_CLK_DIV_EN                         297
++#define VI_PRE_ISP_IF_CLK_DIV_EN                           298
++#define VI_PRE_MIPI1_PIXCLK_DIV_EN                         299
++#define VI_PRE_MIPI0_PIXCLK_DIV_EN                         300
++#define VI_ISP_IF_REF_SWITCH_SEL                           301
++#define VI_MIPI1_PIX_REF_SWITCH_SEL                        302
++#define VI_MIPI0_PIX_REF_SWITCH_SEL                        303
++#define VI_PRE_ISP_CORE_CLK_DIV_NUM                        304
++#define VI_PRE_ISP_IF_CLK_DIV_NUM                          305
++#define VI_PRE_MIPI1_PIXCLK_DIV_NUM                        306
++#define VI_PRE_MIPI0_PIXCLK_DIV_NUM                        307
++#define VI_PRE_DECOMP_CLK_DIV_EN                           308
++#define VI_PRE_COMP_CLK_DIV_EN                             309
++#define VI_PRE_DWE_CLK_DIV_EN                              310
++#define VI_PRE_VSE_CLK_DIV_EN                              311
++#define VI_PRE_AXI_CLK_DIV_EN                              312
++#define VI_PRE_DECOMP_CLK_DIV_NUM                          313
++#define VI_PRE_COMP_CLK_DIV_NUM                            314
++#define VI_PRE_DWE_CLK_DIV_NUM                             315
++#define VI_PRE_VSE_CLK_DIV_NUM                             316
++#define VI_PRE_AXI_CLK_DIV_NUM                             317
++// VO_SYSREG
++#define VO_X2H1_CLK_EN                                     318
++#define VO_X2H0_CLK_EN                                     319
++#define VO_PTW_ACLK_EN                                     320
++#define VO_DFMU_ACLK_EN                                    321
++#define VO_DFMU_PCLK_EN                                    322
++#define VO_ARB_ACLK_EN                                     323
++#define VO_ARB_PCLK_EN                                     324
++#define VO_DECOMP_ACLK_EN                                  325
++#define VO_DECOMP1_CLK_EN                                  326
++#define VO_DECOMP0_CLK_EN                                  327
++#define VO_DECOMP_PCLK_EN                                  328
++#define VO_MIPI_CFGCLK_EN                                  329
++#define VO_MIPI_PCLK_EN                                    330
++#define VO_HDMI_SFRCLK_EN                                  331
++#define VO_CEC_CLK_EN                                      332
++#define VO_I2S_CLK_EN                                      333
++#define VO_HDMI_PCLK_EN                                    334
++#define VO_AUXDISP_ACLK_EN                                 335
++#define VO_AUXDISP_PCLK_EN                                 336
++#define VO_CH2_PIXCLK_EN                                   337
++#define VO_DPU_ACLK_EN                                     338
++#define VO_DPUC_CLK_EN                                     339
++#define VO_DPU_HCLK_EN                                     340
++#define VO_CH1_PIXCLK_EN                                   341
++#define VO_CH0_PIXCLK_EN                                   342
++#define VO_PLL2_DIV_EN                                     343
++#define VO_PLL2_DIV_NUM                                    344
++#define VO_PLL1_DIV_EN                                     345
++#define VO_PLL1_DIV_NUM                                    346
++#define VO_PLL0_DIV_EN                                     347
++#define VO_PLL0_DIV_NUM                                    348
++#define VO_DECOMP_DIV_EN                                   349
++#define VO_DECOMP_DIV_NUM                                  350
++#define VO_DPUC_DIV_EN                                     351
++#define VO_DPUC_DIV_NUM                                    352
++#define VO_ACLK_DIV_EN                                     353
++#define VO_ACLK_DIV_NUM                                    354
++// VP_SYSREG
++#define VP_DECOMP_EXTPCLK_EN                               355
++#define VP_COMP_EXTPCLK_EN                                 356
++#define VP_VENC_RS_ACLK_EN                                 357
++#define VP_VDEC_RS_ACLK_EN                                 358
++#define VP_ARB_ACLK_EN                                     359
++#define VP_ARB_PCLK_EN                                     360
++#define VP_PTW_ACLK_EN                                     361
++#define VP_DFMU_ACLK_EN                                    362
++#define VP_DFMU_PCLK_EN                                    363
++#define VP_DECOMP_ACLK_EN                                  364
++#define VP_DECOMP_CCLK_EN                                  365
++#define VP_DECOMP_PCLK_EN                                  366
++#define VP_COMP_ACLK_EN                                    367
++#define VP_COMP_CCLK_EN                                    368
++#define VP_COMP_PCLK_EN                                    369
++#define VP_G2D_ACLK_EN                                     370
++#define VP_G2D_CCLK_EN                                     371
++#define VP_G2D_PCLK_EN                                     372
++#define VP_VENC_ACLK_EN                                    373
++#define VP_VENC_CCLK_EN                                    374
++#define VP_VENC_PCLK_EN                                    375
++#define VP_VDEC_ACLK_EN                                    376
++#define VP_VDEC_CCLK_EN                                    377
++#define VP_VDEC_PCLK_EN                                    378
++#define VP_DECOMP_DIV_EN                                   379
++#define VP_DECOMP_DIV_NUM                                  380
++#define VP_COMP_DIV_EN                                     381
++#define VP_COMP_DIV_NUM                                    382
++// PERI0_SYSREG
++#define PERI0_MBOX1_PCLK_EN                                383
++#define PERI0_MBOX0_PCLK_EN                                384
++#define PERI0_WDT0_PCLK_EN                                 385
++#define PERI0_TIMER1_PCLK_EN                               386
++#define PERI0_TIMER1_CCLK_EN                               387
++#define PERI0_TIMER0_PCLK_EN                               388
++#define PERI0_TIMER0_CCLK_EN                               389
++// PERI1_SYSREG
++#define PERI1_UART3_SCLK_EN                                390
++#define PERI1_UART3_PCLK_EN                                391
++#define PERI1_UART2_SCLK_EN                                392
++#define PERI1_UART2_PCLK_EN                                393
++#define PERI1_UART1_SCLK_EN                                394
++#define PERI1_UART1_PCLK_EN                                395
++#define PERI1_UART0_SCLK_EN                                396
++#define PERI1_UART0_PCLK_EN                                397
++#define PERI1_SPI0_SSI_CLK_EN                              398
++#define PERI1_SPI0_PCLK_EN                                 399
++#define PERI1_QSPI0_SSI_CLK_EN                             400
++#define PERI1_QSPI0_PCLK_EN                                401
++#define PERI1_PWM0_PCLK_EN                                 402
++#define PERI1_PWM0_CCLK_EN                                 403
++#define PERI1_MST_BUS_PCLK_EN                              404
++#define PERI1_MST_BUS_ACLK_EN                              405
++#define PERI1_I2S0_SRC_CLK_EN                              406
++#define PERI1_I2S0_PCLK_EN                                 407
++#define PERI1_I2C2_PCLK_EN                                 408
++#define PERI1_I2C2_IC_CLK_EN                               409
++#define PERI1_I2C1_PCLK_EN                                 410
++#define PERI1_I2C1_IC_CLK_EN                               411
++#define PERI1_I2C0_PCLK_EN                                 412
++#define PERI1_I2C0_IC_CLK_EN                               413
++#define PERI1_GPIO1_PCLK_EN                                414
++#define PERI1_GPIO1_DBCLK_EN                               415
++#define PERI1_GPIO0_PCLK_EN                                416
++#define PERI1_GPIO0_DBCLK_EN                               417
++#define PERI1_GMAC1_HCLK_EN                                418
++#define PERI1_GMAC1_ACLK_EN                                419
++#define PERI1_GMAC0_HCLK_EN                                420
++#define PERI1_GMAC0_ACLK_EN                                421
++// PERI2_SYSREG
++#define PERI2_I2S3_PCLK_EN                                 422
++#define PERI2_I2S3_SRC_CLK_EN                              423
++#define PERI2_I2S2_PCLK_EN                                 424
++#define PERI2_I2S2_SRC_CLK_EN                              425
++#define PERI2_I2S1_PCLK_EN                                 426
++#define PERI2_I2S1_SRC_CLK_EN                              427
++#define PERI2_I2C7_IC_CLK_EN                               428
++#define PERI2_I2C7_PCLK_EN                                 429
++#define PERI2_I2C6_IC_CLK_EN                               430
++#define PERI2_I2C6_PCLK_EN                                 431
++#define PERI2_I2C5_IC_CLK_EN                               432
++#define PERI2_I2C5_PCLK_EN                                 433
++#define PERI2_I2C4_IC_CLK_EN                               434
++#define PERI2_I2C4_PCLK_EN                                 435
++#define PERI2_I2C3_IC_CLK_EN                               436
++#define PERI2_I2C3_PCLK_EN                                 437
++#define PERI2_GPIO3_DBCLK_EN                               438
++#define PERI2_GPIO3_PCLK_EN                                439
++#define PERI2_PAD_CTRL_PCLK_EN                             440
++#define PERI2_UART6_PCLK_EN                                441
++#define PERI2_UART5_PCLK_EN                                442
++#define PERI2_UART4_PCLK_EN                                443
++#define PERI2_SPI1_PCLK_EN                                 444
++#define PERI2_GPIO2_PCLK_EN                                445
++#define PERI2_CAN2_PCLK_EN                                 446
++#define PERI2_UART6_SCLK_EN                                447
++#define PERI2_UART5_SCLK_EN                                448
++#define PERI2_UART4_SCLK_EN                                449
++#define PERI2_SPI1_SSI_CLK_EN                              450
++#define PERI2_GPIO2_DBCLK_EN                               451
++#define PERI2_CAN2_OSC_CLK_EN                              452
++#define PERI2_CAN2_HIRES_CLK_EN                            453
++#define PERI2_QSPI1_PCLK_EN                                454
++#define PERI2_QSPI1_SSI_CLK_EN                             455
++#define PERI2_UART9_PCLK_EN                                456
++#define PERI2_UART9_SCLK_EN                                457
++#define PERI2_UART8_PCLK_EN                                458
++#define PERI2_UART8_SCLK_EN                                459
++#define PERI2_UART7_PCLK_EN                                460
++#define PERI2_UART7_SCLK_EN                                461
++#define PERI2_PWM2_PCLK_EN                                 462
++#define PERI2_PWM2_CCLK_EN                                 463
++#define PERI2_PWM1_PCLK_EN                                 464
++#define PERI2_PWM1_CCLK_EN                                 465
++// PERI3_SYSREG
++#define PERI3_PAD_CTRL_PCLK_EN                             466
++#define PERI3_GPIO4_PCLK_EN                                467
++#define PERI3_GPIO4_DBCLK_EN                               468
++#define CLKCTRL_PERI3_TEE_H2H_SHCLKEN                      469
++#define CLKCTRL_PERI3_TEE_H2H_MHCLKEN                      470
++#define PERI3_TEE_X2X_ACLK_S_EN                            471
++#define PERI3_ADC_PCLK_EN                                  472
++#define AXI_PERI3_MST_PCLK_EN                              473
++#define AXI_PERI3_MST_ACLK_EN                              474
++#define PERI3_SDIO_X2X_ACLK_S_EN                           475
++#define PERI3_SDIO_X2X_ACLK_M_EN                           476
++#define PERI3_SDIO_OSC_CLK_EN                              477
++#define PERI3_SDIO_HCLK_EN                                 478
++#define PERI3_EMMC_X2X_ACLK_S_EN                           479
++#define PERI3_EMMC_X2X_ACLK_M_EN                           480
++#define PERI3_EMMC_OSC_CLK_EN                              481
++#define PERI3_EMMC_HCLK_EN                                 482
++#define PERI3_EMMC_ACLK_EN                                 483
++#define PERI3_EMMC_SDIO_REF_CLK_CG_EN                      484
++#define PERI3_DMAC_HCLK_EN                                 485
++#define PERI3_DMAC_ACLK_EN                                 486
++// TEE_CRG
++#define TEE_PCLK_CDE_RATIO                                 487
++#define TEE_AHB2_TEESYS_CLKEN                              488
++#define TEE_APB3_TEESYS_CLKEN                              489
++#define TEE_AXI4_TEESYS_CLKEN                              490
++#define TEE_X2P_TEESYS_CLKEN                               491
++#define TEE_EIP120SI_CLKEN                                 492
++#define TEE_EIP120SII_CLKEN                                493
++#define TEE_EIP120SIII_CLKEN                               494
++#define TEE_EIP150B_CLKEN                                  495
++#define TEE_DMAC_CLKEN                                     496
++#define TEE_DS_CLKEN                                       497
++#define TEE_OCRAM_CLKEN                                    498
++#define TEE_EFUSE_CLKEN                                    499
++#define TEE_KEYRAM_CLKEN                                   500
++
++#define CLK_DUMMY                                          501
++#define OSC_32K                                            502
++#define OSC_24M                                            503
++#define RC_24M                                             504
++
++#define TOP_PLL_REF_CLK                                    509
++#define AON_OSC_CLK_PHY                                    510
++#define AON_OSC_CLK_LOGIC                                  511
++#define PLL_OSC_CLK                                        512
++#define D2D_PHY_REF_CLK_100M                               513
++#define D2D_PHY_SCAN_CLK2                                  514
++#define TOP_PERI_TIMER_CLK_100M                            515
++#define PERI1_UART_SCLK                                    516
++#define PERI2_UART_SCLK                                    517
++#define UART_SCLK_100M                                     518
++#define GPU_TOP_SYS_CLK                                    519
++#define GPU_PCLK_CDT                                       520
++#define PCIE_SS_APB_CLK                                    521
++#define USB_SS_GTC_CLK                                     522
++#define USB_SS_PAD_OSC_CLK_1M                              523
++#define USB20_BUS_CLK                                      524
++#define USB20_CORE_CLK                                     525
++#define VI_PCLK                                            526
++#define VO_PCLK                                            527
++#define AON_RTC_CLK                                        528
++#define PERI1_PWM_CLK                                      529
++#define PERI2_PWM_CLK                                      530
++#define I2C_IC_CLK                                         531
++#define PERI3_SDIO_ACLK_EN                                 532
++
++#define PERI1_ZGMAC_X2X_ACLK_EN                            533
++#define PERI1_GMAC2_HCLK_EN                                534
++#define PERI1_GMAC2_ACLK_EN                                535
++#define PERI1_X2H_GMAC2_HCLK_EN                            536
++#define PERI1_X2H_GMAC2_ACLK_EN                            537
++#define PERI1_CHIP_DBG_PCLK_EN                             538
++#define PERI1_CHIP_DBG_CCLK_EN                             539
++#define PERI1_CHIP_DBG_ACLK_EN                             540
++#define PERI1_TDM0_SCLK_EN                                 541
++#define PERI1_TDM0_PCLK_EN                                 542
++#define PERI1_PDM0_PCLK_EN                                 543
++#define PERI1_PDM0_MCLK_EN                                 544
++#define PERI1_CAN1_PCLK_EN                                 545
++#define PERI1_CAN1_OSC_CLK_EN                              546
++#define PERI1_CAN1_HIRES_CLK_EN                            547
++#define PERI1_CAN0_PCLK_EN                                 548
++#define PERI1_CAN0_OSC_CLK_EN                              549
++#define PERI1_CAN0_HIRES_CLK_EN                            550
++#define PERI1_PAD_CTRL_PCLK_EN                             551
++#define PERI1_DFMU_PTW_ACLK_EN                             552
++#define PERI1_DFMU_PCLK_EN                                 553
++#define PERI1_DFMU_ACLK_EN                                 554
++#define PERI1_X2H_GMAC1_HCLK_EN                            555
++#define PERI1_X2H_GMAC1_ACLK_EN                            556
++#define PERI1_X2H_GMAC0_HCLK_EN                            557
++#define PERI1_X2H_GMAC0_ACLK_EN                            558
++#define DPU0_PLL_FOUTVCO                                   559
++
++#define PERI3_EMMC_SDIO_REF_CLK                            560
++
++#define VO_MIPI_PIXCLK                                     561
++#define VO_HDMI_PIXCLK                                     562
++#define VO_DPTX_PIXCLK                                     563
++
++#define TOP_CPUSYS_CFG_ACLK_DIV                            564
++#define TOP_CPUSYS_COM_APB_CLK_DIV                         565
++#define TOP_CPUSYS_APB_CLK_DIV                             566
++
++#define VI_MISC_CTRL_H0CLK_CLK_EN                          567
++#define VI_MISC_CTRL_H1CLK_CLK_EN                          568
++#define VI_MISC_CTRL_ISP_ACLK_CLK_EN                       569
++#define VI_MISC_CTRL_ISP_SCLK_CLK0_EN                      570
++#define VI_MISC_CTRL_ISP_SCLK_CLK1_EN                      571
++#define VI_MISC_CTRL_ISP_SCLK_CLK2_EN                      572
++#define VI_MISC_CTRL_ISP_SCLK_CLK3_EN                      573
++#define VI_MISC_CTRL_ISP_CORE_CLK_EN                       574
++#define VI_MISC_CTRL_ISP_FLEXA_CLK_EN                      575
++#define VI_MISC_CTRL_ISP_MCM_CLK_EN                        576
++#define VI_MISC_CTRL_BUS_CLK_GT_DISABLE                    577
++
++#define CLK_END                                            578
++
++#endif
+diff --git a/include/dt-bindings/clock/a210-fm-ap-clock.h b/include/dt-bindings/clock/a210-fm-ap-clock.h
+new file mode 100644
+index 0000000000000..322a351616c74
+--- /dev/null
++++ b/include/dt-bindings/clock/a210-fm-ap-clock.h
+@@ -0,0 +1,539 @@
++#ifndef _APSYS_CLKGEN_H
++#define _APSYS_CLKGEN_H
++
++#define C910_CCLK_I0                                       0
++#define AXI4_CPUSYS1_ACLK                                  1
++#define CLKGEN_GPIO2_DBCLK                                 2
++#define CLKGEN_MBOX0_PCLK                                  3
++#define CLKGEN_GMAC0_CCLK                                  4
++#define CLKGEN_SPI0_PCLK                                   5
++#define CLKGEN_CLK_OUT_1_CLK                               6
++#define PAD_RTC_CLK                                        7
++#define CLKGEN_SPINLOCK_HCLK                               8
++#define CLKGEN_QSPI1_PCLK                                  9
++#define CLKGEN_HDMI_ISCAN_CK_REF_CLK                       10
++#define CLKGEN_IOPMP_AON_PCLK                              11
++#define CLKGEN_ISP_RY_ACLK                                 12
++#define CLKGEN_MIPIDSI0_SCANRXCLKESC                       13
++#define CLKGEN_EIP120SII_HCLK                              14
++#define CLKGEN_MIPI_CSI0_PIXCLK                            15
++#define CLKGEN_SRAM_AXI_ACLK_3                             16
++#define CLKGEN_PERISYS_AHB_HCLK                            17
++#define VOSYS_HDMI_ISCAN_RX_WORD_CLK0_CLK                  18
++#define CLKGEN_QSPI0_SSI_CLK                               19
++#define CLKGEN_DW200_ACLK                                  20
++#define CLKGEN_IOPMP_EIP120SIII_PCLK                       21
++#define VISYS_MIPI_CSI2_CFGCLK                             22
++#define CLKGEN_APB3_CPUSYS_HCLK                            23
++#define CLKGEN_PERISYS_APB1_HCLK                           24
++#define CLKGEN_GPU_CORE_CLK                                25
++#define CLKGEN_USB3_DRD_ACLK                               26
++#define CLKGEN_VISYS_ACLK                                  27
++#define CLKGEN_USB3_DRD_CTRL_REF_CLK                       28
++#define CLKGEN_TEE_DMAC_ACLK                               29
++#define CLKGEN_AUDIO_SUBSYS_ACLK_CP2AP                     30
++#define CLKGEN_SRAM_AXI_ACLK_2                             31
++#define CLKGEN_IOPMP_VOSYS_GPU_PCLK                        32
++#define CLKGEN_CFG2TEE_X2H_ACLK                            33
++#define CLKGEN_SRAM_AXI_ACLK_1                             34
++#define MISC_SDIO0_OSC_CLK                                 35
++#define CLKGEN_SDIO0_ACLK                                  36
++#define CLKGEN_MIPI_DSI1_CFGCLK                            37
++#define APB3_CPUSYS_PCLK                                   38
++#define CLKGEN_TEE_DMAC_HCLK                               39
++#define VOSYS_DPU0_PIXELCLK                                40
++#define CLKGEN_CPU2CFG_X2H_MHCLK                           41
++#define CLKGEN_VPSYS_ACLK                                  42
++#define CLKGEN_MIPIDSI1_SCANRXCLKESC                       43
++#define CLKGEN_MISC2VP_X2X_ACLK_S                          44
++#define CLKGEN_MIPI_CSI_SCANBYTECLK                        45
++#define CLKGEN_APB3_TEESYS_HCLK                            46
++#define VENC_CCLK                                          47
++#define VPSYS_VDEC_CCLK                                    48
++#define CLKGEN_MIPI_CSI0_CFG_CLK                           49
++#define CLKGEN_MISCSYS_BUS_CLK                             50
++#define CLKGEN_DPU_HCLK                                    51
++#define CLKGEN_UART1_SCLK                                  52
++#define GMAC_PLL_FOUTPOSTDIV                               53
++#define MISC_BUS_CLK                                       54
++#define CLKGEN_USB3_DRD_SPDCLK                             55
++#define CLKGEN_MIPI_CSI2_CFG_CLK                           56
++#define CLKGEN_TOP_AXI4S_ACLK                              57
++#define CLKGEN_IOPMP_EIP120SII_ACLK                        58
++#define CORE_CLK                                           59
++#define CLKGEN_VPSYS_FCE_ACLK                              60
++#define CLKGEN_I2C3_PCLK                                   61
++#define DPU1_PLL_DIV_CLK                                   62
++#define CLKGEN_USB3_DRD_PHY_REF_CLK                        63
++#define CLKGEN_AON2CPU_A2X_ACLK                            64
++#define CLKGEN_QSPI1_SSI_CLK                               65
++#define CLKGEN_DPU_CCLK                                    66
++#define VISYS_MASTER_BUS_ACLK                              67
++#define CLKGEN_PERI_I2S_SRC_CLK_0                          68
++#define VOSYS_ACLK_M                                       69
++#define TEESYS_I0_HCLK                                     70
++#define CLKGEN_MIPI_DSI1_REFCLK                            71
++#define CLKGEN_MIPI_DSI0_PCLK                              72
++#define CLKGEN_VOSYS_ACLK_S                                73
++#define CLKGEN_CPU2VP_X2P_PCLK                             74
++#define CLKGEN_X2X_CPUSYS_ACLK_S                           75
++#define CLKGEN_HDMI_ISCAN_RX_WORD_CLK1_CLK                 76
++#define CLKGEN_IOPMP_VOSYS_DPU1_PCLK                       77
++#define CLKGEN_MISC2VP_X2X_ACLK_M                          78
++#define CLKGEN_WDT0_PCLK                                   79
++#define VOSYS_MIPIDSI0_SCANTXCLKESC                        80
++#define VISYS_MIPI_CSI1_CFGCLK                             81
++#define AHB2_CPUSYS_HCLK                                   82
++#define CLKGEN_SDIO1_HCLK                                  83
++#define CLKGEN_SDIO0_HCLK                                  84
++#define CLKGEN_CLK_OUT_3_CLK                               85
++#define CLKGEN_GMAC_AXI_ACLK                               86
++#define GMAC_CCLK                                          87
++#define CLKGEN_VIPRE_PCLK                                  88
++#define CLKGEN_HDMI_ISCAN_TX_CK_OUT2_CLK                   89
++#define CLKGEN_MIPIDSI1_SCANTXCLKESC                       90
++#define CLKGEN_VISYS_SLAVE_HCLK                            91
++#define VOSYS_HDMI_ISCAN_TX_CK_OUT1_CLK                    92
++#define CLKGEN_X2X_CPUSYS_ACLK_M                           93
++#define CLKGEN_CPU2CFG_X2X_ACLK_S                          94
++#define C910_OSC_CLK                                       95
++#define CLKGEN_X2H_DPU1_ACLK                               96
++#define CLKGEN_I2C4_PCLK                                   97
++#define CLKGEN_GMAC0_ACLK                                  98
++#define MISC_USB3_PHY_REF_CLK                              99
++#define VOSYS_MIPIDSI0_CFG_CLK                             100
++#define CLKGEN_VPSYS_VDEC_CCLK                             101
++#define VOSYS_MIPIDSI1_CFG_CLK                             102
++#define CLKGEN_I2S_PCLK                                    103
++#define CLKGEN_DMAC_CPUSYS_ACLK                            104
++#define VISYS_DW200_CLK_DWE                                105
++#define CLKGEN_OCRAM_HCLK                                  106
++#define CLKGEN_EFUSE_PCLK                                  107
++#define CLKGEN_X2H_DPU_ACLK                                108
++#define CLKGEN_IOPMP_SDIO0_ACLK                            109
++#define VOSYS_DPU1_PIXELCLK                                110
++#define CPU_PLL1_FOUT4                                     111
++#define CLKGEN_GPIO2_PCLK                                  112
++#define CLKGEN_GMAC1_CCLK                                  113
++#define CPU_PLL1_FOUTPOSTDIV                               114
++#define VOSYS_HDMI_ISCAN_40M_CLK                           115
++#define CLKGEN_VOSYS_X2X_ACLK_S                            116
++#define CLKGEN_PERISYS_APB2_HCLK                           117
++#define VOSYS_OSC_CLK_MUX_I2S_CLK_OCCBUF                   118
++#define CLKGEN_HDMI_CEC_CLK                                119
++#define CLKGEN_X2P_X4_VOSYS_PCLK                           120
++#define CLKGEN_VOSYS_ACLK_M                                121
++#define CLKGEN_EMMC_SDIO_REF_CLK                           122
++#define CLKGEN_IOPMP_EMMC_ACLK                             123
++#define VIDEO_PLL_FOUTVCO                                  124
++#define CLKGEN_HDMI_ISCAN_CKO_WORD_CLK                     125
++#define CLKGEN_IOPMP_VOSYS_DPU_PCLK                        126
++#define CLKGEN_AXI4_VISYS3_ACLK                            127
++#define CLKGEN_VISYS_SYSREG_PCLK                           128
++#define CLKGEN_MIPIDSI0_SCANTXCLKESC                       129
++#define CLKGEN_HDMI_ISCAN_TX_CK_OUT1_CLK                   130
++#define CLKGEN_IOPMP_EIP120SIII_ACLK                       131
++#define CLKGEN_EIP120SII_ACLK                              132
++#define CLKGEN_MBOX2_PCLK                                  133
++#define CLKGEN_AXI4_VISYS1_ACLK                            134
++#define CLKGEN_UART1_PCLK                                  135
++#define CLK_OUT_3                                          136
++#define CLKGEN_UART5_SCLK                                  137
++#define CLKGEN_HDMI_ISCAN_RX_WORD_CLK2_CLK                 138
++#define CLKGEN_MBOX3_PCLK                                  139
++#define QSPI1_SSI_CLK                                      140
++#define CLKGEN_I2C1_PCLK                                   141
++#define CLKGEN_HDMI_I2S_CLK                                142
++#define CLKGEN_AXI4_CPUSYS2_PCLK                           143
++#define CLKGEN_CFG2TEE_X2H_MHCLK                           144
++#define CLKGEN_C910_CPU_CLK                                145
++#define VOSYS_HDMI_ISCAN_TX_CK_OUT2_CLK                    146
++#define CLKGEN_HDMI_PCLK                                   147
++#define CLKGEN_IOPMP_EIP120SII_PCLK                        148
++#define CLKGEN_MISCSYS_AXI_PCLK                            149
++#define CLKGEN_EIP120SI_ACLK                               150
++#define TEESYS_I1_HCLK                                     151
++#define PERISYS_APB_PCLK                                   152
++#define VOSYS_HDMI_ISCAN_RX_WORD_CLK0_DIV2_CLK             153
++#define CLKGEN_TIMER0_CCLK                                 154
++#define CLKGEN_IOPMP_USB3_ACLK                             155
++#define CLKGEN_UART2_PCLK                                  156
++#define CLK_OUT_4                                          157
++#define AXI4_CPUSYS2_ACLK                                  158
++#define CLKGEN_AUDIO_SUBSYS_ACLK_AP2CP                     159
++#define CLKGEN_I2C3_IC_CLK                                 160
++#define CLKGEN_IOPMP_GPU_ACLK                              161
++#define CLKGEN_TIMER1_CCLK                                 162
++#define VOSYS_I2S_CLK                                      163
++#define CLKGEN_I2C5_IC_CLK                                 164
++#define VOSYS_OSC_CLK_MUX_I2S_CLK                          165
++#define CLKGEN_DDR_SUBSYS_ACLK_0                           166
++#define CLKGEN_TIMER1_PCLK                                 167
++#define CLKGEN_I2C1_IC_CLK                                 168
++#define CLKGEN_I2S_SRC_CLK                                 169
++#define VISYS_DW200_CLK_VSE                                170
++#define CLKGEN_MIPIDSI1_PIXCLK                             171
++#define VOSYS_RTC_CLK                                      172
++#define CLK_OUT_1                                          173
++#define CLKGEN_PERISYS_APB4_HCLK                           174
++#define MISC_USB3_CTRL_REF_CLK                             175
++#define CLKGEN_TEE_SYSREG_PCLK                             176
++#define CLKGEN_MISCSYS_AXI_ACLK                            177
++#define CLKGEN_MIPIDSI1_SCANCLK                            178
++#define CLKGEN_GPIO3_DBCLK                                 179
++#define CLKGEN_HDMI_ISCAN_40M_CLK                          180
++#define CLKGEN_PERI2PERI1_APB_HCLK                         181
++#define CLKGEN_GMAC0_HCLK                                  182
++#define CLKGEN_DDR_SUBSYS_PCLK                             183
++#define VOSYS_PCLK                                         184
++#define CLKGEN_MIPIDSI1_SCANBYTECLK                        185
++#define CLKGEN_VPSYS_G2D_ACLK                              186
++#define CLKGEN_EIP150B_HCLK                                187
++#define CLKGEN_UART4_SCLK                                  188
++#define DPU1_PLL_TEST_CLK                                  189
++#define CLKGEN_VOSYS_X2X_ACLK_M                            190
++#define CLKGEN_IOPMP_EIP120SI_ACLK                         191
++#define CLKGEN_CLK_OUT_4_CLK                               192
++#define CLKGEN_GPIO0_FPCLK                                 193
++#define PAD_OSC_CLK                                        194
++#define CLKGEN_C910_BUS_CLK_NO_ICG                         195
++#define CLKGEN_TIMER0_PCLK                                 196
++#define CLKGEN_AHB2_CPUSYS_HCLK                            197
++#define EMMC_SDIO_REF_CLK                                  198
++#define CLKGEN_IOPMP_CHIP_DBG_PCLK                         199
++#define CLKGEN_BMU_C910_PCLK                               200
++#define CLKGEN_IOPMP_DPU1_ACLK                             201
++#define CLKGEN_PADCTRL0_APSYS_PCLK                         202
++#define MISC_SDIO1_OSC_CLK                                 203
++#define CLKGEN_C910_OSC_CLK                                204
++#define VISYS_ISP_RY_CCLK                                  205
++#define CLKGEN_VPSYS_PCLK                                  206
++#define VISYS_MIPI_CSI0_PIXELCLK                           207
++#define NPU_CCLK                                           208
++#define CLKGEN_AXI4_TEESYS_ACLK                            209
++#define PERI2SYS_APB_PCLK                                  210
++#define CLKGEN_IOPMP_GMAC0_PCLK                            211
++#define CLKGEN_VPSYS_G2D_PCLK                              212
++#define CLKGEN_EMMC_ACLK                                   213
++#define CLKGEN_UART3_SCLK                                  214
++#define AONSYS_BUS_CLK                                     215
++#define DPU0_PLL_FOUT4                                     216
++#define VOSYS_MIPIDSI1_SCANCLK                             217
++#define CLKGEN_UART4_PCLK                                  218
++#define CLKGEN_HDMI_ISCAN_SCL                              219
++#define CLKGEN_MIPI_CSI1_PIXCLK                            220
++#define CLKGEN_APSYS_CLKGEN_PCLK                           221
++#define CLKGEN_GPU_TIMER_REFCLK                            222
++#define GMAC_PLL_FOUT1PH0                                  223
++#define VOSYS_MIPIDSI1_SCANBYTECLK                         224
++#define CLKGEN_GPIO3_FPCLK                                 225
++#define CLKGEN_SDIO1_OSC_CLK                               226
++#define CLKGEN_GPIO3_PCLK                                  227
++#define CLKGEN_VPSYS_AXI_ACLK                              228
++#define CLKGEN_HDMI_ISCAN_TX_CK_20B_CLK                    229
++#define CLKGEN_VOSYSREG_PCLK                               230
++#define VIDEO_PLL_TEST_CLK                                 231
++#define CLKGEN_MBOX1_PCLK                                  232
++#define CLKGEN_I2C2_IC_CLK                                 233
++#define VOSYS_MIPIDSI0_PLL_SCANCLK                         234
++#define VOSYS_MIPIDSI1_SCANTXCLKESC                        235
++#define VOSYS_HDMI_ISCAN_RX_WORD_CLK1_DIV2_CLK             236
++#define CLKGEN_UART2_SCLK                                  237
++#define MISC_TEESYS_PCLK                                   238
++#define AUDIO_PLL_TEST_CLK                                 239
++#define CLKGEN_DPU_PIXELCLK1                               240
++#define CLKGEN_IOPMP_TEEDMAC_PCLK                          241
++#define CLKGEN_TOP_APB_SX_PCLK                             242
++#define CLKGEN_I2C4_IC_CLK                                 243
++#define GMAC_PLL_TEST_CLK                                  244
++#define CLKGEN_HDMI_JTAG_TCLK                              245
++#define VISYS_MIPI_CSI0_CFGCLK                             246
++#define CLKGEN_CPU2AON_X2H_ACLK                            247
++#define VOSYS_HDMI_ISCAN_TX_CK_OUT0_CLK                    248
++#define QSPI_SSI_CLK                                       249
++#define VOSYS_DPU_CCLK                                     250
++#define CLKGEN_CPU2VI_X2H_MHCLK                            251
++#define CLKGEN_MIPI_DSI0_REFCLK                            252
++#define CLKGEN_DSPSYS_HCLK                                 253
++#define CLKGEN_IOPMP_AUD_PCLK                              254
++#define CLKGEN_PERI2PERI1_APB_PCLK                         255
++#define CFG_AXI_ACLK                                       256
++#define VPSYS_FCE_CCLK                                     257
++#define CLKGEN_HDMI_ISCAN_CLK                              258
++#define CPU_PLL0_TEST_CLK                                  259
++#define CLKGEN_CPU2PERI_X2H_MHCLK                          260
++#define VISYS_ACLK_M                                       261
++#define VOSYS_HDMI_JTAG_TCLK                               262
++#define CLKGEN_IOPMP_AUD_ACLK                              263
++#define CLKGEN_HDMI_ISCAN_RX_WORD_CLK1_DIV2_CLK            264
++#define VOSYS_HDMI_ISCAN_RX_WORD_CLK1_CLK                  265
++#define VOSYS_MIPIDSI0_REFCLK                              266
++#define CLKGEN_VISYS_ACLK_M                                267
++#define VOSYS_MIPIDSI0_SCANRXCLKESC                        268
++#define CLKGEN_SDIO1_ACLK                                  269
++#define CFG_APB_PCLK                                       270
++#define CLKGEN_PADCTRL1_APSYS_PCLK                         271
++#define VOSYS_MIPIDSI0_SCANCLK                             272
++#define CLKGEN_I2C0_IC_CLK                                 273
++#define CLKGEN_VPSYS_APB_PCLK                              274
++#define CLKGEN_VPSYS_VENC_CCLK                             275
++#define CLKGEN_AXI4_CFG_BUS_ACLK                           276
++#define CLKGEN_MIPIDSI0_SCANBYTECLK                        277
++#define GPIO3_DBCLK                                        278
++#define CLKGEN_HDMI_ISCAN_RX_WORD_CLK0_CLK                 279
++#define CLKGEN_UART5_PCLK                                  280
++#define DPU0_PLL_FOUTPOSTDIV_ICG                           281
++#define CPU_PLL0_FOUT4                                     282
++#define CLKGEN_GPIO2_FPCLK                                 283
++#define CLKGEN_DPU_ACLK                                    284
++#define CLKGEN_AXI4_CPUSYS2_ACLK                           285
++#define CLKGEN_DSPSYS_PCLK                                 286
++#define TEE_PLL_FOUTPOSTDIV                                287
++#define TIMER_CCLK                                         288
++#define VOSYS_MIPIDSI1_PLL_SCANCLK                         289
++#define CLKGEN_GMAC_AXI_PCLK                               290
++#define CLKGEN_USB3_DRD_PCLK                               291
++#define CLKGEN_AXI4_CPUSYS1_PCLK                           292
++#define VOSYS_ACLK                                         293
++#define CLKGEN_IOPMP_EIP120SI_PCLK                         294
++#define VOSYS_HDMI_ISCAN_TMDSCLKIN_CLK                     295
++#define VOSYS_HDMI_ISCAN_CKO_WORD_CLK                      296
++#define CLKGEN_NPUSYS_AXI_ACLK                             297
++#define CLKGEN_IOPMP_SDIO0_PCLK                            298
++#define CLKGEN_DW200_HCLK                                  299
++#define VOSYS_HDMI_ISCAN_RX_WORD_CLK2_CLK                  300
++#define CLKGEN_UART0_PCLK                                  301
++#define CLKGEN_CLK_OUT_2_CLK                               302
++#define CLKGEN_GPIO0_PCLK                                  303
++#define CLKGEN_EMMC_OSC_CLK                                304
++#define VPSYS_APB_PCLK                                     305
++#define CLKGEN_HDMI_PIXCLK                                 306
++#define CLKGEN_IOPMP_TEEDMAC_ACLK                          307
++#define AUDIO_PLL_FOUT4                                    308
++#define CLKGEN_MIPI_CSI2_PCLK                              309
++#define CLKGEN_MIPI_DSI1_PCLK                              310
++#define CLKGEN_MIPI_DSI0_CFGCLK                            311
++#define VISYS_ISP0_CLK                                     312
++#define VISYS_ISP1_CLK                                     313
++#define MISC_EMMC_OSC_CLK                                  314
++#define DPU0_PLL_FOUTPOSTDIV                               315
++#define VISYS_AHB_HCLK                                     316
++#define CLKGEN_IOPMP_SDIO1_ACLK                            317
++#define CLKGEN_EMMC_HCLK                                   318
++#define I2S_CLK                                            319
++#define CLKGEN_CPU2PERI_X2H_ACLK                           320
++#define VPSYS_AXI_ACLK                                     321
++#define CLKGEN_IOPMP_SDIO1_PCLK                            322
++#define CLKGEN_EIP120SIII_HCLK                             323
++#define CLKGEN_BMU_C910_ACLK                               324
++#define CLKGEN_IOPMP_DMAC_CPUSYS_PCLK                      325
++#define GPIO2_DBCLK                                        326
++#define CHIP_DBG_CCLK                                      327
++#define CLKGEN_MISCSYS_TEE_CCLK                            328
++#define CLKGEN_I2C5_PCLK                                   329
++#define CLKGEN_X2H_CPUSYS_MHCLK                            330
++#define CLKGEN_PWM_CCLK                                    331
++#define DPU0_PLL_TEST_CLK                                  332
++#define CLKGEN_VISYS_PCLK                                  333
++#define MISC_TEESYS_HCLK                                   334
++#define SPI_SSI_CLK                                        335
++#define CLKGEN_PWM_PCLK                                    336
++#define VOSYS_MIPIDSI1_SCANRXCLKESC                        337
++#define QSPI0_SSI_CLK                                      338
++#define CLKGEN_HDMI_ISCAN_TMDSCLKIN_CLK                    339
++#define CLKGEN_SPI0_SSI_CLK                                340
++#define VIDEO_PLL_FOUT4                                    341
++#define CLKGEN_IOPMP_GMAC0_ACLK                            342
++#define CLKGEN_VIPRE_ACLK                                  343
++#define MISC_OSC_CLK_DIV24                                 344
++#define CLKGEN_ISP_VENC_SHAKE_PCLK                         345
++#define CLKGEN_HDMI_ISCAN_TX_CK_OUT0_CLK                   346
++#define CLKGEN_VPSYS_G2D_CCLK                              347
++#define CLKGEN_CPU2CFG_X2X_ACLK_M                          348
++#define CLKGEN_GMAC1_PCLK                                  349
++#define CLKGEN_MIPIDSI0_PLL_SCANCLK                        350
++#define CLKGEN_HDMI_ISCAN_RX_WORD_CLK0_DIV2_CLK            351
++#define TEE_PLL_FOUT4                                      352
++#define PERISYS_AHB_HCLK                                   353
++#define VIDEO_PLL_FOUT1PH0                                 354
++#define CLKGEN_MIPIDSI0_PIXCLK                             355
++#define CLKGEN_PERI_I2S_SRC_CLK_1                          356
++#define CLKGEN_MIPI_CSI0_PCLK                              357
++#define CLKGEN_DDR_SUBSYS_ACLK_1                           358
++#define CLKGEN_GMAC0_PCLK                                  359
++#define CLK_OUT_2                                          360
++#define CLKGEN_EIP120SIII_ACLK                             361
++#define AONSYS_HCLK                                        362
++#define CLKGEN_ISP0_CLK                                    363
++#define CLKGEN_C910_BROM_HCLK                              364
++#define DPU1_PLL_FOUT4                                     365
++#define PERI_I2S_SRC_CLK                                   366
++#define CPU_PLL1_TEST_CLK                                  367
++#define CLKGEN_DDR_SUBSYS_ACLK_2                           368
++#define CLKGEN_MIPIDSI0_SCANCLK                            369
++#define I2C_IC_CLK                                         370
++#define CLKGEN_DPU_PIXELCLK0                               371
++#define CLKGEN_GPIO1_DBCLK                                 372
++#define CLKGEN_C910_TOP_DS_PCLK                            373
++#define CLKGEN_DSPSYS_ACLK_M                               374
++#define CLKGEN_AON2CPU_A2X_HCLK                            375
++#define VOSYS_HDMI_ISCAN_CK_REF_CLK                        376
++#define CLKGEN_IOPMP_EMMC_PCLK                             377
++#define NPU_CORE_CLK                                       378
++#define CLKGEN_IOPMP_USB3_PCLK                             379
++#define VPSYS_PCLK                                         380
++#define VIDEO_PLL_FOUTPOSTDIV                              381
++#define CLKGEN_CPU2VP_X2P_ACLK                             382
++#define CLKGEN_APB_CPU2CFG_HCLK                            383
++#define VOSYS_OSC_CLK_MUX_CEC_CLK_OCCBUF                   384
++#define CLKGEN_GPIO1_PCLK                                  385
++#define CLKGEN_APSYS_SYSREG_PCLK                           386
++#define CLKGEN_VISYS_HCLK                                  387
++#define CLKGEN_MIPI_CSI1_PCLK                              388
++#define CLKGEN_AHB2_TEESYS_HCLK                            389
++#define CLKGEN_DDR_SUBSYS_ACLK_4                           390
++#define SYS_PLL_TEST_CLK                                   391
++#define VISYS_MIPI_CSI_SCANCLK                             392
++#define CPU_PLL0_FOUTPOSTDIV                               393
++#define CLKGEN_UART3_PCLK                                  394
++#define CLKGEN_X2H_CPUSYS_ACLK                             395
++#define CLKGEN_MIPI_CSI1_CFG_CLK                           396
++#define CLKGEN_HDMI_ISCAN_RX_WORD_CLK2_DIV2_CLK            397
++#define CLKGEN_MISCSYS_APB_HCLK                            398
++#define CLKGEN_CPU2CFG_X2H_ACLK                            399
++#define CLKGEN_MIPI_CSI2_FPCLK                             400
++#define CLKGEN_ISP_RY_CCLK                                 401
++#define CLKGEN_X2P_VOSYS_ACLK                              402
++#define CLKGEN_VIPRE_PIXELCLK                              403
++#define VOSYS_GPU_TIMER_REFCLK                             404
++#define VOSYS_OSC_CLK_MUX_CEC_CLK                          405
++#define CLKGEN_APSYS_RSTGEN_PCLK                           406
++#define VOSYS_HDMI_ISCAN_SCL                               407
++#define CLKGEN_ISP_RY_HCLK                                 408
++#define VOSYS_OSC_CLK                                      409
++#define VISYS_PCLK                                         410
++#define CLKGEN_AXI4_VO_ACLK                                411
++#define CLKGEN_MIPIDSI1_PLL_SCANCLK                        412
++#define GPIO1_DBCLK                                        413
++#define CLKGEN_AXI4_VISYS2_ACLK                            414
++#define CLKGEN_EIP120SI_HCLK                               415
++#define CLKGEN_IOPMP_CHIP_DBG_ACLK                         416
++#define VOSYS_HDMI_ISCAN_TX_CK_20B_CLK                     417
++#define VOSYS_MIPIDSI1_REFCLK                              418
++#define CLKGEN_CHIP_DBG_ACLK                               419
++#define VOSYS_CFG_ACLK                                     420
++#define CLKGEN_VOSYS_AXI_ACLK                              421
++#define CPU_BUS_DFTCLK                                     422
++#define VOSYS_HDMI_ISCAN_CLK                               423
++#define VISYS_SLAVE_BUS_HCLK                               424
++#define CLKGEN_VPSYS_VDEC_PCLK                             425
++#define GMAC_PLL_FOUT4                                     426
++#define CLKGEN_QSPI0_PCLK                                  427
++#define CLKGEN_ISP1_CLK                                    428
++#define CLKGEN_MIPI_CSI0_FPCLK                             429
++#define CLKGEN_ISP0_ACLK                                   430
++#define CLKGEN_CPU2VI_X2H_ACLK                             431
++#define C910_CCLK                                          432
++#define CLKGEN_DW200_CLK_VSE                               433
++#define CLKGEN_AXI4_CPUSYS1_ACLK                           434
++#define CLKGEN_GPU_CFG_ACLK                                435
++#define CLKGEN_GPIO1_FPCLK                                 436
++#define CLKGEN_SRAM_AXI_ACLK_0                             437
++#define CLKGEN_I2C2_PCLK                                   438
++#define CLKGEN_IOPMP_GMAC1_PCLK                            439
++#define CLKGEN_ISP0_S_HCLK                                 440
++#define GPIO0_DBCLK                                        441
++#define CLKGEN_AXI4_VO_CFG_ACLK                            442
++#define CLKGEN_NPU_CORE_CLK                                443
++#define DPU0_PLL_DIV_CLK                                   444
++#define VOSYS_MIPIDSI0_SCANBYTECLK                         445
++#define CLKGEN_CHIP_DBG_CCLK                               446
++#define CLKGEN_DMAC_CPUSYS_HCLK                            447
++#define CLKGEN_IOPMP_DPU_ACLK                              448
++#define CLKGEN_DDR_SUBSYS_ACLK_3                           449
++#define CLK_100M                                           450
++#define CLKGEN_DSMART_PCLK                                 451
++#define CLKGEN_DW200_CLK_DWE                               452
++#define VPSYS_G2D_CCLK                                     453
++#define CLKGEN_WDT1_PCLK                                   454
++#define DPU1_PLL_FOUTPOSTDIV                               455
++#define CLKGEN_IOPMP_GMAC1_ACLK                            456
++#define CLKGEN_VPSYS_FCE_PCLK                              457
++#define CLKGEN_MIPI_CSI_SCANCLK                            458
++#define CLKGEN_MIPI_CSI2_PIXCLK                            459
++#define CLKGEN_I2C0_PCLK                                   460
++#define VOSYS_HDMI_ISCAN_RX_WORD_CLK2_DIV2_CLK             461
++#define CLKGEN_HDMI_SFR_CLK                                462
++#define TEE_PLL_TEST_CLK                                   463
++#define CLKGEN_IOPMP_DMAC_CPUSYS_ACLK                      464
++#define CLKGEN_ISP_PIXELCLK                                465
++#define CLKGEN_MIPI_CSI1_FPCLK                             466
++#define SYS_PLL_FOUT4                                      467
++#define CLKGEN_AXI4_VO_PCLK                                468
++#define CLKGEN_UART0_SCLK                                  469
++#define CLKGEN_CPU2AON_X2H_MHCLK                           470
++#define VISYS_MIPI_CSI_SCANBYTECLK                         471
++#define UART_SCLK                                          472
++#define CLKGEN_IOPMP_AON_ACLK                              473
++#define CLKGEN_VPSYS_VDEC_ACLK                             474
++#define CLKGEN_GMAC1_HCLK                                  475
++#define CLKGEN_ISP_VENC_SHAKE_ACLK                         476
++#define TEESYS_HCLK                                        477
++#define PWM_CCLK                                           478
++#define CLKGEN_GPIO0_DBCLK                                 479
++#define CLKGEN_SDIO0_OSC_CLK                               480
++#define CLKGEN_GMAC1_ACLK                                  481
++#define VPSYS_ACLK                                         482
++
++#define AHB2_CPUSYS_HCLK_OUT_DIV			   483
++#define APB3_CPUSYS_PCLK_DIV				   484
++#define CFG_AXI_ACLK_OUT_DIV				   485
++#define PERISYS_AHB_HCLK_OUT_DIV			   486
++#define CLK_OUT_1_OUT_DIV				   487
++#define CLK_OUT_2_OUT_DIV                                  488
++#define CLK_OUT_3_OUT_DIV                                  489
++#define CLK_OUT_4_OUT_DIV                                  490
++#define NPU_CCLK_OUT_DIV				   491
++#define CFG_APB_PCLK_OUT_DIV				   492
++#define CPU_PLL0_BYPASS					   493
++#define CPU_PLL1_BYPASS					   494
++#define GMAC_PLL_BYPASS					   495
++#define VIDEO_PLL_BYPASS				   496
++#define TEE_PLL_BYPASS					   497
++#define DPU0_PLL_BYPASS					   498
++#define DPU1_PLL_BYPASS					   499
++
++#define CLK_DUMMY					   500
++#define OSC_32K						   501
++#define OSC_24M						   502
++#define RC_24M						   503
++#define RC_24M						   503
++
++// zhihe add for dts.
++#define CLKGEN_I2C6_PCLK                                   504
++#define CLKGEN_I2C6_IC_CLK                                 505
++
++#define CLKGEN_I2C7_PCLK                                   506
++#define CLKGEN_I2C7_IC_CLK                                 507
++
++#define CLKGEN_UART6_SCLK                                  508
++#define CLKGEN_UART6_PCLK                                  509
++#define CLKGEN_UART7_SCLK                                  510
++#define CLKGEN_UART7_PCLK                                  511
++#define CLKGEN_UART8_SCLK                                  512
++#define CLKGEN_UART8_PCLK                                  513
++#define CLKGEN_UART9_SCLK                                  514
++#define CLKGEN_UART9_PCLK                                  515
++
++#define CLKGEN_CAN_IPG_CLK						           516
++#define CLKGEN_CAN_PER_CLK						           517
++												          
++#define CLKGEN_SPI1_SSI_CLK						           518
++#define CLKGEN_SPI1_PCLK						           519
++												          
++#define CLKGEN_GPIO4_PCLK						           520
++#define CLKGEN_GPIO4_DBCLK						           521
++
++#define CLK_END						   522
++
++#endif
+diff --git a/include/dt-bindings/clock/th1520-audiosys.h b/include/dt-bindings/clock/th1520-audiosys.h
+new file mode 100644
+index 0000000000000..2001545b68b87
+--- /dev/null
++++ b/include/dt-bindings/clock/th1520-audiosys.h
+@@ -0,0 +1,35 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Copyright (C) 2022 Alibaba Group Holding Limited.
++ */
++
++#ifndef _TH1520_AUDIOSYS_H_
++#define _TH1520_AUDIOSYS_H_
++
++#define TH1520_CLKGEN_AUDIO_CPU			      0
++#define TH1520_CLKGEN_AUDIO_SRAM0			      1
++#define TH1520_CLKGEN_AUDIO_SRAM1		      2
++#define TH1520_CLKGEN_AUDIO_DMA                 3
++#define TH1520_CLKGEN_AUDIO_BSM                 4
++#define TH1520_CLKGEN_AUDIO_TIMER                        5
++#define TH1520_CLKGEN_AUDIO_TIMER_CNT1                      6
++#define TH1520_CLKGEN_AUDIO_TIMER_CNT2              7
++#define TH1520_CLKGEN_AUDIO_TIMER_CNT3                       8
++#define TH1520_CLKGEN_AUDIO_TIMER_CNT4                 9
++#define TH1520_CLKGEN_AUDIO_WDR                      10
++#define TH1520_CLKGEN_AUDIO_I2C0                       11
++#define TH1520_CLKGEN_AUDIO_I2C1                      12
++#define TH1520_CLKGEN_AUDIO_UART                   13
++#define TH1520_CLKGEN_AUDIO_I2S0                  14
++#define TH1520_CLKGEN_AUDIO_I2S1                   15
++#define TH1520_CLKGEN_AUDIO_I2S2                  16
++#define TH1520_CLKGEN_AUDIO_I2S8CH                   17
++#define TH1520_CLKGEN_AUDIO_TDM                  18
++#define TH1520_CLKGEN_AUDIO_GPIO                       19
++#define TH1520_CLKGEN_AUDIO_SPDIF0                       20
++#define TH1520_CLKGEN_AUDIO_SPDIF1                21
++#define TH1520_CLKGEN_AUDIO_VAD              22
++#define TH1520_CLKGEN_AUDIO_IOMUX                 23
++#define TH1520_CLKGEN_AUDIO_CLK_END		      24
++
++#endif
+diff --git a/include/dt-bindings/clock/th1520-dspsys.h b/include/dt-bindings/clock/th1520-dspsys.h
+new file mode 100644
+index 0000000000000..973e80bb0d099
+--- /dev/null
++++ b/include/dt-bindings/clock/th1520-dspsys.h
+@@ -0,0 +1,33 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Copyright (C) 2022 Alibaba Group Holding Limited.
++ */
++
++#ifndef _TH1520_DSPSYS_H
++#define _TH1520_DSPSYS_H
++// gate
++#define CLKGEN_DSP0_PCLK			0
++#define CLKGEN_DSP0_CCLK                        1
++#define CLKGEN_DSP1_PCLK                        2
++#define CLKGEN_DSP1_CCLK                        3
++#define CLKGEN_X2X_X4_DSPSLV_DSP0_ACLK_M        4
++#define CLKGEN_X2X_X4_DSPSLV_DSP1_ACLK_M        5
++#define CLKGEN_AXI4_DSPSYS_SLV_ACLK             6
++#define CLKGEN_AXI4_DSPSYS_ACLK                 7
++#define CLKGEN_IOPMP_DSP0_PCLK                  8
++#define CLKGEN_IOPMP_DSP1_PCLK                  9
++#define CLKGEN_AXI4_DSPSYS_SLV_PCLK             10
++#define CLKGEN_AXI4_DSPSYS_PCLK                 11
++#define CLKGEN_X2X_DSP0_ACLK_S			12
++#define CLKGEN_X2X_DSP2_ACLK_S			13
++// MUX
++#define DSPSYS_DSP0_CLK_SWITCH          14
++#define DSPSYS_DSP1_CLK_SWITCH          15
++// DIV
++#define DSPSYS_DSP_CLK              16
++#define DSPSYS_DSP0_CLK_CDE         17
++#define DSPSYS_DSP1_CLK_CDE         18
++
++#define TH1520_CLKGEN_DSPSYS_CLK_END		19
++
++#endif
+diff --git a/include/dt-bindings/clock/th1520-fm-ap-clock.h b/include/dt-bindings/clock/th1520-fm-ap-clock.h
+new file mode 100644
+index 0000000000000..8bb23b690f981
+--- /dev/null
++++ b/include/dt-bindings/clock/th1520-fm-ap-clock.h
+@@ -0,0 +1,513 @@
++#ifndef _APSYS_CLKGEN_H
++#define _APSYS_CLKGEN_H
++
++#define C910_CCLK_I0                                       0
++#define AXI4_CPUSYS1_ACLK                                  1
++#define CLKGEN_GPIO2_DBCLK                                 2
++#define CLKGEN_MBOX0_PCLK                                  3
++#define CLKGEN_GMAC0_CCLK                                  4
++#define CLKGEN_SPI_PCLK                                    5
++#define CLKGEN_CLK_OUT_1_CLK                               6
++#define PAD_RTC_CLK                                        7
++#define CLKGEN_SPINLOCK_HCLK                               8
++#define CLKGEN_QSPI1_PCLK                                  9
++#define CLKGEN_HDMI_ISCAN_CK_REF_CLK                       10
++#define CLKGEN_IOPMP_AON_PCLK                              11
++#define CLKGEN_ISP_RY_ACLK                                 12
++#define CLKGEN_MIPIDSI0_SCANRXCLKESC                       13
++#define CLKGEN_EIP120SII_HCLK                              14
++#define CLKGEN_MIPI_CSI0_PIXCLK                            15
++#define CLKGEN_SRAM_AXI_ACLK_3                             16
++#define CLKGEN_PERISYS_AHB_HCLK                            17
++#define VOSYS_HDMI_ISCAN_RX_WORD_CLK0_CLK                  18
++#define CLKGEN_QSPI0_SSI_CLK                               19
++#define CLKGEN_DW200_ACLK                                  20
++#define CLKGEN_IOPMP_EIP120SIII_PCLK                       21
++#define VISYS_MIPI_CSI2_CFGCLK                             22
++#define CLKGEN_APB3_CPUSYS_HCLK                            23
++#define CLKGEN_PERISYS_APB1_HCLK                           24
++#define CLKGEN_GPU_CORE_CLK                                25
++#define CLKGEN_USB3_DRD_ACLK                               26
++#define CLKGEN_VISYS_ACLK                                  27
++#define CLKGEN_USB3_DRD_CTRL_REF_CLK                       28
++#define CLKGEN_TEE_DMAC_ACLK                               29
++#define CLKGEN_AUDIO_SUBSYS_ACLK_CP2AP                     30
++#define CLKGEN_SRAM_AXI_ACLK_2                             31
++#define CLKGEN_IOPMP_VOSYS_GPU_PCLK                        32
++#define CLKGEN_CFG2TEE_X2H_ACLK                            33
++#define CLKGEN_SRAM_AXI_ACLK_1                             34
++#define MISC_SDIO0_OSC_CLK                                 35
++#define CLKGEN_SDIO0_ACLK                                  36
++#define CLKGEN_MIPI_DSI1_CFGCLK                            37
++#define APB3_CPUSYS_PCLK                                   38
++#define CLKGEN_TEE_DMAC_HCLK                               39
++#define VOSYS_DPU0_PIXELCLK                                40
++#define CLKGEN_CPU2CFG_X2H_MHCLK                           41
++#define CLKGEN_VPSYS_ACLK                                  42
++#define CLKGEN_MIPIDSI1_SCANRXCLKESC                       43
++#define CLKGEN_MISC2VP_X2X_ACLK_S                          44
++#define CLKGEN_MIPI_CSI_SCANBYTECLK                        45
++#define CLKGEN_APB3_TEESYS_HCLK                            46
++#define VENC_CCLK                                          47
++#define VPSYS_VDEC_CCLK                                    48
++#define CLKGEN_MIPI_CSI0_CFG_CLK                           49
++#define CLKGEN_MISCSYS_BUS_CLK                             50
++#define CLKGEN_DPU_HCLK                                    51
++#define CLKGEN_UART1_SCLK                                  52
++#define GMAC_PLL_FOUTPOSTDIV                               53
++#define MISC_BUS_CLK                                       54
++#define CLKGEN_USB3_DRD_SPDCLK                             55
++#define CLKGEN_MIPI_CSI2_CFG_CLK                           56
++#define CLKGEN_TOP_AXI4S_ACLK                              57
++#define CLKGEN_IOPMP_EIP120SII_ACLK                        58
++#define CORE_CLK                                           59
++#define CLKGEN_VPSYS_FCE_ACLK                              60
++#define CLKGEN_I2C3_PCLK                                   61
++#define DPU1_PLL_DIV_CLK                                   62
++#define CLKGEN_USB3_DRD_PHY_REF_CLK                        63
++#define CLKGEN_AON2CPU_A2X_ACLK                            64
++#define CLKGEN_QSPI1_SSI_CLK                               65
++#define CLKGEN_DPU_CCLK                                    66
++#define VISYS_MASTER_BUS_ACLK                              67
++#define CLKGEN_PERI_I2S_SRC_CLK_0                          68
++#define VOSYS_ACLK_M                                       69
++#define TEESYS_I0_HCLK                                     70
++#define CLKGEN_MIPI_DSI1_REFCLK                            71
++#define CLKGEN_MIPI_DSI0_PCLK                              72
++#define CLKGEN_VOSYS_ACLK_S                                73
++#define CLKGEN_CPU2VP_X2P_PCLK                             74
++#define CLKGEN_X2X_CPUSYS_ACLK_S                           75
++#define CLKGEN_HDMI_ISCAN_RX_WORD_CLK1_CLK                 76
++#define CLKGEN_IOPMP_VOSYS_DPU1_PCLK                       77
++#define CLKGEN_MISC2VP_X2X_ACLK_M                          78
++#define CLKGEN_WDT0_PCLK                                   79
++#define VOSYS_MIPIDSI0_SCANTXCLKESC                        80
++#define VISYS_MIPI_CSI1_CFGCLK                             81
++#define AHB2_CPUSYS_HCLK                                   82
++#define CLKGEN_SDIO1_HCLK                                  83
++#define CLKGEN_SDIO0_HCLK                                  84
++#define CLKGEN_CLK_OUT_3_CLK                               85
++#define CLKGEN_GMAC_AXI_ACLK                               86
++#define GMAC_CCLK                                          87
++#define CLKGEN_VIPRE_PCLK                                  88
++#define CLKGEN_HDMI_ISCAN_TX_CK_OUT2_CLK                   89
++#define CLKGEN_MIPIDSI1_SCANTXCLKESC                       90
++#define CLKGEN_VISYS_SLAVE_HCLK                            91
++#define VOSYS_HDMI_ISCAN_TX_CK_OUT1_CLK                    92
++#define CLKGEN_X2X_CPUSYS_ACLK_M                           93
++#define CLKGEN_CPU2CFG_X2X_ACLK_S                          94
++#define C910_OSC_CLK                                       95
++#define CLKGEN_X2H_DPU1_ACLK                               96
++#define CLKGEN_I2C4_PCLK                                   97
++#define CLKGEN_GMAC0_ACLK                                  98
++#define MISC_USB3_PHY_REF_CLK                              99
++#define VOSYS_MIPIDSI0_CFG_CLK                             100
++#define CLKGEN_VPSYS_VDEC_CCLK                             101
++#define VOSYS_MIPIDSI1_CFG_CLK                             102
++#define CLKGEN_I2S_PCLK                                    103
++#define CLKGEN_DMAC_CPUSYS_ACLK                            104
++#define VISYS_DW200_CLK_DWE                                105
++#define CLKGEN_OCRAM_HCLK                                  106
++#define CLKGEN_EFUSE_PCLK                                  107
++#define CLKGEN_X2H_DPU_ACLK                                108
++#define CLKGEN_IOPMP_SDIO0_ACLK                            109
++#define VOSYS_DPU1_PIXELCLK                                110
++#define CPU_PLL1_FOUT4                                     111
++#define CLKGEN_GPIO2_PCLK                                  112
++#define CLKGEN_GMAC1_CCLK                                  113
++#define CPU_PLL1_FOUTPOSTDIV                               114
++#define VOSYS_HDMI_ISCAN_40M_CLK                           115
++#define CLKGEN_VOSYS_X2X_ACLK_S                            116
++#define CLKGEN_PERISYS_APB2_HCLK                           117
++#define VOSYS_OSC_CLK_MUX_I2S_CLK_OCCBUF                   118
++#define CLKGEN_HDMI_CEC_CLK                                119
++#define CLKGEN_X2P_X4_VOSYS_PCLK                           120
++#define CLKGEN_VOSYS_ACLK_M                                121
++#define CLKGEN_EMMC_SDIO_REF_CLK                           122
++#define CLKGEN_IOPMP_EMMC_ACLK                             123
++#define VIDEO_PLL_FOUTVCO                                  124
++#define CLKGEN_HDMI_ISCAN_CKO_WORD_CLK                     125
++#define CLKGEN_IOPMP_VOSYS_DPU_PCLK                        126
++#define CLKGEN_AXI4_VISYS3_ACLK                            127
++#define CLKGEN_VISYS_SYSREG_PCLK                           128
++#define CLKGEN_MIPIDSI0_SCANTXCLKESC                       129
++#define CLKGEN_HDMI_ISCAN_TX_CK_OUT1_CLK                   130
++#define CLKGEN_IOPMP_EIP120SIII_ACLK                       131
++#define CLKGEN_EIP120SII_ACLK                              132
++#define CLKGEN_MBOX2_PCLK                                  133
++#define CLKGEN_AXI4_VISYS1_ACLK                            134
++#define CLKGEN_UART1_PCLK                                  135
++#define CLK_OUT_3                                          136
++#define CLKGEN_UART5_SCLK                                  137
++#define CLKGEN_HDMI_ISCAN_RX_WORD_CLK2_CLK                 138
++#define CLKGEN_MBOX3_PCLK                                  139
++#define QSPI1_SSI_CLK                                      140
++#define CLKGEN_I2C1_PCLK                                   141
++#define CLKGEN_HDMI_I2S_CLK                                142
++#define CLKGEN_AXI4_CPUSYS2_PCLK                           143
++#define CLKGEN_CFG2TEE_X2H_MHCLK                           144
++#define CLKGEN_C910_CPU_CLK                                145
++#define VOSYS_HDMI_ISCAN_TX_CK_OUT2_CLK                    146
++#define CLKGEN_HDMI_PCLK                                   147
++#define CLKGEN_IOPMP_EIP120SII_PCLK                        148
++#define CLKGEN_MISCSYS_AXI_PCLK                            149
++#define CLKGEN_EIP120SI_ACLK                               150
++#define TEESYS_I1_HCLK                                     151
++#define PERISYS_APB_PCLK                                   152
++#define VOSYS_HDMI_ISCAN_RX_WORD_CLK0_DIV2_CLK             153
++#define CLKGEN_TIMER0_CCLK                                 154
++#define CLKGEN_IOPMP_USB3_ACLK                             155
++#define CLKGEN_UART2_PCLK                                  156
++#define CLK_OUT_4                                          157
++#define AXI4_CPUSYS2_ACLK                                  158
++#define CLKGEN_AUDIO_SUBSYS_ACLK_AP2CP                     159
++#define CLKGEN_I2C3_IC_CLK                                 160
++#define CLKGEN_IOPMP_GPU_ACLK                              161
++#define CLKGEN_TIMER1_CCLK                                 162
++#define VOSYS_I2S_CLK                                      163
++#define CLKGEN_I2C5_IC_CLK                                 164
++#define VOSYS_OSC_CLK_MUX_I2S_CLK                          165
++#define CLKGEN_DDR_SUBSYS_ACLK_0                           166
++#define CLKGEN_TIMER1_PCLK                                 167
++#define CLKGEN_I2C1_IC_CLK                                 168
++#define CLKGEN_I2S_SRC_CLK                                 169
++#define VISYS_DW200_CLK_VSE                                170
++#define CLKGEN_MIPIDSI1_PIXCLK                             171
++#define VOSYS_RTC_CLK                                      172
++#define CLK_OUT_1                                          173
++#define CLKGEN_PERISYS_APB4_HCLK                           174
++#define MISC_USB3_CTRL_REF_CLK                             175
++#define CLKGEN_TEE_SYSREG_PCLK                             176
++#define CLKGEN_MISCSYS_AXI_ACLK                            177
++#define CLKGEN_MIPIDSI1_SCANCLK                            178
++#define CLKGEN_GPIO3_DBCLK                                 179
++#define CLKGEN_HDMI_ISCAN_40M_CLK                          180
++#define CLKGEN_PERI2PERI1_APB_HCLK                         181
++#define CLKGEN_GMAC0_HCLK                                  182
++#define CLKGEN_DDR_SUBSYS_PCLK                             183
++#define VOSYS_PCLK                                         184
++#define CLKGEN_MIPIDSI1_SCANBYTECLK                        185
++#define CLKGEN_VPSYS_G2D_ACLK                              186
++#define CLKGEN_EIP150B_HCLK                                187
++#define CLKGEN_UART4_SCLK                                  188
++#define DPU1_PLL_TEST_CLK                                  189
++#define CLKGEN_VOSYS_X2X_ACLK_M                            190
++#define CLKGEN_IOPMP_EIP120SI_ACLK                         191
++#define CLKGEN_CLK_OUT_4_CLK                               192
++#define CLKGEN_GPIO0_FPCLK                                 193
++#define PAD_OSC_CLK                                        194
++#define CLKGEN_C910_BUS_CLK_NO_ICG                         195
++#define CLKGEN_TIMER0_PCLK                                 196
++#define CLKGEN_AHB2_CPUSYS_HCLK                            197
++#define EMMC_SDIO_REF_CLK                                  198
++#define CLKGEN_IOPMP_CHIP_DBG_PCLK                         199
++#define CLKGEN_BMU_C910_PCLK                               200
++#define CLKGEN_IOPMP_DPU1_ACLK                             201
++#define CLKGEN_PADCTRL0_APSYS_PCLK                         202
++#define MISC_SDIO1_OSC_CLK                                 203
++#define CLKGEN_C910_OSC_CLK                                204
++#define VISYS_ISP_RY_CCLK                                  205
++#define CLKGEN_VPSYS_PCLK                                  206
++#define VISYS_MIPI_CSI0_PIXELCLK                           207
++#define NPU_CCLK                                           208
++#define CLKGEN_AXI4_TEESYS_ACLK                            209
++#define PERI2SYS_APB_PCLK                                  210
++#define CLKGEN_IOPMP_GMAC0_PCLK                            211
++#define CLKGEN_VPSYS_G2D_PCLK                              212
++#define CLKGEN_EMMC_ACLK                                   213
++#define CLKGEN_UART3_SCLK                                  214
++#define AONSYS_BUS_CLK                                     215
++#define DPU0_PLL_FOUT4                                     216
++#define VOSYS_MIPIDSI1_SCANCLK                             217
++#define CLKGEN_UART4_PCLK                                  218
++#define CLKGEN_HDMI_ISCAN_SCL                              219
++#define CLKGEN_MIPI_CSI1_PIXCLK                            220
++#define CLKGEN_APSYS_CLKGEN_PCLK                           221
++#define CLKGEN_GPU_TIMER_REFCLK                            222
++#define GMAC_PLL_FOUT1PH0                                  223
++#define VOSYS_MIPIDSI1_SCANBYTECLK                         224
++#define CLKGEN_GPIO3_FPCLK                                 225
++#define CLKGEN_SDIO1_OSC_CLK                               226
++#define CLKGEN_GPIO3_PCLK                                  227
++#define CLKGEN_VPSYS_AXI_ACLK                              228
++#define CLKGEN_HDMI_ISCAN_TX_CK_20B_CLK                    229
++#define CLKGEN_VOSYSREG_PCLK                               230
++#define VIDEO_PLL_TEST_CLK                                 231
++#define CLKGEN_MBOX1_PCLK                                  232
++#define CLKGEN_I2C2_IC_CLK                                 233
++#define VOSYS_MIPIDSI0_PLL_SCANCLK                         234
++#define VOSYS_MIPIDSI1_SCANTXCLKESC                        235
++#define VOSYS_HDMI_ISCAN_RX_WORD_CLK1_DIV2_CLK             236
++#define CLKGEN_UART2_SCLK                                  237
++#define MISC_TEESYS_PCLK                                   238
++#define AUDIO_PLL_TEST_CLK                                 239
++#define CLKGEN_DPU_PIXELCLK1                               240
++#define CLKGEN_IOPMP_TEEDMAC_PCLK                          241
++#define CLKGEN_TOP_APB_SX_PCLK                             242
++#define CLKGEN_I2C4_IC_CLK                                 243
++#define GMAC_PLL_TEST_CLK                                  244
++#define CLKGEN_HDMI_JTAG_TCLK                              245
++#define VISYS_MIPI_CSI0_CFGCLK                             246
++#define CLKGEN_CPU2AON_X2H_ACLK                            247
++#define VOSYS_HDMI_ISCAN_TX_CK_OUT0_CLK                    248
++#define QSPI_SSI_CLK                                       249
++#define VOSYS_DPU_CCLK                                     250
++#define CLKGEN_CPU2VI_X2H_MHCLK                            251
++#define CLKGEN_MIPI_DSI0_REFCLK                            252
++#define CLKGEN_DSPSYS_HCLK                                 253
++#define CLKGEN_IOPMP_AUD_PCLK                              254
++#define CLKGEN_PERI2PERI1_APB_PCLK                         255
++#define CFG_AXI_ACLK                                       256
++#define VPSYS_FCE_CCLK                                     257
++#define CLKGEN_HDMI_ISCAN_CLK                              258
++#define CPU_PLL0_TEST_CLK                                  259
++#define CLKGEN_CPU2PERI_X2H_MHCLK                          260
++#define VISYS_ACLK_M                                       261
++#define VOSYS_HDMI_JTAG_TCLK                               262
++#define CLKGEN_IOPMP_AUD_ACLK                              263
++#define CLKGEN_HDMI_ISCAN_RX_WORD_CLK1_DIV2_CLK            264
++#define VOSYS_HDMI_ISCAN_RX_WORD_CLK1_CLK                  265
++#define VOSYS_MIPIDSI0_REFCLK                              266
++#define CLKGEN_VISYS_ACLK_M                                267
++#define VOSYS_MIPIDSI0_SCANRXCLKESC                        268
++#define CLKGEN_SDIO1_ACLK                                  269
++#define CFG_APB_PCLK                                       270
++#define CLKGEN_PADCTRL1_APSYS_PCLK                         271
++#define VOSYS_MIPIDSI0_SCANCLK                             272
++#define CLKGEN_I2C0_IC_CLK                                 273
++#define CLKGEN_VPSYS_APB_PCLK                              274
++#define CLKGEN_VPSYS_VENC_CCLK                             275
++#define CLKGEN_AXI4_CFG_BUS_ACLK                           276
++#define CLKGEN_MIPIDSI0_SCANBYTECLK                        277
++#define GPIO3_DBCLK                                        278
++#define CLKGEN_HDMI_ISCAN_RX_WORD_CLK0_CLK                 279
++#define CLKGEN_UART5_PCLK                                  280
++#define DPU0_PLL_FOUTPOSTDIV_ICG                           281
++#define CPU_PLL0_FOUT4                                     282
++#define CLKGEN_GPIO2_FPCLK                                 283
++#define CLKGEN_DPU_ACLK                                    284
++#define CLKGEN_AXI4_CPUSYS2_ACLK                           285
++#define CLKGEN_DSPSYS_PCLK                                 286
++#define TEE_PLL_FOUTPOSTDIV                                287
++#define TIMER_CCLK                                         288
++#define VOSYS_MIPIDSI1_PLL_SCANCLK                         289
++#define CLKGEN_GMAC_AXI_PCLK                               290
++#define CLKGEN_USB3_DRD_PCLK                               291
++#define CLKGEN_AXI4_CPUSYS1_PCLK                           292
++#define VOSYS_ACLK                                         293
++#define CLKGEN_IOPMP_EIP120SI_PCLK                         294
++#define VOSYS_HDMI_ISCAN_TMDSCLKIN_CLK                     295
++#define VOSYS_HDMI_ISCAN_CKO_WORD_CLK                      296
++#define CLKGEN_NPUSYS_AXI_ACLK                             297
++#define CLKGEN_IOPMP_SDIO0_PCLK                            298
++#define CLKGEN_DW200_HCLK                                  299
++#define VOSYS_HDMI_ISCAN_RX_WORD_CLK2_CLK                  300
++#define CLKGEN_UART0_PCLK                                  301
++#define CLKGEN_CLK_OUT_2_CLK                               302
++#define CLKGEN_GPIO0_PCLK                                  303
++#define CLKGEN_EMMC_OSC_CLK                                304
++#define VPSYS_APB_PCLK                                     305
++#define CLKGEN_HDMI_PIXCLK                                 306
++#define CLKGEN_IOPMP_TEEDMAC_ACLK                          307
++#define AUDIO_PLL_FOUT4                                    308
++#define CLKGEN_MIPI_CSI2_PCLK                              309
++#define CLKGEN_MIPI_DSI1_PCLK                              310
++#define CLKGEN_MIPI_DSI0_CFGCLK                            311
++#define VISYS_ISP0_CLK                                     312
++#define VISYS_ISP1_CLK                                     313
++#define MISC_EMMC_OSC_CLK                                  314
++#define DPU0_PLL_FOUTPOSTDIV                               315
++#define VISYS_AHB_HCLK                                     316
++#define CLKGEN_IOPMP_SDIO1_ACLK                            317
++#define CLKGEN_EMMC_HCLK                                   318
++#define I2S_CLK                                            319
++#define CLKGEN_CPU2PERI_X2H_ACLK                           320
++#define VPSYS_AXI_ACLK                                     321
++#define CLKGEN_IOPMP_SDIO1_PCLK                            322
++#define CLKGEN_EIP120SIII_HCLK                             323
++#define CLKGEN_BMU_C910_ACLK                               324
++#define CLKGEN_IOPMP_DMAC_CPUSYS_PCLK                      325
++#define GPIO2_DBCLK                                        326
++#define CHIP_DBG_CCLK                                      327
++#define CLKGEN_MISCSYS_TEE_CCLK                            328
++#define CLKGEN_I2C5_PCLK                                   329
++#define CLKGEN_X2H_CPUSYS_MHCLK                            330
++#define CLKGEN_PWM_CCLK                                    331
++#define DPU0_PLL_TEST_CLK                                  332
++#define CLKGEN_VISYS_PCLK                                  333
++#define MISC_TEESYS_HCLK                                   334
++#define SPI_SSI_CLK                                        335
++#define CLKGEN_PWM_PCLK                                    336
++#define VOSYS_MIPIDSI1_SCANRXCLKESC                        337
++#define QSPI0_SSI_CLK                                      338
++#define CLKGEN_HDMI_ISCAN_TMDSCLKIN_CLK                    339
++#define CLKGEN_SPI_SSI_CLK                                 340
++#define VIDEO_PLL_FOUT4                                    341
++#define CLKGEN_IOPMP_GMAC0_ACLK                            342
++#define CLKGEN_VIPRE_ACLK                                  343
++#define MISC_OSC_CLK_DIV24                                 344
++#define CLKGEN_ISP_VENC_SHAKE_PCLK                         345
++#define CLKGEN_HDMI_ISCAN_TX_CK_OUT0_CLK                   346
++#define CLKGEN_VPSYS_G2D_CCLK                              347
++#define CLKGEN_CPU2CFG_X2X_ACLK_M                          348
++#define CLKGEN_GMAC1_PCLK                                  349
++#define CLKGEN_MIPIDSI0_PLL_SCANCLK                        350
++#define CLKGEN_HDMI_ISCAN_RX_WORD_CLK0_DIV2_CLK            351
++#define TEE_PLL_FOUT4                                      352
++#define PERISYS_AHB_HCLK                                   353
++#define VIDEO_PLL_FOUT1PH0                                 354
++#define CLKGEN_MIPIDSI0_PIXCLK                             355
++#define CLKGEN_PERI_I2S_SRC_CLK_1                          356
++#define CLKGEN_MIPI_CSI0_PCLK                              357
++#define CLKGEN_DDR_SUBSYS_ACLK_1                           358
++#define CLKGEN_GMAC0_PCLK                                  359
++#define CLK_OUT_2                                          360
++#define CLKGEN_EIP120SIII_ACLK                             361
++#define AONSYS_HCLK                                        362
++#define CLKGEN_ISP0_CLK                                    363
++#define CLKGEN_C910_BROM_HCLK                              364
++#define DPU1_PLL_FOUT4                                     365
++#define PERI_I2S_SRC_CLK                                   366
++#define CPU_PLL1_TEST_CLK                                  367
++#define CLKGEN_DDR_SUBSYS_ACLK_2                           368
++#define CLKGEN_MIPIDSI0_SCANCLK                            369
++#define I2C_IC_CLK                                         370
++#define CLKGEN_DPU_PIXELCLK0                               371
++#define CLKGEN_GPIO1_DBCLK                                 372
++#define CLKGEN_C910_TOP_DS_PCLK                            373
++#define CLKGEN_DSPSYS_ACLK_M                               374
++#define CLKGEN_AON2CPU_A2X_HCLK                            375
++#define VOSYS_HDMI_ISCAN_CK_REF_CLK                        376
++#define CLKGEN_IOPMP_EMMC_PCLK                             377
++#define NPU_CORE_CLK                                       378
++#define CLKGEN_IOPMP_USB3_PCLK                             379
++#define VPSYS_PCLK                                         380
++#define VIDEO_PLL_FOUTPOSTDIV                              381
++#define CLKGEN_CPU2VP_X2P_ACLK                             382
++#define CLKGEN_APB_CPU2CFG_HCLK                            383
++#define VOSYS_OSC_CLK_MUX_CEC_CLK_OCCBUF                   384
++#define CLKGEN_GPIO1_PCLK                                  385
++#define CLKGEN_APSYS_SYSREG_PCLK                           386
++#define CLKGEN_VISYS_HCLK                                  387
++#define CLKGEN_MIPI_CSI1_PCLK                              388
++#define CLKGEN_AHB2_TEESYS_HCLK                            389
++#define CLKGEN_DDR_SUBSYS_ACLK_4                           390
++#define SYS_PLL_TEST_CLK                                   391
++#define VISYS_MIPI_CSI_SCANCLK                             392
++#define CPU_PLL0_FOUTPOSTDIV                               393
++#define CLKGEN_UART3_PCLK                                  394
++#define CLKGEN_X2H_CPUSYS_ACLK                             395
++#define CLKGEN_MIPI_CSI1_CFG_CLK                           396
++#define CLKGEN_HDMI_ISCAN_RX_WORD_CLK2_DIV2_CLK            397
++#define CLKGEN_MISCSYS_APB_HCLK                            398
++#define CLKGEN_CPU2CFG_X2H_ACLK                            399
++#define CLKGEN_MIPI_CSI2_FPCLK                             400
++#define CLKGEN_ISP_RY_CCLK                                 401
++#define CLKGEN_X2P_VOSYS_ACLK                              402
++#define CLKGEN_VIPRE_PIXELCLK                              403
++#define VOSYS_GPU_TIMER_REFCLK                             404
++#define VOSYS_OSC_CLK_MUX_CEC_CLK                          405
++#define CLKGEN_APSYS_RSTGEN_PCLK                           406
++#define VOSYS_HDMI_ISCAN_SCL                               407
++#define CLKGEN_ISP_RY_HCLK                                 408
++#define VOSYS_OSC_CLK                                      409
++#define VISYS_PCLK                                         410
++#define CLKGEN_AXI4_VO_ACLK                                411
++#define CLKGEN_MIPIDSI1_PLL_SCANCLK                        412
++#define GPIO1_DBCLK                                        413
++#define CLKGEN_AXI4_VISYS2_ACLK                            414
++#define CLKGEN_EIP120SI_HCLK                               415
++#define CLKGEN_IOPMP_CHIP_DBG_ACLK                         416
++#define VOSYS_HDMI_ISCAN_TX_CK_20B_CLK                     417
++#define VOSYS_MIPIDSI1_REFCLK                              418
++#define CLKGEN_CHIP_DBG_ACLK                               419
++#define VOSYS_CFG_ACLK                                     420
++#define CLKGEN_VOSYS_AXI_ACLK                              421
++#define CPU_BUS_DFTCLK                                     422
++#define VOSYS_HDMI_ISCAN_CLK                               423
++#define VISYS_SLAVE_BUS_HCLK                               424
++#define CLKGEN_VPSYS_VDEC_PCLK                             425
++#define GMAC_PLL_FOUT4                                     426
++#define CLKGEN_QSPI0_PCLK                                  427
++#define CLKGEN_ISP1_CLK                                    428
++#define CLKGEN_MIPI_CSI0_FPCLK                             429
++#define CLKGEN_ISP0_ACLK                                   430
++#define CLKGEN_CPU2VI_X2H_ACLK                             431
++#define C910_CCLK                                          432
++#define CLKGEN_DW200_CLK_VSE                               433
++#define CLKGEN_AXI4_CPUSYS1_ACLK                           434
++#define CLKGEN_GPU_CFG_ACLK                                435
++#define CLKGEN_GPIO1_FPCLK                                 436
++#define CLKGEN_SRAM_AXI_ACLK_0                             437
++#define CLKGEN_I2C2_PCLK                                   438
++#define CLKGEN_IOPMP_GMAC1_PCLK                            439
++#define CLKGEN_ISP0_S_HCLK                                 440
++#define GPIO0_DBCLK                                        441
++#define CLKGEN_AXI4_VO_CFG_ACLK                            442
++#define CLKGEN_NPU_CORE_CLK                                443
++#define DPU0_PLL_DIV_CLK                                   444
++#define VOSYS_MIPIDSI0_SCANBYTECLK                         445
++#define CLKGEN_CHIP_DBG_CCLK                               446
++#define CLKGEN_DMAC_CPUSYS_HCLK                            447
++#define CLKGEN_IOPMP_DPU_ACLK                              448
++#define CLKGEN_DDR_SUBSYS_ACLK_3                           449
++#define CLK_100M                                           450
++#define CLKGEN_DSMART_PCLK                                 451
++#define CLKGEN_DW200_CLK_DWE                               452
++#define VPSYS_G2D_CCLK                                     453
++#define CLKGEN_WDT1_PCLK                                   454
++#define DPU1_PLL_FOUTPOSTDIV                               455
++#define CLKGEN_IOPMP_GMAC1_ACLK                            456
++#define CLKGEN_VPSYS_FCE_PCLK                              457
++#define CLKGEN_MIPI_CSI_SCANCLK                            458
++#define CLKGEN_MIPI_CSI2_PIXCLK                            459
++#define CLKGEN_I2C0_PCLK                                   460
++#define VOSYS_HDMI_ISCAN_RX_WORD_CLK2_DIV2_CLK             461
++#define CLKGEN_HDMI_SFR_CLK                                462
++#define TEE_PLL_TEST_CLK                                   463
++#define CLKGEN_IOPMP_DMAC_CPUSYS_ACLK                      464
++#define CLKGEN_ISP_PIXELCLK                                465
++#define CLKGEN_MIPI_CSI1_FPCLK                             466
++#define SYS_PLL_FOUT4                                      467
++#define CLKGEN_AXI4_VO_PCLK                                468
++#define CLKGEN_UART0_SCLK                                  469
++#define CLKGEN_CPU2AON_X2H_MHCLK                           470
++#define VISYS_MIPI_CSI_SCANBYTECLK                         471
++#define UART_SCLK                                          472
++#define CLKGEN_IOPMP_AON_ACLK                              473
++#define CLKGEN_VPSYS_VDEC_ACLK                             474
++#define CLKGEN_GMAC1_HCLK                                  475
++#define CLKGEN_ISP_VENC_SHAKE_ACLK                         476
++#define TEESYS_HCLK                                        477
++#define PWM_CCLK                                           478
++#define CLKGEN_GPIO0_DBCLK                                 479
++#define CLKGEN_SDIO0_OSC_CLK                               480
++#define CLKGEN_GMAC1_ACLK                                  481
++#define VPSYS_ACLK                                         482
++
++#define AHB2_CPUSYS_HCLK_OUT_DIV			   483
++#define APB3_CPUSYS_PCLK_DIV				   484
++#define CFG_AXI_ACLK_OUT_DIV				   485
++#define PERISYS_AHB_HCLK_OUT_DIV			   486
++#define CLK_OUT_1_OUT_DIV				   487
++#define CLK_OUT_2_OUT_DIV                                  488
++#define CLK_OUT_3_OUT_DIV                                  489
++#define CLK_OUT_4_OUT_DIV                                  490
++#define NPU_CCLK_OUT_DIV				   491
++#define CFG_APB_PCLK_OUT_DIV				   492
++#define CPU_PLL0_BYPASS					   493
++#define CPU_PLL1_BYPASS					   494
++#define GMAC_PLL_BYPASS					   495
++#define VIDEO_PLL_BYPASS				   496
++#define TEE_PLL_BYPASS					   497
++#define DPU0_PLL_BYPASS					   498
++#define DPU1_PLL_BYPASS					   499
++
++#define CLK_DUMMY					   500
++#define OSC_32K						   501
++#define OSC_24M						   502
++#define RC_24M						   503
++
++#define CLK_END						   504
++
++#endif
+diff --git a/include/dt-bindings/clock/th1520-miscsys.h b/include/dt-bindings/clock/th1520-miscsys.h
+new file mode 100644
+index 0000000000000..a23a623b3ea84
+--- /dev/null
++++ b/include/dt-bindings/clock/th1520-miscsys.h
+@@ -0,0 +1,28 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Copyright (C) 2022 Alibaba Group Holding Limited.
++ */
++#ifndef _TH1520_MISCSYS_H
++#define _TH1520_MISCSYS_H
++#define CLKGEN_MISCSYS_MISCSYS_ACLK			0
++#define CLKGEN_MISCSYS_USB3_DRD_CLK			1
++#define CLKGEN_MISCSYS_USB3_DRD_CTRL_REF_CLK		2
++#define CLKGEN_MISCSYS_USB3_DRD_PHY_REF_CLK		3
++#define CLKGEN_MISCSYS_USB3_DRD_SUSPEND_CLK		4
++#define CLKGEN_MISCSYS_EMMC_CLK				5
++#define CLKGEN_MISCSYS_SDIO0_CLK			6
++#define CLKGEN_MISCSYS_SDIO1_CLK			7
++#define CLKGEN_MISCSYS_AHB2_TEESYS_HCLK			8
++#define CLKGEN_MISCSYS_APB3_TEESYS_HCLK			9
++#define CLKGEN_MISCSYS_AXI4_TEESYS_ACLK			10
++#define CLKGEN_MISCSYS_EIP120SI_CLK			11
++#define CLKGEN_MISCSYS_EIP120SII_CLK			12
++#define CLKGEN_MISCSYS_EIP120SIII_CLK			13
++#define CLKGEN_MISCSYS_TEEDMAC_CLK			14
++#define CLKGEN_MISCSYS_EIP150B_HCLK			15
++#define CLKGEN_MISCSYS_OCRAM_HCLK			16
++#define CLKGEN_MISCSYS_EFUSE_PCLK			17
++#define CLKGEN_MISCSYS_TEE_SYSREG_PCLK			18
++#define CLKGEN_MISCSYS_CLK_END				19
++#endif
++
+diff --git a/include/dt-bindings/clock/th1520-visys.h b/include/dt-bindings/clock/th1520-visys.h
+new file mode 100644
+index 0000000000000..4caed847fc7aa
+--- /dev/null
++++ b/include/dt-bindings/clock/th1520-visys.h
+@@ -0,0 +1,54 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Copyright (C) 2022 Alibaba Group Holding Limited.
++ */
++
++#ifndef _TH1520_VISYS_H
++#define _TH1520_VISYS_H
++
++#define TH1520_CLKGEN_VISYS_ACLK			      0
++#define TH1520_CLKGEN_DW200_ACLK			      1
++#define TH1520_CLKGEN_AXI4_VISYS1_ACLK		      2
++#define TH1520_CLKGEN_AXI4_VISYS2_ACLK                 3
++#define TH1520_CLKGEN_AXI4_VISYS3_ACLK                 4
++#define TH1520_CLKGEN_ISP0_ACLK                        5
++#define TH1520_CLKGEN_ISP_RY_ACLK                      6
++#define TH1520_CLKGEN_ISP_VENC_SHAKE_ACLK              7
++#define TH1520_CLKGEN_VIPRE_ACLK                       8
++#define TH1520_CLKGEN_VISYS_SLAVE_HCLK                 9
++#define TH1520_CLKGEN_ISP0_S_HCLK                      10
++#define TH1520_CLKGEN_DW200_HCLK                       11
++#define TH1520_CLKGEN_ISP_RY_HCLK                      12
++#define TH1520_CLKGEN_MIPI_CSI0_PCLK                   13
++#define TH1520_CLKGEN_MIPI_CSI0_FPCLK                  14
++#define TH1520_CLKGEN_MIPI_CSI1_PCLK                   15
++#define TH1520_CLKGEN_MIPI_CSI1_FPCLK                  16
++#define TH1520_CLKGEN_MIPI_CSI2_PCLK                   17
++#define TH1520_CLKGEN_MIPI_CSI2_FPCLK                  18
++#define TH1520_CLKGEN_VIPRE_PCLK                       19
++#define TH1520_CLKGEN_VISYS_PCLK                       20
++#define TH1520_CLKGEN_VISYS_SYSREG_PCLK                21
++#define TH1520_CLKGEN_ISP_VENC_SHAKE_PCLK              22
++#define TH1520_CLKGEN_MIPI_CSI0_PIXCLK                 23
++#define TH1520_CLKGEN_MIPI_CSI1_PIXCLK                 24
++#define TH1520_CLKGEN_MIPI_CSI2_PIXCLK                 25
++#define TH1520_CLKGEN_VIPRE_PIXELCLK                   26
++#define TH1520_CLKGEN_ISP_PIXELCLK                     27
++#define TH1520_CLKGEN_MIPI_CSI0_CFG_CLK                28
++#define TH1520_CLKGEN_MIPI_CSI1_CFG_CLK                29
++#define TH1520_CLKGEN_MIPI_CSI2_CFG_CLK                30
++#define TH1520_CLKGEN_DW200_CLK_VSE                    31
++#define TH1520_CLKGEN_DW200_CLK_DWE                    32
++#define TH1520_CLKGEN_ISP0_CLK                         33
++#define TH1520_CLKGEN_ISP1_CLK                         34
++#define TH1520_CLKGEN_ISP_RY_CCLK                      35
++#define TH1520_CLKGEN_MIPI_CSI_SCANBYTECLK             36
++#define TH1520_CLKGEN_MIPI_CSI_SCANCLK                 37
++#define TH1520_CLKGEN_ISP1_PIXELCLK		      38
++#define TH1520_CLKGEN_ISP0_PIXELCLK		      39
++#define TH1520_CLKGEN_ISP1_HCLK			      40
++#define TH1520_CLKGEN_ISP0_HCLK			      41
++#define TH1520_CLKGEN_ISP1_ACLK			      42
++#define TH1520_CLKGEN_VISYS_CLK_END		      43
++
++#endif
+diff --git a/include/dt-bindings/clock/th1520-vosys.h b/include/dt-bindings/clock/th1520-vosys.h
+new file mode 100644
+index 0000000000000..9b9de7739cec2
+--- /dev/null
++++ b/include/dt-bindings/clock/th1520-vosys.h
+@@ -0,0 +1,41 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Copyright (C) 2022 Alibaba Group Holding Limited.
++ */
++
++#ifndef TH1520_VOSYS_H
++#define TH1520_VOSYS_H
++
++#define TH1520_CLKGEN_AXI4_VO_PCLK			0
++#define TH1520_CLKGEN_IOPMP_VOSYS_DPU_PCLK		1
++#define TH1520_CLKGEN_IOPMP_VOSYS_DPU1_PCLK		2
++#define TH1520_CLKGEN_IOPMP_VOSYS_GPU_PCLK		3
++#define TH1520_CLKGEN_HDMI_PCLK				4
++#define TH1520_CLKGEN_MIPIDSI0_PCLK			5
++#define TH1520_CLKGEN_MIPIDSI1_PCLK			6
++#define TH1520_CLKGEN_AXI4_VO_ACLK			7
++#define TH1520_CLKGEN_IOPMP_GPU_ACLK			8
++#define TH1520_CLKGEN_IOPMP_DPU_ACLK			9
++#define TH1520_CLKGEN_IOPMP_DPU1_ACLK			10
++#define TH1520_CLKGEN_X2H_DPU_ACLK			11
++#define TH1520_CLKGEN_X2H_DPU1_ACLK			12
++#define TH1520_CLKGEN_MIPIDSI0_PIXCLK			13
++#define TH1520_CLKGEN_HDMI_PIXCLK			14
++#define TH1520_CLKGEN_MIPIDSI1_PIXCLK			15
++#define TH1520_CLKGEN_HDMI_SFR_CLK			16
++#define TH1520_CLKGEN_HDMI_CEC_CLK			17
++#define TH1520_CLKGEN_HDMI_I2S_CLK			18
++#define TH1520_CLKGEN_MIPIDSI0_CFG_CLK			19
++#define TH1520_CLKGEN_MIPIDSI1_CFG_CLK			20
++#define TH1520_CLKGEN_MIPIDSI0_REFCLK			21
++#define TH1520_CLKGEN_MIPIDSI1_REFCLK			22
++#define TH1520_CLKGEN_GPU_CORE_CLK			23
++#define TH1520_CLKGEN_GPU_CFG_ACLK			24
++#define TH1520_CLKGEN_DPU_HCLK				25
++#define TH1520_CLKGEN_DPU_ACLK				26
++#define TH1520_CLKGEN_DPU_CCLK				27
++#define TH1520_CLKGEN_DPU_PIXCLK0			28
++#define TH1520_CLKGEN_DPU_PIXCLK1                        29
++#define TH1520_CLKGEN_VOSYS_CLK_END			30
++
++#endif
+diff --git a/include/dt-bindings/clock/th1520-vpsys.h b/include/dt-bindings/clock/th1520-vpsys.h
+new file mode 100644
+index 0000000000000..1dd3bbb78da6c
+--- /dev/null
++++ b/include/dt-bindings/clock/th1520-vpsys.h
+@@ -0,0 +1,26 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Copyright (C) 2022 Alibaba Group Holding Limited.
++ */
++
++#ifndef _TH1520_VPSYS_H
++#define _TH1520_VPSYS_H
++
++#define TH1520_VPSYS_G2D_PCLK		0
++#define TH1520_VPSYS_G2D_ACLK		1
++#define TH1520_VPSYS_G2D_CCLK		2
++#define TH1520_VPSYS_FCE_PCLK		3
++#define TH1520_VPSYS_FCE_ACLK		4
++#define TH1520_VPSYS_VDEC_PCLK		5
++#define TH1520_VPSYS_VDEC_ACLK		6
++#define TH1520_VPSYS_VDEC_CCLK		7
++#define TH1520_VPSYS_AXI_ACLK		8
++#define TH1520_VPSYS_VENC_CCLK		9
++#define TH1520_VPSYS_VENC_PCLK		10
++#define TH1520_VPSYS_VENC_ACLK		11
++#define TH1520_VPSYS_G2D_CCLK_DIV    12
++#define TH1520_VPSYS_DEC_CCLK_DIV    13
++#define TH1520_VPSYS_CLK_END		14
++
++#endif
++
+diff --git a/include/dt-bindings/firmware/thead/rsrc.h b/include/dt-bindings/firmware/thead/rsrc.h
+new file mode 100644
+index 0000000000000..58789da8a237c
+--- /dev/null
++++ b/include/dt-bindings/firmware/thead/rsrc.h
+@@ -0,0 +1,18 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++/*
++ * Copyright (C) 2022 Alibaba Group Holding Limited.
++ */
++
++#ifndef __DT_BINDINGS_RSCRC_TH1520_H
++#define __DT_BINDINGS_RSCRC_TH1520_H
++
++#define TH1520_AON_AUDIO_PD	0
++#define TH1520_AON_VDEC_PD	1
++#define TH1520_AON_NPU_PD	2
++#define TH1520_AON_VENC_PD	3
++#define TH1520_AON_GPU_PD	4
++#define TH1520_AON_DSP0_PD	5
++#define TH1520_AON_DSP1_PD	6
++#define TH1520_AON_R_LAST	7
++
++#endif
+diff --git a/include/dt-bindings/iommu/zh-iommu.h b/include/dt-bindings/iommu/zh-iommu.h
+new file mode 100644
+index 0000000000000..3ef397c14a97d
+--- /dev/null
++++ b/include/dt-bindings/iommu/zh-iommu.h
+@@ -0,0 +1,130 @@
++/* SPDX-License-Identifier: GPL-2.0-only WITH Linux-syscall-note */
++/*
++ *    *** IMPORTANT ***
++ * This file is not only included from C-code but also from devicetree source
++ * files. As such this file MUST only contain comments and defines.
++ *
++ * Copyright (c) 2024 Dong Yan <yand@zhcomputing.com>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ */
++
++#ifndef _ZH_IOMMU_H
++#define _ZH_IOMMU_H
++
++#define DIE0    0x0 << 6
++#define DIE1    0x1 << 6
++#define DIE2    0x2 << 6
++#define DIE3    0x3 << 6
++
++/* PERI1_SS */
++#define DEVID_DIE0_IOMMU_PTW 0x0
++#define DEVID_DIE0_PERI1_DFMU    0x1
++#define DEVID_DIE0_DMAC_AP       0x2
++#define DEVID_DIE0_GMAC_0        0x3
++#define DEVID_DIE0_GMAC_1        0x4
++#define DEVID_DIE0_GMAC_2        0x5
++#define DEVID_DIE0_SD            0x6
++#define DEVID_DIE0_EMMC          0x8
++
++/* USB_SS */
++#define DEVID_DIE0_USB_DFMU      0x9
++#define DEVID_DIE0_USB3_0        0xa
++#define DEVID_DIE0_USB2_0        0xb
++#define DEVID_DIE0_USB2_1        0xc
++
++/* PCIE_SS */
++#define DEVID_DIE0_PCIE_DFMU     0x10
++#define DEVID_DIE0_PCIE_0        0x11
++#define DEVID_DIE0_PCIE_1        0x12
++#define DEVID_DIE0_SATA_0        0x14
++#define DEVID_DIE0_TEE_EIP120SI      0x16
++#define DEVID_DIE0_TEE_EIP120SII     0x17
++#define DEVID_DIE0_TEE_EIP120SIII    0x18
++#define DEVID_DIE0_TEE_DMAC      0x19
++
++/* VI_SS */
++#define DEVID_DIE0_VI_DFMU       0x20
++#define DEVID_DIE0_ISP           0x21
++#define DEVID_DIE0_VIPRE         0x22
++#define DEVID_DIE0_DW200         0x23
++
++/* VP_SS */
++#define DEVID_DIE0_VP_DFMU       0x25
++#define DEVID_DIE0_VENC          0x26
++#define DEVID_DIE0_VDEC          0x27
++#define DEVID_DIE0_G2D           0x28
++
++/* VO_SS */
++#define DEVID_DIE0_VO_DFMU       0x2b
++#define DEVID_DIE0_DISPLAY_0     0x2c
++#define DEVID_DIE0_DISPLAY_1     0x2d
++#define DEVID_DIE0_AUXDISP       0x2e
++
++#define DEVID_DIE0_PIP_REC       0x2f
++
++/* NPU_SS */
++#define DEVID_DIE0_NPU_DFMU      0x30
++#define DEVID_DIE0_NPU           0x31
++
++/* PERI1_SS */
++#define DEVID_DIE1_IOMMU_PTW     0x40
++#define DEVID_DIE1_PERI1_DFMU    0x41
++#define DEVID_DIE1_DMAC_AP       0x42
++#define DEVID_DIE1_GMAC_0        0x43
++#define DEVID_DIE1_GMAC_1        0x44
++#define DEVID_DIE1_GMAC_2        0x45
++#define DEVID_DIE1_SD            0x46
++#define DEVID_DIE1_EMMC          0x48
++
++/* USB_SS */
++#define DEVID_DIE1_USB_DFMU      0x49
++#define DEVID_DIE1_USB3_0        0x4a
++#define DEVID_DIE1_USB2_0        0x4b
++#define DEVID_DIE1_USB2_1        0x4c
++
++/* PCIE_SS */
++#define DEVID_DIE1_PCIE_DFMU     0x50
++#define DEVID_DIE1_PCIE_0        0x51
++#define DEVID_DIE1_PCIE_1        0x52
++#define DEVID_DIE1_SATA_0        0x54
++#define DEVID_DIE1_TEE_EIP120SI      0x56
++#define DEVID_DIE1_TEE_EIP120SII     0x57
++#define DEVID_DIE1_TEE_EIP120SIII    0x58
++#define DEVID_DIE1_TEE_DMAC      0x59
++
++/* VI_SS */
++#define DEVID_DIE1_VI_DFMU       0x60
++#define DEVID_DIE1_ISP           0x61
++#define DEVID_DIE1_VIPRE         0x62
++#define DEVID_DIE1_DW200         0x63
++
++/* VP_SS */
++#define DEVID_DIE1_VP_DFMU       0x65
++#define DEVID_DIE1_VENC          0x66
++#define DEVID_DIE1_VDEC          0x67
++#define DEVID_DIE1_G2D           0x68
++
++/* VO_SS */
++#define DEVID_DIE1_VO_DFMU       0x6b
++#define DEVID_DIE1_DISPLAY_0     0x6c
++#define DEVID_DIE1_DISPLAY_1     0x6d
++#define DEVID_DIE1_AUXDISP       0x6e
++
++#define DEVID_DIE1_PIP_REC       0x6f
++
++/* NPU_SS */
++#define DEVID_DIE1_NPU_DFMU      0x70
++#define DEVID_DIE1_NPU           0x71
++
++/* Dummy device IDs */
++#define DEVID_VIDEO_MEMORY_DUMMY 0xf0
++
++/* GROUPS */
++#define IOMMU_GROUP_PER_DEV      0x00
++#define IOMMU_GROUP_VIDEO        0x01
++#define IOMMU_GROUP_NPU          0x02
++
++#endif
+diff --git a/include/dt-bindings/iopmp/zh-iopmp.h b/include/dt-bindings/iopmp/zh-iopmp.h
+new file mode 100644
+index 0000000000000..d0a78717e858b
+--- /dev/null
++++ b/include/dt-bindings/iopmp/zh-iopmp.h
+@@ -0,0 +1,94 @@
++/* SPDX-License-Identifier: GPL-2.0-only WITH Linux-syscall-note */
++/*
++*    *** IMPORTANT ***
++* This file is not only included from C-code but also from devicetree source
++* files. As such this file MUST only contain comments and defines.
++*
++* Copyright (c) 2025 Xuliang Lin <linxuliang@zhcomputing.com>
++*
++* This program is free software; you can redistribute it and/or modify it
++* under the terms of the GNU General Public License version 2 as published by
++* the Free Software Foundation.
++*/
++
++#ifndef _ZH_DTS_IOPMP_H
++#define _ZH_DTS_IOPMP_H
++
++
++/* PERI1_SS */
++#define IOPMP_DEV_IOMMU_PTW      0x00
++#define IOPMP_DEV_PERI1_DFMU     0x01
++#define IOPMP_DEV_DMAC_AP        0x02
++#define IOPMP_DEV_GMAC_0         0x03
++#define IOPMP_DEV_GMAC_1         0x04
++#define IOPMP_DEV_GMAC_2         0x05
++#define IOPMP_DEV_SD             0x06
++#define IOPMP_DEV_EMMC           0x08
++#define IOPMP_DEVICE_AON         0x37
++#define IOPMP_DEVICE_CHIP_DBG    0x3e
++
++/* USB_SS */
++#define IOPMP_DEV_USB_DFMU       0x09
++#define IOPMP_DEV_USB3_0         0x0a
++#define IOPMP_DEV_USB2_1         0x0b
++#define IOPMP_DEV_USB2_2         0x0c
++
++/* PCIE_SS */
++#define IOPMP_DEV_PCIE_DFMU      0x10
++#define IOPMP_DEV_PCIE_0         0x11
++#define IOPMP_DEV_PCIE_1         0x12
++#define IOPMP_DEV_SATA_0         0x14
++#define IOPMP_DEV_TEE_EIP120SI   0x16
++#define IOPMP_DEV_TEE_EIP120SII  0x17
++#define IOPMP_DEV_TEE_EIP120SIII 0x18
++#define IOPMP_DEV_TEE_DMAC       0x19
++
++//D2D RX DFMU device id lists
++#define IOPMP_DEV_D2D_RX         0x1A
++
++/* VI_SS */
++#define IOPMP_DEV_VI_DFMU        0x20
++#define IOPMP_DEV_ISP            0x21
++#define IOPMP_DEV_VIPRE          0x22
++#define IOPMP_DEV_DW200          0x23
++#define IOPMP_DEV_VI_COMP_DECOMP 0x24
++
++/* VP_SS */
++#define IOPMP_DEV_VP_DFMU        0x25
++#define IOPMP_DEV_VENC           0x26
++#define IOPMP_DEV_VDEC           0x27
++#define IOPMP_DEV_G2D            0x28
++
++/* VO_SS */
++#define IOPMP_DEV_VO_DFMU        0x2b
++#define IOPMP_DEV_DISPLAY_0      0x2c
++#define IOPMP_DEV_DISPLAY_1      0x2d
++#define IOPMP_DEV_AUXDISP        0x2e
++
++#define IOPMP_DEV_PIP_REC        0x2f
++
++//GPUSS DFMU device id lists
++#define IOPMP_DEV_GPU_SS         0x33
++#define IOPMP_DEV_GPU            0x34
++
++/* NPU_SS */
++#define IOPMP_DEV_NPU_DFMU       0x30
++#define IOPMP_DEV_NPU            0x31
++
++//CPU SS DFMU device id lists
++#define IOPMP_DEV_REMOTE_CPU     0x3A
++
++/* IOMMU IOPMP DEVCIE ID*/
++#define IOPMP_DEV_IOMMU_START    0x40
++#define IOPMP_DEV_VP_IOMMU       (IOPMP_DEV_IOMMU_START + 0)
++#define IOPMP_DEV_VI_IOMMU       (IOPMP_DEV_IOMMU_START + 1)
++#define IOPMP_DEV_NPU_IOMMU      (IOPMP_DEV_IOMMU_START + 2)
++#define IOPMP_DEV_VO_IOMMU       (IOPMP_DEV_IOMMU_START + 3)
++#define IOPMP_DEV_PERI1_IOMMU    (IOPMP_DEV_IOMMU_START + 4)
++#define IOPMP_DEV_PCIE_IOMMU     (IOPMP_DEV_IOMMU_START + 5)
++#define IOPMP_DEV_USB_IOMMU      (IOPMP_DEV_IOMMU_START + 6)
++#define IOPMP_DEV_GPU_IOMMU      (IOPMP_DEV_IOMMU_START + 7)
++#define IOPMP_DEV_D2D_RX_IOMMU   (IOPMP_DEV_IOMMU_START + 8)
++#define IOPMP_DEV_D2D_SS_IOMMU   (IOPMP_DEV_IOMMU_START + 9)
++
++#endif
+diff --git a/include/dt-bindings/power/a210-power.h b/include/dt-bindings/power/a210-power.h
+new file mode 100644
+index 0000000000000..d4cee7a2baa14
+--- /dev/null
++++ b/include/dt-bindings/power/a210-power.h
+@@ -0,0 +1,30 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Copyright (C) 2025 Zhihe Computing Limited.
++ */
++
++#ifndef _DT_BINDINGS_POWER_A210_H_
++#define _DT_BINDINGS_POWER_A210_H_
++
++#define A210_PD_GPU			0
++#define A210_PD_NPU_WRAPPER		1
++#define A210_PD_NPU_IP			2
++#define A210_PD_D2D			3
++#define A210_PD_PCIE0			4
++#define A210_PD_PCIE1			5
++#define A210_PD_SATA			6
++#define A210_PD_USB			7
++#define A210_PD_VI_WRAP			8
++#define A210_PD_VI_ISP			9
++#define A210_PD_VO			10
++#define A210_PD_VP_WRAP			11
++#define A210_PD_VENC			12
++#define A210_PD_VDEC			13
++#define A210_PD_TOP			14
++#define A210_PD_PERI0			15
++#define A210_PD_PERI1			16
++#define A210_PD_PERI2			17
++#define A210_PD_PERI3			18
++#define A210_POWER_DOMAINS_MAX		19
++
++#endif /* _DT_BINDINGS_POWER_A210_H_ */
+diff --git a/include/dt-bindings/reset/a210-reset.h b/include/dt-bindings/reset/a210-reset.h
+new file mode 100644
+index 0000000000000..dec584c89494c
+--- /dev/null
++++ b/include/dt-bindings/reset/a210-reset.h
+@@ -0,0 +1,338 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Copyright (C) 2025 Zhihe Computing Limited.
++ */
++
++#ifndef DT_BINDING_RESET_A210_H
++#define DT_BINDING_RESET_A210_H
++
++#define RST_SIGNAL_MASK		0xFF
++
++#define VP_VDEC_PRST		0x000
++#define VP_VDEC_CRST		0x001
++#define VP_VDEC_ARST		0x002
++#define VP_VENC_PRST		0x003
++#define VP_VENC_CRST		0x004
++#define VP_VENC_ARST		0x005
++#define VP_G2D_PRST		0x006
++#define VP_G2D_CRST		0x007
++#define VP_G2D_ARST		0x008
++#define VP_COMP_PRST		0x009
++#define VP_COMP_CRST		0x00A
++#define VP_COMP_ARST		0x00B
++#define VP_DECOMP_PRST		0x00C
++#define VP_DECOMP_CRST		0x00D
++#define VP_DECOMP_ARST		0x00E
++#define VP_DFMU_PRST		0x00F
++#define VP_DFMU_ARST		0x010
++#define VP_ARB_PRST		0x011
++#define VP_ARB_ARST		0x012
++#define VP_VDEC_RS_ARST		0x013
++#define VP_VENC_RS_ARST		0x014
++#define VP_COMP_EXTPRST		0x015
++#define VP_DECOMP_EXTPRST	0x016
++
++#define VI_MIPI0_CSI0_PRST	0x100
++#define VI_MIPI0_CSI1_PRST	0x101
++#define VI_MIPI0_FIFO_RST	0x102
++#define VI_MIPI1_CSI0_PRST	0x103
++#define VI_MIPI1_CSI1_PRST	0x104
++#define VI_MIPI1_FIFO_RST	0x105
++#define VI_VIPRE_PRST		0x106
++#define VI_VIPRE_I0_PIX_RST	0x107
++#define VI_VIPRE_I1_PIX_RST	0x108
++#define VI_VIPRE_ISPIF_RST	0x109
++#define VI_VIPRE_ARST		0x10A
++#define VI_ISP_RST		0x10B
++#define VI_COMP_PRST		0x10C
++#define VI_COMP_ARST		0x10D
++#define VI_COMP_ISPOUT_RST	0x10E
++#define VI_COMP_DECOUT_RST	0x10F
++#define VI_COMP_VSEOUT_RST	0x110
++#define VI_COMP0_RST		0x111
++#define VI_COMP1_RST		0x112
++#define VI_DECOMP_RST		0x113
++#define VI_DW200_RST		0x114
++#define VI_DFMU_PRST		0x115
++#define VI_DFMU_ARST		0x116
++#define VI_ARB_PRST		0x117
++#define VI_ARB_ARST		0x118
++#define VI_X2H0_HRST		0x119
++#define VI_X2H1_HRST		0x11A
++#define VI_X2H2_HRST		0x11B
++#define VI_REC_PRST		0x11C
++#define VI_REC_ARST		0x11D
++
++#define NPU_AAB_MST_RST		0x201
++#define NPU_AFENCE_RST		0x202
++#define NPU_AXI_CCU_PRST	0x203
++#define NPU_AXI_CCU_RST		0x204
++#define NPU_AXI_M2S1_RST	0x205
++#define NPU_AXI_RST		0x206
++#define NPU_CLK_CALC_RST	0x207
++#define NPU_DFMU_ARST		0x208
++#define NPU_DFMU_PRST		0x209
++#define NPU_LPC_C_RST		0x20A
++#define NPU_LPE_C_PRST		0x20B
++#define NPU_LPE_C_RST		0x20C
++#define NPU_ARST		0x20D
++#define NPU_CRST		0x20E
++#define NPU_HRST		0x20F
++#define NPU_PCTRL_PB_RST	0x210
++#define NPU_PCTRL_PRST		0x211
++#define NPU_PCTRL_RST		0x212
++#define NPU_PTW_CCU_PRST	0x213
++#define NPU_PTW_CCU_RST		0x214
++#define NPU_SEMA_ARST		0x215
++#define NPU_SEMA_PRST		0x216
++#define NPU_DROOP_CCTRL_PRST	0x217
++#define NPU_DROOP_CCTRL_RST	0x218
++#define NPU_X2H_RST		0x219
++#define NPU_X2P_RST		0x21A
++#define NPU_LDIP_RST		0x21B
++#define NPU_SRAM_RST		0x21C
++
++#define VO_X2H0_RST		0x300
++#define VO_X2H1_RST		0x301
++#define VO_DPU_HRST		0x302
++#define VO_DPU_CRST		0x303
++#define VO_DPU_ARST		0x304
++#define VO_AUXDISP_PRST		0x305
++#define VO_AUXDISP_PIX_RST	0x306
++#define VO_AUXDISP_ARST		0x307
++#define VO_HDMI_PRST		0x308
++#define VO_HDMI_MAIN_RST	0x309
++#define VO_MIPI_PRST		0x30A
++#define VO_DECOMP_PRST		0x30B
++#define VO_DECOMP0_CRST		0x30C
++#define VO_DECOMP1_CRST		0x30D
++#define VO_DECOMP_ARST		0x30E
++#define VO_ARB_PRST		0x30F
++#define VO_ARB_ARST		0x310
++#define VO_DFMU_PRST		0x311
++#define VO_DFMU_ARST		0x312
++
++#define PERI0_TIMER0_CRST	0x400
++#define PERI0_TIMER0_PRST	0x401
++#define PERI0_TIMER1_CRST	0x402
++#define PERI0_TIMER1_PRST	0x403
++#define PERI0_WDT0_PRST		0x404
++#define PERI0_MBOX0_PRST	0x405
++#define PERI0_MBOX1_PRST	0x406
++#define PERI0_TIMER0_RST	0x407
++#define PERI0_TIMER1_RST	0x408
++
++#define PERI1_GMAC0_ARST	0x500
++#define PERI1_GMAC0_HRST	0x501
++#define PERI1_GMAC1_ARST	0x502
++#define PERI1_GMAC1_HRST	0x503
++#define PERI1_GPIO0_DBRST	0x504
++#define PERI1_GPIO0_PRST	0x505
++#define PERI1_GPIO1_DBRST	0x506
++#define PERI1_GPIO1_PRST	0x507
++#define PERI1_I2C0_IC_RST	0x508
++#define PERI1_I2C0_PRST		0x509
++#define PERI1_I2C1_IC_RST	0x50A
++#define PERI1_I2C1_PRST		0x50B
++#define PERI1_I2C2_IC_RST	0x50C
++#define PERI1_I2C2_PRST		0x50D
++#define PERI1_I2S0_PRST		0x50E
++#define PERI1_MST_BUS_ARST	0x50F
++#define PERI1_MST_BUS_PRST	0x510
++#define PERI1_PWM0_CRST		0x511
++#define PERI1_PWM0_PRST		0x512
++#define PERI1_QSPI0_PRST	0x513
++#define PERI1_QSPI0_SSI_RST	0x514
++#define PERI1_SPI0_PRST		0x515
++#define PERI1_SPI0_SSI_RST	0x516
++#define PERI1_UART0_PRST	0x517
++#define PERI1_UART0_S_RST	0x518
++#define PERI1_UART1_PRST	0x519
++#define PERI1_UART1_S_RST	0x51A
++#define PERI1_UART2_PRST	0x51B
++#define PERI1_UART2_S_RST	0x51C
++#define PERI1_UART3_PRST	0x51D
++#define PERI1_UART3_S_RST	0x51E
++#define PERI1_X2H_GMAC0_ARST	0x51F
++#define PERI1_X2H_GMAC0_HRST	0x520
++#define PERI1_X2H_GMAC1_ARST	0x521
++#define PERI1_X2H_GMAC1_HRST	0x522
++#define PERI1_DFMU_ARESET	0x523
++#define PERI1_DFMU_PRESET	0x524
++#define PERI1_PAD_CTRL_PRST	0x525
++#define PERI1_PDM0_MRST		0x526
++#define PERI1_PDM0_PRST		0x527
++#define PERI1_TDM0_RST		0x528
++#define PERI1_CAN0_IPG_PE_RST	0x529
++#define PERI1_CAN0_IPG_RST	0x52A
++#define PERI1_CAN0_IPG_SOFT_RST	0x52B
++#define PERI1_CAN0_IPG_TS_RST	0x52C
++#define PERI1_CAN0_PRST		0x52D
++#define PERI1_CAN1_IPG_PE_RST	0x52E
++#define PERI1_CAN1_IPG_RST	0x52F
++#define PERI1_CAN1_IPG_SOFT_RST	0x530
++#define PERI1_CAN1_IPG_TS_RST	0x531
++#define PERI1_CAN1_PRST		0x532
++#define PERI1_CHIP_DBG_ARST	0x533
++#define PERI1_CHIP_DBG_CRST	0x534
++#define PERI1_CHIP_DBG_PRST	0x535
++#define PERI1_GMAC_CRST		0x536
++#define PERI1_X2H_GMAC2_ARST	0x537
++#define PERI1_X2H_GMAC2_HRST	0x538
++#define PERI1_ZGMAC_X2X_ARST	0x539
++
++#define PERI2_CAN2_IPG_PE_RST	0x600
++#define PERI2_CAN2_IPG_RST	0x601
++#define PERI2_CAN2_IPG_SOFT_RST	0x602
++#define PERI2_CAN2_IPG_TS_RST	0x603
++#define PERI2_CAN2_PRST		0x604
++#define PERI2_GPIO2_DBRST	0x605
++#define PERI2_GPIO2_PRST	0x606
++#define PERI2_I2C4_IC_RST	0x607
++#define PERI2_I2C4_PRST		0x608
++#define PERI2_I2S2_PRST		0x609
++#define PERI2_SPI1_PRST		0x60A
++#define PERI2_SPI1_SSI_RST	0x60B
++#define PERI2_UART4_PRST	0x60C
++#define PERI2_UART4_S_RST	0x60D
++#define PERI2_UART5_PRST	0x60E
++#define PERI2_UART5_S_RST	0x60F
++#define PERI2_UART6_PRST	0x610
++#define PERI2_UART6_S_RST	0x611
++#define PERI2_PAD_CTRL_PRST	0x612
++#define PERI2_GPIO3_DBRST	0x613
++#define PERI2_GPIO3_PRST	0x614
++#define PERI2_I2C3_IC_RST	0x615
++#define PERI2_I2C3_PRST		0x616
++#define PERI2_I2C5_IC_RST	0x617
++#define PERI2_I2C5_PRST		0x618
++#define PERI2_I2C6_IC_RST	0x619
++#define PERI2_I2C6_PRST		0x61A
++#define PERI2_I2C7_IC_RST	0x61B
++#define PERI2_I2C7_PRST		0x61C
++#define PERI2_I2S1_PRST		0x61D
++#define PERI2_I2S3_PRST		0x61E
++#define PERI2_UART7_PRST	0x61F
++#define PERI2_UART7_S_RST	0x620
++#define PERI2_UART8_PRST	0x621
++#define PERI2_UART8_S_RST	0x622
++#define PERI2_UART9_PRST	0x623
++#define PERI2_UART9_S_RST	0x624
++#define PERI2_QSPI1_PRST	0x625
++#define PERI2_QSPI1_SSI_RST	0x626
++#define PERI2_PWM1_CRST		0x627
++#define PERI2_PWM1_PRST		0x628
++#define PERI2_PWM2_CRST		0x629
++#define PERI2_PWM2_PRST		0x62A
++
++#define PERI3_DMAC_ARESET	0x700
++#define PERI3_DMAC_HRESET	0x701
++#define PERI3_EMMC_SDIO_CLKGEN_RST	0x702
++#define PERI3_EMMC_RST		0x703
++#define PERI3_EMMC_X2X_ARST_M	0x704
++#define PERI3_EMMC_X2X_ARST_S	0x705
++#define PERI3_SDIO_RST		0x706
++#define PERI3_SDIO_X2X_ARST_M	0x707
++#define PERI3_SDIO_X2X_ARST_S	0x708
++#define PERI3_AXI_MST_ARST	0x709
++#define PERI3_AXI_MST_PRST	0x70A
++#define PERI3_ADC_PRST		0x70B
++#define PERI3_TEE_X2X_ARST_M	0x70C
++#define PERI3_TEE_X2X_ARST_S	0x70D
++#define PERI3_TEE_H2H_HRST	0x70E
++#define PERI3_GPIO4_DBRST	0x70F
++#define PERI3_GPIO4_PRST	0x710
++#define PERI3_PAD_CTRL_PRST	0x711
++
++/* pcie common */
++#define PCIE_X2X_PERI_SLV_ARST	0x800
++#define PCIE_X2X_PERI_MST_ARST	0x801
++#define PCIE_AXI4_PCIE_MST_ARST	0x802
++#define PCIE_AXI4_PCIE_MST_PRST	0x803
++#define PCIE_DFMU_PRST		0x804
++#define PCIE_DFMU_ARST		0x805
++#define PCIE_E16PHY_PHY_RST	0x806
++#define PCIE_E16PHY_APBS_PRST	0x807
++#define PCIE_X2X_SATA_MST_ARST	0x808
++#define PCIE_X2X_SATA_SLV_ARST	0x809
++/* sata */
++#define PCIE_SATA_ARESET	0x80A
++#define PCIE_SATA_RST_PMALIVE	0x80B
++#define PCIE_SATA_SLV_AFENCE_ARST	0x80C
++#define PCIE_SATA_MST_AFENCE_ARST	0x80D
++#define PCIE_SATA_RST_ASIC0	0x80E
++#define PCIE_SATA_RST_ASIC1	0x80F
++#define PCIE_SATA_RST_RXOOB0	0x810
++#define PCIE_SATA_RST_RXOOB1	0x811
++/* pcie0 */
++#define PCIE_DM_GEN3X4_APBS_PRST	0x812
++#define PCIE_DM_GEN3X4_POWER_UP_RST	0x813
++#define PCIE_DM_SLV_AFENCE_ARST	0x814
++#define PCIE_DM_MST_AFENCE_ARST	0x815
++/* pcie1 */
++#define PCIE_RP_GEN3X1_APBS_PRST	0x816
++#define PCIE_RP_GEN3X1_POWER_UP_RST	0x817
++#define PCIE_RP_SLV_AFENCE_ARST	0x818
++#define PCIE_RP_MST_AFENCE_ARST	0x819
++
++#define USB_DFMU_PRST		0x900
++#define USB_DFMU_ARST		0x901
++#define USB_AXI4_MST_ARST	0x902
++#define USB_AXI4_MST_PRST	0x903
++#define USB_DPTX_APBS_PRST	0x904
++#define USB_DPTX_VCC_RST	0x905
++#define USB_USB31_APBS_PRST	0x906
++#define USB_USB31_VCC_RST	0x907
++#define USB_USB31_PHY_RST	0x908
++#define USB_USB31_SLV_AFENCE_ARST	0x909
++#define USB_C10PHY_PHY_RST	0x90A
++#define USB_C10PHY_APBS_PRST	0x90B
++#define USB_USB20_BLK_X2H_HRST	0x90C
++#define USB_USB20_BLK_X2H_ARST	0x90D
++#define USB_USB20_SLV_AFENCE_ARST	0x90E
++#define USB_USB20_BLK_H2P_HRST	0x90F
++#define USB_USB20_BLK_AHB_SLV_HRST	0x910
++#define USB_USB20_BLK_AXI_MST_ARST	0x911
++#define USB_USB20_BLK_USB2_SYSREG_PRST	0x912
++#define USB_USB20_BLK_USB2_WRAP0_PRST	0x913
++#define USB_USB20_BLK_USB2_WRAP0_HRST	0x914
++#define USB_USB20_BLK_USB2_WRAP1_PRST	0x915
++#define USB_USB20_BLK_USB2_WRAP1_HRST	0x916
++#define USB_USB20_BLK_A2X0_HRST	0x917
++#define USB_USB20_BLK_A2X0_ARST	0x918
++#define USB_USB20_BLK_A2X1_HRST	0x919
++#define USB_USB20_BLK_A2X1_ARST	0x91A
++#define USB_USB20_BLK_USB0_PHY_PON_RESET	0x91B
++#define USB_USB20_BLK_USB1_PHY_PON_RESET	0x91C
++#define USB_PERI2_SS_RST	0x91D
++#define USB_PERI2_SLV_AFENCE_ARST	0x91E
++
++#define TEE_KEYRAM_PRST		0xA00
++#define TEE_DS_PRST		0xA01
++#define TEE_EFUSE_PRST		0xA02
++#define TEE_OCRAM_HRST		0xA03
++#define TEE_SYSREG_PRST		0xA04
++#define TEE_CCU_PRST		0xA05
++#define TEE_CCU_CRST		0xA06
++#define TEE_EIP150B_HRST	0xA07
++#define TEE_EIP120SIII_HRST	0xA08
++#define TEE_EIP120SIII_ARST	0xA09
++#define TEE_EIP120SII_HRST	0xA0A
++#define TEE_EIP120SII_ARST	0xA0B
++#define TEE_EIP120SI_HRST	0xA0C
++#define TEE_EIP120SI_ARST	0xA0D
++#define TEE_DMAC_HRST		0xA0E
++#define TEE_DMAC_ARST		0xA0F
++#define TEE_X2P_TEESYS_PRST	0xA10
++#define TEE_X2P_TEESYS_ARST	0xA11
++#define TEE_AXI4_TEESYS_ARST	0xA12
++#define TEE_APB3_TEESYS_PRST	0xA13
++#define TEE_APB3_TEESYS_HRST	0xA14
++#define TEE_AHB2_TEESYS_HRST	0xA15
++
++#define GPU_PWR_WRAP_RGX_HOOD_RST	0xB00
++#define GPU_PWR_WRAP_DFMU_RST	0xB01
++
++#define A210_RESETS_MAX		0xB02
++
++#endif
+diff --git a/include/dt-bindings/soc/th1520_system_status.h b/include/dt-bindings/soc/th1520_system_status.h
+new file mode 100644
+index 0000000000000..f1a707fa5f19b
+--- /dev/null
++++ b/include/dt-bindings/soc/th1520_system_status.h
+@@ -0,0 +1,38 @@
++
++#ifndef _DT_BINDINGS_SOC_TH1520_SYSTEM_STATUS_H
++#define _DT_BINDINGS_SOC_TH1520_SYSTEM_STATUS_H
++
++#define SYS_STATUS_NORMAL (1 << 0)
++#define SYS_STATUS_VIDEO_1080P (1 << 1)
++#define SYS_STATUS_VIDEO_1080P_60F (1 << 2)
++#define SYS_STATUS_VIDEO_2K (1 << 3)
++#define SYS_STATUS_VIDEO_2K_60F (1 << 4)
++#define SYS_STATUS_VIDEO_4K (1 << 5)
++#define SYS_STATUS_VIDEO_4K_60F (1 << 6)
++#define SYS_STATUS_VSYNC (1 << 7)
++#define SYS_STATUS_DSP (1 << 8)
++#define SYS_STATUS_DPU (1 << 9)
++#define SYS_STATUS_LAUNCH (1 << 10)
++#define SYS_STATUS_PERFORMANCE (1 << 11)
++
++#define DEV_STATUS_OFFSET	12
++
++#define DEV_STATUS_LOW		(1 << (DEV_STATUS_OFFSET + 0))
++#define DEV_STATUS_MEDIUM	(1 << (DEV_STATUS_OFFSET + 1))
++#define DEV_STATUS_HIGH		(1 << (DEV_STATUS_OFFSET + 2))
++
++#define DEV_STATUS_MASK		(DEV_STATUS_LOW | DEV_STATUS_MEDIUM | DEV_STATUS_HIGH)
++
++#define SYS_STATUS_VIDEO2K_LIMIT (SYS_STATUS_VIDEO_2K | \
++					SYS_STATUS_VIDEO_2K_60F)
++
++#define SYS_STATUS_VIDEO4K_LIMIT (SYS_STATUS_VIDEO_4K | \
++					SYS_STATUS_VIDEO_4K_60F)
++
++#define SYS_STATUS_VIDEO_LIMIT (SYS_STATUS_VIDEO_1080P_60F | \
++					SYS_STATUS_VIDEO2K_LIMIT | \
++					SYS_STATUS_VIDEO4K_LIMIT)
++
++#define SYS_STATUS_CPU (SYS_STATUS_LAUNCH)
++
++#endif
+diff --git a/include/dt-bindings/soc/xuantie,th1520-iopmp.h b/include/dt-bindings/soc/xuantie,th1520-iopmp.h
+new file mode 100644
+index 0000000000000..c0370797443fe
+--- /dev/null
++++ b/include/dt-bindings/soc/xuantie,th1520-iopmp.h
+@@ -0,0 +1,41 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Copyright (C) 2021-2024 Alibaba Group Holding Limited.
++ */
++
++
++#ifndef __DT_XUANTIE_TH1520_IOPMP_H__
++#define __DT_XUANTIE_TH1520_IOPMP_H__
++
++#define IOPMP_EMMC	0
++#define IOPMP_SDIO0	1
++#define IOPMP_SDIO1	2
++#define IOPMP_USB0	3
++#define IOPMP_AO	4
++#define IOPMP_AUD	5
++#define IOPMP_CHIP_DBG	6
++#define IOPMP_EIP120I	7
++#define IOPMP_EIP120II	8
++#define IOPMP_EIP120III	9
++#define IOPMP_ISP0	10
++#define IOPMP_ISP1	11
++#define IOPMP_DW200	12
++#define IOPMP_VIPRE	13
++#define IOPMP_VENC	14
++#define IOPMP_VDEC	15
++#define IOPMP_G2D	16
++#define IOPMP_FCE	17
++#define IOPMP_NPU	18
++#define IOPMP0_DPU	19
++#define IOPMP1_DPU	20
++#define IOPMP_GPU	21
++#define IOPMP_GMAC1	22
++#define IOPMP_GMAC2	23
++#define IOPMP_DMAC	24
++#define IOPMP_TEE_DMAC	25
++#define IOPMP_DSP0	26
++#define IOPMP_DSP1	27
++#define IOPMP_AUDIO0	28
++#define IOPMP_AUDIO1	29
++
++#endif /* __DT_XUANTIE_TH1520_IOPMP_H__ */
+-- 
+2.43.0
+

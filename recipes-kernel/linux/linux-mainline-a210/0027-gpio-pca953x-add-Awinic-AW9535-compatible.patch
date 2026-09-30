@@ -1,0 +1,51 @@
+From 6625785da65d985e4bc4f44365dc133ad183db89 Mon Sep 17 00:00:00 2001
+From: Lance Albertson <lance@osuosl.org>
+Date: Tue, 16 Jun 2026 15:26:01 -0700
+Subject: [PATCH 27/31] gpio: pca953x: add Awinic AW9535 compatible
+
+The A210 board wires two AW9535 I2C GPIO expanders (awinic,aw9535 at
+0x20/0x21) that supply the enable-GPIOs for the WiFi (3v3/1v8), USB2 vbus
+and LCD/touch fixed-voltage regulators. The AW9535 is register-compatible
+with the PCA9535 (16-bit, with interrupt), and the vendor tree drove it by
+adding an awinic,aw9535 match to this driver -- but that delta was lost in
+the 6.6.x->mainline port, so the expander never probed.
+
+Without it, every regulator referencing the expander sits in deferred
+probe forever ("reg-fixed-voltage: can't get GPIO"), which cascades:
+the SDIO host (510000.sd) can't power the rtl8822cs, so WiFi never
+enumerates, and both USB2 controllers stall on their vbus supplies.
+
+Re-add the awinic,aw9535 entry (I2C id + OF match), mapping it to
+OF_953X(16, PCA_INT) exactly as the vendor did.
+
+Co-developed-by: Claude Opus 4.8 <noreply@anthropic.com>
+Signed-off-by: Lance Albertson <lance@osuosl.org>
+Upstream-Status: Pending
+---
+ drivers/gpio/gpio-pca953x.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/gpio/gpio-pca953x.c b/drivers/gpio/gpio-pca953x.c
+index aac9ea7520b60..426558958f862 100644
+--- a/drivers/gpio/gpio-pca953x.c
++++ b/drivers/gpio/gpio-pca953x.c
+@@ -91,6 +91,8 @@ static const struct i2c_device_id pca953x_id[] = {
+ 	{ .name = "pca9506", .driver_data = 40 | PCA953X_TYPE | PCA_INT },
+ 	{ .name = "pca9534", .driver_data = 8  | PCA953X_TYPE | PCA_INT },
+ 	{ .name = "pca9535", .driver_data = 16 | PCA953X_TYPE | PCA_INT },
++	/* Awinic AW9535: PCA9535-register-compatible 16-bit I2C GPIO expander */
++	{ .name = "aw9535", .driver_data = 16 | PCA953X_TYPE | PCA_INT },
+ 	{ .name = "pca9536", .driver_data = 4  | PCA953X_TYPE },
+ 	{ .name = "pca9537", .driver_data = 4  | PCA953X_TYPE | PCA_INT },
+ 	{ .name = "pca9538", .driver_data = 8  | PCA953X_TYPE | PCA_INT },
+@@ -1452,6 +1454,7 @@ static const struct of_device_id pca953x_dt_ids[] = {
+ 	{ .compatible = "nxp,pca9506", .data = OF_953X(40, PCA_INT), },
+ 	{ .compatible = "nxp,pca9534", .data = OF_953X( 8, PCA_INT), },
+ 	{ .compatible = "nxp,pca9535", .data = OF_953X(16, PCA_INT), },
++	{ .compatible = "awinic,aw9535", .data = OF_953X(16, PCA_INT), },
+ 	{ .compatible = "nxp,pca9536", .data = OF_953X( 4, 0), },
+ 	{ .compatible = "nxp,pca9537", .data = OF_953X( 4, PCA_INT), },
+ 	{ .compatible = "nxp,pca9538", .data = OF_953X( 8, PCA_INT), },
+-- 
+2.43.0
+

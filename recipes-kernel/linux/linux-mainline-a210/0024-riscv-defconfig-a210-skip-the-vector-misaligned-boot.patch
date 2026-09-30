@@ -1,0 +1,53 @@
+From bf628fe5515ea13a3ba368111cf982a1f59ca496 Mon Sep 17 00:00:00 2001
+From: Lance Albertson <lance@osuosl.org>
+Date: Mon, 15 Jun 2026 16:08:18 -0700
+Subject: [PATCH 24/31] riscv: defconfig: a210: skip the vector-misaligned boot
+ probe
+
+v7.1 enables RISCV_PROBE_VECTOR_UNALIGNED_ACCESS by default, which runs a
+boot-time benchmark (schedule_on_each_cpu -> check_vector_unaligned_access)
+that executes misaligned vector loads/stores on every CPU to classify their
+speed. On the A210's heterogeneous XuanTie cluster (C908 + C920) this wedges
+a core partway through: the probe completes and reports "slow" on the first
+CPUs, then one core hangs executing the misaligned vector access, the
+schedule_on_each_cpu sync never finishes, and the box dies with an RCU
+expedited-grace-period soft lockup before reaching userspace:
+
+  watchdog: BUG: soft lockup - CPU#4 stuck for 70s! [rcu_exp_gp_kthr:17]
+   smp_call_function_single -> __sync_rcu_exp_select_node_cpus
+  rcu: Possible timer handling issue on cpu=6 ... timer wakeup didn't happen
+
+Select RISCV_SLOW_VECTOR_UNALIGNED_ACCESS instead: keep RISCV_ISA_V enabled
+but assume slow misaligned vector access (matching what the cores that did
+finish the probe reported) rather than probing for it. No boot probe, no
+hang; hwprobe reports vector misaligned as slow.
+
+Equivalent runtime workaround for testing: boot with
+"unaligned_vector_speed=slow".
+
+Co-developed-by: Claude Opus 4.8 <noreply@anthropic.com>
+Signed-off-by: Claude Opus 4.8 <noreply@anthropic.com>
+Signed-off-by: Lance Albertson <lance@osuosl.org>
+Upstream-Status: Pending
+---
+ arch/riscv/configs/a210_evb_defconfig | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/arch/riscv/configs/a210_evb_defconfig b/arch/riscv/configs/a210_evb_defconfig
+index e557444529077..958870accf304 100644
+--- a/arch/riscv/configs/a210_evb_defconfig
++++ b/arch/riscv/configs/a210_evb_defconfig
+@@ -46,6 +46,10 @@ CONFIG_SMP=y
+ CONFIG_NR_CPUS=16
+ CONFIG_NUMA=y
+ CONFIG_XUANTIE_ISA=y
++# v7.1's boot-time vector-misaligned probe (RISCV_PROBE_VECTOR_UNALIGNED_ACCESS)
++# wedges a XuanTie core on the A210, hanging SMP/RCU. Assume slow instead of
++# probing (matches what the cores that completed the probe reported).
++CONFIG_RISCV_SLOW_VECTOR_UNALIGNED_ACCESS=y
+ CONFIG_RISCV_SBI_V01=y
+ # CONFIG_SUSPEND is not set
+ CONFIG_PM=y
+-- 
+2.43.0
+

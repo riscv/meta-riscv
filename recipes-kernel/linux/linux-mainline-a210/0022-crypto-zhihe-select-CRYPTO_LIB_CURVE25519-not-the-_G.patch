@@ -1,0 +1,44 @@
+From 276220424e46c27d073a4db25ec0a2dcb971849f Mon Sep 17 00:00:00 2001
+From: Lance Albertson <lance@osuosl.org>
+Date: Mon, 15 Jun 2026 13:51:36 -0700
+Subject: [PATCH 22/31] crypto: zhihe - select CRYPTO_LIB_CURVE25519 not the
+ _GENERIC symbol
+
+CRYPTO_DEV_ZHIHE selected CRYPTO_LIB_CURVE25519_GENERIC directly. That
+symbol is a bool that "depends on CRYPTO_LIB_CURVE25519" and is meant to
+default-enable once the library is selected; selecting it without the
+library it depends on triggers, at every olddefconfig:
+
+  WARNING: unmet direct dependencies detected for CRYPTO_LIB_CURVE25519_GENERIC
+    Depends on [n]: CRYPTO_LIB_CURVE25519 [=n]
+    Selected by [m]: CRYPTO_DEV_ZHIHE [=m] && ...
+
+Select the library symbol CRYPTO_LIB_CURVE25519 instead; the _GENERIC
+implementation then enables itself via its own default. No functional
+change to the resulting config (CURVE25519_GENERIC still =y), the spurious
+unmet-dependency warning is gone.
+
+Co-developed-by: Claude Opus 4.8 <noreply@anthropic.com>
+Signed-off-by: Claude Opus 4.8 <noreply@anthropic.com>
+Signed-off-by: Lance Albertson <lance@osuosl.org>
+Upstream-Status: Pending
+---
+ drivers/crypto/zhihe/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/crypto/zhihe/Kconfig b/drivers/crypto/zhihe/Kconfig
+index cc660bbabe6d5..438cd49f9605f 100644
+--- a/drivers/crypto/zhihe/Kconfig
++++ b/drivers/crypto/zhihe/Kconfig
+@@ -26,7 +26,7 @@ config CRYPTO_DEV_ZHIHE
+ 	select CRYPTO_SM3
+ 	select CRYPTO_SM3_GENERIC
+ 	select CRYPTO_HMAC
+-	select CRYPTO_LIB_CURVE25519_GENERIC
++	select CRYPTO_LIB_CURVE25519
+ 	select CRYPTO_LIB_DES
+ 	select CRYPTO_USER
+ 	select CRYPTO_USER_API
+-- 
+2.43.0
+
