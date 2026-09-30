@@ -1,0 +1,41 @@
+From 5397ba147c28427d3728812dec999fdab0f53619 Mon Sep 17 00:00:00 2001
+From: Junhui Liu <junhui.liu@pigmoral.tech>
+Date: Fri, 18 Sep 2026 00:29:36 +0800
+Subject: [PATCH] dt-bindings: timer: sifive,clint: Remove spacemit,k3-clint
+
+The SpacemiT K3 implements separate ACLINT MSWI, MTIMER and SSWI
+devices. The existing spacemit,k3-clint compatible incorrectly describes
+the SSWI register space as a legacy CLINT.
+
+Remove this compatible, as it never matched the actual hardware and
+has no remaining users.
+
+Fixes: 6cdeb30db4d8 ("dt-bindings: timer: add SpacemiT K3 CLINT")
+Signed-off-by: Junhui Liu <junhui.liu@pigmoral.tech>
+Acked-by: Rob Herring (Arm) <robh@kernel.org>
+Reviewed-by: Yixun Lan <dlan@kernel.org>
+Link: https://patch.msgid.link/20260918-k3-aclint-v3-4-cf4fd4050e14@pigmoral.tech
+Signed-off-by: Yixun Lan <dlan@kernel.org>
+
+Upstream-Status: Backport [https://git.kernel.org/pub/scm/linux/kernel/git/spacemit/linux.git/commit/?id=5397ba147c28427d3728812dec999fdab0f53619]
+
+Signed-off-by: Trevor Gamblin <tgamblin@baylibre.com>
+---
+ Documentation/devicetree/bindings/timer/sifive,clint.yaml | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/Documentation/devicetree/bindings/timer/sifive,clint.yaml b/Documentation/devicetree/bindings/timer/sifive,clint.yaml
+index 3673836e14de..d53f52e80d88 100644
+--- a/Documentation/devicetree/bindings/timer/sifive,clint.yaml
++++ b/Documentation/devicetree/bindings/timer/sifive,clint.yaml
+@@ -34,7 +34,6 @@ properties:
+               - microchip,pic64gx-clint # Microchip PIC64GX
+               - sifive,fu540-c000-clint # SiFive FU540
+               - spacemit,k1-clint       # SpacemiT K1
+-              - spacemit,k3-clint       # SpacemiT K3
+               - starfive,jh7100-clint   # StarFive JH7100
+               - starfive,jh7110-clint   # StarFive JH7110
+               - starfive,jh8100-clint   # StarFive JH8100
+-- 
+2.56.0
+

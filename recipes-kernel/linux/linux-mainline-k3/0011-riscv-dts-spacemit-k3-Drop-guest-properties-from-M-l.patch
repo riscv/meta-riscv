@@ -1,0 +1,56 @@
+From 01e2f07c44fc46180bdb10e70506f8acf44a53dd Mon Sep 17 00:00:00 2001
+From: Junhui Liu <junhui.liu@pigmoral.tech>
+Date: Wed, 29 Jul 2026 00:40:15 +0800
+Subject: [PATCH] riscv: dts: spacemit: k3: Drop guest properties from M-level
+ IMSIC
+
+The mimsic node describes the machine-level IMSIC, whose MMIO region is
+0x10000 (64 KiB) for all 8 harts. However, the node also specifies
+riscv,guest-index-bits = <6>, and per the AIA specification the
+per-hart stride is 2^(guest-index-bits + 12) bytes when guest interrupt
+files exist, i.e. 2^(6 + 12) = 256 KiB per hart and 2 MiB for all 8
+harts. The described region cannot hold even a single hart's files, so
+the node contradicts itself. OpenSBI enforces exactly this constraint in
+imsic_data_check() and rejects the node with -EINVAL, preventing the
+M-level IMSIC from initializing:
+
+  fdt_driver_init_by_offset: interrupt-controller@f1000000 (riscv,imsics) init failed: -3
+  init_coldboot: irqchip init failed (error -3)
+
+Moreover, guest interrupt files exist to act as the supervisor-level
+interrupt files of virtual harts; there is no machine-level counterpart.
+riscv,num-guest-ids is equally meaningless for the machine-level IMSIC.
+
+Drop both "riscv,guest-index-bits" and "riscv,num-guest-ids" properties
+from the mimsic node so the node matches the actual hardware layout.
+
+Fixes: 56f37e391a62 ("riscv: dts: spacemit: add initial support for K3 SoC")
+Signed-off-by: Junhui Liu <junhui.liu@pigmoral.tech>
+Reviewed-by: Yixun Lan <dlan@kernel.org>
+Link: https://patch.msgid.link/20260729-k3-mimsic-fix-v1-1-368c0aec04b9@pigmoral.tech
+Signed-off-by: Yixun Lan <dlan@kernel.org>
+
+Upstream-Status: Backport [https://git.kernel.org/pub/scm/linux/kernel/git/spacemit/linux.git/commit/?id=01e2f07c44fc46180bdb10e70506f8acf44a53dd]
+
+Signed-off-by: Trevor Gamblin <tgamblin@baylibre.com>
+---
+ arch/riscv/boot/dts/spacemit/k3.dtsi | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/arch/riscv/boot/dts/spacemit/k3.dtsi b/arch/riscv/boot/dts/spacemit/k3.dtsi
+index c3f2dce0969c..2d022e1364f1 100644
+--- a/arch/riscv/boot/dts/spacemit/k3.dtsi
++++ b/arch/riscv/boot/dts/spacemit/k3.dtsi
+@@ -1287,9 +1287,7 @@ mimsic: interrupt-controller@f1000000 {
+ 					      <&cpu4_intc 11>, <&cpu5_intc 11>,
+ 					      <&cpu6_intc 11>, <&cpu7_intc 11>;
+ 			msi-controller;
+-			riscv,guest-index-bits = <6>;
+ 			riscv,hart-index-bits = <4>;
+-			riscv,num-guest-ids = <511>;
+ 			riscv,num-ids = <511>;
+ 			status = "reserved";
+ 		};
+-- 
+2.56.0
+
