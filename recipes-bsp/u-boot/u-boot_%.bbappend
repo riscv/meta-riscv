@@ -4,9 +4,6 @@
 ###########################################################################
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
-FILESEXTRAPATHS:prepend:milkv-duo := "${THISDIR}/files/milkv-duo:"
-FILESEXTRAPATHS:prepend:milkv-duo256m := "${THISDIR}/files/milkv-duo:"
-FILESEXTRAPATHS:prepend:milkv-duos := "${THISDIR}/files/milkv-duo:"
 
 DEPENDS:append = " u-boot-tools-native"
 DEPENDS:append:milkv-duo = " xxd-native"
@@ -44,30 +41,6 @@ SRC_URI:append:orangepi-r2s = " \
             file://0001-arch-riscv-k1-hot-fix-for-RAM-detection-for-boards-w.patch \
             "
 
-SRC_URI:milkv-duo = " \
-            git://github.com/milkv-duo/milkv-duo-u-boot;protocol=https;branch=duo-64mb \
-            file://uboot-milkv-duo.env \
-            file://uEnv-milkv-duo.txt \
-            file://mmap_conv.py \
-            file://memmap.py \
-            file://milkv-duo-support-files.patch \
-            file://0001-skip-cvitek-board-init.patch \
-            file://0002-Add-milkv-boards-dtbs.patch \
-            "
-
-SRC_URI:append:milkv-duo256m = " \
-    file://milkv-duo256m.cfg \
-"
-
-SRC_URI:append:milkv-duos = " \
-    file://milkv-duos.cfg \
-"
-
-SRCREV:milkv-duo = "4345a29c08e67044021f74139b4ff307019e9932"
-LIC_FILES_CHKSUM:milkv-duo = "file://Licenses/README;md5=5a7450c57ffe5ae63fd732446b988025"
-
-PV:milkv-duo = "2021.10"
-
 ###############################
 # configure task customizations
 ###############################
@@ -81,30 +54,18 @@ do_configure:prepend:freedom-u540() {
     fi
 }
 
-do_configure:prepend:milkv-duo() {
-    python3 ${UNPACKDIR}/mmap_conv.py --type h \
-        ${UNPACKDIR}/memmap.py \
-        ${S}/include/configs/cvi_board_memmap.h
-
-    if [ -f "${UNPACKDIR}/uboot-milkv-duo.env" ]; then
-        cp ${UNPACKDIR}/uboot-milkv-duo.env ${S}/include/milkv-duo.env
-    fi
-}
-
 #############################
 # compile task customizations
 #############################
 
 # Only add opensbi dependency if opensbi is in image deps.
 # Some machines are an exception because opensbi uses output from u-boot.
-# milkv-duo uses the dtb that u-boot generates and beaglev-fire embeds
-# u-boot.bin as the opensbi payload.
+# beaglev-fire embeds u-boot.bin as the opensbi payload.
 
 _DEPS = ""
 _DEPS:riscv32 = "opensbi:do_deploy"
 _DEPS:riscv64 = "opensbi:do_deploy"
 _DEPS:beaglev-fire = ""
-_DEPS:milkv-duo = ""
 _DEPS:append:th1520 = " firmware-ddr-training-th1520:do_deploy" 
 
 do_compile[depends] += "${_DEPS}"
@@ -151,14 +112,6 @@ do_deploy:append:k1() {
     install -m 644 ${B}/u-boot.itb ${DEPLOYDIR}/
     install -m 644 ${B}/u-boot-nodtb.bin ${DEPLOYDIR}/
     install -m 644 ${B}/u-boot.dtb ${DEPLOYDIR}/
-}
-
-do_deploy:append:milkv-duo() {
-    if [ -f "${UNPACKDIR}/uEnv-milkv-duo.txt" ]; then
-        cp ${UNPACKDIR}/uEnv-milkv-duo.txt ${DEPLOYDIR}/uEnv.txt
-    fi
-    install -m 0644 ${B}/u-boot.dtb ${DEPLOYDIR}
-    install -m 0644 ${S}/include/configs/cvi_board_memmap.h ${DEPLOYDIR}
 }
 
 do_deploy:append:visionfive2() {
