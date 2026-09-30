@@ -1,6 +1,7 @@
-SUMMARY = "U-Boot for Milk-V Duo boards (vendor fork)"
-DESCRIPTION = "Downstream U-Boot fork used by the Milk-V Duo boards (duo, \
-duo256m and duos), kept out of u-boot_%.bbappend."
+SUMMARY = "U-Boot for Milk-V Duo S (vendor fork)"
+DESCRIPTION = "Downstream U-Boot fork used by the Milk-V Duo S (SG2000), which \
+has no upstream U-Boot support. Other Milk-V Duo boards use upstream U-Boot \
+through u-boot_%.bbappend."
 
 require recipes-bsp/u-boot/u-boot-common.inc
 require recipes-bsp/u-boot/u-boot.inc
@@ -25,10 +26,8 @@ SRC_URI = "git://github.com/milkv-duo/milkv-duo-u-boot;protocol=https;branch=duo
            file://milkv-duo-support-files.patch \
            file://0001-skip-cvitek-board-init.patch \
            file://0002-Add-milkv-boards-dtbs.patch \
+           file://milkv-duos.cfg \
            "
-
-SRC_URI:append:milkv-duo256m = " file://milkv-duo256m.cfg"
-SRC_URI:append:milkv-duos = " file://milkv-duos.cfg"
 
 SRC_URI_RISCV = "file://u-boot-riscv-isa_clear.cfg \
                  ${@bb.utils.contains    ("TUNE_FEATURES", "a",      "file://u-boot-riscv-isa_a.cfg", "", d)} \
@@ -64,4 +63,4 @@ do_deploy:append() {
     install -m 0644 ${S}/include/configs/cvi_board_memmap.h ${DEPLOYDIR}
 }
 
-COMPATIBLE_MACHINE = "milkv-duo-common"
+COMPATIBLE_MACHINE = "milkv-duos"

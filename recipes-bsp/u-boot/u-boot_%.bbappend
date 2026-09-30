@@ -37,6 +37,20 @@ SRC_URI:append:k1 = " \
             file://bootcommand.cfg \
             "
 
+# Upstream U-Boot patches for the Milk-V Duo boards. duos uses the vendor fork,
+# see u-boot-milkv-duo_2021.10.bb.
+SRC_URI:append:milkv-duo-common = "file://0001-mmc-cv1800b_sdhci-honor-no-1-8-v-DT-property.patch \
+                                   file://0002-board-sophgo-move-ethernet-driver-to-common-director.patch \
+                                   file://0003-board-sophgo-add-support-for-Milk-V-Duo-256M.patch \
+                                   file://0001-board-sophgo-milkv_duo-add-environment-for-standard-.patch \
+                                   file://0002-configs-milkv_duo-enable-BOOTSTD_DEFAULTS.patch \
+                                   file://0003-configs-milkv_duo-reduce-CONFIG_STACK_SIZE-to-1MB.patch \
+                                   file://0002-riscv-cpu-cv1800b-keep-U-Boot-out-of-reserved-memory.patch \
+                                   file://0001-mmc-cv1800b_sdhci-configure-SDHCI-PHY.patch \
+                                   "
+
+SRC_URI:append:milkv-duo256m = " file://0001-board-sophgo-milkv_duo_256m-fix-fdtfile-quoting.patch"
+
 SRC_URI:append:orangepi-r2s = " \
             file://0001-arch-riscv-k1-hot-fix-for-RAM-detection-for-boards-w.patch \
             "
@@ -60,12 +74,14 @@ do_configure:prepend:freedom-u540() {
 
 # Only add opensbi dependency if opensbi is in image deps.
 # Some machines are an exception because opensbi uses output from u-boot.
-# beaglev-fire embeds u-boot.bin as the opensbi payload.
+# milkv-duo uses the dtb that u-boot generates and beaglev-fire embeds
+# u-boot.bin as the opensbi payload.
 
 _DEPS = ""
 _DEPS:riscv32 = "opensbi:do_deploy"
 _DEPS:riscv64 = "opensbi:do_deploy"
 _DEPS:beaglev-fire = ""
+_DEPS:milkv-duo-common = ""
 _DEPS:append:th1520 = " firmware-ddr-training-th1520:do_deploy" 
 
 do_compile[depends] += "${_DEPS}"
@@ -112,6 +128,11 @@ do_deploy:append:k1() {
     install -m 644 ${B}/u-boot.itb ${DEPLOYDIR}/
     install -m 644 ${B}/u-boot-nodtb.bin ${DEPLOYDIR}/
     install -m 644 ${B}/u-boot.dtb ${DEPLOYDIR}/
+}
+
+do_deploy:append:milkv-duo-common() {
+    install -m 0644 ${B}/u-boot.dtb ${DEPLOYDIR}
+    install -m 0644 ${B}/.config ${DEPLOYDIR}/u-boot.config
 }
 
 do_deploy:append:visionfive2() {
