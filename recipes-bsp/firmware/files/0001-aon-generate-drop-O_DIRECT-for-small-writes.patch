@@ -1,14 +1,14 @@
 From: Adn Elkawass <elkawasadn@gmail.com>
 Subject: [PATCH] aon-generate: drop O_DIRECT for small writes
 
-aon-generate.sh writes small values while constructing the ELF header.
-Using O_DIRECT for these writes can result in an incomplete ELF when the
-helper is run during the BitBake build.
+aon-generate.sh writes ELF header fields using dd with bs=1.
+O_DIRECT requires the I/O buffer, offset, and length to satisfy the
+underlying filesystem alignment requirements, so these byte-granularity
+writes can fail with EINVAL and leave the generated ELF incomplete.
 
-Drop oflag=direct and use normal buffered writes instead.
+Drop oflag=direct and use normal buffered writes for these small writes.
 
 Upstream-Status: Pending [not yet submitted upstream]
-AI-Generated: Uses OpenAI ChatGPT
 Signed-off-by: Adn Elkawass <elkawasadn@gmail.com>
 ---
  aon-generate.sh | 2 +-
