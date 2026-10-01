@@ -4,12 +4,19 @@ Date: Wed, 1 Oct 2025 03:02:39 +0000
 Subject: [PATCH] remoteproc: th1520: support firmware loading for E902 core
 
 Add remoteproc support for the TH1520 E902 AON core. Program the ELF
-entry address, load the ELF32 firmware into the E902 SRAM window, and
+entry address, load the ELF32 firmware into the E902 memory window, and
 control the E902 core and HAD reset lines.
 
 Adapt device_to_virt() to the current U-Boot remoteproc API and
-translate E902 device addresses to the C910-visible SRAM alias while
-preserving offsets and rejecting mappings outside the SRAM window.
+translate E902 device addresses to the C910-visible memory alias while
+preserving offsets and rejecting mappings outside the valid E902
+memory window.
+
+According to the TH1520 System User Manual E902 address map, AO_SRAM
+covers 0xffef8000-0xffefffff (32 KiB) and STR_MEM covers
+0xfff00000-0xfff07fff (32 KiB). These regions are contiguous and form
+the 64 KiB E902 memory window used here. The corresponding C910-visible
+window starts at 0xffffef8000.
 
 Upstream-Status: Pending
 Signed-off-by: Yao Zi <ziyao@disroot.org>
@@ -20,8 +27,8 @@ Signed-off-by: Adn Elkawass <elkawasadn@gmail.com>
 ---
  drivers/remoteproc/Kconfig              |  10 ++
  drivers/remoteproc/Makefile             |   1 +
- drivers/remoteproc/thead_th1520_rproc.c | 130 ++++++++++++++++++++++++
- 3 files changed, 141 insertions(+)
+ drivers/remoteproc/thead_th1520_rproc.c | 137 ++++++++++++++++++++++++
+ 3 files changed, 148 insertions(+)
  create mode 100644 drivers/remoteproc/thead_th1520_rproc.c
 
 diff --git a/drivers/remoteproc/Kconfig b/drivers/remoteproc/Kconfig
@@ -59,10 +66,10 @@ index 250915d0de4..6d7fbe95930 100644
  obj-$(CONFIG_REMOTEPROC_TI_K3_M4F) += ti_k3_m4_rproc.o
 diff --git a/drivers/remoteproc/thead_th1520_rproc.c b/drivers/remoteproc/thead_th1520_rproc.c
 new file mode 100644
-index 00000000000..665e40bd6d9
+index 0000000..a64b32b
 --- /dev/null
 +++ b/drivers/remoteproc/thead_th1520_rproc.c
-@@ -0,0 +1,130 @@
+@@ -0,0 +1,137 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * Remoteproc support for E902 core in T-Head TH1520 SoC
@@ -82,9 +89,16 @@ index 00000000000..665e40bd6d9
 +};
 +
 +#define TH1520_E902_RST_ADDR		0x44
++
++/*
++ * TH1520 E902 memory map:
++ * 0xffef8000 - 0xffefffff: AO_SRAM (32 KiB)
++ * 0xfff00000 - 0xfff07fff: STR_MEM (32 KiB)
++ * The C910 sees the same window starting at 0xffffef8000.
++ */
 +#define TH1520_E902_DA_BASE		0xffef8000UL
 +#define TH1520_E902_CPU_BASE		0xffffef8000UL
-+#define TH1520_E902_SRAM_SIZE		0x10000UL
++#define TH1520_E902_MEM_SIZE		0x10000UL
 +
 +static void *th1520_rproc_device_to_virt(struct udevice *dev, ulong da,
 +					 ulong size, bool *is_iomem)
@@ -92,12 +106,12 @@ index 00000000000..665e40bd6d9
 +	ulong offset;
 +
 +	if (da < TH1520_E902_DA_BASE ||
-+	    da >= TH1520_E902_DA_BASE + TH1520_E902_SRAM_SIZE)
++	    da >= TH1520_E902_DA_BASE + TH1520_E902_MEM_SIZE)
 +		return NULL;
 +
 +	offset = da - TH1520_E902_DA_BASE;
 +
-+	if (size > TH1520_E902_SRAM_SIZE - offset)
++	if (size > TH1520_E902_MEM_SIZE - offset)
 +		return NULL;
 +
 +	if (is_iomem)
@@ -195,4 +209,3 @@ index 00000000000..665e40bd6d9
 +};
 -- 
 2.53.0
-
