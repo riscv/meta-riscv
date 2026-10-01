@@ -32,7 +32,7 @@ index 4372b741d89..f6ed999ae66 100644
  	"ramdisk_addr_r=0x34000000\0" \
  	"fdt_addr_r=0x40000000\0" \
 +	"aon_addr_r=0x80200000\0" \
-+	"aon_boot=echo Starting TH1520 AON E902...; rproc init; if ext4load mmc 1:1 ${aon_addr_r} /beaglev-ahead-aon.elf; then if rproc load 0 ${aon_addr_r} ${filesize}; then rproc start 0; fi; fi\0" \
++	"aon_boot=echo Starting TH1520 AON E902...; rproc init; if ext4load mmc 1:1 ${aon_addr_r} /beaglev-ahead-aon.elf || ext4load mmc 0:1 ${aon_addr_r} /beaglev-ahead-aon.elf; then if rproc load 0 ${aon_addr_r} ${filesize}; then rproc start 0; fi; else echo AON firmware not found; fi\0" \
 +	"preboot=run aon_boot\0" \
  	"PS1=[BeagleVAhead]# \0"
  
