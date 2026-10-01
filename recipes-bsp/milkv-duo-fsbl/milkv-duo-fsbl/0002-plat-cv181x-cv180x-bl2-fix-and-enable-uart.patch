@@ -1,0 +1,74 @@
+From 660824d257febc787f8f812b4f11ddb014f7b0ab Mon Sep 17 00:00:00 2001
+From: Hiago De Franco <hiagofranco@gmail.com>
+Date: Mon, 12 May 2025 21:28:42 -0300
+Subject: [PATCH 2/3] plat: cv181x/cv180x: bl2: fix and enable uart
+
+Current UART needs proper initialization to work. The console is only
+initialized when booting from UART, so initialize it with
+PLAT_CONSOLE_BAUDRATE for the other boot sources as well. This makes it
+possible to see FSBL messages.
+
+The divisor is truncated, so with the 25MHz UART clock 115200 baud gives
+25000000 / (16 * 115200) = 13.56 -> 13, i.e. ~120192 baud, a 4.3% error.
+Round it to the nearest integer instead (14, ~111607 baud, -3.1%).
+
+Upstream-Status: Submitted [https://github.com/sophgo/fsbl/pull/7]
+Signed-off-by: Hiago De Franco <hfranco@baylibre.com>
+---
+ plat/cv180x/bl2/bl2_main.c | 4 ++++
+ plat/cv181x/bl2/bl2_main.c | 2 ++
+ plat/cv181x/uart/uart_dw.c | 3 ++-
+ 3 files changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/plat/cv180x/bl2/bl2_main.c b/plat/cv180x/bl2/bl2_main.c
+index db64313..ebe380f 100644
+--- a/plat/cv180x/bl2/bl2_main.c
++++ b/plat/cv180x/bl2/bl2_main.c
+@@ -4,6 +4,7 @@
+ #include <bl2.h>
+ #include <string.h>
+ #include <delay_timer.h>
++#include <rom_api.h>
+ 
+ enum CHIP_CLK_MODE chip_clk_mode = CLK_ND;
+ 
+@@ -50,6 +51,9 @@ int dec_verify_image(const void *image, size_t size, size_t dec_skip, struct fip
+ 
+ void bl2_main(void)
+ {
++	if (p_rom_api_get_boot_src() != BOOT_SRC_UART)
++		console_init(0, PLAT_UART_CLK_IN_HZ, PLAT_CONSOLE_BAUDRATE);
++
+ 	ATF_STATE = ATF_STATE_BL2_MAIN;
+ 	time_records->fsbl_start = read_time_ms();
+ 
+diff --git a/plat/cv181x/bl2/bl2_main.c b/plat/cv181x/bl2/bl2_main.c
+index 7a239fe..286650b 100644
+--- a/plat/cv181x/bl2/bl2_main.c
++++ b/plat/cv181x/bl2/bl2_main.c
+@@ -53,6 +53,8 @@ void bl2_main(void)
+ 
+ 	if (v == BOOT_SRC_UART) {
+ 		console_init(0, PLAT_UART_CLK_IN_HZ, UART_DL_BAUDRATE);
++	} else {
++		console_init(0, PLAT_UART_CLK_IN_HZ, PLAT_CONSOLE_BAUDRATE);
+ 	}
+ 
+ 	ATF_STATE = ATF_STATE_BL2_MAIN;
+diff --git a/plat/cv181x/uart/uart_dw.c b/plat/cv181x/uart/uart_dw.c
+index 4a20afd..1aacf23 100644
+--- a/plat/cv181x/uart/uart_dw.c
++++ b/plat/cv181x/uart/uart_dw.c
+@@ -52,7 +52,8 @@ void console_init(uintptr_t not_used, unsigned int uart_clk, unsigned int baud_r
+ 	int baudrate = baud_rate;
+ 	int uart_clock = uart_clk;
+ 
+-	int divisor = uart_clock / (16 * baudrate);
++	/* Round to nearest, e.g. 25MHz / (16 * 115200) = 13.56 -> 14 */
++	int divisor = (uart_clock + 8 * baudrate) / (16 * baudrate);
+ 
+ 	uart->lcr = uart->lcr | UART_LCR_DLAB | UART_LCR_8N1;
+ 	asm (""::: "memory");
+-- 
+2.53.0
+

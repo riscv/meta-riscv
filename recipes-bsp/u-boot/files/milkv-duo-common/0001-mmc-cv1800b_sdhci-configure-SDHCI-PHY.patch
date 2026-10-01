@@ -1,0 +1,84 @@
+From b3096637dc63d02e586c90b61379c7826f59347c Mon Sep 17 00:00:00 2001
+From: Andrei Lalaev <andrey.lalaev@gmail.com>
+Date: Wed, 9 Sep 2026 17:21:12 +0200
+Subject: [PATCH] mmc: cv1800b_sdhci: configure SDHCI PHY
+
+Some samples of the Milk-V Duo and Duo 256M have issues with SD card
+communication. As a result, the SD card is not detected, or the correct
+mode is not selected.
+
+Configure SDHCI PHY in the same way as in downstream, to ensure
+that the PHY is initialized properly.
+
+Upstream-Status: Submitted [https://lore.kernel.org/all/20260909-milkv-duo-sdhci-configure-v2-1-be146dd85187@gmail.com/]
+Fixes: eb36f28ff721 ("mmc: cv1800b: Add sdhci driver support for cv1800b SoC")
+Signed-off-by: Andrei Lalaev <andrey.lalaev@gmail.com>
+Link: https://lore.kernel.org/u-boot/20260822091510.3253162-1-andrey.lalaev@gmail.com/
+Tested-by: Hiago De Franco <hfranco@baylibre.com> # Milk-V Duo 256M
+---
+ drivers/mmc/cv1800b_sdhci.c | 30 +++++++++++++++++++++++++++++-
+ 1 file changed, 29 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/mmc/cv1800b_sdhci.c b/drivers/mmc/cv1800b_sdhci.c
+index b756649f90f..440421813e3 100644
+--- a/drivers/mmc/cv1800b_sdhci.c
++++ b/drivers/mmc/cv1800b_sdhci.c
+@@ -8,11 +8,17 @@
+ #include <sdhci.h>
+ #include <linux/delay.h>
+ 
++#define CV18XX_SDHCI_MSHC_CTRL  0x200
++#define CV18XX_SDHCI_PHY_CONFIG 0x24c
+ #define SDHCI_PHY_TX_RX_DLY  0x240
+ #define MMC_MAX_CLOCK        375000000
+ #define TUNE_MAX_PHCODE      128
+ 
+ #define PHY_TX_SRC_INVERT  BIT(8)
++#define PHY_RX_SRC_INVERT  BIT(24)
++
++#define CV18XX_LATANCY_1T BIT(1)
++#define CV18XX_PHY_TX_BPS BIT(0)
+ 
+ struct cv1800b_sdhci_plat {
+ 	struct mmc_config cfg;
+@@ -64,6 +70,24 @@ static int cv1800b_execute_tuning(struct mmc *mmc, u8 opcode)
+ }
+ #endif
+ 
++static int cv1800b_configure_phy(struct sdhci_host *host)
++{
++	u32 val;
++
++	val = sdhci_readl(host, CV18XX_SDHCI_MSHC_CTRL);
++	val |= CV18XX_LATANCY_1T;
++	sdhci_writel(host, val, CV18XX_SDHCI_MSHC_CTRL);
++
++	val = sdhci_readl(host, CV18XX_SDHCI_PHY_CONFIG);
++	val |= CV18XX_PHY_TX_BPS;
++	sdhci_writel(host, val, CV18XX_SDHCI_PHY_CONFIG);
++
++	val = PHY_TX_SRC_INVERT | PHY_RX_SRC_INVERT;
++	sdhci_writel(host, val, SDHCI_PHY_TX_RX_DLY);
++
++	return 0;
++}
++
+ const struct sdhci_ops cv1800b_sdhci_sd_ops = {
+ #if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
+ 	.platform_execute_tuning = cv1800b_execute_tuning,
+@@ -105,7 +129,11 @@ static int cv1800b_sdhci_probe(struct udevice *dev)
+ 	if (ret)
+ 		return ret;
+ 
+-	return sdhci_probe(dev);
++	ret = sdhci_probe(dev);
++	if (ret)
++		return ret;
++
++	return cv1800b_configure_phy(host);
+ }
+ 
+ static const struct udevice_id cv1800b_sdhci_match[] = {
+-- 
+2.53.0
+

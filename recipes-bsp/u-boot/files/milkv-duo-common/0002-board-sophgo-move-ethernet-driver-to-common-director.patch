@@ -1,0 +1,66 @@
+From 0ecc719c2cb12c50526a5390acaa514a53dcb239 Mon Sep 17 00:00:00 2001
+From: Hiago De Franco <hfranco@baylibre.com>
+Date: Thu, 23 Jul 2026 11:44:34 -0300
+Subject: [PATCH 2/3] board: sophgo: move ethernet driver to common directory
+
+This will make easier for future boards to reuse the same driver (e.g.
+Milk-V Duo 256MB).
+
+Upstream-Status: Backport [bacb61a06fd36661959ee8109e50f7e6eda76be1]
+Signed-off-by: Hiago De Franco <hfranco@baylibre.com>
+Acked-by: Leo Yu-Chi Liang <leo.liang@sifive.com>
+---
+ board/sophgo/{milkv_duo => common}/ethernet.c | 0
+ board/sophgo/{milkv_duo => common}/ethernet.h | 0
+ board/sophgo/milkv_duo/MAINTAINERS            | 1 +
+ board/sophgo/milkv_duo/Makefile               | 2 +-
+ board/sophgo/milkv_duo/board.c                | 2 +-
+ 5 files changed, 3 insertions(+), 2 deletions(-)
+ rename board/sophgo/{milkv_duo => common}/ethernet.c (100%)
+ rename board/sophgo/{milkv_duo => common}/ethernet.h (100%)
+
+diff --git a/board/sophgo/milkv_duo/ethernet.c b/board/sophgo/common/ethernet.c
+similarity index 100%
+rename from board/sophgo/milkv_duo/ethernet.c
+rename to board/sophgo/common/ethernet.c
+diff --git a/board/sophgo/milkv_duo/ethernet.h b/board/sophgo/common/ethernet.h
+similarity index 100%
+rename from board/sophgo/milkv_duo/ethernet.h
+rename to board/sophgo/common/ethernet.h
+diff --git a/board/sophgo/milkv_duo/MAINTAINERS b/board/sophgo/milkv_duo/MAINTAINERS
+index 651a0592f7a..6941dc5b376 100644
+--- a/board/sophgo/milkv_duo/MAINTAINERS
++++ b/board/sophgo/milkv_duo/MAINTAINERS
+@@ -2,5 +2,6 @@ Milk-V Duo
+ M:	Kongyang Liu <seashell11234455@gmail.com>
+ S:	Maintained
+ F:	board/sophgo/milkv_duo/
++F:	board/sophgo/common/
+ F:	configs/milkv_duo_defconfig
+ F:	doc/board/sophgo/milkv_duo.rst
+diff --git a/board/sophgo/milkv_duo/Makefile b/board/sophgo/milkv_duo/Makefile
+index 18ada7d72ff..aa321d15687 100644
+--- a/board/sophgo/milkv_duo/Makefile
++++ b/board/sophgo/milkv_duo/Makefile
+@@ -3,4 +3,4 @@
+ # Copyright (c) 2024, Kongyang Liu <seashell11234455@gmail.com>
+ 
+ obj-y += board.o
+-obj-$(CONFIG_NET_LEGACY) += ethernet.o
++obj-$(CONFIG_NET_LEGACY) += ../common/ethernet.o
+diff --git a/board/sophgo/milkv_duo/board.c b/board/sophgo/milkv_duo/board.c
+index f0944859b58..34339c42925 100644
+--- a/board/sophgo/milkv_duo/board.c
++++ b/board/sophgo/milkv_duo/board.c
+@@ -5,7 +5,7 @@
+ 
+ #include <dm/lists.h>
+ 
+-#include "ethernet.h"
++#include "../common/ethernet.h"
+ 
+ int board_init(void)
+ {
+-- 
+2.53.0
+

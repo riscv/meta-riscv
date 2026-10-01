@@ -4,9 +4,6 @@
 ###########################################################################
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
-FILESEXTRAPATHS:prepend:milkv-duo := "${THISDIR}/files/milkv-duo:"
-FILESEXTRAPATHS:prepend:milkv-duo256m := "${THISDIR}/files/milkv-duo:"
-FILESEXTRAPATHS:prepend:milkv-duos := "${THISDIR}/files/milkv-duo:"
 
 DEPENDS:append = " u-boot-tools-native"
 DEPENDS:append:milkv-duo = " xxd-native"
@@ -31,33 +28,23 @@ SRC_URI:append:k1 = " \
             file://bootcommand.cfg \
             "
 
+# Upstream U-Boot patches for the Milk-V Duo boards. duos uses the vendor fork,
+# see u-boot-milkv-duo_2021.10.bb.
+SRC_URI:append:milkv-duo-common = "file://0001-mmc-cv1800b_sdhci-honor-no-1-8-v-DT-property.patch \
+                                   file://0002-board-sophgo-move-ethernet-driver-to-common-director.patch \
+                                   file://0003-board-sophgo-add-support-for-Milk-V-Duo-256M.patch \
+                                   file://0001-board-sophgo-milkv_duo-add-environment-for-standard-.patch \
+                                   file://0002-configs-milkv_duo-enable-BOOTSTD_DEFAULTS.patch \
+                                   file://0003-configs-milkv_duo-reduce-CONFIG_STACK_SIZE-to-1MB.patch \
+                                   file://0002-riscv-cpu-cv1800b-keep-U-Boot-out-of-reserved-memory.patch \
+                                   file://0001-mmc-cv1800b_sdhci-configure-SDHCI-PHY.patch \
+                                   "
+
+SRC_URI:append:milkv-duo256m = " file://0001-board-sophgo-milkv_duo_256m-fix-fdtfile-quoting.patch"
+
 SRC_URI:append:orangepi-r2s = " \
             file://0001-arch-riscv-k1-hot-fix-for-RAM-detection-for-boards-w.patch \
             "
-
-SRC_URI:milkv-duo = " \
-            git://github.com/milkv-duo/milkv-duo-u-boot;protocol=https;branch=duo-64mb \
-            file://uboot-milkv-duo.env \
-            file://uEnv-milkv-duo.txt \
-            file://mmap_conv.py \
-            file://memmap.py \
-            file://milkv-duo-support-files.patch \
-            file://0001-skip-cvitek-board-init.patch \
-            file://0002-Add-milkv-boards-dtbs.patch \
-            "
-
-SRC_URI:append:milkv-duo256m = " \
-    file://milkv-duo256m.cfg \
-"
-
-SRC_URI:append:milkv-duos = " \
-    file://milkv-duos.cfg \
-"
-
-SRCREV:milkv-duo = "4345a29c08e67044021f74139b4ff307019e9932"
-LIC_FILES_CHKSUM:milkv-duo = "file://Licenses/README;md5=5a7450c57ffe5ae63fd732446b988025"
-
-PV:milkv-duo = "2021.10"
 
 ###############################
 # configure task customizations
@@ -69,16 +56,6 @@ do_configure:prepend:freedom-u540() {
     if [ -f "${UNPACKDIR}/${UBOOT_ENV}.txt" ]; then
         mkimage -O linux -T script -C none -n "U-Boot boot script" \
             -d ${UNPACKDIR}/${UBOOT_ENV}.txt ${UNPACKDIR}/boot.scr.uimg
-    fi
-}
-
-do_configure:prepend:milkv-duo() {
-    python3 ${UNPACKDIR}/mmap_conv.py --type h \
-        ${UNPACKDIR}/memmap.py \
-        ${S}/include/configs/cvi_board_memmap.h
-
-    if [ -f "${UNPACKDIR}/uboot-milkv-duo.env" ]; then
-        cp ${UNPACKDIR}/uboot-milkv-duo.env ${S}/include/milkv-duo.env
     fi
 }
 
@@ -95,7 +72,7 @@ _DEPS = ""
 _DEPS:riscv32 = "opensbi:do_deploy"
 _DEPS:riscv64 = "opensbi:do_deploy"
 _DEPS:beaglev-fire = ""
-_DEPS:milkv-duo = ""
+_DEPS:milkv-duo-common = ""
 _DEPS:append:th1520 = " firmware-ddr-training-th1520:do_deploy" 
 
 do_compile[depends] += "${_DEPS}"
@@ -144,12 +121,9 @@ do_deploy:append:k1() {
     install -m 644 ${B}/u-boot.dtb ${DEPLOYDIR}/
 }
 
-do_deploy:append:milkv-duo() {
-    if [ -f "${UNPACKDIR}/uEnv-milkv-duo.txt" ]; then
-        cp ${UNPACKDIR}/uEnv-milkv-duo.txt ${DEPLOYDIR}/uEnv.txt
-    fi
+do_deploy:append:milkv-duo-common() {
     install -m 0644 ${B}/u-boot.dtb ${DEPLOYDIR}
-    install -m 0644 ${S}/include/configs/cvi_board_memmap.h ${DEPLOYDIR}
+    install -m 0644 ${B}/.config ${DEPLOYDIR}/u-boot.config
 }
 
 do_deploy:append:visionfive2() {
