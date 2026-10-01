@@ -1,20 +1,27 @@
-From 1a06bb9ed0ae32ed98f3dda7977584ae8ff323b1 Mon Sep 17 00:00:00 2001
+From 88546945518674f6ed2ee604cf4370dceadd4504 Mon Sep 17 00:00:00 2001
 From: Yao Zi <ziyao@disroot.org>
 Date: Wed, 1 Oct 2025 03:02:39 +0000
-Subject: [PATCH 09/16] remoteproc: th1520: Support firmware loading for E902
- core
+Subject: [PATCH] remoteproc: th1520: support firmware loading for E902 core
 
-We will probably need an extra devicetree node for the E902 core. I'm
-still not sure about what its binding should be.
+Add remoteproc support for the TH1520 E902 AON core. Program the ELF
+entry address, load the ELF32 firmware into the E902 SRAM window, and
+control the E902 core and HAD reset lines.
 
-Signed-off-by: Yao Zi <ziyao@disroot.org>
+Adapt device_to_virt() to the current U-Boot remoteproc API and
+translate E902 device addresses to the C910-visible SRAM alias while
+preserving offsets and rejecting mappings outside the SRAM window.
+
 Upstream-Status: Pending
-
+Signed-off-by: Yao Zi <ziyao@disroot.org>
+[Adn Elkawass: adapt device_to_virt() to U-Boot 2026.07 and fix E902
+ address translation]
+AI-Generated: Uses OpenAI ChatGPT
+Signed-off-by: Adn Elkawass <elkawasadn@gmail.com>
 ---
  drivers/remoteproc/Kconfig              |  10 ++
  drivers/remoteproc/Makefile             |   1 +
- drivers/remoteproc/thead_th1520_rproc.c | 116 ++++++++++++++++++++++++
- 3 files changed, 127 insertions(+)
+ drivers/remoteproc/thead_th1520_rproc.c | 130 ++++++++++++++++++++++++
+ 3 files changed, 141 insertions(+)
  create mode 100644 drivers/remoteproc/thead_th1520_rproc.c
 
 diff --git a/drivers/remoteproc/Kconfig b/drivers/remoteproc/Kconfig
@@ -52,10 +59,10 @@ index 250915d0de4..6d7fbe95930 100644
  obj-$(CONFIG_REMOTEPROC_TI_K3_M4F) += ti_k3_m4_rproc.o
 diff --git a/drivers/remoteproc/thead_th1520_rproc.c b/drivers/remoteproc/thead_th1520_rproc.c
 new file mode 100644
-index 00000000000..01a5d735c93
+index 00000000000..665e40bd6d9
 --- /dev/null
 +++ b/drivers/remoteproc/thead_th1520_rproc.c
-@@ -0,0 +1,116 @@
+@@ -0,0 +1,130 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * Remoteproc support for E902 core in T-Head TH1520 SoC
@@ -75,14 +82,28 @@ index 00000000000..01a5d735c93
 +};
 +
 +#define TH1520_E902_RST_ADDR		0x44
++#define TH1520_E902_DA_BASE		0xffef8000UL
++#define TH1520_E902_CPU_BASE		0xffffef8000UL
++#define TH1520_E902_SRAM_SIZE		0x10000UL
 +
 +static void *th1520_rproc_device_to_virt(struct udevice *dev, ulong da,
-+					 ulong size)
++					 ulong size, bool *is_iomem)
 +{
-+	if (da >= 0xffef8000 && da <= 0xfff40000)
-+		return (void __iomem *)0xffffef8000;
++	ulong offset;
 +
-+	return NULL;
++	if (da < TH1520_E902_DA_BASE ||
++	    da >= TH1520_E902_DA_BASE + TH1520_E902_SRAM_SIZE)
++		return NULL;
++
++	offset = da - TH1520_E902_DA_BASE;
++
++	if (size > TH1520_E902_SRAM_SIZE - offset)
++		return NULL;
++
++	if (is_iomem)
++		*is_iomem = true;
++
++	return (void __iomem *)(TH1520_E902_CPU_BASE + offset);
 +}
 +
 +static int th1520_rproc_load(struct udevice *dev, ulong addr, ulong size)

@@ -3,13 +3,13 @@ SUMMARY = "th1520 firmware binary"
 HOMEPAGE = "https://github.com/revyos/th1520-boot-firmware"
 
 # The firmware itself does not provide a license file.
-LICENSE = "LicenseRef-Proprietary & GPL-2.0-only"
+LICENSE = "GPL-2.0-only AND LicenseRef-Proprietary"
 LIC_FILES_CHKSUM = " \
     file://${COMMON_LICENSE_DIR}/Proprietary;md5=0557f9d92cf58f2ccdd50f62f8ac0b28 \
-    file://${UNPACKDIR}/aon-helper/LICENSE;md5=b234ee4d69f5fce4486a80fdaf4a4263 \
+    file://../aon-helper/LICENSE;md5=b234ee4d69f5fce4486a80fdaf4a4263 \
 "
-
 inherit deploy
+
 SRC_URI = " \
     git://github.com/revyos/th1520-boot-firmware.git;branch=master;protocol=https;name=bootfw;destsuffix=boot-firmware \
     git://github.com/ziyao233/th1520-firmware.git;branch=main;protocol=https;name=aonhelper;destsuffix=aon-helper \
@@ -24,13 +24,7 @@ S = "${UNPACKDIR}/boot-firmware"
 
 DEPENDS += "bc-native"
 
-do_deploy() {
-    install -Dm 644 \
-        ${S}/addons/boot/light_aon_fpga.bin \
-        ${DEPLOYDIR}/light_aon_fpga.bin
-}
-
-do_deploy:append:beaglev-ahead() {
+do_compile:append:beaglev-ahead() {
     # Start with the LPi4A AON configuration from th1520-firmware.
     cp ${UNPACKDIR}/aon-helper/bin/lpi4a-aon.patch.bin \
         ${B}/beaglev-ahead-aon.patch.bin
@@ -59,7 +53,15 @@ do_deploy:append:beaglev-ahead() {
         ${S}/addons/boot/light_aon_fpga.bin \
         ${B}/beaglev-ahead-aon.patch.bin \
         ${B}/beaglev-ahead-aon.elf
+}
 
+do_deploy() {
+    install -Dm 644 \
+        ${S}/addons/boot/light_aon_fpga.bin \
+        ${DEPLOYDIR}/light_aon_fpga.bin
+}
+
+do_deploy:append:beaglev-ahead() {
     install -m 0644 \
         ${B}/beaglev-ahead-aon.elf \
         ${DEPLOYDIR}/beaglev-ahead-aon.elf

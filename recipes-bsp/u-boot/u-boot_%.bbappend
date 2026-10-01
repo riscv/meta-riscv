@@ -36,11 +36,9 @@ SRC_URI:append:th1520 = " \
             file://0009-remoteproc-th1520-Support-firmware-loading-for-E902-.patch \
             file://0010-configs-th1520_beaglev_ahead-enable-E902-remoteproc.patch \
             file://0011-riscv-add-memset_io-helper.patch \
-            file://0012-remoteproc-th1520-adapt-device_to_virt-callback.patch \
             file://0013-riscv-dts-th1520-Describe-AON-reset-controller.patch \
             file://0014-riscv-dts-th1520-Describe-AON-sysreg.patch \
             file://0015-start-AON-firmware-before-boot-in-BeagleV-Ahead.patch \
-            file://0016-fix-E902-address-translation-of-BeagleV-Ahead.patch \
             file://th1520-boot.cfg \
             "
 SRC_URI:append:beaglev-fire = " \
