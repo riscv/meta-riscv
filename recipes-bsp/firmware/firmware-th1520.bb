@@ -13,6 +13,7 @@ inherit deploy
 SRC_URI = " \
     git://github.com/revyos/th1520-boot-firmware.git;branch=master;protocol=https;name=bootfw;destsuffix=boot-firmware \
     git://github.com/ziyao233/th1520-firmware.git;branch=main;protocol=https;name=aonhelper;destsuffix=aon-helper \
+    file://0001-aon-generate-drop-O_DIRECT-for-small-writes.patch;patchdir=${UNPACKDIR}/aon-helper \
 "
 
 SRCREV_bootfw = "725756411ecc20f2c2dbc5ea6b8e5aacc6f83aad"
@@ -30,34 +31,31 @@ do_deploy() {
 }
 
 do_deploy:append:beaglev-ahead() {
-    # Start with the known TH1520 AON configuration from th1520-firmware.
-    cp \
-        ${UNPACKDIR}/aon-helper/bin/lpi4a-aon.patch.bin \
+    # Start with the LPi4A AON configuration from th1520-firmware.
+    cp ${UNPACKDIR}/aon-helper/bin/lpi4a-aon.patch.bin \
         ${B}/beaglev-ahead-aon.patch.bin
 
-    # BeagleV Ahead PMIC configuration differences.
-    # offsets: 0x67, 0x68, 0x69, 0xa3
+    # DA9063: enable the watchdog flag instead of pre-setting AUTO_REBOOT.
+    # The driver reads AUTO_BOOT from CONTROL_C and sets AUTO_REBOOT at runtime.
     printf '\001' | dd \
         of=${B}/beaglev-ahead-aon.patch.bin \
         bs=1 seek=103 conv=notrunc status=none
 
+    # Clear the initial DA9063 slew rate (10 mV/us) and watchdog timeout
+    # (32 seconds). The driver and AON watchdog code initialize them later.
     dd if=/dev/zero \
         of=${B}/beaglev-ahead-aon.patch.bin \
         bs=1 seek=104 count=2 conv=notrunc status=none
 
+    # Clear the initial DA9121 slew rate (20 mV/us);
+    # da9121_init() initializes it later.
     dd if=/dev/zero \
         of=${B}/beaglev-ahead-aon.patch.bin \
         bs=1 seek=163 count=1 conv=notrunc status=none
 
     # aon-generate.sh uses Bash-specific $'...' syntax despite its /bin/sh
     # shebang, so invoke it explicitly with Bash.
-    #
-    # It also uses O_DIRECT for tiny ELF-header writes. Make a private
-    # build-time copy without oflag=direct so those writes work normally.
-    cp ${UNPACKDIR}/aon-helper/aon-generate.sh ${B}/aon-generate.sh
-    sed -i 's/ oflag=direct//' ${B}/aon-generate.sh
-
-    bash ${B}/aon-generate.sh \
+    bash ${UNPACKDIR}/aon-helper/aon-generate.sh \
         ${S}/addons/boot/light_aon_fpga.bin \
         ${B}/beaglev-ahead-aon.patch.bin \
         ${B}/beaglev-ahead-aon.elf
