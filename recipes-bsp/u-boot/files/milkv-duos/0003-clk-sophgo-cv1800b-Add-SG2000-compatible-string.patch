@@ -1,0 +1,38 @@
+From b810f8d5099ebeb92cd14e64b28d9703b63c3057 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jo=C3=A3o=20Paulo=20Gon=C3=A7alves?=
+ <jpaulo.silvagoncalves@gmail.com>
+Date: Fri, 16 Oct 2026 16:52:33 -0300
+Subject: [PATCH 3/4] clk: sophgo: cv1800b: Add SG2000 compatible string
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The upstream SG2000 devicetree (sg2000.dtsi) uses "sophgo,sg2000-clk" as
+the clock controller compatible string. The clocks needed by U-Boot are
+the same as on the CV1800, so the existing driver can be reused.
+
+Add "sophgo,sg2000-clk" to the driver match table.
+
+Upstream-Status: Submitted [https://lore.kernel.org/u-boot/20261016-upstream-v1-milk-duo-s-v1-3-e4bf386eea2d@gmail.com/]
+Signed-off-by: João Paulo Gonçalves <jpaulo.silvagoncalves@gmail.com>
+Reviewed-by: E Shattow <e@freeshell.de>
+Signed-off-by: Andrei Lalaev <andrey.lalaev@gmail.com>
+---
+ drivers/clk/sophgo/clk-cv1800b.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/clk/sophgo/clk-cv1800b.c b/drivers/clk/sophgo/clk-cv1800b.c
+index 248a69321fc1..93d71ad1c314 100644
+--- a/drivers/clk/sophgo/clk-cv1800b.c
++++ b/drivers/clk/sophgo/clk-cv1800b.c
+@@ -744,6 +744,7 @@ const struct clk_ops cv1800b_clk_ops = {
+ 
+ static const struct udevice_id cv1800b_clk_of_match[] = {
+ 	{ .compatible = "sophgo,cv1800-clk" },
++	{ .compatible = "sophgo,sg2000-clk" },
+ 	{ },
+ };
+ 
+-- 
+2.56.0
+
