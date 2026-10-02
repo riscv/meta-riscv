@@ -1,0 +1,24 @@
+From c3e3bd5609fee8ed88c6f74f62ca5bddf76b9193 Mon Sep 17 00:00:00 2001
+From: Adn Elkawass <elkawasadn@gmail.com>
+Date: Mon, 28 Sep 2026 14:05:39 +0300
+Subject: [PATCH 08/16] configs: th1520_beaglev_ahead: enable DM reset support
+
+Signed-off-by: Adn Elkawass <elkawasadn@gmail.com>
+Upstream-Status: Pending
+---
+ configs/th1520_beaglev_ahead_defconfig | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/configs/th1520_beaglev_ahead_defconfig b/configs/th1520_beaglev_ahead_defconfig
+index 7fdf1b28c26..6f1edf7cc22 100644
+--- a/configs/th1520_beaglev_ahead_defconfig
++++ b/configs/th1520_beaglev_ahead_defconfig
+@@ -108,3 +108,5 @@ CONFIG_ZLIB_UNCOMPRESS=y
+ CONFIG_BZIP2=y
+ CONFIG_ZSTD=y
+ CONFIG_LIB_RATIONAL=y
++CONFIG_DM_RESET=y
++CONFIG_RESET_TH1520=y
+-- 
+2.53.0
+

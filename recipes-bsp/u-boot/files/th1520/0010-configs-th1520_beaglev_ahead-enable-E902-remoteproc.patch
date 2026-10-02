@@ -1,0 +1,24 @@
+From e4860b577e25556684e0a07121f5110ea57ac267 Mon Sep 17 00:00:00 2001
+From: Adn Elkawass <elkawasadn@gmail.com>
+Date: Mon, 28 Sep 2026 14:10:27 +0300
+Subject: [PATCH 10/16] configs: th1520_beaglev_ahead: enable E902 remoteproc
+
+Signed-off-by: Adn Elkawass <elkawasadn@gmail.com>
+Upstream-Status: Pending
+---
+ configs/th1520_beaglev_ahead_defconfig | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/configs/th1520_beaglev_ahead_defconfig b/configs/th1520_beaglev_ahead_defconfig
+index 6f1edf7cc22..f1c6d15545d 100644
+--- a/configs/th1520_beaglev_ahead_defconfig
++++ b/configs/th1520_beaglev_ahead_defconfig
+@@ -110,3 +110,5 @@ CONFIG_ZSTD=y
+ CONFIG_LIB_RATIONAL=y
+ CONFIG_DM_RESET=y
+ CONFIG_RESET_TH1520=y
++CONFIG_CMD_REMOTEPROC=y
++CONFIG_REMOTEPROC_THEAD_TH1520=y
+-- 
+2.53.0
+
