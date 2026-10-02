@@ -1,0 +1,136 @@
+From d5e57b9fc911da22be5ef949a7476e0bad18e3b3 Mon Sep 17 00:00:00 2001
+From: Han Gao <gaohan@iscas.ac.cn>
+Date: Wed, 16 Sep 2026 14:55:00 +0800
+Subject: [PATCH] power: reset: th1520-aon: send RPCs from sleepable handlers
+
+The AON RPC takes a mutex and waits for mailbox interrupts. The final
+sys-off handlers run on atomic notifier chains, where this can sleep
+with interrupts disabled.
+
+Send the requests from the preparation handlers before syscore shutdown.
+Retain a final power-off handler to advertise capability and report
+failure without issuing another RPC. Let other providers handle
+fallback.
+
+Report RPC errors and allow one second after a successful return for the
+asynchronous operation to take effect. This is a software fallback
+timeout, not a hardware timing requirement.
+
+Fixes: 2d81a24a74e5 ("driver: reset: th1520-aon: add driver for poweroff/reboot via AON FW")
+Upstream-Status: Submitted [https://lore.kernel.org/r/20260916-fix-xuantieaon-v1-1-c6dc530a4884@iscas.ac.cn]
+Signed-off-by: Han Gao <gaohan@iscas.ac.cn>
+---
+ drivers/power/reset/th1520-aon-reboot.c | 49 +++++++++++++++++--------
+ 1 file changed, 34 insertions(+), 15 deletions(-)
+
+diff --git a/drivers/power/reset/th1520-aon-reboot.c b/drivers/power/reset/th1520-aon-reboot.c
+index ec249667a0ff..ace70491834d 100644
+--- a/drivers/power/reset/th1520-aon-reboot.c
++++ b/drivers/power/reset/th1520-aon-reboot.c
+@@ -6,6 +6,7 @@
+  */
+ 
+ #include <linux/auxiliary_bus.h>
++#include <linux/delay.h>
+ #include <linux/firmware/thead/thead,th1520-aon.h>
+ #include <linux/module.h>
+ #include <linux/notifier.h>
+@@ -14,37 +15,46 @@
+ #include <linux/slab.h>
+ 
+ #define TH1520_AON_REBOOT_PRIORITY 200
++/* Allow an accepted asynchronous command to take effect before fallback. */
++#define TH1520_AON_REBOOT_TIMEOUT_MS 1000
+ 
+ struct th1520_aon_msg_empty_body {
+ 	struct th1520_aon_rpc_msg_hdr hdr;
+ 	u16 reserved[12];
+ } __packed __aligned(1);
+ 
+-static int th1520_aon_pwroff_handler(struct sys_off_data *data)
++static int th1520_aon_reboot_request(struct sys_off_data *data, u8 func)
+ {
+ 	struct th1520_aon_chan *aon_chan = data->cb_data;
+ 	struct th1520_aon_msg_empty_body msg = {};
++	int ret;
+ 
+ 	msg.hdr.svc = TH1520_AON_RPC_SVC_WDG;
+-	msg.hdr.func = TH1520_AON_WDG_FUNC_POWER_OFF;
++	msg.hdr.func = func;
+ 	msg.hdr.size = TH1520_AON_RPC_MSG_NUM;
+ 
+-	th1520_aon_call_rpc(aon_chan, &msg);
++	ret = th1520_aon_call_rpc(aon_chan, &msg);
++	if (ret)
++		dev_err(data->dev, "AON WDG command %u failed: %d\n", func, ret);
++	else
++		msleep(TH1520_AON_REBOOT_TIMEOUT_MS);
+ 
+ 	return NOTIFY_DONE;
+ }
+ 
+-static int th1520_aon_restart_handler(struct sys_off_data *data)
++static int th1520_aon_pwroff_handler(struct sys_off_data *data)
+ {
+-	struct th1520_aon_chan *aon_chan = data->cb_data;
+-	struct th1520_aon_msg_empty_body msg = {};
+-
+-	msg.hdr.svc = TH1520_AON_RPC_SVC_WDG;
+-	msg.hdr.func = TH1520_AON_WDG_FUNC_RESTART;
+-	msg.hdr.size = TH1520_AON_RPC_MSG_NUM;
++	return th1520_aon_reboot_request(data, TH1520_AON_WDG_FUNC_POWER_OFF);
++}
+ 
+-	th1520_aon_call_rpc(aon_chan, &msg);
++static int th1520_aon_restart_handler(struct sys_off_data *data)
++{
++	return th1520_aon_reboot_request(data, TH1520_AON_WDG_FUNC_RESTART);
++}
+ 
++static int th1520_aon_pwroff_failed(struct sys_off_data *data)
++{
++	dev_err(data->dev, "AON did not power off the system\n");
+ 	return NOTIFY_DONE;
+ }
+ 
+@@ -54,8 +64,11 @@ static int th1520_aon_reboot_probe(struct auxiliary_device *adev,
+ 	struct device *dev = &adev->dev;
+ 	int ret;
+ 
+-	/* Expect struct th1520_aon_chan to be passed via platform_data */
+-	ret = devm_register_sys_off_handler(dev, SYS_OFF_MODE_POWER_OFF,
++	/*
++	 * RPC takes a mutex and waits for mailbox interrupts. Send after device
++	 * shutdown, but before syscore shutdown and the final atomic callbacks.
++	 */
++	ret = devm_register_sys_off_handler(dev, SYS_OFF_MODE_POWER_OFF_PREPARE,
+ 					    TH1520_AON_REBOOT_PRIORITY,
+ 					    th1520_aon_pwroff_handler,
+ 					    adev->dev.platform_data);
+@@ -65,7 +78,7 @@ static int th1520_aon_reboot_probe(struct auxiliary_device *adev,
+ 		return ret;
+ 	}
+ 
+-	ret = devm_register_sys_off_handler(dev, SYS_OFF_MODE_RESTART,
++	ret = devm_register_sys_off_handler(dev, SYS_OFF_MODE_RESTART_PREPARE,
+ 					    TH1520_AON_REBOOT_PRIORITY,
+ 					    th1520_aon_restart_handler,
+ 					    adev->dev.platform_data);
+@@ -75,7 +88,13 @@ static int th1520_aon_reboot_probe(struct auxiliary_device *adev,
+ 		return ret;
+ 	}
+ 
+-	return 0;
++	/*
++	 * Advertise power-off capability to kernel_can_power_off(). This final
++	 * callback must not send RPCs; let other providers try if AON failed.
++	 */
++	return devm_register_sys_off_handler(dev, SYS_OFF_MODE_POWER_OFF,
++					     TH1520_AON_REBOOT_PRIORITY,
++					     th1520_aon_pwroff_failed, dev_get_platdata(dev));
+ }
+ 
+ static const struct auxiliary_device_id th1520_aon_reboot_id_table[] = {
+-- 
+2.53.0
+

@@ -43,6 +43,7 @@ SRC_URI:append:th1520 = " \
 	file://0002-usb-dwc3-add-T-HEAD-TH1520-usb-driver.patch \
 	file://0003-riscv-dts-thead-Add-TH1520-USB-nodes.patch \
         file://0004-riscv-dts-enable-USB-on-beaglev.patch \
+        file://0005-power-reset-th1520-aon-send-RPCs-from-sleepable-handlers.patch \
         file://thead.cfg \
 "
 
