@@ -21,9 +21,6 @@ SERIAL_CONSOLES = "115200;ttyS0"
 
 IMAGE_FSTYPES += "wic.gz wic.bmap ext4"
 
-# Do not update fstab file when using wic images
-WIC_CREATE_EXTRA_ARGS ?= "--no-fstab-update"
-
 # opensbi
 RISCV_SBI_PLAT = "generic"
 
