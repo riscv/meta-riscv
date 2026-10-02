@@ -18,7 +18,6 @@ SRC_URI:append:th1520 = " \
             file://0004-board-thead-licheepi4a-Add-load-addresses-to-the-environment.patch \
             file://0005-reset-th1520-Add-reset-driver-for-AON-subsystem.patch \
             file://0006-riscv-cpu-th1520-Deassert-module-reset-for-AON-subsy.patch \
-            file://0007-riscv-cpu-th1520-Select-reset-driver-by-default.patch \
             file://0008-configs-th1520_beaglev_ahead-enable-DM-reset-support.patch \
             file://0009-remoteproc-th1520-Support-firmware-loading-for-E902-.patch \
             file://0010-configs-th1520_beaglev_ahead-enable-E902-remoteproc.patch \
