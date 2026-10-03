@@ -1,0 +1,37 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Adn Elkawass <elkawasadn@gmail.com>
+Date: Sun, 4 Oct 2026 00:35:00 +0300
+Subject: [PATCH] th1520: lpi4a: start AON firmware before boot
+
+Start the TH1520 E902 AON firmware from preboot before continuing with
+the normal LicheePi 4A boot flow.
+
+Try both MMC devices when loading the board-specific AON firmware so
+the startup path works with either supported boot storage device.
+
+Upstream-Status: Pending [not submitted upstream]
+Signed-off-by: Adn Elkawass <elkawasadn@gmail.com>
+---
+
+--- a/configs/th1520_lpi4a_defconfig
++++ b/configs/th1520_lpi4a_defconfig
+@@ -26,6 +26,7 @@
+ CONFIG_DISTRO_DEFAULTS=y
+ CONFIG_BOOTARGS_SUBST=y
+ CONFIG_BOOTCOMMAND=""
++CONFIG_USE_PREBOOT=y
+ CONFIG_DEFAULT_FDT_FILE="thead/th1520-lichee-pi-4a.dtb"
+ CONFIG_SYS_CBSIZE=256
+ CONFIG_SYS_PBSIZE=276
+--- a/include/configs/th1520_lpi4a.h
++++ b/include/configs/th1520_lpi4a.h
+@@ -22,6 +22,9 @@
+ 	"kernel_addr_r=0x31000000\0" \
+ 	"ramdisk_addr_r=0x34000000\0" \
+ 	"fdt_addr_r=0x40000000\0" \
++	"aon_addr_r=0x80200000\0" \
++	"aon_boot=echo Starting TH1520 AON E902...; rproc init; if load mmc 0:1 ${aon_addr_r} /licheepi-4a-aon.elf || load mmc 1:1 ${aon_addr_r} /licheepi-4a-aon.elf; then if rproc load 0 ${aon_addr_r} ${filesize}; then rproc start 0; fi; else echo AON firmware not found; fi\0" \
++	"preboot=run aon_boot\0" \
+ 	"PS1=[LPi4A]# \0"
+ 
+ #endif /* __TH1520_LPI4A_H */

@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Adn Elkawass <elkawasadn@gmail.com>
+Date: Sun, 4 Oct 2026 00:20:00 +0300
+Subject: [PATCH] configs: th1520_lpi4a: enable AON remoteproc support
+
+Enable the reset controller and remoteproc support required to load and
+start firmware on the TH1520 E902 AON core.
+
+Keep this board-specific rather than selecting the reset driver globally
+for all TH1520 boards.
+
+Upstream-Status: Pending [not submitted upstream]
+Signed-off-by: Adn Elkawass <elkawasadn@gmail.com>
+---
+
+--- a/configs/th1520_lpi4a_defconfig
++++ b/configs/th1520_lpi4a_defconfig
+@@ -108,3 +108,7 @@
+ CONFIG_BZIP2=y
+ CONFIG_ZSTD=y
+ CONFIG_LIB_RATIONAL=y
++CONFIG_DM_RESET=y
++CONFIG_RESET_TH1520=y
++CONFIG_CMD_REMOTEPROC=y
++CONFIG_REMOTEPROC_THEAD_TH1520=y
