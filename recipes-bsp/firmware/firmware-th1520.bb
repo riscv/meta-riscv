@@ -24,6 +24,16 @@ S = "${UNPACKDIR}/boot-firmware"
 
 DEPENDS += "bc-native"
 
+do_compile:append:licheepi-4a() {
+    # Generate the LicheePi 4A AON firmware using its native configuration.
+    # aon-generate.sh uses Bash-specific $'...' syntax despite its /bin/sh
+    # shebang, so invoke it explicitly with Bash.
+    bash ${UNPACKDIR}/aon-helper/aon-generate.sh \
+        ${S}/addons/boot/light_aon_fpga.bin \
+        ${UNPACKDIR}/aon-helper/bin/lpi4a-aon.patch.bin \
+        ${B}/licheepi-4a-aon.elf
+}
+
 do_compile:append:beaglev-ahead() {
     # Start with the LPi4A AON configuration from th1520-firmware.
     cp ${UNPACKDIR}/aon-helper/bin/lpi4a-aon.patch.bin \
@@ -59,6 +69,12 @@ do_deploy() {
     install -Dm 644 \
         ${S}/addons/boot/light_aon_fpga.bin \
         ${DEPLOYDIR}/light_aon_fpga.bin
+}
+
+do_deploy:append:licheepi-4a() {
+    install -m 0644 \
+        ${B}/licheepi-4a-aon.elf \
+        ${DEPLOYDIR}/licheepi-4a-aon.elf
 }
 
 do_deploy:append:beaglev-ahead() {
