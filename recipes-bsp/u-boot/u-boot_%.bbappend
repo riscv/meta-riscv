@@ -22,6 +22,8 @@ SRC_URI:append:th1520 = " \
             file://0013-riscv-dts-th1520-Describe-AON-reset-controller.patch \
             file://0014-riscv-dts-th1520-Describe-AON-sysreg.patch \
             file://0015-start-AON-firmware-before-boot-in-BeagleV-Ahead.patch \
+            file://0016-configs-th1520_lpi4a-enable-AON-remoteproc.patch \
+            file://0017-start-AON-firmware-before-boot-in-LicheePi-4A.patch \
             file://th1520-boot.cfg \
             "
 SRC_URI:append:beaglev-fire = " \
