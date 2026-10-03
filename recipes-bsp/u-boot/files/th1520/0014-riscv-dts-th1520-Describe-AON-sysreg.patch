@@ -1,0 +1,44 @@
+From c24508ec9d60696557e50cf675c2415328722cf5 Mon Sep 17 00:00:00 2001
+From: Yao Zi <ziyao@disroot.org>
+Date: Wed, 1 Oct 2025 03:07:08 +0000
+Subject: [PATCH 14/16] riscv: dts: th1520: Describe AON sysreg
+
+Signed-off-by: Yao Zi <ziyao@disroot.org>
+Upstream-Status: Pending
+
+---
+ arch/riscv/dts/th1520-u-boot.dtsi | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/arch/riscv/dts/th1520-u-boot.dtsi b/arch/riscv/dts/th1520-u-boot.dtsi
+index 624c76d791a..563065aad9c 100644
+--- a/arch/riscv/dts/th1520-u-boot.dtsi
++++ b/arch/riscv/dts/th1520-u-boot.dtsi
+@@ -3,6 +3,8 @@
+  * Copyright (C) 2025 Yao Zi <ziyao@disroot.org>
+  */
+ 
++#include <dt-bindings/reset/thead,th1520-reset.h>
++
+ &{/soc} {
+ 	ddrc: ddrc@fffd000000 {
+ 		compatible = "thead,th1520-ddrc";
+@@ -20,6 +22,15 @@
+ 		#reset-cells = <1>;
+ 		status = "okay";
+ 	};
++
++	sysreg_ao: system-controller@fffff48000 {
++		compatible = "thead,th1520-sysreg-ao";
++		reg = <0xff 0xfff48000 0x0 0x2000>;
++		resets = <&rst_ao TH1520_RESET_ID_E902_CORE>,
++			 <&rst_ao TH1520_RESET_ID_E902_HAD>;
++		reset-names = "core", "had";
++		status = "okay";
++	};
+ };
+ 
+ &cpus {
+-- 
+2.53.0
+

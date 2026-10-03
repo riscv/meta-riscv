@@ -16,6 +16,17 @@ SRC_URI:append:th1520 = " \
             file://0002-Add-Support-for-Beagle-V-Ahead-board.patch \
             file://0003-riscv-cpu-th1520-Keep-the-partition-table-area-free-in-SPL.patch \
             file://0004-board-thead-licheepi4a-Add-load-addresses-to-the-environment.patch \
+            file://0005-reset-th1520-Add-reset-driver-for-AON-subsystem.patch \
+            file://0006-riscv-cpu-th1520-Deassert-module-reset-for-AON-subsy.patch \
+            file://0008-configs-th1520_beaglev_ahead-enable-DM-reset-support.patch \
+            file://0009-remoteproc-th1520-Support-firmware-loading-for-E902-.patch \
+            file://0010-configs-th1520_beaglev_ahead-enable-E902-remoteproc.patch \
+            file://0011-riscv-add-memset_io-helper.patch \
+            file://0013-riscv-dts-th1520-Describe-AON-reset-controller.patch \
+            file://0014-riscv-dts-th1520-Describe-AON-sysreg.patch \
+            file://0015-start-AON-firmware-before-boot-in-BeagleV-Ahead.patch \
+            file://0016-configs-th1520_lpi4a-enable-AON-remoteproc.patch \
+            file://0017-start-AON-firmware-before-boot-in-LicheePi-4A.patch \
             file://th1520-boot.cfg \
             "
 SRC_URI:append:beaglev-fire = " \

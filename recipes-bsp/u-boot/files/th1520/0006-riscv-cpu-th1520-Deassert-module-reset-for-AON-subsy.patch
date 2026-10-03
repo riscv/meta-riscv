@@ -1,0 +1,28 @@
+From f97d0560659e7c62d80f5f7635c1130052dc2e0f Mon Sep 17 00:00:00 2001
+From: Yao Zi <ziyao@disroot.org>
+Date: Wed, 1 Oct 2025 02:54:20 +0000
+Subject: [PATCH 06/16] riscv: cpu: th1520: Deassert module reset for AON
+ subsystem
+
+Signed-off-by: Yao Zi <ziyao@disroot.org>
+Upstream-Status: Pending
+
+---
+ arch/riscv/cpu/th1520/spl.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/riscv/cpu/th1520/spl.c b/arch/riscv/cpu/th1520/spl.c
+index ceb934021d9..6b9dda6e1a3 100644
+--- a/arch/riscv/cpu/th1520/spl.c
++++ b/arch/riscv/cpu/th1520/spl.c
+@@ -164,6 +164,7 @@ void harts_early_init(void)
+ 	 * enabled and resets should be deasserted ahead of time, or the HART
+ 	 * will hang when configuring corresponding IOPMP entries.
+ 	 */
++	writel(0x37, (void __iomem *)0xfffff4403c);
+ 	setbits_le32(TH1520_SUBSYS_CLK, TH1520_SUBSYS_CLK_VO_EN |
+ 					TH1520_SUBSYS_CLK_VI_EN |
+ 					TH1520_SUBSYS_CLK_DSP_EN);
+-- 
+2.53.0
+
