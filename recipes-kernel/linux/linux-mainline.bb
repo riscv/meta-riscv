@@ -14,7 +14,7 @@ SRCREV                              ?= "9a66fdc0d7fd55f54235524a73435af99051e46f
 # --- DEPENDS ---
 DEPENDS:append:k1                    = " u-boot-tools-native"
 DEPENDS:append:eswin-ebc77-mainline  = " u-boot-mkimage-native dtc-native"
-DEPENDS:append:milkv-duo-common = " u-boot-mkimage-native dtc-native"
+DEPENDS:append:milkv-duos = " u-boot-mkimage-native dtc-native"
 
 # --- SRC_URI ---
 SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git;protocol=https;branch=${BRANCH}"
@@ -109,7 +109,7 @@ KERNEL_DEVICETREE:milkv-duo256m ?= "sophgo/sg2002-milkv-duo256m.dtb"
 KERNEL_DEVICETREE:milkv-duos    ?= "sophgo/cv1800b-milkv-duo.dtb"
 KERNEL_FEATURES_RISCV:milkv-duo-common = ""
 
-do_deploy:append:milkv-duo-common() {
+do_deploy:append:milkv-duos() {
 	cp ${B}/arch/riscv/boot/Image.gz ${B}
 	cp ${UNPACKDIR}/multi.its ${B}
 	mkimage -f ${B}/multi.its ${B}/uImage.fit
