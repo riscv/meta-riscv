@@ -14,7 +14,6 @@ SRCREV                              ?= "7b20d05fd38de8e0be168956f6fd241d750c7d69
 # --- DEPENDS ---
 DEPENDS:append:k1                    = " u-boot-tools-native"
 DEPENDS:append:eswin-ebc77-mainline  = " u-boot-mkimage-native dtc-native"
-DEPENDS:append:milkv-duos = " u-boot-mkimage-native dtc-native"
 
 # --- SRC_URI ---
 SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git;protocol=https;branch=${BRANCH}"
@@ -108,11 +107,3 @@ KERNEL_DEVICETREE:milkv-duo256m ?= "sophgo/sg2002-milkv-duo256m.dtb"
 # duos used to inherit the duo dtb through the old shared :milkv-duo override.
 KERNEL_DEVICETREE:milkv-duos    ?= "sophgo/cv1800b-milkv-duo.dtb"
 KERNEL_FEATURES_RISCV:milkv-duo-common = ""
-
-do_deploy:append:milkv-duos() {
-	cp ${B}/arch/riscv/boot/Image.gz ${B}
-	cp ${UNPACKDIR}/multi.its ${B}
-	mkimage -f ${B}/multi.its ${B}/uImage.fit
-	install -m 744 ${B}/uImage.fit ${DEPLOYDIR}
-	install -m 744 ${B}/arch/riscv/boot/dts/${KERNEL_DEVICETREE} ${DEPLOYDIR}/default.dtb
-}
