@@ -14,12 +14,12 @@ Upstream-Status: Pending
  create mode 100644 drivers/reset/reset-th1520.c
 
 diff --git a/drivers/reset/Kconfig b/drivers/reset/Kconfig
-index e7c0870c918..df70049b489 100644
+index db764ed5aced..5412a188f267 100644
 --- a/drivers/reset/Kconfig
 +++ b/drivers/reset/Kconfig
-@@ -277,5 +277,13 @@ config RESET_SPACEMIT_K1
- 	  Support for SPACEMIT's K1 Reset system. Basic Assert/Deassert
- 	  is supported.
+@@ -279,5 +279,13 @@ config RESET_RZG2L_USBPHY_CTRL
+ 	  RZ/G2L SoC. This is required for USB 2.0 functionality to work on this
+ 	  SoC.
  
 +config RESET_TH1520
 +	bool "Support for T-Head TH1520 Reset driver"
@@ -32,20 +32,20 @@ index e7c0870c918..df70049b489 100644
  source "drivers/reset/stm32/Kconfig"
  endmenu
 diff --git a/drivers/reset/Makefile b/drivers/reset/Makefile
-index 2c83f858895..e1e8ff8719c 100644
+index 384f43363313..7d25f7cd7443 100644
 --- a/drivers/reset/Makefile
 +++ b/drivers/reset/Makefile
-@@ -37,6 +37,7 @@ obj-$(CONFIG_RESET_AT91) += reset-at91.o
+@@ -38,6 +38,7 @@ obj-$(CONFIG_RESET_AT91) += reset-at91.o
  obj-$(CONFIG_$(PHASE_)RESET_JH7110) += reset-jh7110.o
  obj-$(CONFIG_RESET_RZG2L_USBPHY_CTRL) += reset-rzg2l-usbphy-ctrl.o
- obj-$(CONFIG_RESET_SPACEMIT_K1) += reset-spacemit-k1.o
+ obj-$(CONFIG_CLK_SPACEMIT_K1) += spacemit/
 +obj-$(CONFIG_RESET_TH1520) += reset-th1520.o
  
  obj-$(CONFIG_ARCH_STM32) += stm32/
  obj-$(CONFIG_ARCH_STM32MP) += stm32/
 diff --git a/drivers/reset/reset-th1520.c b/drivers/reset/reset-th1520.c
 new file mode 100644
-index 00000000000..e34a722d06b
+index 000000000000..e34a722d06bf
 --- /dev/null
 +++ b/drivers/reset/reset-th1520.c
 @@ -0,0 +1,83 @@

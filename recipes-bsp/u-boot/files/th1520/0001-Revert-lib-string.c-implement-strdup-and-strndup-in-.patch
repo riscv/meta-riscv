@@ -1,0 +1,62 @@
+From 5276187018285dcadb9df9fee787d5f619210ec8 Mon Sep 17 00:00:00 2001
+Message-ID: <5276187018285dcadb9df9fee787d5f619210ec8.1791579940.git.marcel.ziswiler@codethink.co.uk>
+From: Marcel Ziswiler <marcel.ziswiler@codethink.co.uk>
+Date: Fri, 9 Oct 2026 22:58:12 +0200
+Subject: [PATCH 1/2] Revert "lib/string.c: implement strdup() and strndup() in
+ terms of memdup_nul()"
+
+This reverts commit ee8be5d4a1035de232b3497563fe9f6773775f96.
+Signed-off-by: Marcel Ziswiler <marcel.ziswiler@codethink.co.uk>
+Upstream-Status: Pending
+---
+ lib/string.c | 30 ++++++++++++++++++++++++++++--
+ 1 file changed, 28 insertions(+), 2 deletions(-)
+
+diff --git a/lib/string.c b/lib/string.c
+index dbf2ce340dfb..c1a8bd1712b3 100644
+--- a/lib/string.c
++++ b/lib/string.c
+@@ -360,12 +360,38 @@ void *memdup_nul(const void *src, size_t len)
+ 
+ char * strdup(const char *s)
+ {
+-	return s ? memdup_nul(s, strlen(s)) : NULL;
++	char *new;
++
++	if ((s == NULL)	||
++	    ((new = malloc (strlen(s) + 1)) == NULL) ) {
++		return NULL;
++	}
++
++	strcpy (new, s);
++	return new;
+ }
+ 
+ char * strndup(const char *s, size_t n)
+ {
+-	return s ? memdup_nul(s, strnlen(s, n)) : NULL;
++	size_t len;
++	char *new;
++
++	if (s == NULL)
++		return NULL;
++
++	len = strlen(s);
++
++	if (n < len)
++		len = n;
++
++	new = malloc(len + 1);
++	if (new == NULL)
++		return NULL;
++
++	strncpy(new, s, len);
++	new[len] = '\0';
++
++	return new;
+ }
+ 
+ /**
+-- 
+2.56.0
+

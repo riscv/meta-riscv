@@ -9,6 +9,8 @@ DEPENDS:append = " u-boot-tools-native"
 DEPENDS:append:milkv-duo = " xxd-native"
 
 SRC_URI:append:th1520 = " \
+            file://0001-Revert-lib-string.c-implement-strdup-and-strndup-in-.patch \
+            file://0002-Revert-spl-fit-Harden-external-data-offset-and-size-.patch \
             file://0001-ram-thead-th1520-Support-single-rank-firmware.patch \
             file://0002-Add-Support-for-Beagle-V-Ahead-board.patch \
             file://0003-riscv-cpu-th1520-Keep-the-partition-table-area-free-in-SPL.patch \

@@ -1,0 +1,338 @@
+From fb3c3b6e61811bdc2db158bcf6cfee82ee197bd6 Mon Sep 17 00:00:00 2001
+Message-ID: <fb3c3b6e61811bdc2db158bcf6cfee82ee197bd6.1791579940.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <5276187018285dcadb9df9fee787d5f619210ec8.1791579940.git.marcel.ziswiler@codethink.co.uk>
+References: <5276187018285dcadb9df9fee787d5f619210ec8.1791579940.git.marcel.ziswiler@codethink.co.uk>
+From: Marcel Ziswiler <marcel.ziswiler@codethink.co.uk>
+Date: Fri, 9 Oct 2026 23:02:39 +0200
+Subject: [PATCH 2/2] Revert "spl: fit: Harden external-data offset and size
+ arithmetic"
+
+This reverts commit 01460dfbda162ca9a2fddbba001edacabc38dd2f.
+Signed-off-by: Marcel Ziswiler <marcel.ziswiler@codethink.co.uk>
+Upstream-Status: Pending
+---
+ common/spl/spl_fit.c  | 118 ++++++++++++++----------------------------
+ test/image/spl_load.c |  80 ----------------------------
+ 2 files changed, 40 insertions(+), 158 deletions(-)
+
+diff --git a/common/spl/spl_fit.c b/common/spl/spl_fit.c
+index 9da709fd79a5..9b16f91cc6f3 100644
+--- a/common/spl/spl_fit.c
++++ b/common/spl/spl_fit.c
+@@ -175,32 +175,22 @@ static int spl_fit_get_image_node(const struct spl_fit_info *ctx,
+ 	return node;
+ }
+ 
+-static u32 get_aligned_image_offset(struct spl_load_info *info, u32 offset)
++static int get_aligned_image_offset(struct spl_load_info *info, int offset)
+ {
+ 	return ALIGN_DOWN(offset, spl_get_bl_len(info));
+ }
+ 
+-static u32 get_aligned_image_overhead(struct spl_load_info *info, u32 offset)
++static int get_aligned_image_overhead(struct spl_load_info *info, int offset)
+ {
+ 	return offset & (spl_get_bl_len(info) - 1);
+ }
+ 
+-static int get_aligned_image_size(struct spl_load_info *info, ulong data_size,
+-				  u32 offset, ulong *aligned_size)
++static int get_aligned_image_size(struct spl_load_info *info, int data_size,
++				  int offset)
+ {
+-	u32 overhead = get_aligned_image_overhead(info, offset);
++	data_size = data_size + get_aligned_image_overhead(info, offset);
+ 
+-	if (data_size > ULONG_MAX - overhead)
+-		return -EOVERFLOW;
+-	data_size += overhead;
+-
+-	if (data_size > ULONG_MAX - (spl_get_bl_len(info) - 1))
+-		return -EOVERFLOW;
+-	data_size = ALIGN(data_size, spl_get_bl_len(info));
+-
+-	*aligned_size = data_size;
+-
+-	return 0;
++	return ALIGN(data_size, spl_get_bl_len(info));
+ }
+ 
+ /**
+@@ -233,16 +223,17 @@ static int load_simple_fit(struct spl_load_info *info, ulong fit_offset,
+ 	ulong load_addr;
+ 	void *load_ptr;
+ 	void *src;
++	ulong overhead;
+ 	uint8_t image_comp = -1, type = -1;
+ 	const void *data;
+ 	const void *fit = ctx->fit;
+ 	bool external_data = false;
+-	int ret;
+ 
+ 	log_debug("starting\n");
+ 	if (CONFIG_IS_ENABLED(BOOTMETH_VBE) &&
+ 	    xpl_get_phase(info) != IH_PHASE_NONE) {
+ 		enum image_phase_t phase;
++		int ret;
+ 
+ 		ret = fit_image_get_phase(fit, node, &phase);
+ 		/* if the image is for any phase, let's use it */
+@@ -282,19 +273,13 @@ static int load_simple_fit(struct spl_load_info *info, ulong fit_offset,
+ 	if (!fit_image_get_data_position(fit, node, &offset)) {
+ 		external_data = true;
+ 	} else if (!fit_image_get_data_offset(fit, node, &offset)) {
+-		/* The resulting offset cannot exceed UINT32_MAX */
+-		if (ctx->ext_data_offset > UINT32_MAX - offset) {
+-			log_debug("Invalid external data offset: %u\n", offset);
+-			return -EINVAL;
+-		}
+-		log_debug("read offset %x = offset from fit %x\n", offset,
+-			  (u32)(offset + ctx->ext_data_offset));
++		log_debug("read offset %x = offset from fit %lx\n",
++			  offset, (ulong)offset + ctx->ext_data_offset);
+ 		offset += ctx->ext_data_offset;
+ 		external_data = true;
+ 	}
+ 
+ 	if (external_data) {
+-		u32 aligned_offset;
+ 		ulong read_offset;
+ 		void *src_ptr;
+ 
+@@ -315,26 +300,16 @@ static int load_simple_fit(struct spl_load_info *info, ulong fit_offset,
+ 		 * controlled even after fit_config_verify() succeeds. The
+ 		 * image hash is only verified after the device read below, so
+ 		 * an oversized value has to be rejected here.
++		 *
++		 * Bail out before get_aligned_image_size() runs on a hostile
++		 * len: that helper does its arithmetic in int and would
++		 * invoke signed-integer overflow on a value close to or above
++		 * INT_MAX. The block-aligned check further down is the
++		 * mathematically binding one, since size is len rounded up to
++		 * the device block length.
+ 		 */
+-		ret = get_aligned_image_size(info, len, offset, &size);
+-		if (ret) {
+-			log_debug("Invalid external data size: %u\n", len);
+-			return ret;
+-		}
+-
+-		if (size > max_size) {
+-			log_debug("Image too large: aligned size %lu, max %lu (data-size %u)\n",
+-				  size, max_size, len);
+-			return -EFBIG;
+-		}
+-
+-		aligned_offset = get_aligned_image_offset(info, offset);
+-		if (aligned_offset > ULONG_MAX - fit_offset) {
+-			log_debug("Invalid aligned external data offset: %u\n",
+-				  aligned_offset);
+-			return -EINVAL;
+-		}
+-		read_offset = fit_offset + aligned_offset;
++		if ((ulong)len > max_size)
++			goto too_big;
+ 
+ 		if (spl_decompression_enabled() &&
+ 		    (image_comp == IH_COMP_GZIP || image_comp == IH_COMP_LZMA))
+@@ -343,31 +318,18 @@ static int load_simple_fit(struct spl_load_info *info, ulong fit_offset,
+ 			src_ptr = map_sysmem(ALIGN(load_addr, ARCH_DMA_MINALIGN), len);
+ 		length = len;
+ 
++		overhead = get_aligned_image_overhead(info, offset);
++		size = get_aligned_image_size(info, length, offset);
++		read_offset = fit_offset + get_aligned_image_offset(info,
++							    offset);
++
+ 		/*
+-		 * For non-signed FIT images, we can check that
+-		 * (read_offset + size) does not wrap and that
+-		 * (src_ptr + size) does not exceed the addressable range.
+-		 * For signed FITs, we can additionally check that
+-		 * (offset + len) doesn't exceed the allowed FIT image
+-		 * maximum size.
+-		 */
+-		if (size > ULONG_MAX - read_offset ||
+-		    size > UINTPTR_MAX - (uintptr_t)src_ptr
+-		/*
+-		 * #if (not a runtime if) is required: FIT_SIGNATURE_MAX_SIZE
+-		 * depends on FIT_SIGNATURE, so CONFIG_VAL(FIT_SIGNATURE_MAX_SIZE)
+-		 * is undefined when signing is disabled and referencing it
+-		 * here would fail to compile.
++		 * info->read() transfers the block-aligned size into the
++		 * destination, so this is the bound that actually matters;
++		 * len was rejected above only to keep this computation safe.
+ 		 */
+-#if CONFIG_IS_ENABLED(FIT_SIGNATURE)
+-		    || offset > CONFIG_VAL(FIT_SIGNATURE_MAX_SIZE) ||
+-		    len > CONFIG_VAL(FIT_SIGNATURE_MAX_SIZE) - offset
+-#endif
+-		) {
+-			log_debug("FIT external data is out of bounds (offset=%u, size=%u)\n",
+-				  offset, len);
+-			return -EINVAL;
+-		}
++		if (size > max_size)
++			goto too_big;
+ 
+ 		log_debug("reading from offset %x / %lx size %lx to %p: ",
+ 			  offset, read_offset, size, src_ptr);
+@@ -377,7 +339,7 @@ static int load_simple_fit(struct spl_load_info *info, ulong fit_offset,
+ 
+ 		debug("External data: dst=%p, offset=%x, size=%lx\n",
+ 		      src_ptr, offset, (unsigned long)length);
+-		src = src_ptr + get_aligned_image_overhead(info, offset);
++		src = src_ptr + overhead;
+ 	} else {
+ 		/* Embedded data */
+ 		if (fit_image_get_emb_data(fit, node, &data, &length)) {
+@@ -439,6 +401,11 @@ static int load_simple_fit(struct spl_load_info *info, ulong fit_offset,
+ 	upl_add_image(fit, node, load_addr, length);
+ 
+ 	return 0;
++
++too_big:
++	printf("%s: FIT image too large (data-size %u, max %lu)\n",
++	       __func__, (u32)len, max_size);
++	return -EFBIG;
+ }
+ 
+ static bool os_takes_devicetree(uint8_t os)
+@@ -770,9 +737,8 @@ static int spl_simple_fit_read(struct spl_fit_info *ctx,
+ 			       struct spl_load_info *info, ulong offset,
+ 			       const void *fit_header)
+ {
+-	unsigned long aligned_size, count, size;
++	unsigned long count, size;
+ 	void *buf;
+-	int ret;
+ 
+ 	/*
+ 	 * For FIT with external data, figure out where the external images
+@@ -790,12 +756,8 @@ static int spl_simple_fit_read(struct spl_fit_info *ctx,
+ 	 * For FIT with data embedded, data is loaded as part of FIT image.
+ 	 * For FIT with external data, data is not loaded in this step.
+ 	 */
+-	ret = get_aligned_image_size(info, size, 0, &aligned_size);
+-	if (ret) {
+-		log_debug("Invalid FIT size: %lu\n", size);
+-		return ret;
+-	}
+-	buf = board_spl_fit_buffer_addr(aligned_size, aligned_size, 1);
++	size = get_aligned_image_size(info, size, 0);
++	buf = board_spl_fit_buffer_addr(size, size, 1);
+ 	if (!buf) {
+ 		/*
+ 		 * We assume that none of the board will ever use 0x0 as a
+@@ -805,7 +767,7 @@ static int spl_simple_fit_read(struct spl_fit_info *ctx,
+ 		return -EIO;
+ 	}
+ 
+-	count = info->read(info, offset, aligned_size, buf);
++	count = info->read(info, offset, size, buf);
+ 	if (!count) {
+ 		/*
+ 		 * FIT could not be read. This means we should free the
+@@ -838,7 +800,7 @@ static int spl_simple_fit_read(struct spl_fit_info *ctx,
+ 
+ 	ctx->fit = buf;
+ 	debug("fit read offset %lx, size=%lu, dst=%p, count=%lu\n",
+-	      offset, aligned_size, buf, count);
++	      offset, size, buf, count);
+ 
+ 	return 0;
+ }
+diff --git a/test/image/spl_load.c b/test/image/spl_load.c
+index 334ec77b18ec..49bfce15c085 100644
+--- a/test/image/spl_load.c
++++ b/test/image/spl_load.c
+@@ -426,86 +426,6 @@ static int spl_test_fit_external_oversize(struct unit_test_state *uts)
+ }
+ SPL_TEST(spl_test_fit_external_oversize, 0);
+ 
+-/*
+- * A data-offset which wraps past UINT32_MAX once the external-data base
+- * offset is added must be rejected before it is used as a read offset.
+- */
+-static int spl_test_fit_data_offset_overflow(struct unit_test_state *uts)
+-{
+-	if (!image_supported(FIT_EXTERNAL))
+-		return -EAGAIN;
+-
+-	return check_fit_ext_prop(uts, FIT_DATA_OFFSET_PROP, 0xffffffff, 1,
+-				  spl_test_read, 0, -EINVAL);
+-}
+-SPL_TEST(spl_test_fit_data_offset_overflow, 0);
+-
+-/*
+- * A data-size whose block-aligned read size wraps past ULONG_MAX must be
+- * rejected. Since data-size is a 32-bit property, the wrap is only reachable
+- * when ulong is 32 bits wide, so skip the test on other targets.
+- */
+-static int spl_test_fit_data_size_overflow(struct unit_test_state *uts)
+-{
+-	if (!image_supported(FIT_EXTERNAL) || sizeof(ulong) != 4)
+-		return -EAGAIN;
+-
+-	return check_fit_ext_prop(uts, FIT_DATA_SIZE_PROP, 0xffffffff, 2,
+-				  spl_test_read, 0, -EOVERFLOW);
+-}
+-SPL_TEST(spl_test_fit_data_size_overflow, 0);
+-
+-/* Device offset the reader pretends the FIT was loaded from */
+-static ulong spl_test_fit_offset;
+-
+-static ulong spl_test_read_fit_offset(struct spl_load_info *load, ulong sector,
+-				      ulong count, void *buf)
+-{
+-	return spl_test_read(load, sector - spl_test_fit_offset, count, buf);
+-}
+-
+-/*
+- * An aligned external-data offset which wraps past ULONG_MAX once the FIT's
+- * offset on the device is added must be rejected before it is used as a read
+- * offset.
+- */
+-static int spl_test_fit_read_offset_overflow(struct unit_test_state *uts)
+-{
+-	if (!image_supported(FIT_EXTERNAL))
+-		return -EAGAIN;
+-
+-	/* So that ULONG_MAX - fit_offset < the aligned external-data offset */
+-	spl_test_fit_offset = ULONG_MAX - 0xfff;
+-
+-	return check_fit_ext_prop(uts, FIT_DATA_OFFSET_PROP, 0x1000, 1,
+-				  spl_test_read_fit_offset, spl_test_fit_offset,
+-				  -EINVAL);
+-}
+-SPL_TEST(spl_test_fit_read_offset_overflow, 0);
+-
+-/*
+- * A read whose end position (read_offset + size) wraps past the addressable
+- * range must be rejected.
+- */
+-static int spl_test_fit_read_end_overflow(struct unit_test_state *uts)
+-{
+-	if (!image_supported(FIT_EXTERNAL))
+-		return -EAGAIN;
+-
+-	/*
+-	 * The aligned external-data offset (0x2000 plus the size of the FIT
+-	 * itself) stays below the 0x2fff bytes remaining before ULONG_MAX, so
+-	 * read_offset passes the offset-wrap check above, but reading the
+-	 * SPL_TEST_DATA_SIZE bytes of data crosses past UINTPTR_MAX.
+-	 */
+-	spl_test_fit_offset = ULONG_MAX - 0x2fff;
+-
+-	return check_fit_ext_prop(uts, FIT_DATA_OFFSET_PROP, 0x2000, 1,
+-				  spl_test_read_fit_offset, spl_test_fit_offset,
+-				  -EINVAL);
+-}
+-SPL_TEST(spl_test_fit_read_end_overflow, 0);
+-
+ /*
+  * LZMA is too complex to generate on the fly, so let's use some data I put in
+  * the oven^H^H^H^H compressed earlier
+-- 
+2.56.0
+
