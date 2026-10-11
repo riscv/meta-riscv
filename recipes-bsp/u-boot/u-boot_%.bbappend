@@ -43,10 +43,7 @@ SRC_URI:append:k1 = " \
 
 # Upstream U-Boot patches for the Milk-V Duo boards. duos uses the vendor fork,
 # see u-boot-milkv-duo_2021.10.bb.
-SRC_URI:append:milkv-duo-common = "file://0001-mmc-cv1800b_sdhci-honor-no-1-8-v-DT-property.patch \
-                                   file://0002-board-sophgo-move-ethernet-driver-to-common-director.patch \
-                                   file://0003-board-sophgo-add-support-for-Milk-V-Duo-256M.patch \
-                                   file://0001-board-sophgo-milkv_duo-add-environment-for-standard-.patch \
+SRC_URI:append:milkv-duo-common = "file://0001-board-sophgo-milkv_duo-add-environment-for-standard-.patch \
                                    file://0002-configs-milkv_duo-enable-BOOTSTD_DEFAULTS.patch \
                                    file://0003-configs-milkv_duo-reduce-CONFIG_STACK_SIZE-to-1MB.patch \
                                    file://0002-riscv-cpu-cv1800b-keep-U-Boot-out-of-reserved-memory.patch \
