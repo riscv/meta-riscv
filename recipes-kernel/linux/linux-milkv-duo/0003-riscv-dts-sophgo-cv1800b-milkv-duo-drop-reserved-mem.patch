@@ -1,0 +1,41 @@
+From 9058433de045bdd17a15da3b8ffe594617955b38 Mon Sep 17 00:00:00 2001
+From: Andrei Lalaev <andrey.lalaev@gmail.com>
+Date: Mon, 21 Sep 2026 17:08:59 +0200
+Subject: [PATCH 1/2] riscv: dts: sophgo: cv1800b-milkv-duo: drop reserved
+ memory node
+
+The current FSBL can load firmware to any address and can also
+disable the coprocessor. Therefore, FSBL should modify the device
+tree at runtime. Remove the node accordingly.
+
+Upstream-Status: Submitted [https://lore.kernel.org/sophgo/20260921-sophgo-remove-coprocessor-node-v1-1-ace29446b327@gmail.com/]
+Signed-off-by: Andrei Lalaev <andrey.lalaev@gmail.com>
+---
+ arch/riscv/boot/dts/sophgo/cv1800b-milkv-duo.dts | 11 -----------
+ 1 file changed, 11 deletions(-)
+
+diff --git a/arch/riscv/boot/dts/sophgo/cv1800b-milkv-duo.dts b/arch/riscv/boot/dts/sophgo/cv1800b-milkv-duo.dts
+index 0e6d79e6e3a4..02848bae2e16 100644
+--- a/arch/riscv/boot/dts/sophgo/cv1800b-milkv-duo.dts
++++ b/arch/riscv/boot/dts/sophgo/cv1800b-milkv-duo.dts
+@@ -22,17 +22,6 @@ aliases {
+ 	chosen {
+ 		stdout-path = "serial0:115200n8";
+ 	};
+-
+-	reserved-memory {
+-		#address-cells = <1>;
+-		#size-cells = <1>;
+-		ranges;
+-
+-		coprocessor_rtos: region@83f40000 {
+-			reg = <0x83f40000 0xc0000>;
+-			no-map;
+-		};
+-	};
+ };
+ 
+ &osc {
+-- 
+2.55.0
+

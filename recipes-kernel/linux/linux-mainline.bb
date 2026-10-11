@@ -87,6 +87,8 @@ SRC_URI:append:milkv-duo-common = " \
         file://0001-sophgo-add-cv1800-rtcsys-reset-handler.patch \
         file://0001-riscv-dts-sophgo-cv180x-Add-PWR_GPIO-controller.patch \
         file://0002-riscv-dts-sophgo-Add-Milk-V-Duo-256M-board-support.patch \
+        file://0003-riscv-dts-sophgo-cv1800b-milkv-duo-drop-reserved-mem.patch \
+        file://0004-riscv-dts-sophgo-sg2002-milkv-duo256m-drop-reserved-mem.patch \
         file://milkv-duo_defconfig \
         file://multi.its \
 "

@@ -1,0 +1,41 @@
+From 34dd8feee7c40aa5f32a0caf072d1fd377692187 Mon Sep 17 00:00:00 2001
+From: Andrei Lalaev <andrey.lalaev@gmail.com>
+Date: Mon, 21 Sep 2026 17:09:00 +0200
+Subject: [PATCH 2/2] riscv: dts: sophgo: sg2002-milkv-duo256m: drop reserved
+ memory node
+
+The current FSBL can load firmware to any address and can also
+disable the coprocessor. Therefore, FSBL should modify the device
+tree at runtime. Remove the node accordingly.
+
+Upstream-Status: Submitted [https://lore.kernel.org/sophgo/20260921-sophgo-remove-coprocessor-node-v1-2-ace29446b327@gmail.com/]
+Signed-off-by: Andrei Lalaev <andrey.lalaev@gmail.com>
+---
+ arch/riscv/boot/dts/sophgo/sg2002-milkv-duo256m.dts | 11 -----------
+ 1 file changed, 11 deletions(-)
+
+diff --git a/arch/riscv/boot/dts/sophgo/sg2002-milkv-duo256m.dts b/arch/riscv/boot/dts/sophgo/sg2002-milkv-duo256m.dts
+index dea49898b5ae..b3540037f6b7 100644
+--- a/arch/riscv/boot/dts/sophgo/sg2002-milkv-duo256m.dts
++++ b/arch/riscv/boot/dts/sophgo/sg2002-milkv-duo256m.dts
+@@ -36,17 +36,6 @@ led-0 {
+ 			linux,default-trigger = "heartbeat";
+ 		};
+ 	};
+-
+-	reserved-memory {
+-		#address-cells = <1>;
+-		#size-cells = <1>;
+-		ranges;
+-
+-		coprocessor_rtos: region@8fe00000 {
+-			reg = <0x8fe00000 0x200000>;
+-			no-map;
+-		};
+-	};
+ };
+ 
+ &osc {
+-- 
+2.55.0
+
