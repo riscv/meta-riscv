@@ -29,6 +29,7 @@ SRC_URI:jh7110 = " \
            git://github.com/${FORK}/${REPO}.git;protocol=https;${BRANCH} \
            file://0001-riscv-disable-generation-of-unwind-tables.patch \
            file://0001-Allow-building-of-PVR-GPU-driver-as-module.patch \
+           file://0001-drm-img-rogue-do-not-BUG-on-module-unload-when-no-de.patch \
            file://0001-gcc-plugins-Rename-last_stmt-for-GCC-14.patch \
            file://0001-eswin-Repace-NULL-with-0-where-it-is-converted-from-.patch \
            file://0001-kbuild-Do-not-use-NOTIMMEDIATE.patch \
