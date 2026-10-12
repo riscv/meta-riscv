@@ -1,0 +1,37 @@
+From 21fd3c8bb79cfd29ceb54a8fe46acf7673ebaee1 Mon Sep 17 00:00:00 2001
+From: OOHehir <40183643+OOHehir@users.noreply.github.com>
+Date: Mon, 12 Oct 2026 19:12:40 +0100
+Subject: [PATCH] drm/img-rogue: do not BUG on module unload when no devices
+ were registered
+
+pvr_init() no longer calls pvr_devices_register(), as the GPU comes from the
+device tree, so pvr_devices stays NULL. pvr_exit() still calls
+pvr_devices_unregister(), whose BUG_ON(!pvr_devices) then fires on every
+unload of the module: on a systemd image, rc.pvr.service runs
+"modprobe -r pvrsrvkm" at shutdown & every reboot ends in a kernel panic.
+
+The path exists only when the driver is built as a module; the vendor
+defconfig builds it in. Return early instead, as there is nothing to
+unregister.
+
+Upstream-Status: Submitted [https://github.com/starfive-tech/linux/pull/150]
+Signed-off-by: OOHehir <40183643+OOHehir@users.noreply.github.com>
+---
+ .../img-rogue/services/server/env/linux/pvr_platform_drv.c    | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/img/img-rogue/services/server/env/linux/pvr_platform_drv.c b/drivers/gpu/drm/img/img-rogue/services/server/env/linux/pvr_platform_drv.c
+index 7f2628d57222..54d91728cecf 100644
+--- a/drivers/gpu/drm/img/img-rogue/services/server/env/linux/pvr_platform_drv.c
++++ b/drivers/gpu/drm/img/img-rogue/services/server/env/linux/pvr_platform_drv.c
+@@ -153,7 +153,9 @@ static void pvr_devices_unregister(void)
+ #if defined(MODULE) && !defined(PVR_LDM_PLATFORM_PRE_REGISTERED)
+ 	unsigned int i;
+ 
+-	BUG_ON(!pvr_devices);
++	/* pvr_init() no longer registers devices; they come from the DT */
++	if (!pvr_devices)
++		return;
+ 
+ 	for (i = 0; i < pvr_num_devices && pvr_devices[i]; i++)
+ 		platform_device_unregister(pvr_devices[i]);
