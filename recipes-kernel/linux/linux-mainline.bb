@@ -90,6 +90,7 @@ SRC_URI:append:milkv-duo-common = " \
         file://0003-riscv-dts-sophgo-cv1800b-milkv-duo-drop-reserved-mem.patch \
         file://0004-riscv-dts-sophgo-sg2002-milkv-duo256m-drop-reserved-mem.patch \
         file://milkv-duo_defconfig \
+        ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', '', 'file://no-cgroups.cfg', d)} \
         file://multi.its \
 "
 
