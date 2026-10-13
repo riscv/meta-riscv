@@ -1,7 +1,7 @@
-From 07e2703761bec2f2e0eb1ce609b6b131f9b93dfa Mon Sep 17 00:00:00 2001
-Message-ID: <07e2703761bec2f2e0eb1ce609b6b131f9b93dfa.1788210197.git.marcel@ziswiler.com>
-In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
-References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+From adb4e3eb9b7d2df5c3c26f4faf2606dff0e71796 Mon Sep 17 00:00:00 2001
+Message-ID: <adb4e3eb9b7d2df5c3c26f4faf2606dff0e71796.1791896719.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
+References: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
 From: Anish Rana <anish.rana@einfochips.com>
 Date: Tue, 4 Nov 2025 12:59:49 +0530
 Subject: [PATCH 21/31] riscv: dts: eswin: eic7700: Reset-controller node

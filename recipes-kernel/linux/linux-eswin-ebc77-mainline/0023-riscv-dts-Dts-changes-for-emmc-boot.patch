@@ -1,7 +1,7 @@
-From fb7a035c522c3c7c95cb9843c788388e9045be75 Mon Sep 17 00:00:00 2001
-Message-ID: <fb7a035c522c3c7c95cb9843c788388e9045be75.1788210197.git.marcel@ziswiler.com>
-In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
-References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+From 85f78e09ff5e0e95d71e272b966119d0731077a1 Mon Sep 17 00:00:00 2001
+Message-ID: <85f78e09ff5e0e95d71e272b966119d0731077a1.1791896719.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
+References: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
 From: Pritesh Patel <pritesh.patel@einfochips.com>
 Date: Wed, 5 Nov 2025 18:36:09 +0530
 Subject: [PATCH 23/31] riscv: dts: Dts changes for emmc boot

@@ -1,7 +1,7 @@
-From ca5da0ac3093e16a6463590238d4d09e5766c57a Mon Sep 17 00:00:00 2001
-Message-ID: <ca5da0ac3093e16a6463590238d4d09e5766c57a.1788210197.git.marcel@ziswiler.com>
-In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
-References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+From df1a27deeb93a213d7f81a95492f9e42d9714c1d Mon Sep 17 00:00:00 2001
+Message-ID: <df1a27deeb93a213d7f81a95492f9e42d9714c1d.1791896719.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
+References: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:35 -0800
 Subject: [PATCH 18/31] riscv: dts: eswin: eic7700: Use physical memory ranges

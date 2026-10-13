@@ -1,7 +1,7 @@
-From af6e6adb7d6ccad004d7cf895472c9e927aaa06f Mon Sep 17 00:00:00 2001
-Message-ID: <af6e6adb7d6ccad004d7cf895472c9e927aaa06f.1788210197.git.marcel@ziswiler.com>
-In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
-References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+From e8f1d7dd1bad217963f6bddb58ec61c4f56967f0 Mon Sep 17 00:00:00 2001
+Message-ID: <e8f1d7dd1bad217963f6bddb58ec61c4f56967f0.1791896719.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
+References: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
 From: Anish Rana <anish.rana@einfochips.com>
 Date: Tue, 4 Nov 2025 12:47:45 +0530
 Subject: [PATCH 20/31] riscv: dts: eswin: eic7700: clock-controller node

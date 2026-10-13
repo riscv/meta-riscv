@@ -1,7 +1,7 @@
-From 41517b0b15e58710f03faa79813bb01302475e11 Mon Sep 17 00:00:00 2001
-Message-ID: <41517b0b15e58710f03faa79813bb01302475e11.1788210197.git.marcel@ziswiler.com>
-In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
-References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+From 2bf75109843bc9d39bf1aee548e640e02f6ecea0 Mon Sep 17 00:00:00 2001
+Message-ID: <2bf75109843bc9d39bf1aee548e640e02f6ecea0.1791896719.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
+References: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:20 -0800
 Subject: [PATCH 03/31] checkpatch: Warn on page table access without accessors
