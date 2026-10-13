@@ -32,3 +32,4 @@ IMAGE_CLASSES += "k1-image"
 MACHINE_ESSENTIAL_EXTRA_RDEPENDS += "kernel-modules"
 
 WKS_FILE ?= "spacemit-k1.wks"
+WKS_FILE_DEPENDS:append = " u-boot-spl-spacemit boot-bundle"
