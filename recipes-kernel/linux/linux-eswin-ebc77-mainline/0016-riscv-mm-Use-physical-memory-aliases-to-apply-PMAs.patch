@@ -1,7 +1,7 @@
-From f9e9925e02fa539dd45a43daffbfe379a8cfb539 Mon Sep 17 00:00:00 2001
-Message-ID: <f9e9925e02fa539dd45a43daffbfe379a8cfb539.1788210197.git.marcel@ziswiler.com>
-In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
-References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+From 12b208a94e41dc74b7e9842c9c2b736166d765ff Mon Sep 17 00:00:00 2001
+Message-ID: <12b208a94e41dc74b7e9842c9c2b736166d765ff.1791896719.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
+References: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:33 -0800
 Subject: [PATCH 16/31] riscv: mm: Use physical memory aliases to apply PMAs
@@ -238,10 +238,10 @@ index 6ba41ca043a9..6430770e5444 100644
   * Use set_p*_safe(), and elide TLB flushing, when confident that *no*
   * TLB flush will be required as a result of the "set". For example, use
 diff --git a/arch/riscv/kernel/cpufeature.c b/arch/riscv/kernel/cpufeature.c
-index f46aa5602d74..e22b2ab0c195 100644
+index 64c7ec6abbf1..e594004a82a5 100644
 --- a/arch/riscv/kernel/cpufeature.c
 +++ b/arch/riscv/kernel/cpufeature.c
-@@ -1141,6 +1141,12 @@ void __init riscv_fill_hwcap(void)
+@@ -1142,6 +1142,12 @@ void __init riscv_fill_hwcap(void)
  		riscv_v_setup_vsize();
  	}
  

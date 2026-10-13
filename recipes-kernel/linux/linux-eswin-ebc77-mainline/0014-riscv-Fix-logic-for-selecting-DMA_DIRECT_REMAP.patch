@@ -1,7 +1,7 @@
-From 807c68c1b154bd9dc27537e61754115b0c7bf73d Mon Sep 17 00:00:00 2001
-Message-ID: <807c68c1b154bd9dc27537e61754115b0c7bf73d.1788210197.git.marcel@ziswiler.com>
-In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
-References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+From 92496a8576fed8b912262997241bf4df3e9d8587 Mon Sep 17 00:00:00 2001
+Message-ID: <92496a8576fed8b912262997241bf4df3e9d8587.1791896719.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
+References: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:31 -0800
 Subject: [PATCH 14/31] riscv: Fix logic for selecting DMA_DIRECT_REMAP

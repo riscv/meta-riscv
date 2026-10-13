@@ -1,7 +1,7 @@
-From 3a14b3f7b644a8339ea9aea16868e2134b997b8c Mon Sep 17 00:00:00 2001
-Message-ID: <3a14b3f7b644a8339ea9aea16868e2134b997b8c.1788210197.git.marcel@ziswiler.com>
-In-Reply-To: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
-References: <b9a7d02009fec4c82ad64cd4f846dc2131bed96d.1788210197.git.marcel@ziswiler.com>
+From 07423d8a7383440c8087ec782cd4c7bd55ad7680 Mon Sep 17 00:00:00 2001
+Message-ID: <07423d8a7383440c8087ec782cd4c7bd55ad7680.1791896719.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
+References: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:28 -0800
 Subject: [PATCH 11/31] riscv: mm: Expose all page table bits to assembly code
