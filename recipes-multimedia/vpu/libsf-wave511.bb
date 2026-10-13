@@ -11,6 +11,9 @@ require recipes-bsp/common/visionfive2-firmware.inc
 SOLIBS = ".so"
 FILES_SOLIBSDEV = ""
 
+# vendor sources predate C23 (old-style "foo()" declarations)
+CFLAGS += "-std=gnu17"
+
 SRC_URI += " \
     file://WaveDecode_yocto.mak;subdir=${BB_GIT_DEFAULT_DESTSUFFIX}/wave511/code \
     file://20_vdec.rules \
