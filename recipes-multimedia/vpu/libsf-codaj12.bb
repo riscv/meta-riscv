@@ -11,6 +11,9 @@ require recipes-bsp/common/visionfive2-firmware.inc
 SOLIBS = ".so"
 FILES_SOLIBSDEV = ""
 
+# vendor sources predate C23 (e.g. "JpgRet JPU_SWReset();" called with args)
+CFLAGS += "-std=gnu17"
+
 SRC_URI += " \
     file://codaj12_yocto.mak;subdir=${BB_GIT_DEFAULT_DESTSUFFIX}/codaj12 \
     file://20_jpu.rules \
