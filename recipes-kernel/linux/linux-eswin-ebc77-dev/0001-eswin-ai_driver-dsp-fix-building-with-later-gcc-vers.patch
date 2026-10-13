@@ -4,7 +4,7 @@ In-Reply-To: <cover.1767365724.git.marcel@ziswiler.com>
 References: <cover.1767365724.git.marcel@ziswiler.com>
 From: Marcel Ziswiler <marcel@ziswiler.com>
 Date: Fri, 2 Jan 2026 15:26:15 +0100
-Subject: [PATCH 1/6] eswin/ai_driver/dsp: fix building with later gcc version
+Subject: [PATCH 1/8] eswin/ai_driver/dsp: fix building with later gcc version
 
 linux-stable/drivers/soc/eswin/ai_driver/dsp/mloader/xt_mld_relocate.c: In function 'relocate_relative':
 linux-stable/drivers/soc/eswin/ai_driver/dsp/mloader/xt_mld_relocate.c:348:37: error: passing argument 3 of 'reloc_addr_value' from incompatible pointer type [-Wincompatible-pointer-types]
@@ -70,5 +70,5 @@ index 4861af639471..9a76fe729a30 100644
  		return status;
  	// check if it's 4 byte aligned, C++ exception tables may have
 -- 
-2.49.0
+2.53.0
 

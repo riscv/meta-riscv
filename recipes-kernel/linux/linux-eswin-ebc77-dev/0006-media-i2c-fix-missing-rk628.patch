@@ -4,7 +4,7 @@ In-Reply-To: <cover.1767365724.git.marcel@ziswiler.com>
 References: <cover.1767365724.git.marcel@ziswiler.com>
 From: Marcel Ziswiler <marcel@ziswiler.com>
 Date: Fri, 2 Jan 2026 15:25:07 +0100
-Subject: [PATCH 6/6] media/i2c: fix missing rk628
+Subject: [PATCH 6/8] media/i2c: fix missing rk628
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -21,7 +21,7 @@ Signed-off-by: Marcel Ziswiler <marcel@ziswiler.com>
  1 file changed, 1 deletion(-)
 
 diff --git a/drivers/media/i2c/Makefile b/drivers/media/i2c/Makefile
-index 64624c43150a..4cedbe491c39 100644
+index bf7cb6d0ea00..0b9a1c787c01 100644
 --- a/drivers/media/i2c/Makefile
 +++ b/drivers/media/i2c/Makefile
 @@ -24,7 +24,6 @@ obj-$(CONFIG_VIDEO_BT819) += bt819.o
@@ -33,5 +33,5 @@ index 64624c43150a..4cedbe491c39 100644
  obj-$(CONFIG_VIDEO_CS3308) += cs3308.o
  obj-$(CONFIG_VIDEO_CS5345) += cs5345.o
 -- 
-2.49.0
+2.53.0
 

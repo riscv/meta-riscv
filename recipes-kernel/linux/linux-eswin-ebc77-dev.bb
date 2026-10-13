@@ -7,7 +7,7 @@ inherit kernel
 
 DEPENDS = "u-boot-mkimage-native dtc-native"
 
-BRANCH ?= "linux-6.6.18-EIC7X"
+BRANCH ?= "release-EIC7X-2026.06"
 FORK ?= "eswincomputing"
 
 SRC_URI = "git://github.com/${FORK}/linux-stable;protocol=https;branch=${BRANCH} \
@@ -18,13 +18,14 @@ SRC_URI = "git://github.com/${FORK}/linux-stable;protocol=https;branch=${BRANCH}
            file://0005-memory-eswin-fix-building-out-of-tree.patch \
            file://0006-media-i2c-fix-missing-rk628.patch \
            file://0007-fix-dsp_ioctl-include-issue.patch \
+           file://0008-fix-dsp_platform-cast-issue.patch \
            file://iwd-wifi.cfg \
 "
 
-SRCREV ?= "da228da68a382684b01f6c0717effafcec2bee76"
+SRCREV ?= "0d3af98bc3d2579ebb4e5701bdde9b8db27bb297"
 LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 
-LINUX_VERSION ?= "6.6.115"
+LINUX_VERSION ?= "6.6.138"
 LINUX_VERSION_EXTENSION:append:eswin-ebc77 = "-eswin-ebc77"
 KERNEL_VERSION_SANITY_SKIP = "1"
 

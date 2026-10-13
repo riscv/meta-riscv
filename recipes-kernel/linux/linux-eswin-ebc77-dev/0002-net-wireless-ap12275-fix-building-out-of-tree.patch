@@ -4,7 +4,7 @@ In-Reply-To: <cover.1767365724.git.marcel@ziswiler.com>
 References: <cover.1767365724.git.marcel@ziswiler.com>
 From: Marcel Ziswiler <marcel@ziswiler.com>
 Date: Fri, 2 Jan 2026 15:25:58 +0100
-Subject: [PATCH 2/6] net/wireless/ap12275: fix building out-of-tree
+Subject: [PATCH 2/8] net/wireless/ap12275: fix building out-of-tree
 
 linux-stable/drivers/net/wireless/ap12275/aiutils.c:25:10: fatal error: typedefs.h: No such file or directory
    25 | #include <typedefs.h>
@@ -25,10 +25,10 @@ Signed-off-by: Alper Ak <alperyasinak1@gmail.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/net/wireless/ap12275/Makefile b/drivers/net/wireless/ap12275/Makefile
-index cb41a87bc81e..ea65bbf0dba9 100644
+index 005419088a4f..5b2e419bfff7 100755
 --- a/drivers/net/wireless/ap12275/Makefile
 +++ b/drivers/net/wireless/ap12275/Makefile
-@@ -464,7 +464,7 @@ BCMDHD_ROOT = $(src)
+@@ -516,7 +516,7 @@ BCMDHD_ROOT = $(src)
  #$(warning "BCMDHD_ROOT=$(BCMDHD_ROOT)")
  EXTRA_CFLAGS = $(DHDCFLAGS)
  EXTRA_CFLAGS += -DDHD_COMPILED=\"$(BCMDHD_ROOT)\"
@@ -38,5 +38,5 @@ index cb41a87bc81e..ea65bbf0dba9 100644
  EXTRA_LDFLAGS += --strip-debug
  endif
 -- 
-2.49.0
+2.53.0
 
