@@ -4,7 +4,7 @@ In-Reply-To: <cover.1767365724.git.marcel@ziswiler.com>
 References: <cover.1767365724.git.marcel@ziswiler.com>
 From: Marcel Ziswiler <marcel@ziswiler.com>
 Date: Fri, 2 Jan 2026 15:26:30 +0100
-Subject: [PATCH 3/6] staging/media/eswin/es-media-ext: fix building
+Subject: [PATCH 3/8] staging/media/eswin/es-media-ext: fix building
  out-of-tree
 
 In file included from linux-stable/drivers/staging/media/eswin/es-media-ext/./chn/dev_channel.c:1:
@@ -69,5 +69,5 @@ index 326e4316fbd3..aa7ffe338c34 100644
  es_media_ext_drv-objs := es_media_ext_drv_main.o \
  						./chn/dev_channel.o	\
 -- 
-2.49.0
+2.53.0
 

@@ -1,0 +1,35 @@
+From b19f5bca50b54f03017ff38b42fbd569f03a4774 Mon Sep 17 00:00:00 2001
+Message-ID: <b19f5bca50b54f03017ff38b42fbd569f03a4774.1791923062.git.marcel@ziswiler.com>
+In-Reply-To: <cover.1791923062.git.marcel@ziswiler.com>
+References: <cover.1791923062.git.marcel@ziswiler.com>
+From: Marcel Ziswiler <marcel@ziswiler.com>
+Date: Tue, 13 Oct 2026 22:21:28 +0200
+Subject: [PATCH 8/8] fix dsp_platform cast issue
+
+drivers/soc/eswin/ai_driver/dsp/dsp_platform.c:1264:22: error: assignment to 'dma_addr_t' {aka 'long long unsigned int'} from 'void *' makes integer from pointer without a cast [-Wint-conversion]
+ 1264 |         hw->pts_iova = NULL;
+      |                      ^
+
+Upstream-Status: Inappropriate [Downstream-specific]
+
+Signed-off-by: Marcel Ziswiler <marcel@ziswiler@ziswiler.com>
+---
+ drivers/soc/eswin/ai_driver/dsp/dsp_platform.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/soc/eswin/ai_driver/dsp/dsp_platform.c b/drivers/soc/eswin/ai_driver/dsp/dsp_platform.c
+index cd8835163983..d5787ade0497 100644
+--- a/drivers/soc/eswin/ai_driver/dsp/dsp_platform.c
++++ b/drivers/soc/eswin/ai_driver/dsp/dsp_platform.c
+@@ -1261,7 +1261,7 @@ int es_dsp_hw_init(struct es_dsp *dsp)
+ err:
+ 	iommu_unmap_rsv_iova(dsp->dev, NULL, hw->pts_iova,
+ 						hw->pts_iova_size);
+-	hw->pts_iova = NULL;
++	hw->pts_iova = (dma_addr_t)NULL;
+ 
+ err_pts:
+ 	iommu_unmap_rsv_iova(dsp->dev, dsp->firmware_addr,
+-- 
+2.53.0
+

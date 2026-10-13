@@ -4,7 +4,7 @@ In-Reply-To: <3af10e62b81db8828e73d3c68e7f723abd69959f.1770749905.git.marcel@zis
 References: <3af10e62b81db8828e73d3c68e7f723abd69959f.1770749905.git.marcel@ziswiler.com>
 From: Marcel Ziswiler <marcel@ziswiler.com>
 Date: Tue, 10 Feb 2026 19:54:10 +0100
-Subject: [PATCH 7/7] fix: dsp_ioctl include issue
+Subject: [PATCH 7/8] fix: dsp_ioctl include issue
 
 drivers/soc/eswin/ai_driver/dsp/dsp_ioctl.c:166:18: error: implicit declaration of function 'iommu_get_domain_for_dev' [-Wimplicit-function-declaration]
   166 |         domain = iommu_get_domain_for_dev(dsp->dev);
@@ -32,7 +32,7 @@ Signed-off-by: Marcel Ziswiler <marcel@ziswiler.com>
  1 file changed, 5 insertions(+)
 
 diff --git a/drivers/soc/eswin/ai_driver/dsp/dsp_ioctl.c b/drivers/soc/eswin/ai_driver/dsp/dsp_ioctl.c
-index 358e525fa8f1..67b18d467446 100644
+index 68357f604a08..0431482ea6b2 100644
 --- a/drivers/soc/eswin/ai_driver/dsp/dsp_ioctl.c
 +++ b/drivers/soc/eswin/ai_driver/dsp/dsp_ioctl.c
 @@ -27,6 +27,7 @@
@@ -43,7 +43,7 @@ index 358e525fa8f1..67b18d467446 100644
  #include <linux/list.h>
  #include <linux/poll.h>
  #include "dsp_platform.h"
-@@ -163,14 +164,18 @@ void dsp_flush_iova_cache(struct dsp_file *dsp_file)
+@@ -169,14 +170,18 @@ void dsp_flush_iova_cache(struct dsp_file *dsp_file)
  	void *vaddr;
  	struct es_dsp *dsp = dsp_file->dsp;
  
@@ -63,5 +63,5 @@ index 358e525fa8f1..67b18d467446 100644
  			break;
  		}
 -- 
-2.49.0
+2.53.0
 
