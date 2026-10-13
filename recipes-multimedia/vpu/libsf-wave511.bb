@@ -7,7 +7,6 @@ LIC_FILES_CHKSUM = "file://LICENSE.txt;md5=16bead7cc56b053f5da0061ce0637ad2"
 COMPATIBLE_MACHINE = "jh7110"
 
 require recipes-bsp/common/visionfive2-firmware.inc
-inherit autotools
 
 SOLIBS = ".so"
 FILES_SOLIBSDEV = ""
@@ -19,12 +18,9 @@ SRC_URI += " \
 
 S = "${UNPACKDIR}/${BP}/wave511/code"
 
-do_configure:prepend() {
-    # workaround wrong build system/include path assumptions
-    ln -sf ${S} ${S}/wave511
-}
-
 do_compile() {
+    # workaround wrong build system/include path assumptions
+    ln -sfn ${S} ${S}/wave511
     oe_runmake -C ${S} -f WaveDecode_yocto.mak
 }
 
