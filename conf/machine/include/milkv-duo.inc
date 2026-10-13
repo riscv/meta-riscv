@@ -14,6 +14,11 @@ KERNEL_IMAGETYPE = "Image.gz"
 PREFERRED_PROVIDER_virtual/bootloader ?= "u-boot"
 PREFERRED_PROVIDER_virtual/kernel ?= "linux-mainline"
 
+MACHINE_EXTRA_RRECOMMENDS += "kernel-module-dwc2 \
+                              kernel-module-usb-storage \
+                              kernel-module-phy-cv1800-usb2 \
+                              "
+
 PREFERRED_VERSION_openocd-native = "riscv"
 PREFERRED_VERSION_openocd = "riscv"
 
