@@ -26,9 +26,6 @@ UBOOT_EXTLINUX_KERNEL_IMAGE ?= "/Image"
 KERNEL_IMAGETYPE = "Image"
 MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS:append = " kernel-modules"
 
-# Common Preferred Providers
-PREFERRED_PROVIDER_virtual/kernel ?= "linux-mainline"
-PREFERRED_PROVIDER_virtual/bootloader ?= "u-boot"
 EXTRA_IMAGEDEPENDS += "u-boot firmware-th1520"
 
 
