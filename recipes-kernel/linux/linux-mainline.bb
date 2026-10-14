@@ -104,8 +104,4 @@ KERNEL_DANGLING_FEATURES_WARN_ONLY:eswin-ebc77-mainline = "1"
 
 KBUILD_DEFCONFIG:eswin-ebc77-mainline = ""
 KBUILD_DEFCONFIG:milkv-duo-common = ""
-KERNEL_DEVICETREE:milkv-duo     ?= "sophgo/cv1800b-milkv-duo.dtb"
-KERNEL_DEVICETREE:milkv-duo256m ?= "sophgo/sg2002-milkv-duo256m.dtb"
-# duos used to inherit the duo dtb through the old shared :milkv-duo override.
-KERNEL_DEVICETREE:milkv-duos    ?= "sophgo/cv1800b-milkv-duo.dtb"
 KERNEL_FEATURES_RISCV:milkv-duo-common = ""
