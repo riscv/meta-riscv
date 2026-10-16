@@ -48,11 +48,8 @@ After building, you will obtain the following artifacts:
 - core-image-minimal-licheepi-4a.rootfs.wic.gz : the complete SD card image
 - core-image-minimal-licheepi-4a.rootfs.wic.bmap : bmap description for the wic image
 
-Flashing Linux
-==============
-
-Flashing to SD card
--------------------
+Flashing Linux to SD card
+=========================
 
 Enter the deploy folder:
 
@@ -68,19 +65,22 @@ sudo bmaptool copy core-image-minimal-licheepi-4a.rootfs.wic.gz /dev/sdX
 
 Replace `/dev/sdX` with the block device corresponding to the SD card.
 
+Boot the Board
+==============
+
 Configure the DIP switches under the SoM for SD card boot:
 - `SW1`: `ON`
 - `SW2`: `OFF`
 
-Insert the SD card into the LicheePi 4A and power on the board.
+Insert the microSD card, then connect a USB-to-serial adapter between your PC and your board,
+using the `U0_RX` and `U0_TX` pins, and start your favorite terminal emulator:
 
-Check Functionality
-===================
-Follow the Quickstart-Guide and connect an RS232-to-USB device, then connect to the UART console and login
-
-```shell
-picocom -b 115200 /dev/ttyUSB0
 ```
+$ sudo apt install tio
+$ tio /dev/ttyUSB0
+```
+
+Power the board and you will see it boot to a Linux command line shell.
 
 Resources
 =========
