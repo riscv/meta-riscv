@@ -14,7 +14,6 @@ SRCREV                              ?= "7b20d05fd38de8e0be168956f6fd241d750c7d69
 # --- DEPENDS ---
 DEPENDS:append:k1                    = " u-boot-tools-native"
 DEPENDS:append:eswin-ebc77-mainline  = " u-boot-mkimage-native dtc-native"
-DEPENDS:append:milkv-duos = " u-boot-mkimage-native dtc-native"
 
 # --- SRC_URI ---
 SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git;protocol=https;branch=${BRANCH}"
@@ -89,6 +88,8 @@ SRC_URI:append:milkv-duo-common = " \
         file://0002-riscv-dts-sophgo-Add-Milk-V-Duo-256M-board-support.patch \
         file://0003-riscv-dts-sophgo-cv1800b-milkv-duo-drop-reserved-mem.patch \
         file://0004-riscv-dts-sophgo-sg2002-milkv-duo256m-drop-reserved-mem.patch \
+        file://0005-riscv64-dts-sophgo-add-SG2000-dtsi.patch \
+        file://0006-riscv64-dts-sophgo-add-initial-Milk-V-Duo-S-board-su.patch \
         file://milkv-duo_defconfig \
         ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', '', 'file://no-cgroups.cfg', d)} \
         file://multi.its \
@@ -96,6 +97,7 @@ SRC_URI:append:milkv-duo-common = " \
 
 SRC_URI:append:milkv-duo = " file://milkv-duo.cfg"
 SRC_URI:append:milkv-duo256m = " file://milkv-duo256m.cfg"
+SRC_URI:append:milkv-duos = " file://milkv-duos.cfg"
 
 # --- Misc per-machine ---
 INSANE_SKIP:append:eswin-ebc77-mainline                 = " textrel"
@@ -103,16 +105,4 @@ KERNEL_DANGLING_FEATURES_WARN_ONLY:eswin-ebc77-mainline = "1"
 
 KBUILD_DEFCONFIG:eswin-ebc77-mainline = ""
 KBUILD_DEFCONFIG:milkv-duo-common = ""
-KERNEL_DEVICETREE:milkv-duo     ?= "sophgo/cv1800b-milkv-duo.dtb"
-KERNEL_DEVICETREE:milkv-duo256m ?= "sophgo/sg2002-milkv-duo256m.dtb"
-# duos used to inherit the duo dtb through the old shared :milkv-duo override.
-KERNEL_DEVICETREE:milkv-duos    ?= "sophgo/cv1800b-milkv-duo.dtb"
 KERNEL_FEATURES_RISCV:milkv-duo-common = ""
-
-do_deploy:append:milkv-duos() {
-	cp ${B}/arch/riscv/boot/Image.gz ${B}
-	cp ${UNPACKDIR}/multi.its ${B}
-	mkimage -f ${B}/multi.its ${B}/uImage.fit
-	install -m 744 ${B}/uImage.fit ${DEPLOYDIR}
-	install -m 744 ${B}/arch/riscv/boot/dts/${KERNEL_DEVICETREE} ${DEPLOYDIR}/default.dtb
-}

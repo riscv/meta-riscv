@@ -51,6 +51,12 @@ SRC_URI:append:milkv-duo-common = "file://0001-board-sophgo-milkv_duo-add-enviro
                                    "
 
 SRC_URI:append:milkv-duo256m = " file://0001-board-sophgo-milkv_duo_256m-fix-fdtfile-quoting.patch"
+SRC_URI:append:milkv-duos = " \
+    file://0001-riscv64-dts-sophgo-add-SG2000-dtsi.patch \
+    file://0002-riscv64-dts-sophgo-add-initial-Milk-V-Duo-S-board-su.patch \
+    file://0003-clk-sophgo-cv1800b-Add-SG2000-compatible-string.patch \
+    file://0004-board-sophgo-Add-support-for-Milk-V-Duo-S.patch \
+"
 
 SRC_URI:append:orangepi-r2s = " \
             file://0001-arch-riscv-k1-hot-fix-for-RAM-detection-for-boards-w.patch \

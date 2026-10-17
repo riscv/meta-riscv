@@ -17,19 +17,6 @@ SRC_URI = "git://github.com/sophgo/fsbl.git;protocol=https;branch=sg200x-dev \
            "
 SRCREV = "952dcb6903efc7b5d266bc9d51dc3a2ab54022eb"
 
-# milkv-duos has no upstream U-Boot support and stays on the vendor U-Boot
-# fork, so it keeps the FSBL from the vendor SDK as well.
-SRC_URI:milkv-duos = "git://github.com/milkv-duo/duo-buildroot-sdk-v2;protocol=https;branch=main \
-                      file://0001-milkv-duo-fsbl-fix-build-with-newer-binutils.patch \
-                      file://0002-cpu-riscv-do-not-use-vendor-specific-extension.patch \
-                      "
-SRCREV:milkv-duos = "6f8962c394dd0a05729abb089f0feb7d5cc4aa5e"
-LICENSE:milkv-duos = "LicenseRef-Proprietary"
-LIC_FILES_CHKSUM:milkv-duos = "file://${COMMON_LICENSE_DIR}/Proprietary;md5=0557f9d92cf58f2ccdd50f62f8ac0b28"
-
-S:milkv-duos = "${UNPACKDIR}/${BP}/fsbl"
-B:milkv-duos = "${S}/build"
-
 inherit nopackages deploy
 
 CHIP_ARCH:milkv-duo = "cv180x"
@@ -62,20 +49,14 @@ EXTRA_OEMAKE = "${EXTRA_OEMAKE_COMMON} \
                 LOADER_2ND_PATH=${DEPLOY_DIR_IMAGE}/u-boot.bin \
                 "
 
-EXTRA_OEMAKE:milkv-duos = "${EXTRA_OEMAKE_COMMON}"
-
 do_compile[depends] += "opensbi:do_deploy virtual/bootloader:do_deploy"
 
 # The FSBL needs the board memory map, which the vendor SDK generates from a
-# per-board memmap.py. milkv-duos gets it from the vendor U-Boot instead.
+# per-board memmap.py
 do_generate_memmap () {
     python3 ${UNPACKDIR}/mmap_conv.py --type h \
         ${UNPACKDIR}/memmap.py \
         ${S}/plat/${CHIP_ARCH}/include/cvi_board_memmap.h
-}
-
-do_generate_memmap:milkv-duos () {
-    :
 }
 
 addtask generate_memmap after do_patch before do_configure
@@ -89,31 +70,8 @@ do_compile () {
     oe_runmake LOADER_2ND_BASE=$(printf '0x%x' $loader_2nd_base)
 }
 
-do_compile:milkv-duos () {
-    cp ${DEPLOY_DIR_IMAGE}/cvi_board_memmap.h ${S}/include/cvi_board_memmap.h
-
-    oe_runmake -C ${S} fip-dep
-
-    MONITOR_RUNADDR="$(sed -n 's/^MONITOR_RUNADDR=//p' ${B}/${CHIP_ARCH}/blmacros.env)"
-
-    ${S}/plat/${CHIP_ARCH}/fiptool.py genfip \
-            --CHIP_CONF ${B}/${CHIP_ARCH}/chip_conf.bin \
-            --NOR_INFO=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF \
-            --NAND_INFO=00000000 \
-            --MONITOR=${DEPLOY_DIR_IMAGE}/fw_dynamic.bin \
-            --MONITOR_RUNADDR=${MONITOR_RUNADDR} \
-            --LOADER_2ND=${DEPLOY_DIR_IMAGE}/u-boot.bin \
-            --BL2=${B}/${CHIP_ARCH}/bl2.bin \
-            --compress='lzma' \
-            ${B}/${CHIP_ARCH}/fip.bin
-}
-
 do_deploy () {
     install -m 0644 ${B}/build/${CHIP_ARCH}/fip.bin ${DEPLOYDIR}
-}
-
-do_deploy:milkv-duos () {
-    install -m 0644 ${B}/${CHIP_ARCH}/fip.bin ${DEPLOYDIR}
 }
 
 addtask deploy after do_compile

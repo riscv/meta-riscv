@@ -1,7 +1,7 @@
-From 1b5f1bc55416e9d39261edc402ee84a5cdb77cf0 Mon Sep 17 00:00:00 2001
+From 59c682ffc76ebda27ecbbbd1423e23ec482d61b9 Mon Sep 17 00:00:00 2001
 From: Chen-Yu Yeh <chenyou910331@gmail.com>
 Date: Sun, 26 Jul 2026 01:53:45 +0800
-Subject: [PATCH 2/3] riscv: dts: sophgo: Add Milk-V Duo 256M board support
+Subject: [PATCH] riscv: dts: sophgo: Add Milk-V Duo 256M board support
 
 The Milk-V Duo 256M is a small form factor development board based on
 the Sophgo SG2002 SoC.
@@ -9,26 +9,30 @@ the Sophgo SG2002 SoC.
 This patch adds basic device tree support for the board, including:
 - UART console
 - SD/MMC controller
+- USB host
 - Onboard blue status LED (connected to PWR_GPIO[2] / porte 2)
 
 Tested on actual Milk-V Duo 256M hardware, verified boot to shell and
 heartbeat LED functionality.
 
+Upstream-Status: Backport [59c682ffc76ebda27ecbbbd1423e23ec482d61b9]
 Signed-off-by: Chen-Yu Yeh <chenyou910331@gmail.com>
-Upstream-Status: Submitted [https://lore.kernel.org/lkml/20260725175346.139173-4-chenyou910331@gmail.com/]
+Link: https://patch.msgid.link/20260725175346.139173-4-chenyou910331@gmail.com
+Signed-off-by: Inochi Amaoto <inochiama@gmail.com>
+Signed-off-by: Chen Wang <chen.wang@linux.dev>
 ---
  arch/riscv/boot/dts/sophgo/Makefile           |   1 +
- .../boot/dts/sophgo/sg2002-milkv-duo256m.dts  | 116 ++++++++++++++++++
- 2 files changed, 117 insertions(+)
+ .../boot/dts/sophgo/sg2002-milkv-duo256m.dts  | 121 ++++++++++++++++++
+ 2 files changed, 122 insertions(+)
  create mode 100644 arch/riscv/boot/dts/sophgo/sg2002-milkv-duo256m.dts
 
 diff --git a/arch/riscv/boot/dts/sophgo/Makefile b/arch/riscv/boot/dts/sophgo/Makefile
-index 6f65526d4193..1ff69cf7f178 100644
+index 58cc6b70d8de..d5c80d4ff005 100644
 --- a/arch/riscv/boot/dts/sophgo/Makefile
 +++ b/arch/riscv/boot/dts/sophgo/Makefile
-@@ -2,6 +2,7 @@
- dtb-$(CONFIG_ARCH_SOPHGO) += cv1800b-milkv-duo.dtb
+@@ -3,6 +3,7 @@ dtb-$(CONFIG_ARCH_SOPHGO) += cv1800b-milkv-duo.dtb
  dtb-$(CONFIG_ARCH_SOPHGO) += cv1812h-huashan-pi.dtb
+ dtb-$(CONFIG_ARCH_SOPHGO) += sg2000-milkv-duo-s.dtb
  dtb-$(CONFIG_ARCH_SOPHGO) += sg2002-licheerv-nano-b.dtb
 +dtb-$(CONFIG_ARCH_SOPHGO) += sg2002-milkv-duo256m.dtb
  dtb-$(CONFIG_ARCH_SOPHGO) += sg2042-milkv-pioneer.dtb
@@ -36,10 +40,10 @@ index 6f65526d4193..1ff69cf7f178 100644
  dtb-$(CONFIG_ARCH_SOPHGO) += sg2042-evb-v2.dtb
 diff --git a/arch/riscv/boot/dts/sophgo/sg2002-milkv-duo256m.dts b/arch/riscv/boot/dts/sophgo/sg2002-milkv-duo256m.dts
 new file mode 100644
-index 000000000000..dea49898b5ae
+index 000000000000..a2797c0bd767
 --- /dev/null
 +++ b/arch/riscv/boot/dts/sophgo/sg2002-milkv-duo256m.dts
-@@ -0,0 +1,116 @@
+@@ -0,0 +1,121 @@
 +// SPDX-License-Identifier: (GPL-2.0 OR MIT)
 +/*
 + * Copyright (C) 2023 Jisheng Zhang <jszhang@kernel.org>
@@ -156,6 +160,11 @@ index 000000000000..dea49898b5ae
 +	pinctrl-names = "default";
 +	status = "okay";
 +};
++
++&usb {
++	dr_mode = "host";
++	status = "okay";
++};
 -- 
-2.55.0
+2.56.0
 
