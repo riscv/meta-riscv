@@ -1,0 +1,42 @@
+From 46e90fc3edd2393f39326c3fb9ee650959770ce2 Mon Sep 17 00:00:00 2001
+From: Lance Albertson <lance@osuosl.org>
+Date: Fri, 12 Jun 2026 14:47:54 -0700
+Subject: [PATCH 17/31] riscv: dts: zhihe: a210: disable the rp3x1 PCIe port
+
+a210-platform-dev.dtsi disables the PCIe ports and their shared combo PHY
+(e16phy) -- none are needed for the installer or basic operation -- but the
+board dts sets rp3x1 back to "okay" (board dts wins by include order), so
+the x1 port probes at every boot, always fails host init because its PHY is
+disabled, and (before the previous fix) oopsed in the probe error path.
+
+The port cannot link without its PHY; disable it alongside dm3x4/e16phy.
+Re-enable all three together if PCIe is ever needed.
+
+Co-developed-by: Claude Opus 4.8 <noreply@anthropic.com>
+Signed-off-by: Lance Albertson <lance@osuosl.org>
+Upstream-Status: Pending
+---
+ arch/riscv/boot/dts/zhihe/a210-dev.dts | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/arch/riscv/boot/dts/zhihe/a210-dev.dts b/arch/riscv/boot/dts/zhihe/a210-dev.dts
+index 74553787469d2..2dd5a0c54f52d 100755
+--- a/arch/riscv/boot/dts/zhihe/a210-dev.dts
++++ b/arch/riscv/boot/dts/zhihe/a210-dev.dts
+@@ -1156,7 +1156,12 @@ &uart8 {
+ &rp3x1 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pcie_x1_pins>;
+-	status = "okay";
++	/* OSL: was "okay" -- this overrode the a210-platform-dev.dtsi disable
++	 * (board dts wins by include order), so the x1 port probed at every
++	 * boot even though its PHY (e16phy) is disabled, failed host init,
++	 * and oopsed in the probe error path. The port can never link without
++	 * the PHY; keep it off with the rest of PCIe (dm3x4/e16phy). */
++	status = "disabled";
+ };
+ 
+ &dm3x4 {
+-- 
+2.43.0
+

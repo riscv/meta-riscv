@@ -1,0 +1,65 @@
+From 6b4dddeb5c79744a2b99094a58d5499b36439e61 Mon Sep 17 00:00:00 2001
+From: Lance Albertson <lance@osuosl.org>
+Date: Tue, 16 Jun 2026 10:30:36 -0700
+Subject: [PATCH 26/31] riscv: configs: a210: enable cpufreq, rpmsg, BMU and
+ quad-SPI
+
+These are the only drivers the vendor's own a210_evb_defconfig builds
+that ours did not: they were carried in-tree but left disabled through
+the mainline port.  Enable them to reach parity with the vendor's board
+configuration:
+
+  - RISCV_ZHIHE_CPUFREQ / RISCV_XUANTIE_TH1520_CPUFREQ: CPU DVFS (the
+    A210's cpufreq node + per-cluster OPP tables are already in the DTS).
+  - RPMSG_TH1520: the th1520 AON co-processor rpmsg transport.  No A210
+    DTS node instantiates it (same as the vendor tree), so it is built
+    but dormant on this board.
+  - A210_BMU: the DDR/GPU/NPU/PCIe bus-monitor units (nodes present).
+  - SPI_DW_QUAD: quad-mode DesignWare SPI (controller nodes present).
+
+All dependencies (ZHIHE_AON, TH1520_AON, REGULATOR_TH1520_AON, THEAD_CLK,
+PM_OPP) are default-y/selected and come on automatically.  The previously
+deferred driver sources needed 7.x API fixups, done in the parent commit.
+
+Co-developed-by: Claude Opus 4.8 <noreply@anthropic.com>
+Signed-off-by: Lance Albertson <lance@osuosl.org>
+Upstream-Status: Pending
+---
+ arch/riscv/configs/a210_evb_defconfig | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/arch/riscv/configs/a210_evb_defconfig b/arch/riscv/configs/a210_evb_defconfig
+index 958870accf304..6de059f2448fe 100644
+--- a/arch/riscv/configs/a210_evb_defconfig
++++ b/arch/riscv/configs/a210_evb_defconfig
+@@ -63,6 +63,8 @@ CONFIG_CPU_FREQ_GOV_POWERSAVE=y
+ CONFIG_CPU_FREQ_GOV_USERSPACE=y
+ CONFIG_CPU_FREQ_GOV_ONDEMAND=y
+ CONFIG_CPU_FREQ_GOV_CONSERVATIVE=y
++CONFIG_RISCV_XUANTIE_TH1520_CPUFREQ=y
++CONFIG_RISCV_ZHIHE_CPUFREQ=y
+ CONFIG_KPROBES=y
+ CONFIG_MODULES=y
+ CONFIG_MODULE_UNLOAD=y
+@@ -262,6 +264,7 @@ CONFIG_I2C_CHARDEV=y
+ CONFIG_I2C_SMBUS=m
+ CONFIG_I2C_DESIGNWARE_PLATFORM=y
+ CONFIG_SPI=y
++CONFIG_SPI_DW_QUAD=y
+ CONFIG_SPI_DESIGNWARE=y
+ CONFIG_SPI_DW_MMIO=y
+ CONFIG_SPI_SPIDEV=y
+@@ -438,8 +441,10 @@ CONFIG_MAILBOX=y
+ CONFIG_RISCV_IOMMU=y
+ CONFIG_RPMSG_CHAR=y
+ CONFIG_RPMSG_CTRL=y
++CONFIG_RPMSG_TH1520=y
+ CONFIG_RPMSG_VIRTIO=y
+ CONFIG_A210_POWER_DOMAIN=y
++CONFIG_A210_BMU=y
+ CONFIG_A210_D2D=m
+ CONFIG_EXTCON=y
+ CONFIG_IIO=y
+-- 
+2.43.0
+

@@ -1,0 +1,5244 @@
+From 96c46896d4031a66981853319531750fecdfaeae Mon Sep 17 00:00:00 2001
+From: Lance Albertson <lance@osuosl.org>
+Date: Fri, 12 Jun 2026 10:42:31 -0700
+Subject: [PATCH 04/31] a210: vendor import: 40-a210-dts
+
+Cherry-picked vendor enablement group 40 (40-a210-dts) onto Linux v6.6.141 as
+the maintained A210 LTS branch (one commit per kernel/patches group). Applied
+with git apply --recount; reconciled against vendor branch osl/a210-v2.9.0.
+See kernel/patches/README.md and kernel/T2-DESIGN.md for group rationale.
+
+v7.0 port adaptations: kept upstream's builtin-dtb handling in the dts
+Makefile (only adding the zhihe subdir), and disabled the zhihe,iommu node:
+the vendor riscv-iommu driver that bound it was dropped for the upstreamed
+riscv-iommu, which does not know this compatible. Disabled, every iommus=
+consumer falls back to direct DMA (NO_IOMMU), matching U-Boot behavior.
+
+Signed-off-by: Lance Albertson <lance@osuosl.org>
+Upstream-Status: Pending
+---
+ arch/riscv/boot/dts/Makefile                  |    1 +
+ arch/riscv/boot/dts/zhihe/Makefile            |    5 +
+ arch/riscv/boot/dts/zhihe/a210-dev.dts        | 1382 +++++++++++
+ .../boot/dts/zhihe/a210-platform-dev.dtsi     |  299 +++
+ arch/riscv/boot/dts/zhihe/a210-soc-core.dtsi  | 1284 ++++++++++
+ arch/riscv/boot/dts/zhihe/a210-soc-peri.dtsi  | 2200 +++++++++++++++++
+ 6 files changed, 5171 insertions(+)
+ create mode 100644 arch/riscv/boot/dts/zhihe/Makefile
+ create mode 100755 arch/riscv/boot/dts/zhihe/a210-dev.dts
+ create mode 100644 arch/riscv/boot/dts/zhihe/a210-platform-dev.dtsi
+ create mode 100644 arch/riscv/boot/dts/zhihe/a210-soc-core.dtsi
+ create mode 100755 arch/riscv/boot/dts/zhihe/a210-soc-peri.dtsi
+
+diff --git a/arch/riscv/boot/dts/Makefile b/arch/riscv/boot/dts/Makefile
+index 69d8751fb17c8..445edde8f1074 100644
+--- a/arch/riscv/boot/dts/Makefile
++++ b/arch/riscv/boot/dts/Makefile
+@@ -12,3 +12,4 @@ subdir-y += spacemit
+ subdir-y += starfive
+ subdir-y += tenstorrent
+ subdir-y += thead
++subdir-y += zhihe
+diff --git a/arch/riscv/boot/dts/zhihe/Makefile b/arch/riscv/boot/dts/zhihe/Makefile
+new file mode 100644
+index 0000000000000..b445dfeb19e4a
+--- /dev/null
++++ b/arch/riscv/boot/dts/zhihe/Makefile
+@@ -0,0 +1,5 @@
++# SPDX-License-Identifier: GPL-2.0
++
++dtb-$(CONFIG_ARCH_ZHIHE) += a210-evb.dtb a210-dev.dtb a210-evb-d2d.dtb 
++dtb-$(CONFIG_ARCH_ZHIHE) += a210-evb-sec.dtb a210-dev-sec.dtb
++dtb-$(CONFIG_ARCH_ZHIHE) += a210-som-v1.dtb a210-usb-aistick.dtb
+diff --git a/arch/riscv/boot/dts/zhihe/a210-dev.dts b/arch/riscv/boot/dts/zhihe/a210-dev.dts
+new file mode 100755
+index 0000000000000..3ac1a9eff6233
+--- /dev/null
++++ b/arch/riscv/boot/dts/zhihe/a210-dev.dts
+@@ -0,0 +1,1382 @@
++/dts-v1/;
++
++#include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/usb/pd.h>
++#include <dt-bindings/input/linux-event-codes.h>
++#include "a210-soc-core.dtsi"
++#include "a210-soc-peri.dtsi"
++#include "a210-platform-dev.dtsi"
++
++#define SOUND_CARD_LINK(REG, FMT, CPU, M, CODEC, N) \
++	simple-audio-card,dai-link@##REG { \
++		reg = <REG>; \
++		format = #FMT; \
++		cpu { \
++			sound-dai = <&audio_##CPU M>; \
++		}; \
++		codec { \
++			sound-dai = <&codec_##CODEC N>; \
++		}; \
++	}
++
++/ {
++	model = "A210 DEV configuration";
++
++	aliases {
++		ethernet0 = &gmac0;
++		ethernet1 = &gmac1;
++
++		gpio0 = &ao_gpio0;
++		gpio1 = &ao_gpio1;
++		gpio2 = &gpio0;
++		gpio3 = &gpio1;
++		gpio4 = &gpio2;
++		gpio5 = &gpio3;
++		gpio6 = &gpio4;
++		gpio7 = &aw9535_0;
++		gpio8 = &aw9535_1;
++
++		i2c0 = &i2c0;
++		i2c1 = &i2c1;
++		i2c2 = &i2c2;
++		i2c3 = &i2c3;
++		i2c4 = &i2c4;
++		i2c5 = &i2c5;
++		i2c6 = &i2c6;
++		i2c7 = &i2c7;
++		i2c8 = &aoi2c1;
++
++		can0 = &can0;
++		can1 = &can1;
++		can2 = &can2;
++
++		mmc0 = &emmc;
++		mmc1 = &sdhci0;
++		serial0 = &uart0;
++		serial1 = &uart1;
++		serial2 = &uart2;
++		serial3 = &uart3;
++		serial4 = &uart4;
++		serial5 = &uart5;
++		serial6 = &uart6;
++		serial7 = &uart7;
++		serial8 = &uart8;
++		serial9 = &uart9;
++		spi0 = &qspi0;
++		spi1 = &qspi1;
++		spi2 = &spi0;
++		spi3 = &spi1;
++		pcie3x4 = &dm3x4;
++		pcie3x1 = &rp3x1;
++		vi_sensor0 = &mipicsi0_4lane_port;
++		vi_sensor1 = &mipi1csi1_a_port;
++	};
++
++	/* The actual capacity will be adjusted through SPL */
++	memory@0 {
++		device_type = "memory";
++		reg = <0x00 0x80000000  0x01 0x00000000>; /* 4G */
++		numa-node-id = <0>;
++	};
++
++	reserved-memory {
++		#address-cells = <2>;
++		#size-cells = <2>;
++		ranges;
++
++		linux,cma {
++			compatible = "shared-dma-pool";
++			reusable;
++			size = <0x00 0x40000000>;
++			alloc-ranges = <0x00 0x90000000 0x00 0x40000000>;
++			linux,cma-default;
++		};
++
++		memory@1c000000 {
++			reg = <0x00 0x1c000000 0x00 0x2000000>;
++			no-map;
++		};
++
++		framebuffer: framebuffer@10000000 {
++			reg = <0x01 0x00 0x00 0x5000000>;
++			no-map;
++		};
++
++		npu_mmu_memory@130000000 {
++			reg = <0x01 0x30000000 0x00 0x04000000>;
++			no-map;
++		};
++
++		memblock-memory@17b800000 {
++			reg = <0x01 0x7b800000 0x00 0x04000000>;
++			no-map;
++		};
++	};
++
++	/* The bootargs in U-Boot will override the configuration set here. */
++	chosen {
++		stdout-path = "serial4";
++	};
++
++	Sound_Card@0 {
++		compatible = "simple-audio-card";
++		simple-audio-card,name = "Sound-Card-I2S0";
++		#address-cells = <1>;
++		#size-cells = <0>;
++		status = "okay";
++
++		SOUND_CARD_LINK(0, i2s, i2s1, 0, es8156_dac0, 0);  /* I2S1 <-> es8156_dac0 */
++		SOUND_CARD_LINK(1, i2s, i2s1, 0, es7210_adc0, 0);  /* I2S1 <-> es7210_adc0 */
++	};
++
++	Sound_Card@1 {
++		compatible = "simple-audio-card";
++		simple-audio-card,name = "Sound-Card-I2S1";
++		#address-cells = <1>;
++		#size-cells = <0>;
++		status = "disabled";
++
++		simple-audio-card,widgets = "Speaker", "Speaker";
++		simple-audio-card,routing =
++		"Speaker", "AW87565_PA2 VO",
++		"AW87565_PA2 IN", "ES8156_DAC1 LOUT";
++		simple-audio-card,aux-devs = <&audio_aw87565_pa2>;
++		SOUND_CARD_LINK(0, i2s, i2s1, 0, es8156_dac1, 0);
++		SOUND_CARD_LINK(1, i2s, i2s1, 0, es7210_adc1, 0);
++	};
++
++	lcd0_backlight: pwm-backlight@0 {
++		compatible = "pwm-backlight";
++		status = "okay";
++		pwms = <&pwm1 2 100000 0>;
++		brightness-levels = <0 4 8 16 32 64 128 255>;
++		default-brightness-level = <7>;
++		enable-gpios = <&aw9535_1 15 GPIO_ACTIVE_HIGH>;
++	};
++
++	reg_vdd33_lcd0: regulator-vdd33-lcd0 {
++		compatible = "regulator-fixed";
++		regulator-name = "lcd0_vdd33";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++		gpio = <&aw9535_1 5 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++	};
++
++	reg_vddtp33_lcd0: regulator-vddtp33-lcd0 {
++		compatible = "regulator-fixed";
++		regulator-name = "lcd0_vddtp33";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++		gpio = <&aw9535_1 14 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++	};
++
++	mipicsi0_4lane_port: mipicsi0_4lane_port@0 {
++		compatible = "zhihe,vi_sensor";
++		clocks = <&clk SW_TOP_PAD_SENSOR_VCLK0_EN>;
++		clock-names = "core_clk";
++		clock-frequency = <24000000>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&sen_vclk_pin0>;
++		sensor_pdn = <&aw9535_0 3 GPIO_ACTIVE_HIGH>;
++		sensor_rst = <&aw9535_0 4 GPIO_ACTIVE_HIGH>;
++		sensor_regulators = "DVDD1", "DVDD2", "AVDD1", "AVDD2";
++		DVDD1-supply = <&dvdd1_mipicsi0_reg>;
++		DVDD2-supply = <&dvdd2_mipicsi0_reg>;
++		AVDD1-supply = <&avdd1_mipicsi0_reg>;
++		AVDD2-supply = <&avdd2_mipicsi0_reg>;
++		status = "okay";
++	};
++
++	mipi1csi1_a_port: mipi1csi1_a_port@0 {
++		compatible = "zhihe,vi_sensor";
++		clocks = <&clk SW_TOP_PAD_SENSOR_VCLK1_EN>;
++		clock-names = "core_clk";
++		clock-frequency = <24000000>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&sen_vclk_pin1>;
++		sensor_pdn = <&aw9535_0 0 GPIO_ACTIVE_HIGH>;
++		sensor_rst = <&aw9535_0 1 GPIO_ACTIVE_HIGH>;
++		sensor_regulators = "DVDD1", "DVDD2", "AVDD1", "AVDD2";
++		DVDD1-supply = <&dvdd1_mipicsi1_reg>;
++		DVDD2-supply = <&dvdd2_mipicsi1_reg>;
++		AVDD1-supply = <&avdd1_mipicsi1_reg>;
++		AVDD2-supply = <&avdd2_mipicsi1_reg>;
++		status = "okay";
++	};
++
++	reg_usb_typec_vbus: regulator-typec-vbus {
++		compatible = "regulator-fixed";
++		regulator-name = "usb_typec_vbus";
++		regulator-min-microvolt = <5000000>;
++		regulator-max-microvolt = <5000000>;
++		gpio = <&gpio0 27 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++		status = "okay";
++	};
++
++	wifi_vdd_3v3: wifi-3v3-regulator {
++		compatible = "regulator-fixed";
++		regulator-name = "wifi_vdd_3v3";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++		gpio = <&aw9535_1 11 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++		startup-delay-us = <1000>;
++	};
++
++	wifi_vdd_1v8: wifi-1v8-regulator {
++		compatible = "regulator-fixed";
++		regulator-name = "wifi_vdd_1v8";
++		regulator-min-microvolt = <1800000>;
++		regulator-max-microvolt = <1800000>;
++		gpio = <&aw9535_1 12 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++		startup-delay-us = <1000>;
++	};
++
++	wifi_pwrseq: wifi-pwrseq {
++		compatible = "mmc-pwrseq-simple";
++		reset-gpios = <&gpio0 14 GPIO_ACTIVE_LOW>;
++		post-power-on-delay-ms = <200>;
++	};
++
++	gpio-keys {
++		compatible = "gpio-keys";
++		key-sleep {
++			label = "KEY_SLEEP";
++			linux,code = <KEY_SLEEP>;
++			debounce-interval = <1>;
++			gpios = <&ao_gpio0 1 GPIO_ACTIVE_LOW>;
++		};
++	};
++};
++
++&ao_gpio0 {
++	power-5v-en-hog {
++		gpio-hog;
++		gpios = <29 GPIO_ACTIVE_HIGH>;
++		output-high;
++		line-name = "power_5v_en";
++	};
++
++	power-3v3-en-hog {
++		gpio-hog;
++		gpios = <26 GPIO_ACTIVE_HIGH>;
++		output-high;
++		line-name = "power_3v3_en";
++	};
++};
++
++&aon {
++	regulators {
++		compatible = "zhihe,a210-aon-regulator";
++
++		avdd33_emmc_reg: avdd33_emmc {
++			regulator-name = "avdd33_emmc";
++			regulator-type = "voltage";
++			regulator-always-on;
++		};
++
++		avdd33_usb2_reg: avdd33_usb2 {
++			regulator-name = "avdd33_usb2";
++			regulator-type = "voltage";
++			regulator-always-on;
++		};
++
++		dvdd08_aon_reg: dvdd08_aon {
++			regulator-name = "dvdd08_aon";
++			regulator-type = "voltage";
++			regulator-always-on;
++		};
++
++		avdd18_aon_reg: avdd18_aon {
++			regulator-name = "avdd18_aon";
++			regulator-type = "voltage";
++			regulator-always-on;
++		};
++
++		avdd18_emmc_usb2_reg: avdd18_emmc_usb2 {
++			regulator-name = "avdd18_emmc_usb2";
++			regulator-type = "voltage";
++			regulator-always-on;
++		};
++
++		avdd18_emmc_peri_reg: avdd18_emmc_peri {
++			regulator-name = "avdd18_emmc_peri";
++			regulator-type = "voltage";
++			regulator-always-on;
++		};
++
++		avdd18_top_reg: avdd18_top {
++			regulator-name = "avdd18_top";
++			regulator-type = "voltage";
++			regulator-always-on;
++		};
++
++		avdd18_pll_reg: avdd18_pll {
++			regulator-name = "avdd18_pll";
++			regulator-type = "voltage";
++			regulator-always-on;
++		};
++
++		avdd18_reg: avdd18 {
++			regulator-name = "avdd18";
++			regulator-type = "voltage";
++			regulator-always-on;
++		};
++
++		dvdd18_ddr_vaa_reg: dvdd18_ddr_vaa {
++			regulator-name = "dvdd18_ddr_vaa";
++			regulator-type = "voltage";
++			regulator-always-on;
++		};
++
++		p3v3_reg: p3v3 {
++			regulator-name = "p3v3";
++			regulator-type = "voltage";
++			regulator-always-on;
++		};
++
++		dvdd08_top_reg: dvdd08_top {
++			regulator-name = "dvdd08_top";
++			regulator-type = "voltage";
++			regulator-always-on;
++		};
++
++		dvdd06_ddr_vddqlp_reg: dvdd06_ddr_vddqlp {
++			regulator-name = "dvdd06_ddr_vddqlp";
++			regulator-type = "voltage";
++			regulator-always-on;
++		};
++
++		dvdd08_ddr_reg: dvdd08_ddr {
++			regulator-name = "dvdd08_ddr";
++			regulator-type = "voltage";
++			regulator-ramp-delay = <100>;
++			regulator-min-microvolt = <750000>;
++			regulator-max-microvolt = <800000>;
++			regulator-always-on;
++		};
++
++		dvdd_cpu_reg: dvdd_cpu {
++			regulator-name = "dvdd_cpu";
++			regulator-type = "voltage";
++			regulator-ramp-delay = <100>;
++			regulator-enable-ramp-delay = <2000>;
++			regulator-min-microvolt = <600000>;
++			regulator-max-microvolt = <1000000>;
++			regulator-always-on;
++		};
++
++		dvddm_cpu_reg: dvddm_cpu {
++			regulator-name = "dvddm_cpu";
++			regulator-type = "voltage";
++			regulator-ramp-delay = <100>;
++			regulator-enable-ramp-delay = <2000>;
++			regulator-min-microvolt = <800000>;
++			regulator-max-microvolt = <1000000>;
++			regulator-always-on;
++		};
++
++		dvdd_vp_reg: dvdd_vp {
++			regulator-name = "dvdd_vp";
++			regulator-type = "voltage";
++			regulator-ramp-delay = <100>;
++			regulator-enable-ramp-delay = <2000>;
++			regulator-min-microvolt = <750000>;
++			regulator-max-microvolt = <800000>;
++		};
++
++		dvdd_npu_vip_reg: dvdd_npu_vip {
++			regulator-name = "dvdd_npu_vip";
++			regulator-type = "voltage";
++			regulator-ramp-delay = <100>;
++			regulator-enable-ramp-delay = <2000>;
++			regulator-min-microvolt = <750000>;
++			regulator-max-microvolt = <1000000>;
++		};
++
++		dvdd_cpu_p_reg: dvdd_cpu_p {
++			regulator-name = "dvdd_cpu_p";
++			regulator-type = "voltage";
++			regulator-ramp-delay = <100>;
++			regulator-enable-ramp-delay = <2000>;
++			regulator-min-microvolt = <800000>;
++			regulator-max-microvolt = <1000000>;
++			regulator-always-on;
++		};
++
++		dvdd_gpu_reg: dvdd_gpu {
++			regulator-name = "dvdd_gpu";
++			regulator-type = "voltage";
++			regulator-ramp-delay = <100>;
++			regulator-enable-ramp-delay = <2000>;
++			regulator-min-microvolt = <750000>;
++			regulator-max-microvolt = <800000>;
++		};
++
++	};
++
++	cpufreq: a210_cpufreq {
++		compatible = "zhihe,a210-cpufreq";
++		clocks = <&clk TOP_CPUSYS_BUS_CLK_DIV>,
++			 <&clk TOP_CPUSYS_PIC_CLK_DIV>,
++			 <&clk TOP_CPUSYS_CFG_ACLK_DIV>,
++			 <&clk TOP_CPUSYS_COM_APB_CLK_DIV>,
++			 <&clk TOP_CPUSYS_APB_CLK_DIV>;
++		clock-names = "bus_clk", "pic_clk", "cfg_clk", "com_clk", "apb_clk";
++		status = "okay";
++	};
++};
++
++&aon_padctrl {
++	rtc_pins: rtc {
++		rtc-pins {
++			pins = "AOGPIO0_27";
++			function = "aogpio0";
++			bias-disable;
++			drive-strength = <13>;
++			input-enable;
++			input-schmitt-disable;
++			slew-rate = <0>;
++		};
++	};
++    aoi2c1_pins: aoi2c1-0 {
++		i2c-pins {
++			pins = "AOI2C1_SCL", "AOI2C1_SDA";
++			function = "aoi2c1";
++			bias-disable;
++			drive-strength = <25>;
++			input-enable;
++			input-schmitt-enable;
++			slew-rate = <1>;
++		};
++	};
++	usbc0_int: usbc0-int {
++		usbcc-int-pins {
++			pins = "AOGPIO0_28";
++			function = "aogpio0";
++			bias-pull-up;
++			drive-strength = <13>;
++			input-enable;
++			input-schmitt-enable;  /* 启用施密特触发器以稳定低电平中断信号 */
++			slew-rate = <0>;
++		};
++	};
++	bt_aogpios {
++		bt_reset: bt-reset {
++			pins = "AOGPIO1_4"; /* enable-gpios */
++			function = "aogpio0";
++			bias-pull-up;
++			drive-strength = <7>;
++			input-disable;
++			input-schmitt-enable;
++			slew-rate = <0>;
++		};
++		bt_wake_host: bt-wake-host {
++			pins = "AOGPIO0_30"; /* host-wake-gpios */
++			function = "aogpio0";
++			bias-pull-up;
++			drive-strength = <7>;
++			input-enable;
++			input-schmitt-enable;
++			slew-rate = <0>;
++		};
++	};
++};
++
++&peri1_padctrl {
++	gmac0_pins: gmac0-0 {
++		txclk-pins {
++			pins = "GPIO0_0", /* GMAC0_TX_CLK */
++					"GPIO0_12"; /* GMAC0_MDC */
++			function = "gmac0";
++			bias-disable;
++			drive-strength = <13>;
++			input-disable;
++			input-schmitt-disable;
++			slew-rate = <0>;
++		};
++
++		tx-pins {
++			pins = "GPIO0_2", /* GMAC0_TXEN */
++					"GPIO0_3", /* GMAC0_TXD0 */
++					"GPIO0_4", /* GMAC0_TXD1 */
++					"GPIO0_5", /* GMAC0_TXD2 */
++					"GPIO0_6"; /* GMAC0_TXD3 */
++			function = "gmac0";
++			bias-disable;
++			drive-strength = <20>;
++			input-disable;
++			input-schmitt-disable;
++			slew-rate = <0>;
++		};
++
++		rx-pins {
++			pins = "GPIO0_1",  /* GMAC0_RX_CLK */
++					"GPIO0_7",  /* GMAC0_RXDV */
++					"GPIO0_8",  /* GMAC0_RXD0 */
++					"GPIO0_9",  /* GMAC0_RXD1 */
++					"GPIO0_10", /* GMAC0_RXD2 */
++					"GPIO0_11", /* GMAC0_RXD3 */
++					"GPIO0_13"; /* GMAC0_MDIO */
++			function = "gmac0";
++			bias-disable;
++			drive-strength = <13>;
++			input-enable;
++			input-schmitt-disable;
++			slew-rate = <0>;
++		};
++	};
++	qspi0_pins: qspi0-0 {
++		qspi-pins {
++			pins = "GPIO0_18", "GPIO0_20", "GPIO0_21", "GPIO0_22", "GPIO0_23";
++			function = "qspi0";
++			bias-disable;
++			drive-strength = <13>;
++			input-enable;
++			input-schmitt-enable;
++			slew-rate = <0>;
++		};
++	};
++	pcie_x1_pins: pcie_x1-1 {
++		pcie_x1-pins {
++			pins = "GPIO0_25";
++			function = "pcie_x1";
++			bias-disable;
++			drive-strength = <7>;
++			input-enable;
++			input-schmitt-enable;
++			slew-rate = <0>;
++		};
++	};
++	pcie_x4_pins: pcie_x4-1 {
++		pcie_x4-pins {
++			pins = "GPIO0_29";
++			function = "pcie_x4";
++			bias-disable;
++			drive-strength = <7>;
++			input-enable;
++			input-schmitt-enable;
++			slew-rate = <0>;
++		};
++	};
++	pwm0_pins: pwm0-1 {
++		pwm0-pins {
++			pins = "GPIO0_30"; // PWM0_CH2
++			function = "pwm0";
++			bias-disable;
++			drive-strength = <13>;
++			input-disable;
++			input-schmitt-disable;
++			slew-rate = <0>;
++		};
++	};
++	gmac1_pins: gmac1-0 {
++		txclk-pins {
++			pins = "GPIO1_2", /* GMAC1_TX_CLK */
++					"GPIO1_14"; /* GMAC1_MDC */
++			function = "gmac1";
++			bias-disable;
++			drive-strength = <13>;
++			input-disable;
++			input-schmitt-disable;
++			slew-rate = <0>;
++		};
++		tx-pins {
++			pins = "GPIO1_4", /* GMAC1_TXEN */
++					"GPIO1_5", /* GMAC1_TXD0 */
++					"GPIO1_6", /* GMAC1_TXD1 */
++					"GPIO1_7", /* GMAC1_TXD2 */
++					"GPIO1_8"; /* GMAC1_TXD3 */
++			function = "gmac1";
++			bias-disable;
++			drive-strength = <20>;
++			input-disable;
++			input-schmitt-disable;
++			slew-rate = <0>;
++		};
++		rx-pins {
++			pins = "GPIO1_3",  /* GMAC1_RX_CLK */
++					"GPIO1_9",  /* GMAC1_RXDV */
++					"GPIO1_10", /* GMAC1_RXD0 */
++					"GPIO1_11", /* GMAC1_RXD1 */
++					"GPIO1_12", /* GMAC1_RXD2 */
++					"GPIO1_13", /* GMAC1_RXD3 */
++					"GPIO1_15"; /* GMAC1_MDIO */
++			function = "gmac1";
++			bias-disable;
++			drive-strength = <13>;
++			input-enable;
++			input-schmitt-disable;
++			slew-rate = <0>;
++		};
++	};
++	sdhci_pins: sdhci0-1 {
++		sd-pins {
++			pins = "GPIO1_1";
++			function = "sdio";
++			bias-disable;
++			drive-strength = <13>;
++			input-enable;
++			input-schmitt-enable;
++			slew-rate = <0>;
++		};
++	};
++	bt_gpios {
++		bt_wake_dev: bt-wake-dev {
++			pins = "GPIO0_17"; /* device-wake-gpios */
++			function = "gpio0";
++			bias-pull-up;
++			drive-strength = <7>;
++			input-disable;
++			input-schmitt-enable;
++			slew-rate = <0>;
++		};
++	};
++};
++
++&peri2_padctrl {
++	uart4_pins: uart4-0 {
++		tx-pins {
++			pins = "GPIO2_0";
++			function = "uart4";
++			bias-disable;
++			drive-strength = <3>;
++			input-disable;
++			input-schmitt-disable;
++			slew-rate = <0>;
++		};
++
++		rx-pins {
++			pins = "GPIO2_1";
++			function = "uart4";
++			bias-disable;
++			drive-strength = <1>;
++			input-enable;
++			input-schmitt-enable;
++			slew-rate = <0>;
++		};
++	};
++	i2c5_pins: i2c5-1 {
++		i2c-pins {
++			pins = "GPIO2_28", "GPIO2_29";
++			function = "i2c5";
++			bias-disable;
++			drive-strength = <25>;
++			input-enable;
++			input-schmitt-enable;
++			slew-rate = <1>;
++		};
++	};
++	uart5_pins: uart5-1 {
++		tx-pins {
++			pins = "GPIO2_18", "GPIO3_10";	// TXD, RTSN
++			function = "uart5";
++			bias-disable;
++			drive-strength = <3>;
++			input-disable;
++			input-schmitt-disable;
++			slew-rate = <0>;
++		};
++
++		rx-pins {
++			pins = "GPIO2_19", "GPIO3_9";	// RXD, CTSN
++			function = "uart5";
++			bias-disable;
++			drive-strength = <1>;
++			input-enable;
++			input-schmitt-enable;
++			slew-rate = <0>;
++		};
++	};
++	i2c6_pins: i2c6-1 {
++		i2c-pins {
++			pins = "GPIO2_8", "GPIO2_9";
++			function = "i2c6";
++			bias-disable;
++			drive-strength = <25>;
++			input-enable;
++			input-schmitt-enable;
++			slew-rate = <1>;
++		};
++	};
++	i2s1_pins: i2s1-0 {
++		i2s-pins {
++			pins = "GPIO2_2", "GPIO2_3", "GPIO2_4", "GPIO2_5", "GPIO2_6";
++			function = "i2s1";
++			bias-disable;
++			drive-strength = <13>;
++			input-schmitt-disable;
++			slew-rate = <0>;
++		};
++	};
++	i2c7_pins: i2c7-0 {
++		i2c-pins {
++			pins = "GPIO2_10", "GPIO2_11";
++			function = "i2c7";
++			bias-disable;
++			drive-strength = <25>;
++			input-enable;
++			input-schmitt-enable;
++			slew-rate = <1>;
++		};
++	};
++	i2c4_pins: i2c4-2 {
++		i2c-pins {
++			pins = "GPIO2_26", "GPIO2_27";
++			function = "i2c4";
++			bias-disable;
++			drive-strength = <25>;
++			input-enable;
++			input-schmitt-enable;
++			slew-rate = <1>;
++		};
++	};
++	pwm1_pins: pwm1-1 {
++		pwm1-pins {
++			pins = "GPIO2_12"; // PWM1_CH2
++			function = "pwm1";
++			bias-disable;
++			drive-strength = <13>;
++			input-disable;
++			input-schmitt-disable;
++			slew-rate = <0>;
++		};
++	};
++	hdmi_pins: hdmi-0 {
++		hdmi-pins {
++			pins = "GPIO2_25", "GPIO2_30", "GPIO2_31";
++			function = "hdmi";
++			bias-disable;
++			drive-strength = <3>;
++			input-enable;
++			input-schmitt-disable;
++			slew-rate = <0>;
++		};
++	};
++	sen_vclk_pin0: sen_vclk0 {
++		sen_vclk0-pins {
++			pins = "GPIO3_0";
++			function = "sen_vclk";
++			bias-disable;
++			drive-strength = <7>;
++			input-enable;
++			input-schmitt-enable;
++			slew-rate = <0>;
++		};
++	};
++	sen_vclk_pin1: sen_vclk1 {
++		sen_vclk1-pins {
++			pins = "GPIO3_1";
++			function = "sen_vclk";
++			bias-disable;
++			drive-strength = <7>;
++			input-enable;
++			input-schmitt-enable;
++			slew-rate = <0>;
++		};
++	};
++	uart8_pins: uart8-1 {
++		tx-pins {
++			pins = "GPIO3_2";	// TXD
++			function = "uart8";
++			bias-disable;
++			drive-strength = <3>;
++			input-disable;
++			input-schmitt-disable;
++			slew-rate = <0>;
++		};
++
++		rx-pins {
++			pins = "GPIO3_3";	// RXD
++			function = "uart8";
++			bias-disable;
++			drive-strength = <1>;
++			input-enable;
++			input-schmitt-enable;
++			slew-rate = <0>;
++		};
++	};
++};
++
++&gmac0 {
++	phy-mode = "rgmii-id";
++	pinctrl-names = "default";
++	pinctrl-0 = <&gmac0_pins>;
++	rx-clk-delay = <0x00>; /* for RGMII */
++	tx-clk-delay = <0x00>; /* for RGMII */
++	phy-handle = <&phy0>;
++};
++
++&mdio0 {
++	phy0: ethernet-phy@0 {
++		reg = <0x0>;
++	};
++};
++
++&gmac1 {
++	phy-mode = "rgmii-id";
++	pinctrl-names = "default";
++	pinctrl-0 = <&gmac1_pins>;
++	phy-handle = <&phy1>;
++};
++
++&mdio1 {
++	phy1: ethernet-phy@1 {
++		reg = <0x0>;
++	};
++};
++
++&qspi0 {
++	cs-gpios = <&gpio0 19 0>;
++	rx-sample-dly = <2>;
++	spi-swap-data = <1>;
++	spi-max-frequency = <42000000>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&qspi0_pins>;
++	status = "disabled";
++
++	spi_norflash@0 {
++		compatible = "jedec,spi-nor";
++		spi-max-frequency = <42000000>;
++		#address-cells = <1>;
++		#size-cells = <1>;
++		spi-tx-bus-width = <4>;
++		spi-rx-bus-width = <4>;
++		reg = <0>;
++		status = "okay";
++	};
++};
++
++&i2c4 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c4_pins>;
++	clock-frequency = <400000>;
++
++	pcf8563: rtc@51 {
++		pinctrl-names = "default";
++		pinctrl-0 = <&rtc_pins>;
++		compatible = "nxp,pcf8563";
++		reg = <0x51>;
++		interrupt-parent = <&ao_gpio0>;
++		interrupts = <27 IRQ_TYPE_LEVEL_LOW>;
++		wakeup-source;
++	};
++};
++
++&i2c5 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c5_pins>;
++	clock-frequency = <400000>;
++
++	codec_es8156_dac0: es8156@8 {
++		compatible = "everest,es8156";
++		reg = <0x8>;
++		#sound-dai-cells = <1>;
++		sound-name-prefix = "ES8156_DAC0";
++		mclk-sclk-ratio = <4>;
++		audio-3v3-pwren-gpios	= <&aw9535_1 1 GPIO_ACTIVE_HIGH>;
++		audio-1v8-pwren-gpios	= <&aw9535_1 2 GPIO_ACTIVE_HIGH>;
++		audio-hp-ctl-gpios	= <&aw9535_0 11 GPIO_ACTIVE_HIGH>;
++		status = "okay";
++	};
++
++	codec_es7210_adc0: es7210@40 {
++		compatible = "MicArray_0";
++		reg = <0x40>;
++		#sound-dai-cells = <1>;
++		work-mode = "ES7210_NORMAL_I2S";
++		channels-max = <2>;
++		mclk-sclk-ratio = <4>;
++		sound-name-prefix = "ES7210_ADC0";
++		status = "okay";
++	};
++
++	codec_es8156_dac1: es8156@9 {
++		compatible = "everest,es8156";
++		reg = <0x9>;
++		#sound-dai-cells = <1>;
++		sound-name-prefix = "ES8156_DAC1";
++		mclk-sclk-ratio = <4>;
++		status = "disabled";
++	};
++
++	codec_es7210_adc1: es7210@41 {
++		compatible = "MicArray_0";
++		reg = <0x41>;
++		#sound-dai-cells = <1>;
++		work-mode = "ES7210_NORMAL_I2S";
++		channels-max = <2>;
++		mclk-sclk-ratio = <4>;
++		sound-name-prefix = "ES7210_ADC1";
++		status = "disabled";
++	};
++
++	audio_aw87565_pa2: audio_pa2@5b {
++		compatible = "awinic,aw87565_pa";
++		reg = <0x5b>;
++		sound-name-prefix = "AW87565_PA2";
++		reset-gpios = <&aw9535_0 8 GPIO_ACTIVE_LOW>;
++		status = "disabled";
++	};
++};
++
++&i2c6 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c6_pins>;
++	clock-frequency = <400000>;
++
++	pmic_wl2866d_0:wl2866d_0@28 {
++		compatible = "willsemi,wl2866d";
++		reg = <0x28>;
++		status = "okay";
++
++		regulators {
++			dvdd1_mipicsi0_reg: dvdd1_mipicsi0 {
++				regulator-name = "dvdd1_mipicsi0";
++				regulator-min-microvolt = <1000000>;
++				regulator-max-microvolt = <1300000>;
++			};
++
++			dvdd2_mipicsi0_reg: dvdd2_mipicsi0 {
++				regulator-name = "dvdd2_mipicsi0";
++				regulator-min-microvolt = <1800000>;
++				regulator-max-microvolt = <1800000>;
++			};
++
++			avdd1_mipicsi0_reg: avdd1_mipicsi0 {
++				regulator-name = "avdd1_mipicsi0";
++				regulator-min-microvolt = <2500000>;
++				regulator-max-microvolt = <3300000>;
++			};
++
++			avdd2_mipicsi0_reg: avdd2_mipicsi0 {
++				regulator-name = "avdd2_mipicsi0";
++				regulator-min-microvolt = <1800000>;
++				regulator-max-microvolt = <1800000>;
++			};
++		};
++	};
++};
++
++&i2c7 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c7_pins>;
++	clock-frequency = <400000>;
++
++	pmic_wl2866d_1:wl2866d_1@28 {
++		compatible = "willsemi,wl2866d";
++		reg = <0x28>;
++		status = "okay";
++
++		regulators {
++			dvdd1_mipicsi1_reg: dvdd1_mipicsi1 {
++				regulator-name = "dvdd1_mipicsi1";
++				regulator-min-microvolt = <1000000>;
++				regulator-max-microvolt = <1300000>;
++			};
++
++			dvdd2_mipicsi1_reg: dvdd2_mipicsi1 {
++				regulator-name = "dvdd2_mipicsi1";
++				regulator-min-microvolt = <1800000>;
++				regulator-max-microvolt = <1800000>;
++			};
++
++			avdd1_mipicsi1_reg: avdd1_mipicsi1 {
++				regulator-name = "avdd1_mipicsi1";
++				regulator-min-microvolt = <2500000>;
++				regulator-max-microvolt = <3300000>;
++			};
++
++			avdd2_mipicsi1_reg: avdd2_mipicsi1 {
++				regulator-name = "avdd2_mipicsi1";
++				regulator-min-microvolt = <1800000>;
++				regulator-max-microvolt = <1800000>;
++			};
++		};
++	};
++};
++
++&aoi2c1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&aoi2c1_pins>;
++	clock-frequency = <400000>;
++	status = "okay";
++
++	aw9535_0: gpio@20 {
++		compatible = "awinic,aw9535";
++		reg = <0x20>;
++		gpio-controller;
++		#gpio-cells = <2>;
++		ngpios = <16>;
++		interrupt-parent = <&ao_gpio1>;
++		interrupts = <2 IRQ_TYPE_LEVEL_LOW>;
++		gpio-line-names =
++			"CSI1_PWDN_IO0", "CSI1_RST_IO1", "CSI1_FSIN_IO2", "CSI0_PWDN_IO3",                  // index 0..3
++			"CSI0_RST_IO4", "CSI0_FSIN_IO5", "MINPCIE_1V5POWER_EN_I06", "MINPCIE_3V3_PWREN_I07",// index 4..7
++			"NULL_I08", "M2_SATA_EN_IO9", "AUDIO_ADC0_INT_IO10", "HP_CTL_H_IO11",               // index 8..11
++			"PI6C557_EN_IO12","DISP_RST_IO13","M2_SATA_3V3_PWREN_IO14","MINPCIE_PERST_IO15";    // index 12..15
++	};
++
++	aw9535_1: gpio@21 {
++		compatible = "awinic,aw9535";
++		reg = <0x21>;
++		gpio-controller;
++		#gpio-cells = <2>;
++		ngpios = <16>;
++		gpio-line-names =
++			"PCIE_ETH_PERSTB_IO0", "AUDIO_3V3_PWREN_IO1", "AUDIO_1V8_PWREN_IO2", "MIPI_CSI0_PWREN_IO3", // index 0..3
++			"MIPI_CSI1_PWREN_IO4", "MIPI_TP_PWREN_IO5", "PCIE_ETH_3V3_PWREN_IO6", "NULL_IO7",           // index 4..7
++			"USBCON_PWREN_IO8", "USBCON1_PWREN_IO9", "NULL_IO10", "SDIO_3V3_PWREN_IO11",                // index 8..11
++			"SDIO_1V8_PWREN_IO12","PI6C557_PWREN_IO13","MIPI_DSI_PWREN_IO14","BL_EN_IO15";              // index 12..15
++	};
++
++	fusb302: typec-portc@22 {
++		compatible = "fcs,fusb302";
++		reg = <0x22>;
++		interrupt-parent = <&ao_gpio0>;
++		interrupts = <28 IRQ_TYPE_LEVEL_LOW>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&usbc0_int>;
++		vbus-supply = <&reg_usb_typec_vbus>;
++		status = "okay";
++
++		ports {
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			port@0 {
++				reg = <0>;
++				usbc0_role_sw: endpoint@0 {
++					remote-endpoint = <&dwc3_0_role_switch>;
++				};
++			};
++		};
++
++		connector {
++			compatible = "usb-c-connector";
++			label = "USB-C";
++			data-role = "dual";
++			power-role = "dual";
++			try-power-role = "sink";
++			op-sink-microwatt = <1000000>;
++			sink-pdos =
++				<PDO_FIXED(5000, 1000, PDO_FIXED_USB_COMM)>;
++			source-pdos =
++				<PDO_FIXED(5000, 3000, PDO_FIXED_USB_COMM)>;
++
++			altmodes {
++				#address-cells = <1>;
++				#size-cells = <0>;
++
++				altmode@0 {
++					reg = <0>;
++					svid = <0xff01>;
++					vdo = <0xffffffff>;
++				};
++			};
++
++			ports {
++				#address-cells = <1>;
++				#size-cells = <0>;
++
++				port@0 {
++					reg = <0>;
++					usbc0_orien_sw: endpoint {
++						remote-endpoint = <&usbdp_phy0_orientation_switch>;
++					};
++				};
++
++				port@1 {
++					reg = <1>;
++					dp_altmode_mux: endpoint {
++						remote-endpoint = <&usbdp_phy0_dp_altmode_mux>;
++					};
++				};
++			};
++		};
++	};
++};
++
++&uart4 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&uart4_pins>;
++};
++
++&uart5 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&uart5_pins>;
++/*
++	bluetooth {
++		compatible = "realtek,rtl8822cs-bt";
++		pinctrl-names = "default";
++		pinctrl-0 = <&bt_reset>, <&bt_wake_host>, <&bt_wake_dev>;
++		enable-gpios = <&ao_gpio1 4 GPIO_ACTIVE_HIGH>;
++		host-wake-gpios = <&ao_gpio0 30 GPIO_ACTIVE_HIGH>;
++		device-wake-gpios = <&gpio0 17 GPIO_ACTIVE_HIGH>;
++	};
++*/
++};
++
++&uart8 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&uart8_pins>;
++};
++
++&rp3x1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pcie_x1_pins>;
++	status = "okay";
++};
++
++&dm3x4 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pcie_x4_pins>;
++};
++
++&audio_i2s1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2s1_pins>;
++};
++
++&adc {
++	vref-supply = <&reg_vref_1v8>;
++	#io-channel-cells = <1>;
++	sampling-frequency = <1000000>;
++	resolution = <12>;
++};
++
++&pwm0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pwm0_pins>;
++};
++
++&pwm1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pwm1_pins>;
++};
++
++&hdmi_tx {
++	pinctrl-names = "default";
++	pinctrl-0 = <&hdmi_pins>;
++};
++
++&vidmem {
++  memory-region = <&framebuffer>;
++};
++
++&emmc {
++	max-frequency = <196608000>;
++	non-removable;
++	mmc-hs400-1_8v;
++	mmc-hs200-1_8v;
++	io_fixed_1v8;
++	is_emmc;
++	no-sdio;
++	no-sd;
++	pull_up;
++	bus-width = <8>;
++	cap-mmc-highspeed;
++};
++
++&sdhci0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&sdhci_pins>;
++	max-frequency = <196608000>;
++	cap-sd-highspeed;
++	bus-width = <4>;
++	sd-uhs-sdr104;
++	pull_up;
++	no-sd;
++	no-mmc;
++	non-removable;
++	io_fixed_1v8;
++	post-power-on-delay-ms = <200>;
++	wprtn_ignore;
++	wakeup-source;
++
++	vmmc-supply = <&wifi_vdd_3v3>;
++	vqmmc-supply = <&wifi_vdd_1v8>;
++	mmc-pwrseq = <&wifi_pwrseq>;
++
++	rtl8822cs: wifi@1 {
++		interrupt-parent = <&ao_gpio1>;
++		interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
++		interrupt-names = "host-wake";
++	};
++};
++
++&usb20phy0 {
++	pwren-gpios = <&aw9535_1 8 GPIO_ACTIVE_HIGH>;
++};
++
++&usb20phy1 {
++	pwren-gpios = <&aw9535_1 9 GPIO_ACTIVE_HIGH>;
++};
++
++&sata {
++	status = "okay";
++};
++
++&e16phy {
++	init-seq-select = "pcie_dmx1_rpx1_satax2";
++	base-en-gpios = <&aw9535_0 12 GPIO_ACTIVE_HIGH>, // pcie-clk, sata-clk
++					<&aw9535_1 13 GPIO_ACTIVE_HIGH>; // pcie-clk-pwren, sata-clk-pwren
++	sata-en-gpios = <&aw9535_0 14 GPIO_ACTIVE_HIGH>, // m2-sata-3v3-pwren
++					<&aw9535_0  9 GPIO_ACTIVE_HIGH>; // m2-sata-en
++	pcie-en-gpios = <&aw9535_0  6 GPIO_ACTIVE_HIGH>, // minipcie-1v5-pwren
++					<&aw9535_0  7 GPIO_ACTIVE_HIGH>, // minipcie-3v3-pwren
++					<&aw9535_0 15 GPIO_ACTIVE_HIGH>; // minipcie-perst
++};
++
++&mipi0_csi0 {
++	status = "disabled";
++};
++
++&mipi0_csi1 {
++	//combination 4lane mode: host addr; aphy ctrl addr; bphy ctrl addr; mipi_ctrl addr
++	reg = < 0x00 0x06310000 0x0 0x10000
++			0x00 0x063a0020 0x0 0x4
++			0x00 0x063a0024 0x0 0x4
++			0x00 0x063a0028 0x0 0x4>;
++	phy_name = "CSI_4LANE"; //combination 4lane
++};
++
++//config dsi display: dpu_disp0->dup_enc0->dsi0->lcd_plane
++&dsi_enc_out {
++	remote-endpoint = <&dsi0_in>;
++};
++
++&dsi_host0 {
++	status = "okay";
++	ports {
++		#address-cells = <1>;
++		#size-cells = <0>;
++		port@0 {
++			reg = <0>;
++			dsi0_in: endpoint {
++				remote-endpoint = <&dsi_enc_out>;
++			};
++		};
++		port@1 {
++			reg = <1>;
++			dsi0_out: endpoint {
++				remote-endpoint = <&panel0_in>;
++			};
++		};
++	};
++
++	panel0@0 {
++		compatible = "jadard,jd9365da-h3";
++		reg = <0>;
++		backlight = <&lcd0_backlight>;
++		reset-gpio = <&aw9535_0 13 0>; /* active low */
++		hsvcc-supply = <&reg_vdd33_lcd0>;
++		vspn3v3-supply = <&reg_vddtp33_lcd0>;
++
++		port {
++			panel0_in: endpoint {
++				remote-endpoint = <&dsi0_out>;
++			};
++		};
++	};
++};
++
++&c920_4 {
++	dvdd-cpu-p-supply = <&dvdd_cpu_p_reg>;
++};
++
++&c908_0 {
++	dvdd-cpu-supply = <&dvdd_cpu_reg>;
++	dvddm-cpu-supply = <&dvddm_cpu_reg>;
++};
++
++/*
++ * OSL: drop pmic-supply on power_gpu / power_npu_wrapper / power_vp_wrapper.
++ *
++ * The a210-pd driver iterates ALL child power-domain nodes during probe and
++ * returns -EPROBE_DEFER as soon as a `pmic-supply` regulator phandle can't be
++ * resolved. dvdd_gpu_reg / dvdd_npu_vip_reg / dvdd_vp_reg are PMIC outputs --
++ * we don't have the PMIC driver path wired up yet, so the regulator framework
++ * never produces them and the a210-pd probe defers forever. That cascades:
++ * the console UART (uart4 at 0x08401000) depends on power_peri2 from this
++ * same provider, so /dev/console can't open, /init's exec redirect fails,
++ * and the kernel panics with exitcode=2.
++ *
++ * GPU / NPU / VP power management isn't needed for boot-up or the installer
++ * flow; for now we drop the references and let those domains stay in whatever
++ * state U-Boot left them. Re-add once we have the PMIC driver and regulators.
++ */
++&power_gpu {
++	/delete-property/ pmic-supply;
++};
++
++&power_npu_wrapper {
++	/delete-property/ pmic-supply;
++};
++
++&power_vp_wrapper {
++	/delete-property/ pmic-supply;
++};
++
++&venc {
++	dvdd-supply = <&dvdd_vp_reg>;
++};
++
++&vdec {
++	dvdd-supply = <&dvdd_vp_reg>;
++};
++
++&g2d {
++	dvdd-supply = <&dvdd_vp_reg>;
++};
++
++&gpu {
++	dvdd-supply = <&dvdd_gpu_reg>;
++};
++
++&usb3 {
++	dr_mode = "otg";
++	usb-role-switch;
++
++	status = "okay";
++	port {
++		#address-cells = <1>;
++		#size-cells = <0>;
++		dwc3_0_role_switch: endpoint@0 {
++			reg = <0>;
++			remote-endpoint = <&usbc0_role_sw>;
++		};
++	};
++};
++
++&dp0 {
++	force-hpd = <1>;
++	extcon = <&usb31_c10phy>;
++};
++
++/* USB3.1/DP Combo PHY0 */
++&usb31_c10phy {
++	orientation-switch;
++	mode-switch;
++	status = "okay";
++	svid = <0xff01>;
++	#extcon-cells = <0>;
++
++	port {
++		#address-cells = <1>;
++		#size-cells = <0>;
++		usbdp_phy0_orientation_switch: endpoint@0 {
++			reg = <0>;
++			remote-endpoint = <&usbc0_orien_sw>;
++		};
++
++		usbdp_phy0_dp_altmode_mux: endpoint@1 {
++			reg = <1>;
++			remote-endpoint = <&dp_altmode_mux>;
++		};
++	};
++};
+diff --git a/arch/riscv/boot/dts/zhihe/a210-platform-dev.dtsi b/arch/riscv/boot/dts/zhihe/a210-platform-dev.dtsi
+new file mode 100644
+index 0000000000000..25fdd36012848
+--- /dev/null
++++ b/arch/riscv/boot/dts/zhihe/a210-platform-dev.dtsi
+@@ -0,0 +1,299 @@
++&uart0 {
++	status = "disabled";
++};
++
++&uart1 {
++	status = "disabled";
++};
++
++&uart2 {
++	status = "disabled";
++};
++
++&uart3 {
++	status = "disabled";
++};
++
++&uart6 {
++	status = "disabled";
++};
++
++&uart7 {
++	status = "disabled";
++};
++
++&uart9 {
++	status = "disabled";
++};
++
++&spi0 {
++	status = "disabled";
++};
++
++&spi1 {
++	status = "disabled";
++};
++
++&qspi1 {
++	status = "disabled";
++};
++
++&i2c0 {
++	status = "disabled";
++};
++
++&i2c1 {
++	status = "disabled";
++};
++
++&i2c2 {
++	status = "disabled";
++};
++
++&i2c3 {
++	status = "disabled";
++};
++
++&can0 {
++	status = "disabled";
++};
++
++&can1 {
++	status = "disabled";
++};
++
++&can2 {
++	status = "disabled";
++};
++
++&dmac1 {
++	status = "disabled";
++};
++
++&timer0 {
++	status = "disabled";
++};
++
++&timer1 {
++	status = "disabled";
++};
++
++&timer3 {
++	status = "disabled";
++};
++
++&timer4 {
++	status = "disabled";
++};
++
++&timer5 {
++	status = "disabled";
++};
++
++&timer6 {
++	status = "disabled";
++};
++
++&timer7 {
++	status = "disabled";
++};
++
++&rp3x1 {
++	status = "disabled";
++};
++
++&dm3x4 {
++	status = "okay";
++};
++
++&auxdisp {
++	status = "disabled";
++};
++
++&dpu_enc0 {
++	status = "disabled";
++};
++
++&audio_i2s0 {
++	status = "disabled";
++};
++
++&audio_i2s1 {
++	status = "okay";
++};
++
++&audio_i2s2 {
++	status = "disabled";
++};
++
++&audio_i2s_8ch_sd0 {
++	status = "disabled";
++};
++
++&audio_i2s_8ch_sd1 {
++	status = "disabled";
++};
++
++&audio_i2s_8ch_sd2 {
++	status = "disabled";
++};
++
++&audio_i2s_8ch_sd3 {
++	status = "disabled";
++};
++
++&pwm0 {
++	status = "disabled";
++};
++
++&pwm2 {
++	status = "disabled";
++};
++
++&audio_pdm0 {
++	status = "disabled";
++};
++
++&audio_pdm1 {
++	status = "disabled";
++};
++
++&audio_pdm2 {
++	status = "disabled";
++};
++
++&audio_pdm3 {
++	status = "disabled";
++};
++
++&audio_pdm4 {
++	status = "disabled";
++};
++
++&audio_pdm5 {
++	status = "disabled";
++};
++
++&audio_pdm6 {
++	status = "disabled";
++};
++
++&audio_pdm7 {
++	status = "disabled";
++};
++
++&sata {
++	status = "disabled";
++};
++
++/* dfmu/iommu */
++&iommu {
++	status = "okay";
++};
++
++&dfmu_mt_vp {
++	status = "disabled";
++};
++
++&dfmu_mt_npu {
++	status = "disabled";
++};
++
++&dfmu_mt_vi {
++	status = "disabled";
++};
++
++&dfmu_mt_vo {
++	status = "disabled";
++};
++
++&dfmu_mt_peri1 {
++	status = "disabled";
++};
++
++&dfmu_mt_pcie {
++	status = "disabled";
++};
++
++&dfmu_mt_usb {
++	status = "disabled";
++};
++
++&bmu9 {
++	status = "disabled";
++};
++
++&rtc {
++	status = "disabled";
++};
++
++/* Temporarily disable gpio4 */
++&peri3_padctrl {
++	status = "disabled";
++};
++
++&gpio4 {
++	status = "disabled";
++};
++
++/*
++ * OSL: disable non-installer subsystems.
++ *
++ * The deferred-probe pass wedges silently in one of the larger driver
++ * probes after a210-pd / a210-clk come up. We don't need USB / display /
++ * GPU / video codecs / SATA / type-c for the installer (UART + eMMC +
++ * ethernet only). Disabling them here skips those probes entirely and
++ * unblocks boot to /init. Re-enable individually once we actually need
++ * them (and once we have the PMIC / regulator wiring for the bits that
++ * need power management).
++ */
++&usb3 {
++	status = "disabled";
++};
++
++&usb31_c10phy {
++	status = "disabled";
++};
++
++/*
++ * &fusb302 (typec-portc@22) is declared inside &i2c7 { ... } in a210-dev.dts.
++ * DTC's label resolution can't reach it from this overlay's include position
++ * ("Label or path fusb302 not found"). With &usb3 (dwc3) disabled the typec
++ * controller has no role to coordinate, so leave fusb302 alone.
++ */
++
++&dpu {
++	status = "disabled";
++};
++
++&dsi0 {
++	status = "disabled";
++};
++
++&dphy_0 {
++	status = "disabled";
++};
++
++&hdmi_tx {
++	status = "disabled";
++};
++
++&dp0 {
++	status = "disabled";
++};
++
++&gpu {
++	status = "disabled";
++};
++
++&venc {
++	status = "disabled";
++};
++
++&vdec {
++	status = "disabled";
++};
++
++&sata {
++	status = "disabled";
++};
+diff --git a/arch/riscv/boot/dts/zhihe/a210-soc-core.dtsi b/arch/riscv/boot/dts/zhihe/a210-soc-core.dtsi
+new file mode 100644
+index 0000000000000..66f0487c8761a
+--- /dev/null
++++ b/arch/riscv/boot/dts/zhihe/a210-soc-core.dtsi
+@@ -0,0 +1,1284 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Copyright (C) 2021 Alibaba Group Holding Limited.
++ */
++
++#include <dt-bindings/clock/a210-clock.h>
++#include <dt-bindings/reset/a210-reset.h>
++#include <dt-bindings/iopmp/zh-iopmp.h>
++#include <dt-bindings/power/a210-power.h>
++
++/ {
++	compatible = "zhihe,a210";
++	#address-cells = <2>;
++	#size-cells = <2>;
++
++	cpus: cpus {
++		#address-cells = <1>;
++		#size-cells = <0>;
++		timebase-frequency = <24000000>; /*24M*/
++		c908_0: cpu@0 {
++			device_type = "cpu";
++			reg = <0>;
++			compatible = "riscv";
++			riscv,isa = "rv64imac";
++			riscv,isa-base = "rv64i";
++			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "v", "zicntr", "zicsr", "zifencei", "zihpm", "zba", "zbb", "zbc", "zbs", "svpbmt", "sscofpmf";
++			mmu-type = "riscv,sv39";
++			cpu-freq = "1.9Ghz";
++			i-cache-block-size = <64>;
++			i-cache-size = <32768>;
++			i-cache-sets = <256>;
++			d-cache-block-size = <64>;
++			d-cache-size = <32768>;
++			d-cache-sets = <256>;
++			next-level-cache = <&c0_l2_cache>;
++			cpu-tlb = "1024 4-ways";
++			cpu-vector = "1.0";
++			capacity-dmips-mhz = <768>;
++			clocks = <&clk C908_CPU_TO_CDE_CLK_MUX>;
++			operating-points-v2 = <&cluster0_opp>;
++			#cooling-cells = <2>;
++			numa-node-id = <0>;
++			status = "okay";
++			cpu0_intc: interrupt-controller {
++				#interrupt-cells = <1>;
++				compatible = "riscv,cpu-intc";
++				interrupt-controller;
++			};
++		};
++		c908_1: cpu@1 {
++			device_type = "cpu";
++			reg = <1>;
++			compatible = "riscv";
++			riscv,isa = "rv64imac";
++			riscv,isa-base = "rv64i";
++			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "v", "zicntr", "zicsr", "zifencei", "zihpm", "zba", "zbb", "zbc", "zbs", "svpbmt", "sscofpmf";
++			mmu-type = "riscv,sv39";
++			cpu-freq = "1.9Ghz";
++			i-cache-block-size = <64>;
++			i-cache-size = <32768>;
++			i-cache-sets = <256>;
++			d-cache-block-size = <64>;
++			d-cache-size = <32768>;
++			d-cache-sets = <256>;
++			next-level-cache = <&c0_l2_cache>;
++			cpu-tlb = "1024 4-ways";
++			cpu-vector = "1.0";
++			capacity-dmips-mhz = <768>;
++			operating-points-v2 = <&cluster0_opp>;
++			#cooling-cells = <2>;
++			numa-node-id = <0>;
++			status = "okay";
++			cpu1_intc: interrupt-controller {
++				#interrupt-cells = <1>;
++				compatible = "riscv,cpu-intc";
++				interrupt-controller;
++			};
++		};
++		c908_2: cpu@2 {
++			device_type = "cpu";
++			reg = <2>;
++			compatible = "riscv";
++			riscv,isa = "rv64imac";
++			riscv,isa-base = "rv64i";
++			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "v", "zicntr", "zicsr", "zifencei", "zihpm", "zba", "zbb", "zbc", "zbs", "svpbmt", "sscofpmf";
++			mmu-type = "riscv,sv39";
++			cpu-freq = "1.9Ghz";
++			i-cache-block-size = <64>;
++			i-cache-size = <32768>;
++			i-cache-sets = <256>;
++			d-cache-block-size = <64>;
++			d-cache-size = <32768>;
++			d-cache-sets = <256>;
++			next-level-cache = <&c0_l2_cache>;
++			cpu-tlb = "1024 4-ways";
++			cpu-vector = "1.0";
++			capacity-dmips-mhz = <768>;
++			operating-points-v2 = <&cluster0_opp>;
++			#cooling-cells = <2>;
++			numa-node-id = <0>;
++			status = "okay";
++			cpu2_intc: interrupt-controller {
++				#interrupt-cells = <1>;
++				compatible = "riscv,cpu-intc";
++				interrupt-controller;
++			};
++		};
++		c908_3: cpu@3 {
++			device_type = "cpu";
++			reg = <3>;
++			compatible = "riscv";
++			riscv,isa = "rv64imac";
++			riscv,isa-base = "rv64i";
++			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "v", "zicntr", "zicsr", "zifencei", "zihpm", "zba", "zbb", "zbc", "zbs", "svpbmt", "sscofpmf";
++			mmu-type = "riscv,sv39";
++			cpu-freq = "1.9Ghz";
++			i-cache-block-size = <64>;
++			i-cache-size = <32768>;
++			i-cache-sets = <256>;
++			d-cache-block-size = <64>;
++			d-cache-size = <32768>;
++			d-cache-sets = <256>;
++			next-level-cache = <&c0_l2_cache>;
++			cpu-tlb = "1024 4-ways";
++			cpu-vector = "1.0";
++			capacity-dmips-mhz = <768>;
++			operating-points-v2 = <&cluster0_opp>;
++			#cooling-cells = <2>;
++			numa-node-id = <0>;
++			status = "okay";
++			cpu3_intc: interrupt-controller {
++				#interrupt-cells = <1>;
++				compatible = "riscv,cpu-intc";
++				interrupt-controller;
++			};
++		};
++
++		c920_4: cpu@4 {
++			device_type = "cpu";
++			reg = <4>;
++			compatible = "riscv";
++			riscv,isa = "rv64imac";
++			riscv,isa-base = "rv64i";
++			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "v", "zicntr", "zicsr", "zifencei", "zihpm", "zba", "zbb", "zbc", "zbs", "svpbmt", "sscofpmf";
++			mmu-type = "riscv,sv39";
++			cpu-freq = "2.3Ghz";
++			i-cache-block-size = <64>;
++			i-cache-size = <65536>;
++			i-cache-sets = <512>;
++			d-cache-block-size = <64>;
++			d-cache-size = <65536>;
++			d-cache-sets = <512>;
++			next-level-cache = <&c1_l2_cache>;
++			cpu-tlb = "1024 4-ways";
++			cpu-vector = "1.0";
++			capacity-dmips-mhz = <1024>;
++			clocks = <&clk C920_CPU_TO_CDE_CLK_MUX>;
++			operating-points-v2 = <&cluster1_opp>;
++			#cooling-cells = <2>;
++			numa-node-id = <0>;
++			status = "okay";
++			cpu4_intc: interrupt-controller {
++				#interrupt-cells = <1>;
++				compatible = "riscv,cpu-intc";
++				interrupt-controller;
++			};
++		};
++		c920_5: cpu@5 {
++			device_type = "cpu";
++			reg = <5>;
++			compatible = "riscv";
++			riscv,isa = "rv64imac";
++			riscv,isa-base = "rv64i";
++			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "v", "zicntr", "zicsr", "zifencei", "zihpm", "zba", "zbb", "zbc", "zbs", "svpbmt", "sscofpmf";
++			mmu-type = "riscv,sv39";
++			cpu-freq = "2.3Ghz";
++			i-cache-block-size = <64>;
++			i-cache-size = <65536>;
++			i-cache-sets = <512>;
++			d-cache-block-size = <64>;
++			d-cache-size = <65536>;
++			d-cache-sets = <512>;
++			next-level-cache = <&c1_l2_cache>;
++			cpu-tlb = "1024 4-ways";
++			cpu-vector = "1.0";
++			capacity-dmips-mhz = <1024>;
++			operating-points-v2 = <&cluster1_opp>;
++			#cooling-cells = <2>;
++			numa-node-id = <0>;
++			status = "okay";
++			cpu5_intc: interrupt-controller {
++				#interrupt-cells = <1>;
++				compatible = "riscv,cpu-intc";
++				interrupt-controller;
++			};
++		};
++		c920_6: cpu@6 {
++			device_type = "cpu";
++			reg = <6>;
++			compatible = "riscv";
++			riscv,isa = "rv64imac";
++			riscv,isa-base = "rv64i";
++			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "v", "zicntr", "zicsr", "zifencei", "zihpm", "zba", "zbb", "zbc", "zbs", "svpbmt", "sscofpmf";
++			mmu-type = "riscv,sv39";
++			cpu-freq = "2.3Ghz";
++			i-cache-block-size = <64>;
++			i-cache-size = <65536>;
++			i-cache-sets = <512>;
++			d-cache-block-size = <64>;
++			d-cache-size = <65536>;
++			d-cache-sets = <512>;
++			next-level-cache = <&c1_l2_cache>;
++			cpu-tlb = "1024 4-ways";
++			cpu-vector = "1.0";
++			capacity-dmips-mhz = <1024>;
++			operating-points-v2 = <&cluster1_opp>;
++			#cooling-cells = <2>;
++			numa-node-id = <0>;
++			status = "okay";
++			cpu6_intc: interrupt-controller {
++				#interrupt-cells = <1>;
++				compatible = "riscv,cpu-intc";
++				interrupt-controller;
++			};
++		};
++		c920_7: cpu@7 {
++			device_type = "cpu";
++			reg = <7>;
++			compatible = "riscv";
++			riscv,isa = "rv64imac";
++			riscv,isa-base = "rv64i";
++			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "v", "zicntr", "zicsr", "zifencei", "zihpm", "zba", "zbb", "zbc", "zbs", "svpbmt", "sscofpmf";
++			mmu-type = "riscv,sv39";
++			cpu-freq = "2.3Ghz";
++			i-cache-block-size = <64>;
++			i-cache-size = <65536>;
++			i-cache-sets = <512>;
++			d-cache-block-size = <64>;
++			d-cache-size = <65536>;
++			d-cache-sets = <512>;
++			next-level-cache = <&c1_l2_cache>;
++			cpu-tlb = "1024 4-ways";
++			cpu-vector = "1.0";
++			capacity-dmips-mhz = <1024>;
++			operating-points-v2 = <&cluster1_opp>;
++			#cooling-cells = <2>;
++			numa-node-id = <0>;
++			status = "okay";
++			cpu7_intc: interrupt-controller {
++				#interrupt-cells = <1>;
++				compatible = "riscv,cpu-intc";
++				interrupt-controller;
++			};
++		};
++
++		c0_l2_cache: c0_l2-cache {
++			compatible = "cache";
++			cache-block-size = <64>;
++			cache-level = <2>;
++			cache-size = <524288>;
++			cache-sets = <512>;
++			cache-unified;
++		};
++		c1_l2_cache: c1_l2-cache {
++			compatible = "cache";
++			cache-block-size = <64>;
++			cache-level = <2>;
++			cache-size = <1048576>;
++			cache-sets = <1024>;
++			cache-unified;
++		};
++
++		cpu-map {
++			cluster0 {
++				core0 {
++					cpu = <&c908_0>;
++				};
++
++				core1 {
++					cpu = <&c908_1>;
++				};
++
++				core2 {
++					cpu = <&c908_2>;
++				};
++
++				core3 {
++					cpu = <&c908_3>;
++				};
++			};
++			cluster1 {
++				core0 {
++					cpu = <&c920_4>;
++				};
++
++				core1 {
++					cpu = <&c920_5>;
++				};
++
++				core2 {
++					cpu = <&c920_6>;
++				};
++
++				core3 {
++					cpu = <&c920_7>;
++				};
++			};
++		};
++
++		idle_states: idle-states {
++			CPU_RET_0_0: cpu-retentive-0-0 {
++				compatible = "riscv,idle-state";
++				riscv,sbi-suspend-param = <0x10000000>;
++				entry-latency-us = <20>;
++				exit-latency-us = <40>;
++				min-residency-us = <80>;
++			};
++
++			CPU_NONRET_0_0: cpu-nonretentive-0-0 {
++				compatible = "riscv,idle-state";
++				riscv,sbi-suspend-param = <0x90000000>;
++				entry-latency-us = <250>;
++				exit-latency-us = <500>;
++				min-residency-us = <950>;
++			};
++
++			CLUSTER_RET_0: cluster-retentive-0 {
++				compatible = "riscv,idle-state";
++				riscv,sbi-suspend-param = <0x11000000>;
++				local-timer-stop;
++				entry-latency-us = <50>;
++				exit-latency-us = <100>;
++				min-residency-us = <250>;
++				wakeup-latency-us = <130>;
++			};
++
++			CLUSTER_NONRET_0: cluster-nonretentive-0 {
++				compatible = "riscv,idle-state";
++				riscv,sbi-suspend-param = <0x91000000>;
++				local-timer-stop;
++				entry-latency-us = <600>;
++				exit-latency-us = <1100>;
++				min-residency-us = <2700>;
++				wakeup-latency-us = <1500>;
++			};
++		};
++	};
++
++	cluster0_opp: opp-table-cluster0 {
++		compatible = "operating-points-v2";
++		opp-shared;
++		opp0-500000000 {
++			opp-hz = /bits/ 64 <500000000>;
++			bus-clk-hz = /bits/ 64 <196608000>;
++			pic-clk-hz = /bits/ 64 <250000000>;
++			cfg-clk-hz = /bits/ 64 <110000000>;
++			com-clk-hz = /bits/ 64 <82500000>;
++			apb-clk-hz = /bits/ 64 <82500000>;
++			opp-microvolt = <700000 800000>;
++		};
++		opp0-1200000000 {
++			opp-hz = /bits/ 64 <1200000000>;
++			bus-clk-hz = /bits/ 64 <660000000>;
++			pic-clk-hz = /bits/ 64 <500000000>;
++			cfg-clk-hz = /bits/ 64 <220000000>;
++			com-clk-hz = /bits/ 64 <165000000>;
++			apb-clk-hz = /bits/ 64 <165000000>;
++			opp-microvolt = <700000 800000>;
++		};
++		opp0-1500000000 {
++			opp-hz = /bits/ 64 <1500000000>;
++			bus-clk-hz = /bits/ 64 <1000000000>;
++			pic-clk-hz = /bits/ 64 <1000000000>;
++			cfg-clk-hz = /bits/ 64 <330000000>;
++			com-clk-hz = /bits/ 64 <165000000>;
++			apb-clk-hz = /bits/ 64 <165000000>;
++			opp-microvolt = <800000 800000>;
++		};
++		opp0-1698000000 {
++			opp-hz = /bits/ 64 <1698000000>;
++			bus-clk-hz = /bits/ 64 <1100000000>;
++			pic-clk-hz = /bits/ 64 <1000000000>;
++			cfg-clk-hz = /bits/ 64 <330000000>;
++			com-clk-hz = /bits/ 64 <165000000>;
++			apb-clk-hz = /bits/ 64 <165000000>;
++			opp-microvolt = <900000 900000>;
++		};
++		opp0-1896000000 {
++			opp-hz = /bits/ 64 <1896000000>;
++			bus-clk-hz = /bits/ 64 <1320000000>;
++			pic-clk-hz = /bits/ 64 <1000000000>;
++			cfg-clk-hz = /bits/ 64 <330000000>;
++			com-clk-hz = /bits/ 64 <165000000>;
++			apb-clk-hz = /bits/ 64 <165000000>;
++			opp-microvolt = <1000000 1000000>;
++		};
++	};
++
++	cluster1_opp: opp-table-cluster1 {
++		compatible = "operating-points-v2";
++		opp-shared;
++		opp1-500000000 {
++			opp-hz = /bits/ 64 <500000000>;
++			opp-microvolt = <800000>;
++		};
++		opp1-1698000000 {
++			opp-hz = /bits/ 64 <1698000000>;
++			opp-microvolt = <900000>;
++		};
++		opp1-1896000000 {
++			opp-hz = /bits/ 64 <1896000000>;
++			opp-microvolt = <1000000>;
++		};
++		opp1-2298000000 {
++			opp-hz = /bits/ 64 <2298000000>;
++			opp-microvolt = <1000000>;
++			turbo-mode;
++		};
++	};
++
++	pmu {
++		compatible = "riscv,pmu";
++		riscv,event-to-mhpmevent =
++			/* PMU_HW_CPU_CYCLES:1 */
++			<0x00001 0x00000000 0x00000000>,
++			/* PMU_HW_INSTRUCTIONS:2 */
++			<0x00002 0x00000000 0x00000000>,
++			/* PMU_HW_CACHE_REFERENCES:3 */
++			/* PMU_HW_CACHE_MISSES:4 */
++			/* PMU_HW_BRANCH_INSTRUCTIONS:5 */
++			<0x00005 0x00000000 0x00000007>,
++			/* PMU_HW_BRANCH_MISSES:6 */
++			<0x00006 0x00000000 0x00000006>,
++			/* PMU_HW_BUS_CYCLES:7 */
++			/* PMU_HW_STALLED_CYCLES_FRONTEND:8 */
++			<0x00008 0x00000000 0x00000027>,
++			/* PMU_HW_STALLED_CYCLES_BACKEND:9 */
++			<0x00009 0x00000000 0x00000028>,
++			/* PMU_HW_REF_CPU_CYCLES:10 */
++			/* L1D_READ_ACCESS:0x10000 */
++			<0x10000 0x00000000 0x0000000c>,
++			/* L1D_READ_MISS:0x10001 */
++			<0x10001 0x00000000 0x0000000d>,
++			/* L1D_WRITE_ACCESS:0x10002 */
++			<0x10002 0x00000000 0x0000000e>,
++			/* L1D_WRITE_MISS:0x10003 */
++			<0x10003 0x00000000 0x0000000f>,
++			/* L1I_READ_ACCESS:0x10008 */
++			<0x10008 0x00000000 0x00000001>,
++			/* L1I_READ_MISS:0x10009 */
++			<0x10009 0x00000000 0x00000002>,
++			/* dTLB read miss :0x10019 */
++			<0x10019 0x00000000 0x00000004>,
++			/* iTLB read miss :0x10021 */
++			<0x10021 0x00000000 0x00000003>;
++			/* LL_READ_ACCESS:0x10010 */
++			/* LL_READ_MISS:0x10011 */
++			/* LL_WRITE_ACCESS:0x10012 */
++			/* LL_WRITE_MISS:0x10013 */
++			/* BPU_READ_ACCESS:0x10028 */
++			/* BPU_READ_MISS:0x10029 */
++		riscv,event-to-mhpmcounters =
++			/* The Xuantie processor only implements 31 mhpmcounters, so the bitmap is 0xfffffff8 */
++			<0x00001 0x00001 0x00000001>,
++			<0x00002 0x00002 0x00000004>,
++			<0x00005 0x00005 0xfffffff8>,
++			<0x00006 0x00006 0xfffffff8>,
++			<0x00008 0x00008 0xfffffff8>,
++			<0x00009 0x00009 0xfffffff8>,
++			<0x10000 0x10000 0xfffffff8>,
++			<0x10001 0x10001 0xfffffff8>,
++			<0x10002 0x10002 0xfffffff8>,
++			<0x10003 0x10003 0xfffffff8>,
++			<0x10008 0x10008 0xfffffff8>,
++			<0x10009 0x10009 0xfffffff8>,
++			<0x10019 0x10019 0xfffffff8>,
++			<0x10021 0x10021 0xfffffff8>;
++		riscv,raw-event-to-mhpmcounters =
++			/* For raw event ID 0x0 - 0xff */
++			<0x0 0x0 0xffffffff 0xffffff00 0xfffffff8>;
++	};
++
++	soc {
++		compatible = "simple-bus";
++		#address-cells = <2>;
++		#size-cells = <2>;
++		ranges;
++		dma-noncoherent;
++
++		/* OPENSBI */
++		reset: reset-sample {
++			compatible = "zhihe,reset-sample";
++			reg = <0x00 0x00 0x00 0x00>;
++			plic-delegate = <0x00 0x181ffffc>; /* PLIC_CTRL */
++			entry-reg = <0x00 0x10148040 0x00 0x10148060>;	/* SYSREG set rst boot address*/
++			entry-cnt = <4 4>;								/* The number of CPUs in each cluster */
++			control-reg = <0x00 0x10144004 0x00 0x10144008>;/* SWRST C908 C920*/
++			control-val = <0x1f 0x1f>;	/* bit0:clust, bit1~4:core0~core3 */
++		};
++
++		clint0: clint@001c000000 {
++			compatible = "riscv,clint0";
++			interrupts-extended = <
++				&cpu0_intc  3 &cpu0_intc  7
++				&cpu1_intc  3 &cpu1_intc  7
++				&cpu2_intc  3 &cpu2_intc  7
++				&cpu3_intc  3 &cpu3_intc  7
++				&cpu4_intc  3 &cpu4_intc  7
++				&cpu5_intc  3 &cpu5_intc  7
++				&cpu6_intc  3 &cpu6_intc  7
++				&cpu7_intc  3 &cpu7_intc  7
++			>;
++			reg = <0x00 0x1c000000 0x0 0x0000d000>;
++			clint,has-no-64bit-mmio;
++
++		};
++
++		clk: clock-controller@0 {
++			compatible = "zhihe,a210-clk";
++			reg = <0x00 0x00260000 0x0 0x1000>,<0x00 0x00250000 0x0 0x1000>,
++			      <0x00 0x10141600 0x0 0x100>,<0x00 0x10141400 0x0 0x100>,
++			      <0x00 0x04810000 0x0 0x1000>,<0x00 0x05810000 0x0 0x1000>,
++			      <0x00 0x04900000 0x0 0x1000>,<0x00 0x20250000 0x0 0x1000>,
++			      <0x00 0x10140000 0x0 0xE00>;
++			reg-names = "PLL_WRAP","TOP_CRG","CPU_SS_CLK_SYSREG","CPU_SS_CPU_PLL",
++			"DDR0_SYSREG","DDR1_SYSREG","SLC_DUAL_SYSREG","TOP_CRG_T","CPU_SS_CCU";
++			#clock-cells = <1>;
++			clocks = <&osc_32k>, <&osc_24m>, <&rc_24m>;
++			clock-names = "osc_32k", "osc_24m", "rc_24m";
++			assigned-clocks = <&clk AUDIO0_PLL_FOUTVCO>, <&clk AUDIO1_PLL_FOUTVCO>,
++					  <&clk VIDEO_PLL_FOUTVCO>, <&clk GMAC_PLL_FOUTVCO>,
++					  <&clk DVFS_PLL_FOUTVCO>, <&clk DPU0_PLL_FOUTVCO>,
++					  <&clk DPU1_PLL_FOUTVCO>, <&clk DPU2_PLL_FOUTVCO>,
++					  <&clk TOP_CFG_ACLK_DIV>, <&clk TOP_PCLK_DIV>,
++					  <&clk SW_AMUX_660_CLK_EN>, <&clk SW_IOMMU_PTW_330_ACLK_EN>,
++					  <&clk SW_NOC_CCLK_EN>, <&clk TOP_CPUSYS_BUS_CLK_DIV>,
++					  <&clk TOP_CPUSYS_PIC_CLK_DIV>;
++			assigned-clock-rates = <2359296000>, <2528870400>, /* audio0_pll_foutvco,audio1_pll_foutvco */
++					       <2640000000>, <3000000000>, /* video_pll_foutvco,gmac_pll_foutvco */
++					       <1920000000>, <2376000000>, /* dvfs_pll_foutvco,dpu0_pll_foutvco */
++					       <2376000000>, <2376000000>, /* dpu1_pll_foutvco,dpu2_pll_foutvco */
++					       <330000000>, <165000000>, /* top_cfg_aclk,top_pclk */
++					       <660000000>, <330000000>, /* top_amux_clk,iommu_ptw_aclk */
++					       <950000000>, <1320000000>, /* noc_cclk,top_cpusys_bus_clk */
++					       <1000000000>; /* top_cpusys_pic_clk */
++			status = "okay";
++		};
++
++		clk_gpu: clock-controller@1 {
++			compatible = "zhihe,a210-gpu-clk";
++			reg = <0x00 0x06D02200 0x0 0x200>, <0x00 0x06E06200 0x0 0x200>;
++			reg-names = "GPU_SS_PWRAP_CLK_EN","GPU_SS_TOP_CLK_EN";
++			#clock-cells = <1>;
++			assigned-clocks = <&clk TOP_GPU_CORE_CLK_DIV>;
++			assigned-clock-rates = <792000000>;
++			power-domains = <&power_gpu>;
++			status = "okay";
++		};
++
++		clk_pcie: clock-controller@2 {
++			compatible = "zhihe,a210-pcie-clk";
++			reg = <0x00 0x0a000000 0x0 0x28>;
++			reg-names = "PCIE_CLK_EN";
++			#clock-cells = <1>;
++			assigned-clocks = <&clk TOP_PCIE_SCAN_REF_CLK0_DIV>, <&clk TOP_PCIE_SCAN_REF_CLK1_DIV>,
++					  <&clk TOP_PCIE_AXI_M_ACLK_DIV>;
++			assigned-clock-rates = <396000000>, <1000000000>,
++					       <786432000>;
++			status = "okay";
++		};
++
++		clk_usb: clock-controller@3 {
++			compatible = "zhihe,a210-usb-clk";
++			reg = <0x00 0x08000000 0x0 0x24>;
++			reg-names = "USB_CLK_EN";
++			#clock-cells = <1>;
++			assigned-clocks = <&clk TOP_USB_USB20_SCAN_REF_CLK_DIV>, <&clk TOP_USB_SCAN_REF_CLK3_DIV>,
++					  <&clk TOP_USB_SCAN_REF_CLK2_DIV>, <&clk TOP_USB_SCAN_REF_CLK1_DIV>,
++					  <&clk TOP_USB_SCAN_REF_CLK0_DIV>, <&clk TOP_USB_BUS_ACLK_DIV>,
++					  <&clk TOP_USB_DP_AUX_CLK_DIV>;
++			assigned-clock-rates = <475200000>, <792000000>,
++					       <600000000>, <500000000>,
++					       <396000000>, <330000000>,
++					       <16000000>;
++			status = "okay";
++		};
++
++		clk_vi: clock-controller@4 {
++			compatible = "zhihe,a210-vi-clk";
++			reg = <0x00 0x063a0200 0x0 0x200>, <0x00 0x063a0050 0x0 0x4>;
++			reg-names = "VI_CLK", "VI_MISC_CTRL";
++			#clock-cells = <1>;
++			power-domains = <&power_vi_wrapper>;
++			status = "okay";
++		};
++
++		clk_vp: clock-controller@5 {
++			compatible = "zhihe,a210-vp-clk";
++			reg = <0x00 0x06b20200 0x0 0x200>;
++			reg-names = "VP_CLK";
++			#clock-cells = <1>;
++			assigned-clocks = <&clk TOP_VP_ACLK_DIV>, <&clk TOP_VP_VDEC_CCLK_DIV>,
++				 	  <&clk TOP_VP_VENC_CCLK_DIV>, <&clk TOP_VP_G2D_CCLK_DIV>;
++			assigned-clock-rates = <880000000>, <786432000>,
++					       <600000000>, <786432000>;
++			power-domains = <&power_vp_wrapper>;
++			status = "okay";
++		};
++
++		clk_vo: clock-controller@6 {
++			compatible = "zhihe,a210-vo-clk";
++			reg = <0x00 0x06720048 0x0 0x4>, <0x00 0x06720200 0x0 0xc>;
++			reg-names = "VO_PATH_CTRL","VO_CLK";
++			#clock-cells = <1>;
++			assigned-clocks = <&clk_vo VO_DPUC_CLK_EN>, <&clk_vo VO_CH0_PIXCLK_EN>,
++					  <&clk_vo VO_CH1_PIXCLK_EN>, <&clk_vo VO_CH2_PIXCLK_EN>,
++					  <&clk_vo VO_DPU_ACLK_EN>, <&clk_vo VO_HDMI_PCLK_EN>,
++					  <&clk_vo VO_DECOMP0_CLK_EN>, <&clk_vo VO_DECOMP1_CLK_EN>,
++					  <&clk_vo VO_AUXDISP_ACLK_EN>, <&clk_vo VO_AUXDISP_PCLK_EN>;
++			assigned-clock-rates = <880000000>, <594000000>,
++					       <594000000>, <594000000>,
++					       <880000000>, <165000000>,
++					       <220000000>, <220000000>,
++					       <880000000>, <165000000>;
++			power-domains = <&power_vo>;
++			status = "okay";
++		};
++
++		clk_npu: clock-controller@7 {
++			compatible = "zhihe,a210-npu-clk";
++			reg = <0x00 0x07112210 0x0 0x4>,<0x00 0x07301050 0x0 0x4>;
++			reg-names = "NPU_CLK","NPU_TOP_CLK";
++			#clock-cells = <1>;
++			assigned-clocks = <&clk TOP_NPU_CCLK_DIV>, <&clk TOP_NPU_ACLK_DIV>;
++			assigned-clock-rates = <880000000>, <880000000>;
++			power-domains = <&power_npu_wrapper>;
++			status = "okay";
++		};
++
++		clk_d2d: clock-controller@8 {
++			compatible = "zhihe,a210-d2d-clk";
++			reg = <0x00 0x09010000 0x0 0x4>;
++			reg-names = "D2D_CRG_REG";
++			#clock-cells = <1>;
++			assigned-clocks = <&clk TOP_D2D_ACLK_DIV>, <&clk TOP_D2D_REF_CLK_MUX>;
++			assigned-clock-rates = <950000000>, <100000000>;
++			status = "okay";
++		};
++
++		clk_peri: clock-controller@9 {
++			compatible = "zhihe,a210-peri-clk";
++			reg = <0x00 0x00300200 0x0 0x4>,
++			      <0x00 0x02010200 0x0 0x8>,<0x00 0x08400200 0x0 0x8>,
++			      <0x00 0x00540200 0x0 0x4>,<0x00 0x27420200 0x0 0x200>;
++			reg-names = "PERI0_SYSREG","PERI1_SYSREG","PERI2_SYSREG",
++			"PERI3_SYSREG","TEE_CRG";
++			#clock-cells = <1>;
++			assigned-clocks = <&clk TOP_PERI_TIMER_CLK_MUX>, <&clk TOP_PERI_I2S_2CH0_SRC_CLK_MUX>,
++					  <&clk TOP_PERI_I2S_2CH1_SRC_CLK_MUX>, <&clk TOP_PERI_I2S_2CH2_SRC_CLK_MUX>,
++					  <&clk TOP_PERI_I2S_8CH0_SRC_CLK_MUX>, <&clk TOP_PERI_SPI_SSI_CLK0_DIV>,
++					  <&clk TOP_PERI_SPI_SSI_CLK1_DIV>, <&clk TOP_PERI_QSPI_SSI_CLK_MUX0>,
++					  <&clk TOP_PERI_QSPI_SSI_CLK_MUX1>, <&clk TOP_PERI_PDM_MCLK_DIV>,
++					  <&clk TOP_PERI_TDM_SRC_CLK_MUX>, <&clk TOP_PAD_SENSOR_VCLK0_DIV>,
++					  <&clk TOP_PAD_SENSOR_VCLK1_DIV>, <&clk TOP_PERI_HIRES_CLK0_DIV>,
++					  <&clk TOP_PERI_HIRES_CLK1_DIV>, <&clk TOP_PERI_EMMC_REF_CLK_DIV>,
++					  <&clk TOP_PERI_MST_ACLK0_DIV>, <&clk TOP_PERI_MST_CLK1_DIV>,
++					  <&clk TOP_TEE_CLK_DIV>;
++			assigned-clock-rates = <24000000>, <316108800>, /* peri0_timer_clk,peri1_i2s0_src_clk */
++					       <316108800>, <316108800>, /* peri2_i2s1_src_clk,peri2_i2s2_src_clk */
++					       <316108800>, <421478400>, /* peri2_i2s3_src_clk,peri1_spi_ssi_clk */
++					       <421478400>, <421478400>, /* peri2_spi_ssi_clk,peri1_qspi_ssi_clk */
++					       <421478400>, <31610880>, /* peri2_qspi_ssi_clk,peri1_pdm_mclk */
++					       <316108800>, <74250000>, /* peri1_tdm_src_clk,top_pad_sensor_vclk0_div */
++					       <148500000>, <80000000>, /* top_pad_sensor_vclk1,peri1_hires_clk */
++					       <80000000>, <786432000>, /* peri2_hires_clk,emmc_ref_clk */
++					       <330000000>, <440000000>, /* peri1_mst_aclk,peri3_mst_aclk */
++					       <377142858>; /* tee_clk */
++			status = "okay";
++		};
++
++		power: a210-power-domain {
++			compatible = "zhihe,a210-power-domain";
++			#address-cells = <2>;
++			#size-cells = <2>;
++			ranges;
++			power_top:power_top {
++				#power-domain-cells = <0>;
++				id = <A210_PD_TOP>;
++				iopmps = <&device_pcie_mt_iopmp>,<&device_pcie_iommu_iopmp>, <&device_eip120i_iopmp>,
++					 <&device_eip120ii_iopmp>, <&device_eip120iii_iopmp>, <&device_tee_dmac_iopmp>,
++					 <&device_aon_iopmp>, <&device_chip_dbg_iopmp> ,<&device_peri1_iommu_iopmp>,
++					 <&device_gmac_0_iopmp>, <&device_gmac_1_iopmp>, <&device_gmac_2_iopmp>,
++					 <&device_peri1_mt_iopmp>, <&device_dmac_ap_iopmp>, <&device_emmc_iopmp>, 
++					 <&device_sd_iopmp>;
++			};
++			power_gpu:power_gpu {
++				reg = <0x00 0x06E00600 0x0 0x200>, <0x00 0x06E00400 0x0 0x200>, <0x00 0x06E00000 0x0 0x200>;
++				reg-names = "pca","bpc","pcu";
++				#power-domain-cells = <0>;
++				id = <A210_PD_GPU>;
++				resets = <&rst GPU_PWR_WRAP_RGX_HOOD_RST>,
++					 <&rst GPU_PWR_WRAP_DFMU_RST>;
++				iopmps = <&device_gpu_iopmp>, <&device_gpu_mt_iopmp>;
++			};
++			power_npu_wrapper:power_npu_wrapper {
++				reg = <0x00 0x07300600 0x0 0x200>,<0x00 0x07300200 0x0 0x200>, <0x00 0x07300000 0x0 0x200>;
++				reg-names = "pca","bpc","pcu";
++				#power-domain-cells = <0>;
++				id = <A210_PD_NPU_WRAPPER>;
++			};
++			power_npu_ip:power_npu_ip {
++				reg = <0x00 0x07117200 0x0 0x200>, <0x00 0x07117000 0x0 0x200>;
++				reg-names = "bpc","pcu";
++				power-domains = <&power_npu_wrapper>;
++				#power-domain-cells = <0>;
++				id = <A210_PD_NPU_IP>;
++				resets = <&rst NPU_ARST>, <&rst NPU_CRST>, <&rst NPU_HRST>;
++				iopmps = <&device_npu_iopmp>, <&device_npu_iommu_iopmp>, <&device_npu_mt_iopmp>;
++			};
++			power_pcie0:power_pcie0 {
++				reg = <0x00 0x0A006200 0x0 0x200>, <0x00 0x0A006000 0x0 0x200>;
++				reg-names = "bpc","pcu";
++				power-domains = <&power_top>;
++				#power-domain-cells = <0>;
++				id = <A210_PD_PCIE0>;
++				clocks = <&clk_pcie PCIE_DM_GEN3X4_AUX_CLK_EN>,
++					 <&clk_pcie PCIE_DM_GEN3X4_SLV_ACLK_EN>, <&clk_pcie PCIE_DM_GEN3X4_MST_ACLK_EN>,
++					 <&clk_pcie PCIE_DM_GEN3X4_PCLK_EN>;
++				resets = <&rst PCIE_DM_GEN3X4_APBS_PRST>, <&rst PCIE_DM_GEN3X4_POWER_UP_RST>;
++				iopmps =  <&device_pcie_0_iopmp>;
++			};
++			power_pcie1:power_pcie1 {
++				reg = <0x00 0x0A006600 0x0 0x200>, <0x00 0x0A006400 0x0 0x200>;
++				reg-names = "bpc","pcu";
++				power-domains = <&power_top>;
++				#power-domain-cells = <0>;
++				id = <A210_PD_PCIE1>;
++				clocks = <&clk_pcie PCIE_RP_GEN3X1_AUX_CLK_EN>,
++					 <&clk_pcie PCIE_RP_GEN3X1_SLV_ACLK_EN>, <&clk_pcie PCIE_RP_GEN3X1_MST_ACLK_EN>,
++					 <&clk_pcie PCIE_RP_GEN3X1_PCLK_EN>;
++				resets = <&rst PCIE_RP_GEN3X1_APBS_PRST>, <&rst PCIE_RP_GEN3X1_POWER_UP_RST>;
++				iopmps = <&device_pcie_1_iopmp>;
++			};
++			power_sata:power_sata {
++				reg = <0x00 0x0A006A00 0x0 0x200>, <0x00 0x0A006800 0x0 0x200>;
++				reg-names = "bpc","pcu";
++				power-domains = <&power_top>;
++				#power-domain-cells = <0>;
++				id = <A210_PD_SATA>;
++				clocks = <&clk_pcie SATA_GEN3X2_ACLK_EN>, <&clk_pcie SATA_PMALIVE_CLK_EN>,
++					 <&clk_pcie SATA_RXOOB0_CLK_EN>, <&clk_pcie SATA_RXOOB1_CLK_EN>;
++				resets = <&rst PCIE_SATA_ARESET>,
++					 <&rst PCIE_SATA_RST_PMALIVE>, <&rst PCIE_SATA_RST_ASIC0>, <&rst PCIE_SATA_RST_ASIC1>,
++					 <&rst PCIE_SATA_RST_RXOOB0>, <&rst PCIE_SATA_RST_RXOOB1>;
++				iopmps = <&device_sata_0_iopmp>;
++			};
++			power_usb:power_usb {
++				#power-domain-cells = <0>;
++				id = <A210_PD_USB>;
++				clocks = <&clk_usb DPTX_PCLK_EN>, <&clk_usb DPTX_GTC_CLK_EN>, <&clk_usb DPTX_AUX_CLK_EN>,
++					 <&clk_usb DPTX_IPI_CLK_EN>, <&clk_usb DPTX_I2S_CLK_EN>;
++				resets = <&rst USB_DPTX_APBS_PRST>, <&rst USB_DPTX_VCC_RST>,
++					 <&rst USB_USB31_PHY_RST>, <&rst USB_C10PHY_PHY_RST>,
++					 <&rst USB_USB20_BLK_USB0_PHY_PON_RESET>, <&rst USB_USB20_BLK_USB1_PHY_PON_RESET>;
++				iopmps = <&device_usb3_0_iopmp>, <&device_usb2_1_iopmp>, <&device_usb2_2_iopmp>, <&device_usb_iommu_iopmp>,
++						 <&device_usb_mt_iopmp>;
++			};
++			power_vi_wrapper:power_vi_wrapper {
++				reg = <0x00 0x063F9000 0x0 0x200>,<0x00 0x063F8000 0x0 0x200>;
++				reg-names = "bpc","pcu";
++				#power-domain-cells = <0>;
++				id = <A210_PD_VI_WRAP>;
++				resets = <&rst VI_MIPI0_CSI0_PRST>, <&rst VI_MIPI0_CSI1_PRST>, <&rst VI_MIPI0_FIFO_RST>,
++					 <&rst VI_MIPI1_CSI0_PRST>, <&rst VI_MIPI1_CSI1_PRST>, <&rst VI_MIPI1_FIFO_RST>,
++					 <&rst VI_VIPRE_PRST>, <&rst VI_VIPRE_I0_PIX_RST>, <&rst VI_VIPRE_I1_PIX_RST>,
++					 <&rst VI_VIPRE_ISPIF_RST>, <&rst VI_VIPRE_ARST>, <&rst VI_COMP_PRST>,
++					 <&rst VI_COMP_ARST>, <&rst VI_COMP_ISPOUT_RST>, <&rst VI_COMP_DECOUT_RST>,
++					 <&rst VI_COMP_VSEOUT_RST>, <&rst VI_COMP0_RST>, <&rst VI_COMP1_RST>,
++					 <&rst VI_DECOMP_RST>, <&rst VI_DW200_RST>, <&rst VI_X2H0_HRST>,
++					 <&rst VI_X2H1_HRST>, <&rst VI_X2H2_HRST>, <&rst VI_REC_PRST>,
++					 <&rst VI_REC_ARST>;
++				iopmps = <&device_vi_iommu_iopmp>, <&device_vipre_iopmp>, <&device_dw200_iopmp>, <&device_vi_comp_decomp_iopmp>,
++						 <&device_vi_mt_iopmp>;
++			};
++			power_vi_isp:power_vi_isp {
++				reg = <0x00 0x063F6000 0x0 0x200>,<0x00 0x063F5000 0x0 0x200>;
++				reg-names = "bpc","pcu";
++				power-domains = <&power_vi_wrapper>;
++				#power-domain-cells = <0>;
++				id = <A210_PD_VI_ISP>;
++				resets = <&rst VI_ISP_RST>;
++				iopmps = <&device_isp_iopmp>;
++			};
++			power_vo:power_vo {
++				reg = <0x00 0x067F1000 0x0 0x200>,<0x00 0x067F0000 0x0 0x200>;
++				reg-names = "bpc","pcu";
++				#power-domain-cells = <0>;
++				id = <A210_PD_VO>;
++				resets = <&rst VO_X2H0_RST>, <&rst VO_X2H1_RST>, <&rst VO_DPU_HRST>,
++					 <&rst VO_DPU_CRST>, <&rst VO_DPU_ARST>, <&rst VO_AUXDISP_PRST>,
++					 <&rst VO_AUXDISP_PIX_RST>, <&rst VO_AUXDISP_ARST>, <&rst VO_HDMI_PRST>,
++					 <&rst VO_HDMI_MAIN_RST>, <&rst VO_MIPI_PRST>, <&rst VO_DECOMP_PRST>,
++					 <&rst VO_DECOMP0_CRST>, <&rst VO_DECOMP1_CRST>, <&rst VO_DECOMP_ARST>;
++				iopmps = <&device_display_0_iopmp>, <&device_display_1_iopmp>,
++						 <&device_auxdisp_iopmp>, <&device_vo_iommu_iopmp>,
++						 <&device_vo_mt_iopmp>;
++			};
++			power_vp_wrapper:power_vp_wrapper {
++				reg = <0x00 0x06BFB000 0x0 0x1000>, <0x00 0x06BF9000 0x0 0x1000>, <0x00 0x06BF8000 0x0 0x1000>;
++				reg-names = "pca","bpc","pcu";
++				#power-domain-cells = <0>;
++				id = <A210_PD_VP_WRAP>;
++				resets = <&rst VP_G2D_PRST>, <&rst VP_G2D_CRST>,
++					 <&rst VP_G2D_ARST>, <&rst VP_COMP_PRST>,
++					 <&rst VP_COMP_CRST>, <&rst VP_COMP_ARST>,
++					 <&rst VP_DECOMP_PRST>, <&rst VP_DECOMP_CRST>,
++					 <&rst VP_DECOMP_ARST>, <&rst VP_COMP_EXTPRST>,
++					 <&rst VP_DECOMP_EXTPRST>;
++				iopmps = <&device_vp_iommu_iopmp>, <&device_g2d_iopmp>, <&device_vp_mt_iopmp>;
++			};
++			power_venc:power_venc {
++				reg = <0x00 0x06BF3000 0x0 0x1000>, <0x00 0x06BF2000 0x0 0x1000>;
++				reg-names = "bpc","pcu";
++				power-domains = <&power_vp_wrapper>;
++				#power-domain-cells = <0>;
++				id = <A210_PD_VENC>;
++				resets = <&rst VP_VENC_PRST>, <&rst VP_VENC_CRST>, <&rst VP_VENC_ARST>;
++				iopmps = <&device_venc_iopmp>;
++			};
++			power_vdec:power_vdec {
++				reg = <0x00 0x06BF6000 0x0 0x1000>, <0x00 0x06BF5000 0x0 0x1000>;
++				reg-names = "bpc","pcu";
++				power-domains = <&power_vp_wrapper>;
++				#power-domain-cells = <0>;
++				id = <A210_PD_VDEC>;
++				resets = <&rst VP_VDEC_PRST>, <&rst VP_VDEC_CRST>, <&rst VP_VDEC_ARST>;
++				iopmps = <&device_vdec_iopmp>;
++			};
++			power_peri2:power_peri2 {
++				power-domains = <&power_top>;
++				#power-domain-cells = <0>;
++				id = <A210_PD_PERI2>;
++				clocks = <&clk_peri PERI2_CAN2_HIRES_CLK_EN>, <&clk_peri PERI2_CAN2_OSC_CLK_EN>, <&clk_peri PERI2_SPI1_SSI_CLK_EN>,
++					 <&clk_peri PERI2_UART5_SCLK_EN>, <&clk_peri PERI2_UART6_SCLK_EN>, <&clk_peri PERI2_CAN2_PCLK_EN>,
++					 <&clk_peri PERI2_SPI1_PCLK_EN>, <&clk_peri PERI2_UART5_PCLK_EN>, <&clk_peri PERI2_UART6_PCLK_EN>,
++					 <&clk_peri PERI2_PAD_CTRL_PCLK_EN>, <&clk_peri PERI2_I2C3_PCLK_EN>, <&clk_peri PERI2_I2C3_IC_CLK_EN>,
++					 <&clk_peri PERI2_I2C4_PCLK_EN>, <&clk_peri PERI2_I2C4_IC_CLK_EN>, <&clk_peri PERI2_I2C5_PCLK_EN>,
++					 <&clk_peri PERI2_I2C5_IC_CLK_EN>, <&clk_peri PERI2_I2C6_PCLK_EN>, <&clk_peri PERI2_I2C6_IC_CLK_EN>,
++					 <&clk_peri PERI2_I2C7_PCLK_EN>, <&clk_peri PERI2_I2C7_IC_CLK_EN>, <&clk_peri PERI2_I2S1_SRC_CLK_EN>,
++					 <&clk_peri PERI2_I2S1_PCLK_EN>, <&clk_peri PERI2_I2S2_SRC_CLK_EN>, <&clk_peri PERI2_I2S2_PCLK_EN>,
++					 <&clk_peri PERI2_I2S3_SRC_CLK_EN>, <&clk_peri PERI2_I2S3_PCLK_EN>, <&clk_peri PERI2_PWM1_CCLK_EN>,
++					 <&clk_peri PERI2_PWM1_PCLK_EN>, <&clk_peri PERI2_PWM2_CCLK_EN>, <&clk_peri PERI2_PWM2_PCLK_EN>,
++					 <&clk_peri PERI2_UART7_SCLK_EN>, <&clk_peri PERI2_UART7_PCLK_EN>, <&clk_peri PERI2_UART8_SCLK_EN>,
++					 <&clk_peri PERI2_UART8_PCLK_EN>, <&clk_peri PERI2_UART9_SCLK_EN>, <&clk_peri PERI2_UART9_PCLK_EN>;
++				resets = <&rst PERI2_CAN2_IPG_PE_RST>, <&rst PERI2_CAN2_IPG_RST>, <&rst PERI2_CAN2_IPG_SOFT_RST>,
++					 <&rst PERI2_CAN2_IPG_TS_RST>, <&rst PERI2_CAN2_PRST>, <&rst PERI2_GPIO2_DBRST>,
++					 <&rst PERI2_GPIO2_PRST>, <&rst PERI2_I2C4_IC_RST>, <&rst PERI2_I2C4_PRST>,
++					 <&rst PERI2_I2S2_PRST>, <&rst PERI2_SPI1_PRST>, <&rst PERI2_SPI1_SSI_RST>,
++					 <&rst PERI2_UART5_PRST>, <&rst PERI2_UART5_S_RST>, <&rst PERI2_UART6_PRST>,
++					 <&rst PERI2_UART6_S_RST>, <&rst PERI2_GPIO3_DBRST>,
++					 <&rst PERI2_GPIO3_PRST>, <&rst PERI2_I2C3_IC_RST>, <&rst PERI2_I2C3_PRST>,
++					 <&rst PERI2_I2C5_IC_RST>, <&rst PERI2_I2C5_PRST>, <&rst PERI2_I2C6_IC_RST>,
++					 <&rst PERI2_I2C6_PRST>, <&rst PERI2_I2C7_IC_RST>, <&rst PERI2_I2C7_PRST>,
++					 <&rst PERI2_I2S1_PRST>, <&rst PERI2_I2S3_PRST>, <&rst PERI2_UART7_PRST>,
++					 <&rst PERI2_UART7_S_RST>, <&rst PERI2_UART8_PRST>, <&rst PERI2_UART8_S_RST>,
++					 <&rst PERI2_UART9_PRST>, <&rst PERI2_UART9_S_RST>, <&rst PERI2_QSPI1_PRST>,
++					 <&rst PERI2_QSPI1_SSI_RST>, <&rst PERI2_PWM1_CRST>, <&rst PERI2_PWM1_PRST>,
++					 <&rst PERI2_PWM2_CRST>, <&rst PERI2_PWM2_PRST>;
++			};
++			power_peri3:power_peri3 {
++				power-domains = <&power_top>;
++				#power-domain-cells = <0>;
++				id = <A210_PD_PERI3>;
++				clocks = <&clk_peri PERI3_DMAC_ACLK_EN>, <&clk_peri PERI3_DMAC_HCLK_EN>, <&clk_peri PERI3_SDIO_ACLK_EN>,
++					 <&clk_peri PERI3_SDIO_HCLK_EN>, <&clk_peri PERI3_SDIO_OSC_CLK_EN>, <&clk_peri PERI3_SDIO_X2X_ACLK_M_EN>,
++					 <&clk_peri PERI3_SDIO_X2X_ACLK_S_EN>, <&clk_peri PERI3_ADC_PCLK_EN>;
++				resets = <&rst PERI3_DMAC_ARESET>, <&rst PERI3_DMAC_HRESET>, <&rst PERI3_ADC_PRST>;
++			};
++		};
++
++		rst: reset-controller {
++			compatible =  "zhihe,a210-reset-controller";
++			reg = <0x00 0x06B20400 0x0 0x200>,
++			      <0x00 0x063A0400 0x0 0x200>,
++			      <0x00 0x07112200 0x0 0x10>,
++			      <0x00 0x06720400 0x0 0x200>,
++			      <0x00 0x00300400 0x0 0x200>,
++			      <0x00 0x02010400 0x0 0x200>,
++			      <0x00 0x08400400 0x0 0x200>,
++			      <0x00 0x00540400 0x0 0x200>,
++			      <0x00 0x0A000100 0x0 0x100>,
++			      <0x00 0x08000100 0x0 0x100>,
++			      <0x00 0x27420400 0x0 0x200>,
++			      <0x00 0x06D02000 0x0 0x200>;
++			reg-names = "VP_RST","VI_RST","NPU_RST","VO_RST",
++				"PERI0_RST","PERI1_RST","PERI2_RST","PERI3_RST",
++				"PCIE_RST","USB_RST","TEE_RST","GPU_RST";
++			#reset-cells = <1>;
++			status = "okay";
++		};
++
++		intc: interrupt-controller@0018000000 {
++			#interrupt-cells = <1>;
++			compatible = "riscv,plic0";
++			interrupt-controller;
++			interrupts-extended = <
++				&cpu0_intc 0xffffffff &cpu0_intc 9
++				&cpu1_intc 0xffffffff &cpu1_intc 9
++				&cpu2_intc 0xffffffff &cpu2_intc 9
++				&cpu3_intc 0xffffffff &cpu3_intc 9
++				&cpu4_intc 0xffffffff &cpu4_intc 9
++				&cpu5_intc 0xffffffff &cpu5_intc 9
++				&cpu6_intc 0xffffffff &cpu6_intc 9
++				&cpu7_intc 0xffffffff &cpu7_intc 9
++			>;
++			reg = <0x00 0x18000000 0x0 0x04000000>;
++			reg-names = "control";
++			riscv,max-priority = <7>;
++			riscv,ndev = <351>;
++		};
++
++		clocks {
++			compatible = "simple-bus";
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			osc_32k: clock-osc-32k {
++				compatible = "fixed-clock";
++				clock-frequency = <32768>;
++				clock-output-names = "osc_32k";
++				#clock-cells = <0>;
++			};
++
++			osc_24m: clock-osc-24m {
++				compatible = "fixed-clock";
++				clock-frequency = <24000000>;
++				clock-output-names = "osc_24m";
++				#clock-cells = <0>;
++			};
++
++			aon_110m: clock-osc-110m {
++				compatible = "fixed-clock";
++				clock-frequency = <110000000>;
++				clock-output-names = "aon_110m";
++				#clock-cells = <0>;
++			};
++
++			rc_24m: clock-rc-24m {
++				compatible = "fixed-clock";
++				clock-frequency = <24000000>;
++				clock-output-names = "rc_24m";
++				#clock-cells = <0>;
++			};
++
++			apb_clk: apb-clk-clock {
++				compatible = "fixed-clock";
++				clock-frequency = <62500000>;
++				clock-output-names = "apb_clk";
++				#clock-cells = <0>;
++			};
++		};
++
++		iopmp_regions: iopmp-regions {
++			#address-cells = <2>;
++			#size-cells = <2>;
++			security_device_region: sec-dev-region {
++				reg = <0x00 0x20000000 0x00 0x18000000>;
++				permission = "no-access";
++				mode = "TOR";
++			};
++
++			trust_firmware_region:  tf-region {
++				reg = <0x00 0x80000000 0x00 0x200000>;
++				permission = "no-access";
++				mode = "NAPOT";
++			};
++
++			tee_os_region: tee-os-region{
++				reg = <0x00 0x88000000 0x00 0x2000000>;
++				permission = "no-access";
++				mode = "NAPOT";
++			};
++
++			bypass_region: bypass-region {
++				reg = <0x00 0x00 0x80 0x00>;
++				permission = "rwx";
++				mode = "TOR";
++			};
++		};
++
++		iopmp: iopmp-controller {
++			compatible = "zhihe, A100-iopmp";
++			reg = <0x00 0x26B12000 0x00 0x1000>,
++				  <0x00 0x26372000 0x00 0x1000>,
++				  <0x00 0x27102000 0x00 0x1000>,
++				  <0x00 0x26712000 0x00 0x1000>,
++				  <0x00 0x22032000 0x00 0x1000>,
++				  <0x00 0x2A012000 0x00 0x1000>,
++				  <0x00 0x28022000 0x00 0x1000>,
++				  <0x00 0x26D12000 0x00 0x1000>,
++				  <0x00 0x29032000 0x00 0x1000>,
++				  <0x00 0x30150000 0x00 0x1000>;
++			reg-names = "VP-IOPMP", "VI-IOPMP", "NPU-IOPMP",
++						"VO-IOPMP", "PERI1-IOPMP", "PCIE-IOPMP",
++						"USB-IOPMP", "GPU-IOPMP", "D2D-RX-IOPMP",
++						"D2D-SS-IOPMP";
++		};
++
++		iopmp_devices {
++			/* PCIE iopmp*/
++			device_pcie_mt_iopmp: pcie-mt-iopmp {
++				iopmp-name = "PCIE-IOPMP";
++				device-id = <IOPMP_DEV_PCIE_DFMU>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_pcie_0_iopmp: pcie-0-iopmp {
++				iopmp-name = "PCIE-IOPMP";
++				device-id = <IOPMP_DEV_PCIE_0>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_pcie_1_iopmp: pcie-1-iopmp {
++				iopmp-name = "PCIE-IOPMP";
++				device-id = <IOPMP_DEV_PCIE_1>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_sata_0_iopmp: sata-0-iopmp {
++				iopmp-name = "PCIE-IOPMP";
++				device-id = <IOPMP_DEV_SATA_0>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_eip120i_iopmp: eip120i-iopmp {
++				iopmp-name = "PCIE-IOPMP";
++				device-id = <IOPMP_DEV_TEE_EIP120SI>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_eip120ii_iopmp: eip120ii-iopmp {
++				iopmp-name = "PCIE-IOPMP";
++				device-id = <IOPMP_DEV_TEE_EIP120SII>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_eip120iii_iopmp: eip120iii-iopmp {
++				iopmp-name = "PCIE-IOPMP";
++				device-id = <IOPMP_DEV_TEE_EIP120SIII>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_tee_dmac_iopmp: tee-dmac-iopmp {
++				iopmp-name = "PCIE-IOPMP";
++				device-id = <IOPMP_DEV_TEE_DMAC>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_dmac_ap_iopmp: dmac-ap-iopmp {
++				iopmp-name = "PCIE-IOPMP";
++				device-id = <IOPMP_DEV_DMAC_AP>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_sd_iopmp: sd-iopmp {
++				iopmp-name = "PCIE-IOPMP";
++				device-id = <IOPMP_DEV_SD>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_emmc_iopmp: emmc-iopmp {
++				iopmp-name = "PCIE-IOPMP";
++				device-id = <IOPMP_DEV_EMMC>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_pcie_iommu_iopmp: pcie-iommu-iopmp {
++				iopmp-name = "PCIE-IOPMP";
++				device-id = <IOPMP_DEV_PCIE_IOMMU>;
++				iopmp-regions = <&bypass_region>;
++			};
++
++			/* VP iopmp*/
++			device_vp_mt_iopmp: vp-mt-iopmp {
++				iopmp-name = "VP-IOPMP";
++				device-id = <IOPMP_DEV_VP_DFMU>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_venc_iopmp: venc-iopmp {
++				iopmp-name = "VP-IOPMP";
++				device-id = <IOPMP_DEV_VENC>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_vdec_iopmp: vdec-iopmp {
++				iopmp-name = "VP-IOPMP";
++				device-id = <IOPMP_DEV_VDEC>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_g2d_iopmp: g2d-iopmp {
++				iopmp-name = "VP-IOPMP";
++				device-id = <IOPMP_DEV_G2D>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_vp_iommu_iopmp: vp-iommu-iopmp {
++				iopmp-name = "VP-IOPMP";
++				device-id = <IOPMP_DEV_VP_IOMMU>;
++				iopmp-regions = <&bypass_region>;
++			};
++
++			/* VI iopmp*/
++			device_vi_mt_iopmp: vi-mt-iopmp {
++				iopmp-name = "VI-IOPMP";
++				device-id = <IOPMP_DEV_VI_DFMU>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_isp_iopmp: isp-iopmp {
++				iopmp-name = "VI-IOPMP";
++				device-id = <IOPMP_DEV_ISP>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_vipre_iopmp: vipre-iopmp {
++				iopmp-name = "VI-IOPMP";
++				device-id = <IOPMP_DEV_VIPRE>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_dw200_iopmp: dw200-iopmp {
++				iopmp-name = "VI-IOPMP";
++				device-id = <IOPMP_DEV_DW200>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_vi_comp_decomp_iopmp: vi_comp_decomp-iopmp {
++				iopmp-name = "VI-IOPMP";
++				device-id = <IOPMP_DEV_VI_COMP_DECOMP>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_vi_iommu_iopmp: vi-iommu-iopmp {
++				iopmp-name = "VI-IOPMP";
++				device-id = <IOPMP_DEV_VI_IOMMU>;
++				iopmp-regions = <&bypass_region>;
++			};
++
++			/* NPU iopmp*/
++			device_npu_mt_iopmp: npu-mt-iopmp {
++				iopmp-name = "NPU-IOPMP";
++				device-id = <IOPMP_DEV_NPU_DFMU>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_npu_iopmp: npu-iopmp {
++				iopmp-name = "NPU-IOPMP";
++				device-id = <IOPMP_DEV_NPU>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_npu_iommu_iopmp: npu-iommu-iopmp {
++				iopmp-name = "NPU-IOPMP";
++				device-id = <IOPMP_DEV_NPU_IOMMU>;
++				iopmp-regions = <&bypass_region>;
++			};
++
++			/* VO iopmp */
++			device_vo_mt_iopmp: vo-mt-iopmp {
++				iopmp-name = "VO-IOPMP";
++				device-id = <IOPMP_DEV_VO_DFMU>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_display_0_iopmp: display-0-iopmp {
++				iopmp-name = "VO-IOPMP";
++				device-id = <IOPMP_DEV_DISPLAY_0>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_display_1_iopmp: display-1-iopmp {
++				iopmp-name = "VO-IOPMP";
++				device-id = <IOPMP_DEV_DISPLAY_1>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_auxdisp_iopmp: auxdisp-iopmp {
++				iopmp-name = "VO-IOPMP";
++				device-id = <IOPMP_DEV_AUXDISP>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_vo_iommu_iopmp: vo-iommu-iopmp {
++				iopmp-name = "VO-IOPMP";
++				device-id = <IOPMP_DEV_VO_IOMMU>;
++				iopmp-regions = <&bypass_region>;
++			};
++
++			/* PERI1 iopmp */
++			device_peri1_mt_iopmp: peri1-mt-iopmp {
++				iopmp-name = "PERI1-IOPMP";
++				device-id = <IOPMP_DEV_PERI1_DFMU>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_gmac_0_iopmp: gmac-0-iopmp {
++				iopmp-name = "PERI1-IOPMP";
++				device-id = <IOPMP_DEV_GMAC_0>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_gmac_1_iopmp: gmac-1-iopmp {
++				iopmp-name = "PERI1-IOPMP";
++				device-id = <IOPMP_DEV_GMAC_1>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_gmac_2_iopmp: gmac-2-iopmp {
++				iopmp-name = "PERI1-IOPMP";
++				device-id = <IOPMP_DEV_GMAC_2>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_chip_dbg_iopmp: chip-dbg-iopmp {
++				iopmp-name = "PERI1-IOPMP";
++				device-id = <IOPMP_DEVICE_CHIP_DBG>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_aon_iopmp: aon-iopmp {
++				iopmp-name = "PERI1-IOPMP";
++				device-id = <IOPMP_DEVICE_AON>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_peri1_iommu_iopmp: peri1-iommu-iopmp {
++				iopmp-name = "PERI1-IOPMP";
++				device-id = <IOPMP_DEV_PERI1_IOMMU>;
++				iopmp-regions = <&bypass_region>;
++			};
++
++			/* USB iopmp*/
++			device_usb_mt_iopmp: usb-mt-iopmp {
++				iopmp-name = "USB-IOPMP";
++				device-id = <IOPMP_DEV_USB_DFMU>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_usb3_0_iopmp: usb3-0-iopmp {
++				iopmp-name = "USB-IOPMP";
++				device-id = <IOPMP_DEV_USB3_0>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_usb2_1_iopmp: usb2-1-iopmp {
++				iopmp-name = "USB-IOPMP";
++				device-id = <IOPMP_DEV_USB2_1>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_usb2_2_iopmp: usb2-2-iopmp {
++				iopmp-name = "USB-IOPMP";
++				device-id = <IOPMP_DEV_USB2_2>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_usb_iommu_iopmp: usb-iommu-iopmp {
++				iopmp-name = "USB-IOPMP";
++				device-id = <IOPMP_DEV_USB_IOMMU>;
++				iopmp-regions = <&bypass_region>;
++			};
++
++			/* GPU iopmp*/
++			device_gpu_mt_iopmp: gpu-mt-iopmp {
++				iopmp-name = "GPU-IOPMP";
++				device-id = <IOPMP_DEV_GPU_SS>;
++				iopmp-regions = <&bypass_region>;
++			};
++			device_gpu_iopmp: gpu-iopmp {
++				iopmp-name = "GPU-IOPMP";
++				device-id = <IOPMP_DEV_GPU>;
++				iopmp-regions = <&bypass_region>;
++			};
++
++			/* D2D RX iopmp*/
++			device_d2d_rx_iopmp: d2d-rx-iopmp {
++				iopmp-name = "D2D-RX-IOPMP";
++				device-id = <IOPMP_DEV_D2D_RX>;
++				global = <1>;
++				iopmp-regions = <&bypass_region>;
++			};
++
++			/* D2D CPU iopmp*/
++			device_d2d_cpu_iopmp: d2d-cpu-iopmp {
++				iopmp-name = "D2D-SS-IOPMP";
++				device-id = <IOPMP_DEV_REMOTE_CPU>;
++				global = <1>;
++				iopmp-regions = <&bypass_region>;
++			};
++		};
++
++		pvt: pvt@3084C000 {
++			compatible = "moortec,mr75203";
++			reg = <0x00 0x3084c000 0x0 0x80>,
++			      <0x00 0x3084c080 0x0 0x180>, // ts regs=5 sensor*0x40,common reg=0x40, 0x40*6=0x180
++			      <0x00 0x3084c200 0x0 0x200>, // pd regs=5 sensor*0x40,common reg=0x40
++			      <0x00 0x3084c400 0x0 0x200>; // vm=1
++			reg-names = "common", "ts", "pd", "vm";
++			clocks = <&aon_110m>;
++			#thermal-sensor-cells = <1>;
++			moortec,ts-coeff-h = <220000>;
++			moortec,ts-coeff-g = <42740>;
++			moortec,ts-coeff-j = <0xFFFFFF60>;		// -160
++			moortec,ts-coeff-cal5 = <4094>;
++		};
++
++	};
++};
+diff --git a/arch/riscv/boot/dts/zhihe/a210-soc-peri.dtsi b/arch/riscv/boot/dts/zhihe/a210-soc-peri.dtsi
+new file mode 100755
+index 0000000000000..94cbd6d193ca5
+--- /dev/null
++++ b/arch/riscv/boot/dts/zhihe/a210-soc-peri.dtsi
+@@ -0,0 +1,2200 @@
++#include <dt-bindings/i2c/i2c.h>
++#include <dt-bindings/interrupt-controller/irq.h>
++#include <dt-bindings/clock/a210-clock.h>
++#include <dt-bindings/iommu/zh-iommu.h>
++#include <dt-bindings/ata/ahci.h>
++
++/ {
++
++	display-subsystem {
++		compatible = "verisilicon,display-subsystem";
++		ports = <&dpu_disp0>, <&dpu_disp1>, <&auxdisp_out>;
++	};
++
++	dpu-encoders {
++		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
++		dpu_enc0: dpu-encoder@0 {
++			/* default encoder is DSI. */
++			compatible = "verisilicon,dsi-encoder";
++			reg = <0>;
++			ports {
++				#address-cells = <1>;
++				#size-cells = <0>;
++				/* input */
++				port@0 {
++					reg = <0>;
++					dsi_enc_in: endpoint {
++						remote-endpoint = <&auxdisp_to_dsi>;
++					};
++				};
++				/* output */
++				port@1 {
++					reg = <1>;
++					dsi_enc_out: endpoint {
++						// remote-endpoint = <&dsi0_in>;
++					};
++				};
++			};
++		};
++	};
++
++	reg_vref_1v8: regulator-adc-verf {
++		compatible = "regulator-fixed";
++		regulator-name = "vref-1v8";
++		regulator-min-microvolt = <1800000>;
++		regulator-max-microvolt = <1800000>;
++		regulator-boot-on;
++		regulator-always-on;
++	};
++
++	vdec_opp_table: opp_table_vdec {
++		compatible = "operating-points-v2";
++
++		opp00 {
++			opp-hz = /bits/ 64 <600000000>;
++			opp-microvolt = <750000 750000 800000>;
++		};
++		opp01 {
++			opp-hz = /bits/ 64 <786432000>;
++			opp-microvolt = <800000 750000 800000>;
++		};
++	};
++
++	venc_opp_table: opp_table_venc {
++		compatible = "operating-points-v2";
++
++		opp00 {
++			opp-hz = /bits/ 64 <528000000>;
++			opp-microvolt = <750000 750000 800000>;
++		};
++		opp01 {
++			opp-hz = /bits/ 64 <600000000>;
++			opp-microvolt = <800000 750000 800000>;
++		};
++	};
++
++	g2d_opp_table: opp_table_g2d {
++		compatible = "operating-points-v2";
++
++		opp00 {
++			opp-hz = /bits/ 64 <600000000>;
++			aclk-hz = /bits/ 64 <528000000>;
++			opp-microvolt = <750000 750000 800000>;
++		};
++		opp01 {
++			opp-hz = /bits/ 64 <786432000>;
++			aclk-hz = /bits/ 64 <880000000>;
++			opp-microvolt = <800000 750000 800000>;
++		};
++	};
++
++	soc {
++		teesys_syscon: teesys-reg@0027400000 {
++			compatible = "syscon";
++			reg = <0x00 0x27400000 0x0 0x1000>;
++		};
++
++		nvmem_controller: efuse@0027410000 {
++			compatible = "zhihe,a210-fm-efuse", "syscon";
++			reg = <0x00 0x27410000 0x0 0x10000>;
++			zhihe,teesys = <&teesys_syscon>;
++			#address-cells = <1>;
++			#size-cells = <1>;
++			clocks = <&clk_peri TEE_EFUSE_CLKEN>;
++			clock-names = "pclk";
++
++			gmac0_mac_address: gmac0-mac-address {
++				reg = <0xb0 6>;
++			};
++
++			gmac1_mac_address: gmac1-mac-address {
++				reg = <0xb8 6>;
++			};
++		};
++		dsi0: dw-mipi-dsi0@6700000{
++			compatible = "simple-bus", "syscon";
++			reg = <0x00 0x6700000 0x0 0x10000>;
++			power-domains = <&power_vo>;
++			dphy_0: dsi0-dphy {
++				compatible = "zhihe,a210-mipi-dphy";
++				regmap = <&dsi0>;
++				vosys-regmap = <&vosys_reg>;
++				clocks = <&osc_24m>,
++						 <&clk_vo VO_MIPI_CFGCLK_EN>,
++						 <&clk_vo VO_MIPI_PCLK_EN>,
++						 <&clk_vo VO_MIPI_PIXCLK>,
++						 <&osc_24m>;
++				clock-names = "refclk", "cfgclk", "pclk", "prefclk", "pcfgclk";
++				#phy-cells = <0>;
++			};
++
++			dsi_host0: dsi0-host {
++				compatible = "verisilicon,dw-mipi-dsi";
++				regmap = <&dsi0>;
++				interrupt-parent = <&intc>;
++				interrupts = <213>;
++				clocks = <&clk_vo VO_MIPI_CFGCLK_EN>,
++						 <&clk_vo VO_MIPI_PCLK_EN>,
++						 <&clk_vo VO_MIPI_PIXCLK>;
++				clock-names = "cfgclk", "pclk", "pixclk";
++				phys = <&dphy_0>;
++				phy-names = "dphy";
++				#address-cells = <1>;
++				#size-cells = <0>;
++			};
++		};
++		vosys_reg: vosys@6e06000{
++			compatible = "thead,light-vo-subsys", "syscon";
++			reg = <0x00 0x06e06000 0x0 0x1000>;
++		};
++
++		peri1_sys: syscon@02010000{
++			compatible = "syscon";
++			reg = <0x00 0x02010000 0x0 0x1000>;
++		};
++
++		hdmi_tx: dw-hdmi-tx@6600000 {
++			compatible = "thead,light-hdmi-tx";
++			reg = <0x00 0x6600000 0x0 0x40000>;
++			interrupt-parent = <&intc>;
++			interrupts = <216>;
++			clocks = <&clk_vo VO_HDMI_PCLK_EN>,
++			         <&clk_vo VO_HDMI_SFRCLK_EN>,
++			         <&clk_vo VO_CEC_CLK_EN>,
++			         <&clk_vo VO_HDMI_PIXCLK>;
++			clock-names = "iahb", "isfr", "cec", "pixclk";
++			power-domains = <&power_vo>;
++			reg-io-width = <4>;
++			phy_version = <301>;
++			ports {
++				#address-cells = <1>;
++				#size-cells = <0>;
++				port@0 {
++					reg = <0>;
++					#address-cells = <1>;
++					#size-cells = <0>;
++
++					hdmi_tx_in0: endpoint@0 {
++						reg = <0>;
++						remote-endpoint = <&disp1_out>;
++					};
++				};
++				/* i2s input */
++				port@1 {
++					reg = <1>;
++					hdmi_i2s_rx: endpoint {
++						remote-endpoint = <&hdmi_i2s_tx>;
++					};
++				};
++			};
++		};
++
++		dp0: dp-tx@8010000 {
++			compatible = "zhihe,dw-dp";
++			reg = <0x0 0x8010000 0x0 0x4000>;
++			interrupt-parent = <&intc>;
++			interrupts = <179>;
++			clocks = <&clk_usb DPTX_I2S_CLK_EN>,
++					 <&clk_usb DPTX_IPI_CLK_EN>,
++					 <&clk_usb DPTX_AUX_CLK_EN>,
++					 <&clk_usb DPTX_GTC_CLK_EN>,
++					 <&clk_usb DPTX_PCLK_EN>;
++			clock-names = "i2s", "ipi", "aux", "gtc", "pclk";
++			power-domains = <&power_vo>;
++			#sound-dai-cells = <1>;
++			phys = <&usbdp_phy0_dp>;
++			ports {
++				#address-cells = <1>;
++				#size-cells = <0>;
++				port@0 {
++					reg = <0>;
++					dp_tx_in: endpoint {
++						remote-endpoint = <&disp0_out>;
++					};
++				};
++			};
++		};
++
++		dpu: dc8200@6400000{
++			compatible = "verisilicon,dc8200";
++			reg = <0x00 0x6400000 0x0 0x100>,  <0x00 0x6400800 0x0 0x2000>, <0x00 0x6430010 0x0 0x60>;
++			interrupt-parent = <&intc>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			interrupts = <218>;
++			clocks = <&clk_vo VO_DPUC_CLK_EN>,
++			         <&clk_vo VO_DPU_ACLK_EN>,
++			         <&clk_vo VO_DPU_HCLK_EN>,
++			         <&clk_vo VO_CH0_PIXCLK_EN>,
++			         <&clk_vo VO_CH1_PIXCLK_EN>,
++			         <&clk    DPU0_PLL_FOUTPOSTDIV>,
++			         <&clk    DPU1_PLL_FOUTPOSTDIV>,
++			         <&clk_vo VO_MIPI_PIXCLK>,
++			         <&clk_vo VO_HDMI_PIXCLK>,
++			         <&clk_vo VO_DPTX_PIXCLK>;
++
++			clock-names = "core_clk", "axi_clk",  "cfg_clk",
++			              "pixclk0",  "pixclk1",  "dpu0_pll_foutpostdiv", "dpu1_pll_foutpostdiv",
++			              "mipi_pixclk", "hdmi_pixclk", "dptx_pixclk";
++			power-domains = <&power_vo>;
++			vosys-regmap = <&vosys_reg>;
++			zhihe-a210;
++			dpu_disp0: port@0 {
++				reg = <0>;
++				disp0_out: endpoint {
++					remote-endpoint = <&dp_tx_in>;
++				};
++			};
++
++			dpu_disp1: port@1 {
++				reg = <1>;
++				disp1_out: endpoint {
++					remote-endpoint = <&hdmi_tx_in0>;
++				};
++			};
++		};
++
++		auxdisp: auxdisp@6740000 {
++			compatible = "zhihe,auxdisp";
++			reg = <0x00 0x6740000 0x0 0x1000>;
++			interrupt-parent = <&intc>;
++			interrupts = <228>;
++			clocks = <&clk_vo VO_AUXDISP_ACLK_EN>,
++			         <&clk_vo VO_AUXDISP_PCLK_EN>,
++			         <&clk_vo VO_CH2_PIXCLK_EN>,
++			         <&clk_vo VO_HDMI_PIXCLK>,
++			         <&clk_vo VO_MIPI_PIXCLK>,
++			         <&clk_vo VO_DPTX_PIXCLK>;
++			clock-names = "aclk", "pclk", "pixclk", "hdmi_pixclk", "mipi_pixclk", "dptx_pixclk";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			auxdisp_out: port@0 {
++				reg = <0>;
++				auxdisp_to_dsi: endpoint@0 {
++					remote-endpoint = <&dsi_enc_in>;
++				};
++			};
++		};
++
++		gpu_opp_table: gpu-opp-table {
++			compatible = "operating-points-v2";
++
++			opp-528000000 {
++				opp-hz = /bits/ 64 <528000000>;
++				opp-microvolt = <750000>;
++			};
++
++			opp-792000000 {
++				opp-hz = /bits/ 64 <792000000>;
++				opp-microvolt = <800000>;
++			};
++		};
++
++		gpu: gpu@6c00000{
++			compatible = "img,gpu";
++			reg = <0x00 0x6c00000 0x0 0x100000>;
++			interrupt-parent = <&intc>;
++			interrupts = <72>;
++			interrupt-names = "gpuirq";
++			power-domains = <&power_gpu>;
++			vosys-regmap = <&vosys_reg>;
++			dma-mask = <0xf 0xffffffff>;
++			clocks = <&clk_gpu SW_PWR_WRAP_GPU_CORE_CLK_EN>;
++			clock-names = "gpu_core_clk ";
++			operating-points-v2 = <&gpu_opp_table>;
++		};
++
++		watchdog0: watchdog@00305000 {
++			compatible = "snps,dw-wdt";
++			reg = <0x00 0x00305000 0x0 0x1000>;
++			interrupt-parent = <&intc>;
++			interrupts = <331>;
++			clocks = <&clk_peri PERI0_WDT0_PCLK_EN>;
++			power-domains = <&power_top>;
++			clock-names = "tclk";
++			resets = <&rst PERI0_WDT0_PRST>;
++		};
++
++		aon_wdt0: aon_wdt@0 {
++			compatible = "zhihe,aon_wdt";
++		};
++
++		can0: flexcan@2000000 {
++			compatible = "fsl,zha210-flexcan";
++			reg = <0x00 0x2000000 0x0 0x4000>;
++			interrupt-parent = <&intc>;
++			interrupts = <261>;
++			clocks = <&clk_peri PERI1_CAN0_HIRES_CLK_EN>,
++					<&clk_peri PERI1_CAN0_PCLK_EN>;
++			clock-names = "ipg", "per";
++			power-domains = <&power_top>;
++			/* fsl,stop-mode = <&gpr 0x34 29 0x10 18>; */
++		};
++
++		can1: flexcan@2004000 {
++			compatible = "fsl,zha210-flexcan";
++			reg = <0x00 0x2004000 0x0 0x4000>;
++			interrupt-parent = <&intc>;
++			interrupts = <262>;
++			clocks = <&clk_peri PERI1_CAN1_HIRES_CLK_EN>,
++					<&clk_peri PERI1_CAN1_PCLK_EN>;
++			clock-names = "ipg", "per";
++			power-domains = <&power_top>;
++			/* fsl,stop-mode = <&gpr 0x34 29 0x10 18>; */
++		};
++
++		can2: flexcan@8420000 {
++			compatible = "fsl,zha210-flexcan";
++			reg = <0x00 0x8420000 0x0 0x4000>;
++			interrupt-parent = <&intc>;
++			interrupts = <263>;
++			clocks = <&clk_peri PERI2_CAN2_HIRES_CLK_EN>,
++					<&clk_peri PERI2_CAN2_PCLK_EN>;
++			clock-names = "ipg", "per";
++			power-domains = <&power_peri2>;
++			/* fsl,stop-mode = <&gpr 0x34 29 0x10 18>; */
++		};
++
++		rtc: rtc@30840000 {
++			compatible = "snps,dw-apb-rtc";
++			reg = <0x00 0x30840000 0x0 0x1000>;
++			interrupt-parent = <&intc>;
++			interrupts = <18>;
++			clocks = <&osc_32k>;
++			clock-names = "osc_32k";
++			wakeup-source;
++			prescaler = <0x8000>;
++		};
++
++		dmac0: dmac@0000520000 {
++			compatible = "zhihe,a210-axi-dma";
++			reg = <0x00 0x00520000 0x0 0x4000>;
++			interrupt-parent = <&intc>;
++			interrupts = <264>;
++			clocks = <&clk_peri PERI3_DMAC_ACLK_EN>, <&clk_peri PERI3_DMAC_HCLK_EN>;
++			clock-names = "core-clk", "cfgr-clk";
++			power-domains = <&power_peri3>;
++			//iommus = <&iommu DEVID_DIE0_DMAC_AP>;
++			#dma-cells = <1>;
++			dma-channels = <16>;
++			snps,block-size = <65536 65536 65536 65536 65536 65536 65536 65536
++								65536 65536 65536 65536 65536 65536 65536 65536>;
++			snps,priority = <0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0>;
++			snps,dma-masters = <1>;
++			snps,data-width = <4>;
++			snps,axi-max-burst-len = <4>;
++		};
++
++		dmac1: tee_dmac@27540000 {
++			compatible = "zhihe,a210-axi-dma";
++			reg = <0x00 0x27540000 0x0 0x4000>;
++			interrupt-parent = <&intc>;
++			interrupts = <259>;
++			clocks = <&clk_peri TEE_DMAC_CLKEN>, <&clk_peri TEE_DMAC_CLKEN>;
++			clock-names = "core-clk", "cfgr-clk";
++			#dma-cells = <1>;
++			dma-channels = <4>;
++			snps,block-size = <65536 65536 65536 65536>;
++			snps,priority = <0 0 0 0>;
++			snps,dma-masters = <1>;
++			snps,data-width = <4>;
++			snps,axi-max-burst-len = <16>;
++			//iommus = <&iommu DEVID_DIE0_TEE_DMAC>;
++		};
++
++		uart0: serial@02014000 {
++			compatible = "snps,dw-apb-uart";
++			reg = <0x00 0x02014000 0x0 0x400>;
++			interrupt-parent = <&intc>;
++			interrupts = <321>;
++			clocks = <&clk_peri PERI1_UART0_PCLK_EN>, <&clk_peri PERI1_UART0_SCLK_EN>;
++			clock-names = "apb_pclk", "baudclk";
++			power-domains = <&power_top>;
++			reg-shift = <2>;
++			reg-io-width = <4>;
++		};
++
++		uart1: serial@02015000 {
++			compatible = "snps,dw-apb-uart";
++			reg = <0x00 0x02015000 0x0 0x1000>;
++			interrupt-parent = <&intc>;
++			interrupts = <322>;
++			clocks = <&clk_peri PERI1_UART1_PCLK_EN>, <&clk_peri PERI1_UART1_SCLK_EN>;
++			clock-names = "apb_pclk", "baudclk";
++			power-domains = <&power_top>;
++			reg-shift = <2>;
++			reg-io-width = <4>;
++		};
++
++		uart2: serial@02016000 {
++			compatible = "snps,dw-apb-uart";
++			reg = <0x00 0x02016000 0x0 0x1000>;
++			interrupt-parent = <&intc>;
++			interrupts = <323>;
++			clocks = <&clk_peri PERI1_UART2_PCLK_EN>, <&clk_peri PERI1_UART2_SCLK_EN>;
++			clock-names = "apb_pclk", "baudclk";
++			power-domains = <&power_top>;
++			reg-shift = <2>;
++			reg-io-width = <4>;
++		};
++
++		uart3: serial@02017000 {
++			compatible = "snps,dw-apb-uart";
++			reg = <0x00 0x02017000 0x0 0x1000>;
++			interrupt-parent = <&intc>;
++			interrupts = <324>;
++			clocks = <&clk_peri PERI1_UART3_PCLK_EN>, <&clk_peri PERI1_UART3_SCLK_EN>;
++			clock-names = "apb_pclk", "baudclk";
++			power-domains = <&power_top>;
++			reg-shift = <2>;
++			reg-io-width = <4>;
++		};
++
++		uart4: serial@08401000 {
++			compatible = "snps,dw-apb-uart";
++			reg = <0x00 0x08401000 0x0 0x400>;
++			interrupt-parent = <&intc>;
++			interrupts = <325>;
++			clocks = <&clk_peri PERI2_UART4_PCLK_EN>, <&clk_peri PERI2_UART4_SCLK_EN>;
++			clock-names = "apb_pclk", "baudclk";
++			power-domains = <&power_peri2>;
++			reg-shift = <2>;
++			reg-io-width = <4>;
++			current-speed = <115200>; /* OpenSBI */
++		};
++
++		uart5: serial@08402000 {
++			compatible = "snps,dw-apb-uart";
++			reg = <0x00 0x08402000 0x0 0x1000>;
++			interrupt-parent = <&intc>;
++			interrupts = <326>;
++			clocks = <&clk_peri PERI2_UART5_PCLK_EN>, <&clk_peri PERI2_UART5_SCLK_EN>;
++			clock-names = "apb_pclk", "baudclk";
++			power-domains = <&power_peri2>;
++			reg-shift = <2>;
++			reg-io-width = <4>;
++		};
++
++		uart6: serial@08403000 {
++			compatible = "snps,dw-apb-uart";
++			reg = <0x00 0x08403000 0x0 0x1000>;
++			interrupt-parent = <&intc>;
++			interrupts = <327>;
++			clocks = <&clk_peri PERI2_UART6_PCLK_EN>, <&clk_peri PERI2_UART6_SCLK_EN>;
++			clock-names = "apb_pclk", "baudclk";
++			power-domains = <&power_peri2>;
++			reg-shift = <2>;
++			reg-io-width = <4>;
++		};
++
++		uart7: serial@08404000 {
++			compatible = "snps,dw-apb-uart";
++			reg = <0x00 0x08404000 0x0 0x1000>;
++			interrupt-parent = <&intc>;
++			interrupts = <328>;
++			clocks = <&clk_peri PERI2_UART7_PCLK_EN>, <&clk_peri PERI2_UART7_SCLK_EN>;
++			clock-names = "apb_pclk", "baudclk";
++			power-domains = <&power_peri2>;
++			reg-shift = <2>;
++			reg-io-width = <4>;
++		};
++
++		uart8: serial@08405000 {
++			compatible = "snps,dw-apb-uart";
++			reg = <0x00 0x08405000 0x0 0x1000>;
++			interrupt-parent = <&intc>;
++			interrupts = <329>;
++			clocks = <&clk_peri PERI2_UART8_PCLK_EN>, <&clk_peri PERI2_UART8_SCLK_EN>;
++			clock-names = "apb_pclk", "baudclk";
++			power-domains = <&power_peri2>;
++			reg-shift = <2>;
++			reg-io-width = <4>;
++		};
++
++		uart9: serial@08406000 {
++			compatible = "snps,dw-apb-uart";
++			reg = <0x00 0x08406000 0x0 0x1000>;
++			interrupt-parent = <&intc>;
++			interrupts = <330>;
++			clocks = <&clk_peri PERI2_UART9_PCLK_EN>, <&clk_peri PERI2_UART9_SCLK_EN>;
++			clock-names = "apb_pclk", "baudclk";
++			power-domains = <&power_peri2>;
++			reg-shift = <2>;
++			reg-io-width = <4>;
++		};
++
++		adc: adc@5a0000 {
++			compatible = "zhihe,a210-adc";
++			reg = <0x00 0x5a0000 0x0 0x1000>;
++			interrupt-parent = <&intc>;
++			interrupts = <260>;
++			clocks = <&clk_peri PERI3_ADC_PCLK_EN>;
++			power-domains = <&power_peri3>;
++			clock-names = "adc";
++		};
++
++		spi0: spi@02023000 {
++			compatible = "snps,dw-apb-ssi";
++			reg = <0x00 0x02023000 0x0 0x1000>;
++			interrupt-parent = <&intc>;
++			interrupts = <310>;
++			clocks = <&clk_peri PERI1_SPI0_SSI_CLK_EN>;
++			clock-names = "sclk";
++			power-domains = <&power_top>;
++			dmas = <&dmac0 9>, <&dmac0 8>;
++			dma-names = "tx", "rx";
++			dma-tx-addr-incr;
++			dma-rx-addr-incr;
++			reg-map-size = <144>;
++			num-cs = <2>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		spi1: spi@08413000 {
++			compatible = "snps,dw-apb-ssi";
++			reg = <0x00 0x08413000 0x0 0x1000>;
++			interrupt-parent = <&intc>;
++			interrupts = <311>;
++			clocks = <&clk_peri PERI2_SPI1_SSI_CLK_EN>;
++			clock-names = "sclk";
++			power-domains = <&power_peri2>;
++			dmas = <&dmac0 62>, <&dmac0 61>;
++			dma-names = "tx", "rx";
++			dma-tx-addr-incr;
++			dma-rx-addr-incr;
++			reg-map-size = <144>;
++			num-cs = <2>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		qspi0: spi@01000000 {
++			compatible = "snps,dw-apb-ssi-quad";
++			reg = <0x00 0x01000000 0x0 0x4000>;
++			interrupt-parent = <&intc>;
++			interrupts = <308>;
++			clocks = <&clk_peri PERI1_QSPI0_SSI_CLK_EN>;
++			clock-names = "sclk";
++			power-domains = <&power_top>;
++			num-cs = <2>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		qspi1: spi@08428000 {
++			compatible = "snps,dw-apb-ssi-quad";
++			reg = <0x00 0x08428000 0x0 0x4000>;
++			interrupt-parent = <&intc>;
++			interrupts = <309>;
++			clocks = <&clk_peri PERI2_QSPI1_SSI_CLK_EN>;
++			clock-names = "sclk";
++			power-domains = <&power_peri2>;
++			num-cs = <2>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		emmc: sdhci@00500000 {
++			compatible = "zhihe,a210-dwcmshc";
++			reg = <0x0 0x00500000 0x0 0x10000>;
++			interrupt-parent = <&intc>;
++			interrupts = <265>;
++			interrupt-names = "sdhciirq";
++			clocks = <&clk_peri PERI3_EMMC_SDIO_REF_CLK_CG_EN>,
++					 <&clk_peri PERI3_EMMC_HCLK_EN>;
++			clock-names = "core", "bus";
++			power-domains = <&power_peri3>;
++			//iommus = <&iommu DEVID_DIE0_EMMC>;
++			clk-delay-mmc-hs200 = <50>;
++			clk-delay-mmc-hs400 = <24>;
++		};
++
++		sdhci0: sd@00510000 {
++			compatible = "zhihe,a210-dwcmshc";
++			reg = <0x00 0x00510000 0x0 0x10000>;
++			interrupt-parent = <&intc>;
++			interrupts = <337>;
++			interrupt-names = "sdhci0irq";
++			clocks = <&clk_peri PERI3_EMMC_SDIO_REF_CLK_CG_EN>,
++					<&clk_peri PERI3_EMMC_HCLK_EN>;
++			clock-names = "core", "bus";
++			power-domains = <&power_peri3>;
++			//iommus = <&iommu DEVID_DIE0_SD>;
++			clk-delay-default = <46>;
++			clk-delay-uhs-sdr104 = <46>;
++		};
++
++		stmmac_axi_setup: stmmac-axi-config {
++			snps,wr_osr_lmt = <7>;
++			snps,rd_osr_lmt = <7>;
++			snps,blen = <16 8 4 0 0 0 0>;
++		};
++
++		gmac0_sys: syscon@0210F000 {
++			compatible = "syscon";
++			reg = <0x00 0x0210f000 0x0 0x20>;
++		};
++
++		gmac1_sys: syscon@0211F000 {
++			compatible = "syscon";
++			reg = <0x00 0x0211f000 0x0 0x20>;
++		};
++
++		gmac0: ethernet@0002100000{
++			compatible = "zhihe,a210-dwmac", "snps,dwmac-5.40a";
++			reg = <0x00 0x02100000 0x0 0x10000>;
++			reg-names = "gmac";
++			interrupt-parent = <&intc>;
++			interrupts = <277>;
++			interrupt-names = "macirq";
++			clocks = <&clk_peri PERI1_GMAC0_ACLK_EN>,
++					 <&clk_peri PERI1_GMAC0_HCLK_EN>;
++			clock-names = "gmac_aclk", "gmac_hclk";
++			power-domains = <&power_top>;
++			snps,pbl = <32>;
++			snps,fixed-burst;
++			snps,axi-config = <&stmmac_axi_setup>;
++			snps,tso;
++			zhihe,gmacsys = <&gmac0_sys>;
++			// iommus = <&iommu DEVID_DIE0_GMAC_0>;
++
++			mdio0: mdio {
++				compatible = "snps,dwmac-mdio";
++				#address-cells = <1>;
++				#size-cells = <0>;
++			};
++		};
++
++		gmac1: ethernet@02110000 {
++			compatible = "zhihe,a210-dwmac", "snps,dwmac-5.40a";
++			reg = <0x00 0x02110000 0x0 0x10000>;
++			reg-names = "gmac";
++			interrupt-parent = <&intc>;
++			interrupts = <288>;
++			interrupt-names = "macirq";
++			clocks = <&clk_peri PERI1_GMAC1_ACLK_EN>,
++					 <&clk_peri PERI1_GMAC1_HCLK_EN>;
++			clock-names = "gmac_aclk", "gmac_hclk";
++			power-domains = <&power_top>;
++			snps,pbl = <32>;
++			snps,fixed-burst;
++			snps,axi-config = <&stmmac_axi_setup>;
++			snps,tso;
++			zhihe,gmacsys = <&gmac1_sys>;
++			// iommus = <&iommu DEVID_DIE0_GMAC_1>;
++			mdio1: mdio {
++				compatible = "snps,dwmac-mdio";
++				#address-cells = <1>;
++				#size-cells = <0>;
++			};
++		};
++
++		aon_padctrl: aon-padctrl@30848000 {
++			compatible = "zhihe,a210-group0-pinctrl";
++			reg = <0x00 0x30848000 0x0 0x2000>;
++			clocks = <&aon_110m>;
++			clock-names = "pclk";
++		};
++
++		gpio@30841000 {
++			compatible = "snps,dw-apb-gpio";
++			reg = <0x00 0x30841000 0x0 0x1000>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			clocks = <&aon_110m>, <&osc_32k>;
++			clock-names = "bus", "db";
++
++			ao_gpio0: ao_gpio0-controller@0 {
++				compatible = "snps,dw-apb-gpio-port";
++				gpio-controller;
++				#gpio-cells = <2>;
++				ngpios = <32>;
++				gpio-ranges = <&aon_padctrl 0 8 15>, <&aon_padctrl 21 23 11>;
++				reg = <0>;
++
++				interrupt-controller;
++				#interrupt-cells = <2>;
++				interrupt-parent = <&intc>;
++				interrupts = <17>;
++			};
++		};
++
++		gpio@30897000 {
++			compatible = "snps,dw-apb-gpio";
++			reg = <0x00 0x30897000 0x0 0x1000>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			clocks = <&aon_110m>, <&osc_32k>;
++			clock-names = "bus", "db";
++
++			ao_gpio1: ao_gpio1-controller@0 {
++				compatible = "snps,dw-apb-gpio-port";
++				gpio-controller;
++				#gpio-cells = <2>;
++				ngpios = <10>;
++				gpio-ranges = <&aon_padctrl 0 34 10>;
++				reg = <0>;
++
++				interrupt-controller;
++				#interrupt-cells = <2>;
++				interrupt-parent = <&intc>;
++				interrupts = <10>;
++			};
++		};
++
++		peri1_padctrl: peri1-padctrl@02026000 {
++			compatible = "zhihe,a210-group1-pinctrl";
++			reg = <0x00 0x02026000 0x0 0x1000>;
++			clocks = <&clk_peri PERI1_PAD_CTRL_PCLK_EN>;
++			clock-names = "pclk";
++		};
++
++		peri2_padctrl: peri2-padctrl@08411000 {
++			compatible = "zhihe,a210-group2-pinctrl";
++			reg = <0x00 0x08411000 0x0 0x1000>;
++			clocks = <&clk_peri PERI2_PAD_CTRL_PCLK_EN>;
++			clock-names = "pclk";
++		};
++
++		peri3_padctrl: peri3-padctrl@00542000 {
++			compatible = "zhihe,a210-group3-pinctrl";
++			reg = <0x00 0x00542000 0x0 0x1000>;
++			clocks = <&clk_peri PERI3_PAD_CTRL_PCLK_EN>;
++			clock-names = "pclk";
++		};
++
++		gpio@02012000 {
++			compatible = "snps,dw-apb-gpio";
++			reg = <0x00 0x02012000 0x0 0x1000>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			clocks = <&clk_peri PERI1_GPIO0_PCLK_EN>,
++					<&clk_peri PERI1_GPIO0_DBCLK_EN>;
++			clock-names = "bus", "db";
++			power-domains = <&power_top>;
++
++			gpio0: gpio0-controller@0 {
++				compatible = "snps,dw-apb-gpio-port";
++				gpio-controller;
++				#gpio-cells = <2>;
++				ngpios = <32>;
++				gpio-ranges = <&peri1_padctrl 0 0 32>;
++				reg = <0>;
++
++				interrupt-controller;
++				#interrupt-cells = <2>;
++				interrupt-parent = <&intc>;
++				interrupts = <289>;
++			};
++		};
++
++		gpio@02013000 {
++			compatible = "snps,dw-apb-gpio";
++			reg = <0x00 0x02013000 0x0 0x1000>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			clocks = <&clk_peri PERI1_GPIO1_PCLK_EN>,
++					<&clk_peri PERI1_GPIO1_DBCLK_EN>;
++			clock-names = "bus", "db";
++			power-domains = <&power_top>;
++
++			gpio1: gpio1-controller@0 {
++				compatible = "snps,dw-apb-gpio-port";
++				gpio-controller;
++				#gpio-cells = <2>;
++				ngpios = <18>;
++				gpio-ranges = <&peri1_padctrl 0 32 18>;
++				reg = <0>;
++
++				interrupt-controller;
++				#interrupt-cells = <2>;
++				interrupt-parent = <&intc>;
++				interrupts = <290>;
++			};
++		};
++
++		gpio@08410000 {
++			compatible = "snps,dw-apb-gpio";
++			reg = <0x00 0x08410000 0x0 0x1000>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			clocks = <&clk_peri PERI2_GPIO2_PCLK_EN>,
++					<&clk_peri PERI2_GPIO2_DBCLK_EN>;
++			clock-names = "bus", "db";
++			power-domains = <&power_peri2>;
++
++			gpio2: gpio2-controller@0 {
++				compatible = "snps,dw-apb-gpio-port";
++				gpio-controller;
++				#gpio-cells = <2>;
++				ngpios = <32>;
++				gpio-ranges = <&peri2_padctrl 0 0 32>;
++				reg = <0>;
++
++				interrupt-controller;
++				#interrupt-cells = <2>;
++				interrupt-parent = <&intc>;
++				interrupts = <291>;
++			};
++		};
++
++		gpio@08412000 {
++			compatible = "snps,dw-apb-gpio";
++			reg = <0x00 0x08412000 0x0 0x1000>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			clocks = <&clk_peri PERI2_GPIO3_PCLK_EN>,
++					<&clk_peri PERI2_GPIO3_DBCLK_EN>;
++			clock-names = "bus", "db";
++			power-domains = <&power_peri2>;
++
++			gpio3: gpio3-controller@0 {
++				compatible = "snps,dw-apb-gpio-port";
++				gpio-controller;
++				#gpio-cells = <2>;
++				ngpios = <11>;
++				gpio-ranges = <&peri2_padctrl 0 32 11>;
++				reg = <0>;
++
++				interrupt-controller;
++				#interrupt-cells = <2>;
++				interrupt-parent = <&intc>;
++				interrupts = <292>;
++			};
++		};
++
++		gpio@00550000 {
++			compatible = "snps,dw-apb-gpio";
++			reg = <0x00 0x00550000 0x0 0x10000>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			clocks = <&clk_peri PERI3_GPIO4_PCLK_EN>,
++					<&clk_peri PERI3_GPIO4_DBCLK_EN>;
++			clock-names = "bus", "db";
++			power-domains = <&power_peri3>;
++
++			gpio4: gpio4-controller@0 {
++				compatible = "snps,dw-apb-gpio-port";
++				gpio-controller;
++				#gpio-cells = <2>;
++				ngpios = <6>;
++				gpio-ranges = <&peri3_padctrl 0 0 6>;
++				reg = <0>;
++
++				interrupt-controller;
++				#interrupt-cells = <2>;
++				interrupt-parent = <&intc>;
++				interrupts = <52>;
++			};
++		};
++
++		pwm0: pwm@0202A000 {
++			compatible = "zhihe,a210-pwm";
++			reg = <0x00 0x0202A000 0x0 0x1000>;
++			#pwm-cells = <2>;
++			clocks = <&clk_peri PERI1_PWM0_CCLK_EN>;
++			clock-names = "cclk";
++			power-domains = <&power_top>;
++			interrupts = <305>;
++			interrupt-parent = <&intc>;
++		};
++
++		pwm1: pwm@0841A000 {
++			compatible = "zhihe,a210-pwm";
++			reg = <0x00 0x0841A000 0x0 0x1000>;
++			#pwm-cells = <2>;
++			clocks = <&clk_peri PERI2_PWM1_CCLK_EN>;
++			clock-names = "cclk";
++			power-domains = <&power_peri2>;
++			interrupts = <306>;
++			interrupt-parent = <&intc>;
++		};
++
++		pwm2: pwm@0841B000 {
++			compatible = "zhihe,a210-pwm";
++			reg = <0x00 0x0841B000 0x0 0x1000>;
++			#pwm-cells = <2>;
++			clocks = <&clk_peri PERI2_PWM2_CCLK_EN>;
++			clock-names = "cclk";
++			power-domains = <&power_peri2>;
++			interrupts = <307>;
++			interrupt-parent = <&intc>;
++		};
++
++		timer0: timer0@00303000 {
++			compatible = "snps,dw-apb-timer";
++			reg = <0x00 0x00303000 0x0 0x14>;
++			clocks = <&clk_peri PERI0_TIMER0_PCLK_EN>, <&clk_peri PERI0_TIMER0_CCLK_EN>;
++			clock-names = "pclk", "timer";
++			resets = <&rst PERI0_TIMER0_RST>;
++			interrupts = <313>;
++			interrupt-parent = <&intc>;
++		};
++
++		timer1: timer1@00303014 {
++			compatible = "snps,dw-apb-timer";
++			reg = <0x00 0x00303014 0x0 0x14>;
++			clocks = <&clk_peri PERI0_TIMER0_PCLK_EN>, <&clk_peri PERI0_TIMER0_CCLK_EN>;
++			clock-names = "pclk", "timer";
++			resets = <&rst PERI0_TIMER0_RST>;
++			interrupts = <314>;
++			interrupt-parent = <&intc>;
++		};
++
++		timer2: timer2@00303028 {
++			compatible = "snps,dw-apb-timer";
++			reg = <0x00 0x00303028 0x0 0x14>;
++			clocks = <&clk_peri PERI0_TIMER0_PCLK_EN>, <&clk_peri PERI0_TIMER0_CCLK_EN>;
++			clock-names = "pclk", "timer";
++			resets = <&rst PERI0_TIMER0_RST>;
++			interrupts = <315>;
++			interrupt-parent = <&intc>;
++		};
++
++		timer3: timer3@0030303c {
++			compatible = "snps,dw-apb-timer";
++			reg = <0x00 0x0030303c 0x0 0x14>;
++			clocks = <&clk_peri PERI0_TIMER0_PCLK_EN>, <&clk_peri PERI0_TIMER0_CCLK_EN>;
++			clock-names = "pclk", "timer";
++			resets = <&rst PERI0_TIMER0_RST>;
++			interrupts = <316>;
++			interrupt-parent = <&intc>;
++		};
++
++		timer4: timer4@00304000 {
++			compatible = "snps,dw-apb-timer";
++			reg = <0x00 0x00304000 0x0 0x14>;
++			clocks = <&clk_peri PERI0_TIMER1_PCLK_EN>, <&clk_peri PERI0_TIMER1_CCLK_EN>;
++			clock-names = "pclk", "timer";
++			resets = <&rst PERI0_TIMER1_RST>;
++			interrupts = <317>;
++			interrupt-parent = <&intc>;
++		};
++
++		timer5: timer5@00304014 {
++			compatible = "snps,dw-apb-timer";
++			reg = <0x00 0x00304014 0x0 0x14>;
++			clocks = <&clk_peri PERI0_TIMER1_PCLK_EN>, <&clk_peri PERI0_TIMER1_CCLK_EN>;
++			clock-names = "pclk", "timer";
++			resets = <&rst PERI0_TIMER1_RST>;
++			interrupts = <318>;
++			interrupt-parent = <&intc>;
++		};
++
++		timer6: timer6@00304028 {
++			compatible = "snps,dw-apb-timer";
++			reg = <0x00 0x00304028 0x0 0x14>;
++			clocks = <&clk_peri PERI0_TIMER1_PCLK_EN>, <&clk_peri PERI0_TIMER1_CCLK_EN>;
++			clock-names = "pclk", "timer";
++			resets = <&rst PERI0_TIMER1_RST>;
++			interrupts = <319>;
++			interrupt-parent = <&intc>;
++		};
++
++		timer7: timer7@0030403c {
++			compatible = "snps,dw-apb-timer";
++			reg = <0x00 0x0030403c 0x0 0x14>;
++			clocks = <&clk_peri PERI0_TIMER1_PCLK_EN>, <&clk_peri PERI0_TIMER1_CCLK_EN>;
++			clock-names = "pclk", "timer";
++			resets = <&rst PERI0_TIMER1_RST>;
++			interrupts = <320>;
++			interrupt-parent = <&intc>;
++		};
++
++		i2c0: i2c@02020000 {
++			compatible = "snps,designware-i2c";
++			reg = <0x00 0x02020000 0x0 0x1000>;
++			interrupt-parent = <&intc>;
++			interrupts = <293>;
++			clocks = <&clk_peri PERI1_I2C0_IC_CLK_EN>, <&clk_peri PERI1_I2C0_PCLK_EN>;
++			clock-names = "ref", "pclk";
++			power-domains = <&power_top>;
++			dma-mode;
++			dmas = <&dmac0 21>, <&dmac0 20>;
++			dma-names = "tx", "rx";
++			dma-burst-len = <1>, <1>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		i2c1: i2c@02021000 {
++			compatible = "snps,designware-i2c";
++			reg = <0x00 0x02021000 0x0 0x1000>;
++			interrupt-parent = <&intc>;
++			interrupts = <294>;
++			clocks = <&clk_peri PERI1_I2C1_IC_CLK_EN>, <&clk_peri PERI1_I2C1_PCLK_EN>;
++			clock-names = "ref", "pclk";
++			power-domains = <&power_top>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		i2c2: i2c@02022000{
++			compatible = "snps,designware-i2c";
++			reg = <0x00 0x02022000 0x0 0x1000>;
++			interrupt-parent = <&intc>;
++			interrupts = <295>;
++			clocks = <&clk_peri PERI1_I2C2_IC_CLK_EN>, <&clk_peri PERI1_I2C2_PCLK_EN>;
++			clock-names = "ref", "pclk";
++			power-domains = <&power_top>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		i2c3: i2c@08415000{
++			compatible = "snps,designware-i2c";
++			reg = <0x00 0x08415000 0x0 0x1000>;
++			interrupt-parent = <&intc>;
++			interrupts = <296>;
++			clocks = <&clk_peri PERI2_I2C3_IC_CLK_EN>, <&clk_peri PERI2_I2C3_PCLK_EN>;
++			clock-names = "ref", "pclk";
++			power-domains = <&power_peri2>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		i2c4: i2c@08416000{
++			compatible = "snps,designware-i2c";
++			reg = <0x00 0x08416000 0x0 0x1000>;
++			interrupt-parent = <&intc>;
++			interrupts = <297>;
++			clocks = <&clk_peri PERI2_I2C4_IC_CLK_EN>, <&clk_peri PERI2_I2C4_PCLK_EN>;
++			clock-names = "ref", "pclk";
++			power-domains = <&power_peri2>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		i2c5: i2c@08417000{
++			compatible = "snps,designware-i2c";
++			reg = <0x00 0x08417000 0x0 0x1000>;
++			interrupt-parent = <&intc>;
++			interrupts = <298>;
++			clocks = <&clk_peri PERI2_I2C5_IC_CLK_EN>, <&clk_peri PERI2_I2C5_PCLK_EN>;
++			clock-names = "ref", "pclk";
++			power-domains = <&power_peri2>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		i2c6: i2c@08418000{
++			compatible = "snps,designware-i2c";
++			reg = <0x00 0x08418000 0x0 0x1000>;
++			interrupt-parent = <&intc>;
++			interrupts = <299>;
++			clocks = <&clk_peri PERI2_I2C6_IC_CLK_EN>, <&clk_peri PERI2_I2C6_PCLK_EN>;
++			clock-names = "ref", "pclk";
++			power-domains = <&power_peri2>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		i2c7: i2c@08419000{
++			compatible = "snps,designware-i2c";
++			reg = <0x00 0x08419000 0x0 0x1000>;
++			interrupt-parent = <&intc>;
++			interrupts = <300>;
++			clocks = <&clk_peri PERI2_I2C7_IC_CLK_EN>, <&clk_peri PERI2_I2C7_PCLK_EN>;
++			clock-names = "ref", "pclk";
++			power-domains = <&power_peri2>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		aoi2c1: i2c@30891000{
++			compatible = "snps,designware-i2c";
++			reg = <0x00 0x30891000 0x0 0x1000>;
++			interrupt-parent = <&intc>;
++			interrupts = <20>;
++			clocks = <&aon_110m>;
++			clock-names = "ref", "pclk";
++			//power-domains = <&power_peri2>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		vdec: vdec@0006800000 {
++			compatible = "zhihe,vpu-vc9000d";
++			address-cells = <2>;
++			size-cells = <2>;
++			reg = <0x00 0x06800000 0x0 0xFFFFF
++					0x00 0x06b40000 0x0 0x10000 >;
++			interrupt-parent = <&intc>;
++			interrupts = <229>, <231>;
++			power-domains = <&power_vdec>;
++			clocks = <&clk_vp VP_VDEC_CCLK_EN>, <&clk_vp VP_VDEC_ACLK_EN>, <&clk_vp VP_VDEC_PCLK_EN>;
++			clock-names = "vdec_cclk", "vp_aclk", "vdec_pclk";
++			operating-points-v2 = <&vdec_opp_table>;
++			aclk-freq-low = <528000000>;
++			aclk-freq-high = <880000000>;
++			cclk-threshold = <600000000>;
++			//iommus = <&iommu DEVID_DIE0_VDEC>;
++			//iommu-group = <IOMMU_GROUP_VIDEO>;
++		};
++
++		venc: venc@0006900000 {
++			compatible = "zhihe,vpu-vc9000e";
++			address-cells = <2>;
++			size-cells = <2>;
++			reg = <0x00 0x06900000 0x0 0xFFFFF
++					0x00 0x06b50000 0x0 0x10000>;
++			interrupt-parent = <&intc>;
++			interrupts = <230>, <350>;
++			power-domains = <&power_venc>;
++			clocks = <&clk_vp VP_VENC_CCLK_EN>, <&clk_vp VP_VENC_ACLK_EN>, <&clk_vp VP_VENC_PCLK_EN>;
++			clock-names = "venc_cclk", "vp_aclk", "venc_pclk";
++			operating-points-v2 = <&venc_opp_table>;
++			aclk-freq-low = <528000000>;
++			aclk-freq-high = <880000000>;
++			cclk-threshold = <528000000>;
++			//iommus = <&iommu DEVID_DIE0_VENC>;
++			//iommu-group = <IOMMU_GROUP_VIDEO>;
++		};
++
++		vidmem: vidmem@ffecc08000 {
++			compatible = "zhihe,vidmem";
++			//iommus = <&iommu DEVID_VIDEO_MEMORY_DUMMY>;
++			//iommu-group = <IOMMU_GROUP_VIDEO>;
++		};
++
++		audio_i2s0: audio_i2s0@0002029000 {
++			compatible = "zhihe,i2s0";
++			reg = <0x0 0x02029000 0x0 0x1000>;
++			interrupt-parent = <&intc>;
++			interrupts = <301>;
++			clocks = <&clk_peri PERI1_I2S0_SRC_CLK_EN>, <&clk_peri PERI1_I2S0_PCLK_EN>;
++			clock-names = "sclk", "pclk";
++			power-domains = <&power_top>;
++			#sound-dai-cells = <1>;
++			dmas = <&dmac0 3>, <&dmac0 2>;
++			dma-names = "tx", "rx";
++			snd-soc-zhihe-a210;
++		};
++
++		audio_i2s1: audio_i2s1@000840a000 {
++			compatible = "zhihe,i2s1";
++			reg = <0x0 0x0840a000 0x0 0x1000>;
++			interrupt-parent = <&intc>;
++			interrupts = <302>;
++			clocks = <&clk_peri PERI2_I2S1_SRC_CLK_EN>, <&clk_peri PERI2_I2S1_PCLK_EN>;
++			clock-names = "sclk", "pclk";
++			power-domains = <&power_peri2>;
++			#sound-dai-cells = <1>;
++			dmas = <&dmac0 38>, <&dmac0 37>;
++			dma-names = "tx", "rx";
++			snd-soc-zhihe-a210;
++		};
++
++		audio_i2s2: audio_i2s2@000840b000 {
++			compatible = "zhihe,i2s2";
++			reg = <0x0 0x0840b000 0x0 0x1000>;
++			interrupt-parent = <&intc>;
++			interrupts = <303>;
++			clocks = <&clk_peri PERI2_I2S2_SRC_CLK_EN>, <&clk_peri PERI2_I2S2_PCLK_EN>;
++			clock-names = "sclk", "pclk";
++			power-domains = <&power_peri2>;
++			#sound-dai-cells = <1>;
++			dmas = <&dmac0 36>, <&dmac0 35>;
++			dma-names = "tx", "rx";
++			snd-soc-zhihe-a210;
++		};
++
++		audio_i2s_8ch_sd0: audio_i2s_8ch_sd0@000840c000 {
++			compatible = "zhihe,i2s3-8ch-sd0";
++			reg = <0x0 0x0840c000 0x0 0x1000>,
++			      <0x0 0x00240000 0x0 0x4>;
++			interrupt-parent = <&intc>;
++			interrupts = <304>;
++			clocks = <&clk_peri PERI2_I2S3_SRC_CLK_EN>, <&clk_peri PERI2_I2S3_PCLK_EN>;
++			clock-names = "sclk", "pclk";
++			power-domains = <&power_peri2>;
++			multi-channels = <8>;
++			#sound-dai-cells = <1>;
++			dmas = <&dmac0 28>, <&dmac0 27>;
++			dma-names = "tx", "rx";
++			snd-soc-zhihe-a210;
++			ports {
++				#address-cells = <1>;
++				#size-cells = <0>;
++				/* i2s transmit to hdmi */
++				port@0 {
++					reg = <0>;
++					hdmi_i2s_tx: endpoint {
++						remote-endpoint = <&hdmi_i2s_rx>;
++					};
++				};
++			};
++		};
++
++		audio_i2s_8ch_sd1: audio_i2s_8ch_sd1@000840c000 {
++			compatible = "zhihe,i2s3-8ch-sd1";
++			reg = <0x0 0x0840c000 0x0 0x1000>;
++			interrupt-parent = <&intc>;
++			interrupts = <304>;
++			clocks = <&clk_peri PERI2_I2S3_SRC_CLK_EN>, <&clk_peri PERI2_I2S3_PCLK_EN>;
++			clock-names = "sclk", "pclk";
++			power-domains = <&power_peri2>;
++			multi-channels = <8>;
++			#sound-dai-cells = <1>;
++			dmas = <&dmac0 30>, <&dmac0 29>;
++			dma-names = "tx", "rx";
++			snd-soc-zhihe-a210;
++		};
++
++		audio_i2s_8ch_sd2: audio_i2s_8ch_sd2@000840c000 {
++			compatible = "zhihe,i2s3-8ch-sd2";
++			reg = <0x0 0x0840c000 0x0 0x1000>;
++			interrupt-parent = <&intc>;
++			interrupts = <304>;
++			clocks = <&clk_peri PERI2_I2S3_SRC_CLK_EN>, <&clk_peri PERI2_I2S3_PCLK_EN>;
++			clock-names = "sclk", "pclk";
++			power-domains = <&power_peri2>;
++			multi-channels = <8>;
++			#sound-dai-cells = <1>;
++			dmas = <&dmac0 32>, <&dmac0 31>;
++			dma-names = "tx", "rx";
++			snd-soc-zhihe-a210;
++		};
++
++		audio_i2s_8ch_sd3: audio_i2s_8ch_sd3@000840c000 {
++			compatible = "zhihe,i2s3-8ch-sd3";
++			reg = <0x0 0x0840c000 0x0 0x1000>;
++			interrupt-parent = <&intc>;
++			interrupts = <304>;
++			clocks = <&clk_peri PERI2_I2S3_SRC_CLK_EN>, <&clk_peri PERI2_I2S3_PCLK_EN>;
++			clock-names = "sclk", "pclk";
++			power-domains = <&power_peri2>;
++			multi-channels = <8>;
++			#sound-dai-cells = <1>;
++			dmas = <&dmac0 34>, <&dmac0 33>;
++			dma-names = "tx", "rx";
++			snd-soc-zhihe-a210;
++		};
++
++		audio_tdm_slot0: audio_tdm_slot0@200c000 {
++			compatible = "zhihe,tdm-0";
++			reg = <0x0 0x200c000 0x0 0x4000>;
++			interrupt-parent = <&intc>;
++			interrupts = <312>;
++			clocks = <&clk_peri PERI1_TDM0_SCLK_EN>, <&clk_peri PERI1_TDM0_PCLK_EN>;
++			clock-names = "sclk", "pclk";
++			power-domains = <&power_top>;
++			#sound-dai-cells = <1>;
++			zhihe,peri1-sys = <&peri1_sys>;
++			dmas = <&dmac0 4>;
++			dma-names = "rx";
++		};
++
++		audio_tdm_slot1: audio_tdm_slot1@200c000 {
++			compatible = "zhihe,tdm-1";
++			reg = <0x0 0x200c000 0x0 0x4000>;
++			interrupt-parent = <&intc>;
++			interrupts = <312>;
++			clocks = <&clk_peri PERI1_TDM0_SCLK_EN>, <&clk_peri PERI1_TDM0_PCLK_EN>;
++			clock-names = "sclk", "pclk";
++			power-domains = <&power_top>;
++			#sound-dai-cells = <1>;
++			zhihe,peri1-sys = <&peri1_sys>;
++			dmas = <&dmac0 5>;
++			dma-names = "rx";
++		};
++
++		audio_tdm_slot2: audio_tdm_slot2@200c000 {
++			compatible = "zhihe,tdm-2";
++			reg = <0x0 0x200c000 0x0 0x4000>;
++			interrupt-parent = <&intc>;
++			interrupts = <312>;
++			clocks = <&clk_peri PERI1_TDM0_SCLK_EN>, <&clk_peri PERI1_TDM0_PCLK_EN>;
++			clock-names = "sclk", "pclk";
++			power-domains = <&power_top>;
++			#sound-dai-cells = <1>;
++			zhihe,peri1-sys = <&peri1_sys>;
++			dmas = <&dmac0 0>;
++			dma-names = "rx";
++		};
++
++		audio_tdm_slot3: audio_tdm_slot3@200c000 {
++			compatible = "zhihe,tdm-3";
++			reg = <0x0 0x200c000 0x0 0x4000>;
++			interrupt-parent = <&intc>;
++			interrupts = <312>;
++			clocks = <&clk_peri PERI1_TDM0_SCLK_EN>, <&clk_peri PERI1_TDM0_PCLK_EN>;
++			clock-names = "sclk", "pclk";
++			power-domains = <&power_top>;
++			#sound-dai-cells = <1>;
++			zhihe,peri1-sys = <&peri1_sys>;
++			dmas = <&dmac0 1>;
++			dma-names = "rx";
++		};
++
++		audio_tdm_slot4: audio_tdm_slot4@200c000 {
++			compatible = "zhihe,tdm-4";
++			reg = <0x0 0x200c000 0x0 0x4000>;
++			interrupt-parent = <&intc>;
++			interrupts = <312>;
++			clocks = <&clk_peri PERI1_TDM0_SCLK_EN>, <&clk_peri PERI1_TDM0_PCLK_EN>;
++			clock-names = "sclk", "pclk";
++			power-domains = <&power_top>;
++			#sound-dai-cells = <1>;
++			zhihe,peri1-sys = <&peri1_sys>;
++			dmas = <&dmac0 10>;
++			dma-names = "rx";
++		};
++
++		audio_tdm_slot5: audio_tdm_slot5@200c000 {
++			compatible = "zhihe,tdm-5";
++			reg = <0x0 0x200c000 0x0 0x4000>;
++			interrupt-parent = <&intc>;
++			interrupts = <312>;
++			clocks = <&clk_peri PERI1_TDM0_SCLK_EN>, <&clk_peri PERI1_TDM0_PCLK_EN>;
++			clock-names = "sclk", "pclk";
++			power-domains = <&power_top>;
++			#sound-dai-cells = <1>;
++			zhihe,peri1-sys = <&peri1_sys>;
++			dmas = <&dmac0 11>;
++			dma-names = "rx";
++		};
++
++		audio_tdm_slot6: audio_tdm_slot6@200c000 {
++			compatible = "zhihe,tdm-6";
++			reg = <0x0 0x200c000 0x0 0x4000>;
++			interrupt-parent = <&intc>;
++			interrupts = <312>;
++			clocks = <&clk_peri PERI1_TDM0_SCLK_EN>, <&clk_peri PERI1_TDM0_PCLK_EN>;
++			clock-names = "sclk", "pclk";
++			power-domains = <&power_top>;
++			#sound-dai-cells = <1>;
++			zhihe,peri1-sys = <&peri1_sys>;
++			dmas = <&dmac0 12>;
++			dma-names = "rx";
++		};
++
++		audio_tdm_slot7: audio_tdm_slot7@200c000 {
++			compatible = "zhihe,tdm-7";
++			reg = <0x0 0x200c000 0x0 0x4000>;
++			interrupt-parent = <&intc>;
++			interrupts = <312>;
++			clocks = <&clk_peri PERI1_TDM0_SCLK_EN>, <&clk_peri PERI1_TDM0_PCLK_EN>;
++			clock-names = "sclk", "pclk";
++			power-domains = <&power_top>;
++			#sound-dai-cells = <1>;
++			zhihe,peri1-sys = <&peri1_sys>;
++			dmas = <&dmac0 13>;
++			dma-names = "rx";
++		};
++
++		usb31_c10phy: phy@8040000 {
++			compatible = "zhihe,a210-c10phy";
++			reg = <0x00 0x08040000 0x0 0x3C000>,
++			      <0x00 0x0807C000 0x0 0x2000>,
++			      <0x00 0x0807E000 0x0 0x100>,
++			      <0x00 0x08014000 0x0 0x200>;
++			reg-names = "phy_ctrl", "tca", "sysreg", "dptx_sys";
++			resets = <&rst USB_C10PHY_PHY_RST>;
++			reset-names = "phy-rst";
++			#phy-cells = <0>;
++			power-domains = <&power_usb>;
++
++			usbdp_phy0_dp: dp-port {
++				#phy-cells = <0>;
++				status = "okay";
++			};
++
++			usbdp_phy0_u3: u3-port {
++				#phy-cells = <0>;
++				status = "okay";
++			};
++		};
++
++		usb20phy0: phy@08300000 {
++			compatible = "zhihe,a210-usb2-phy0";
++			reg = <0x00 0x8300000 0x0 0x1000>;
++			reg-names = "usb20-blk-sysreg";
++			resets = <&rst USB_USB20_BLK_USB0_PHY_PON_RESET>;
++			reset-names = "phy-rst";
++			#phy-cells = <0>;
++			power-domains = <&power_usb>;
++			zhihe,init-seq = /bits/ 32 <0x000 0x40b67b5b>;
++		};
++
++		usb20phy1: phy@08301000 {
++			compatible = "zhihe,a210-usb2-phy1";
++			reg = <0x00 0x8301000 0x0 0x1000>;
++			reg-names = "usb20-blk-sysreg";
++			resets = <&rst USB_USB20_BLK_USB1_PHY_PON_RESET>;
++			reset-names = "phy-rst";
++			#phy-cells = <0>;
++			power-domains = <&power_usb>;
++			zhihe,init-seq = /bits/ 32 <0x000 0x40b67b5b>;
++		};
++
++		usb31_syscon: syscon@8000000 {
++			compatible = "syscon";
++			reg = <0x00 0x08000000 0x0 0x1000>;
++		};
++
++		usb20phy2: usb2-phy {
++			compatible = "zhihe,a210-usb2-phy2";
++			syscon = <&usb31_syscon>;
++			resets = <&rst USB_USB31_PHY_RST>;
++			reset-names = "phy-rst";
++			#phy-cells = <0>;
++			zhihe,init-seq = /bits/ 32 <0x0a0 0x1000>;
++		};
++		usb31: usb3@8001000 {
++			compatible = "zhihe,usb31";
++			syscon = <&usb31_syscon>;
++			clocks = <&clk_usb USB31_REF_CLK_EN>,
++				<&clk_usb USB31_SLV_AFENCE_ACLK_EN>,
++				<&clk_usb USB_SS_PERI2_CFG_ACLK_EN>;
++			clock-names = "ref-clk", "slv-aclk", "cfg-aclk";
++			resets = <&rst USB_USB31_SLV_AFENCE_ARST>;
++			reset-names = "usb31-arst";
++			#address-cells = <2>;
++			#size-cells = <2>;
++			ranges;
++
++			usb3: dwc3@8100000 {
++				compatible = "snps,dwc3";
++				reg = <0x00 0x8100000 0x0 0x100000>;
++				interrupt-parent = <&intc>;
++				interrupts = <183>;
++				clocks = <&clk_usb USB31_PCLK_EN>,
++					<&clk_usb USB31_BUS_CLK_EN>,
++					<&clk_usb USB31_SUSPEND_CLK_EN>;
++				clock-names = "pclk", "bus_clk", "suspend_clk";
++				reg-shift = <2>;
++				reg-io-width = <4>;
++				dr_mode = "host";
++				power-domains = <&power_usb>;
++				phys = <&usb20phy2>, <&usbdp_phy0_u3>;
++				phy-names = "usb2-phy", "usb3-phy";
++				//iommus = <&iommu DEVID_DIE0_USB3_0>;
++				snps,usb3_lpm_capable;
++				snps,usb_sofitpsync;
++			};
++		};
++
++		usb2_0: usb2@8200000 {
++			compatible = "zhihe,a210-usb", "snps,dwc2";
++			reg = <0x00 0x8200000 0x0 0x40000>;
++			interrupt-parent = <&intc>;
++			interrupts = <181>;
++			clocks = <&clk_usb USB20_BUS_CLK>;
++			clock-names = "otg";
++			resets = <&rst USB_USB20_BLK_USB2_WRAP0_HRST>;
++			reset-names = "dwc2";
++			phys = <&usb20phy0>;
++			phy-names = "usb2-phy";
++			dr_mode = "host";
++			maximum-speed = "high-speed";
++			reg-shift = <2>;
++			reg-io-width = <4>;
++			g-np-tx-fifo-size = <16>;
++			g-rx-fifo-size = <275>;
++			g-tx-fifo-size = <256 128 128 64 64 32>;
++			power-domains = <&power_usb>;
++			// iommus = <&iommu DEVID_DIE0_USB2_0>;
++			snps,need-phy-for-wake;
++		};
++
++		usb2_1: usb2@8240000 {
++			compatible = "zhihe,a210-usb", "snps,dwc2";
++			reg = <0x00 0x8240000 0x0 0x40000>;
++			interrupt-parent = <&intc>;
++			interrupts = <182>;
++			clocks = <&clk_usb USB20_BUS_CLK>;
++			clock-names = "otg";
++			resets = <&rst USB_USB20_BLK_USB2_WRAP1_HRST>;
++			reset-names = "dwc2";
++			phys = <&usb20phy1>;
++			phy-names = "usb2-phy";
++			dr_mode = "host";
++			maximum-speed = "high-speed";
++			reg-shift = <2>;
++			reg-io-width = <4>;
++			g-np-tx-fifo-size = <16>;
++			g-rx-fifo-size = <275>;
++			g-tx-fifo-size = <256 128 128 64 64 32>;
++			power-domains = <&power_usb>;
++			// iommus = <&iommu DEVID_DIE0_USB2_1>;
++			snps,need-phy-for-wake;
++		};
++
++		audio_pdm0: audio_pdm0@0002008000 {
++			compatible = "zhihe,pdm";
++			reg = <0x0 0x02008000 0x0 0x4000>;
++			interrupt-parent = <&intc>;
++			interrupts = <339>;
++			clocks = <&clk_peri PERI1_PDM0_MCLK_EN>, <&clk_peri PERI1_PDM0_PCLK_EN>;
++			clock-names = "mclk", "pclk";
++			power-domains = <&power_top>;
++			#sound-dai-cells = <1>;
++			zhihe,peri1-sys = <&peri1_sys>;
++			zhihe,mode = "pdm-master";
++			zhihe,sel = "audio_pdm0";
++			dmas = <&dmac0 6>;
++			dma-names = "rx";
++		};
++
++		audio_pdm1: audio_pdm1@0002008000 {
++			compatible = "zhihe,pdm";
++			reg = <0x0 0x02008000 0x0 0x4000>;
++			interrupt-parent = <&intc>;
++			interrupts = <339>;
++			clocks = <&clk_peri PERI1_PDM0_MCLK_EN>, <&clk_peri PERI1_PDM0_PCLK_EN>;
++			clock-names = "mclk", "pclk";
++			power-domains = <&power_top>;
++			#sound-dai-cells = <1>;
++			zhihe,peri1-sys = <&peri1_sys>;
++			zhihe,mode = "pdm-master";
++			zhihe,sel = "audio_pdm1";
++			dmas = <&dmac0 7>;
++			dma-names = "rx";
++		};
++
++		audio_pdm2: audio_pdm2@0002008000 {
++			compatible = "zhihe,pdm";
++			reg = <0x0 0x02008000 0x0 0x4000>;
++			interrupt-parent = <&intc>;
++			interrupts = <339>;
++			clocks = <&clk_peri PERI1_PDM0_MCLK_EN>, <&clk_peri PERI1_PDM0_PCLK_EN>;
++			clock-names = "mclk", "pclk";
++			power-domains = <&power_top>;
++			#sound-dai-cells = <1>;
++			zhihe,peri1-sys = <&peri1_sys>;
++			zhihe,mode = "pdm-master";
++			zhihe,sel = "audio_pdm2";
++			dmas = <&dmac0 12>;
++			dma-names = "rx";
++		};
++
++		audio_pdm3: audio_pdm3@0002008000 {
++			compatible = "zhihe,pdm";
++			reg = <0x0 0x02008000 0x0 0x4000>;
++			interrupt-parent = <&intc>;
++			interrupts = <339>;
++			clocks = <&clk_peri PERI1_PDM0_MCLK_EN>, <&clk_peri PERI1_PDM0_PCLK_EN>;
++			clock-names = "mclk", "pclk";
++			power-domains = <&power_top>;
++			#sound-dai-cells = <1>;
++			zhihe,peri1-sys = <&peri1_sys>;
++			zhihe,mode = "pdm-master";
++			zhihe,sel = "audio_pdm3";
++			dmas = <&dmac0 13>;
++			dma-names = "rx";
++		};
++
++		audio_pdm4: audio_pdm4@0002008000 {
++			compatible = "zhihe,pdm";
++			reg = <0x0 0x02008000 0x0 0x4000>;
++			interrupt-parent = <&intc>;
++			interrupts = <339>;
++			clocks = <&clk_peri PERI1_PDM0_MCLK_EN>, <&clk_peri PERI1_PDM0_PCLK_EN>;
++			clock-names = "mclk", "pclk";
++			power-domains = <&power_top>;
++			#sound-dai-cells = <1>;
++			zhihe,peri1-sys = <&peri1_sys>;
++			zhihe,mode = "pdm-master";
++			zhihe,sel = "audio_pdm4";
++			dmas = <&dmac0 10>;
++			dma-names = "rx";
++		};
++
++		audio_pdm5: audio_pdm5@0002008000 {
++			compatible = "zhihe,pdm";
++			reg = <0x0 0x02008000 0x0 0x4000>;
++			interrupt-parent = <&intc>;
++			interrupts = <339>;
++			clocks = <&clk_peri PERI1_PDM0_MCLK_EN>, <&clk_peri PERI1_PDM0_PCLK_EN>;
++			clock-names = "mclk", "pclk";
++			power-domains = <&power_top>;
++			#sound-dai-cells = <1>;
++			zhihe,peri1-sys = <&peri1_sys>;
++			zhihe,mode = "pdm-master";
++			zhihe,sel = "audio_pdm5";
++			dmas = <&dmac0 11>;
++			dma-names = "rx";
++		};
++
++		audio_pdm6: audio_pdm6@0002008000 {
++			compatible = "zhihe,pdm";
++			reg = <0x0 0x02008000 0x0 0x4000>;
++			interrupt-parent = <&intc>;
++			interrupts = <339>;
++			clocks = <&clk_peri PERI1_PDM0_MCLK_EN>, <&clk_peri PERI1_PDM0_PCLK_EN>;
++			clock-names = "mclk", "pclk";
++			power-domains = <&power_top>;
++			#sound-dai-cells = <1>;
++			zhihe,peri1-sys = <&peri1_sys>;
++			zhihe,mode = "pdm-master";
++			zhihe,sel = "audio_pdm6";
++			dmas = <&dmac0 0>;
++			dma-names = "rx";
++		};
++
++		audio_pdm7: audio_pdm7@0002008000 {
++			compatible = "zhihe,pdm";
++			reg = <0x0 0x02008000 0x0 0x4000>;
++			interrupt-parent = <&intc>;
++			interrupts = <339>;
++			clocks = <&clk_peri PERI1_PDM0_MCLK_EN>, <&clk_peri PERI1_PDM0_PCLK_EN>;
++			clock-names = "mclk", "pclk";
++			power-domains = <&power_top>;
++			#sound-dai-cells = <1>;
++			zhihe,peri1-sys = <&peri1_sys>;
++			zhihe,mode = "pdm-master";
++			zhihe,sel = "audio_pdm7";
++			dmas = <&dmac0 1>;
++			dma-names = "rx";
++		};
++
++		e16phy: e16phy@a1800000 {
++			compatible = "zhihe,a210-e16phy";
++			reg = <0x00 0xa180000 0x0 0x001000>;
++			#phy-cells = <0>;
++			clocks = <&clk_pcie E16PHY_PCLK_EN>;
++			clock-names = "e16phy_clk";
++			resets = <&rst PCIE_E16PHY_APBS_PRST>,<&rst PCIE_E16PHY_PHY_RST>;
++			reset-names = "apb", "phy";
++			/* PCIE_DMx4 */
++			init-seq-pcie_dmx4 = /bits/ 32 <0x000 0x00110000>,
++							<0x004 0x00000000>,
++							<0x008 0x00000000>,
++							<0x108 0x00000011>,
++							<0x048 0x00010001>;
++			/* PCIE_DMx2,PCIE_RPx1 */
++			init-seq-pcie_dmx2_rpx1 = /bits/ 32 <0x000 0x00110100>,
++							<0x004 0x00000000>,
++							<0x008 0x00000000>,
++							<0x108 0x00000011>,
++							<0x048 0x00010001>;
++			/* PCIE_DMx2,SATA_x2 */
++			init-seq-pcie_dmx2_satax2 = /bits/ 32 <0x000 0x00110001>,
++							<0x004 0x00001100>,
++							<0x008 0x00002200>,
++							<0x108 0x00000011>,
++							<0x048 0x00010001>;
++			/* PCIE_DMx1,PCIE_RPx1,SATA_x2 */
++			init-seq-pcie_dmx1_rpx1_satax2 = /bits/ 32 <0x000 0x00110101>,
++							<0x004 0x00001100>,
++							<0x008 0x00002200>,
++							<0x108 0x00000011>,
++							<0x048 0x00010001>;
++			init-seq-select = "pcie_dmx4";
++		};
++
++		dm3x4: pcie@b000000 {
++			compatible = "zhihe,a210-pcie";
++			reg = <0x00 0x0b000000 0x0 0x800000>,
++				<0x18 0x00000000 0x0 0x200000>,
++				<0x00 0x0A004000 0x0 0x001000>;
++			reg-names = "dbi","config","pcie_sysreg";
++			#address-cells = <3>;
++			#size-cells = <2>;
++			#interrupt-cells = <1>;
++			device_type = "pci";
++			bus-range = <0x00 0xff>;
++			ranges = <0x81000000 0x18 0x00200000 0x18 0x00200000 0x0 0x600000>,
++				 <0x82000000 0x00 0x40100000 0x00 0x40100000 0x0 0x800000>,
++				 <0xc3000000 0x18 0x00300000 0x18 0x00300000 0x0 0x800000>;
++			interrupts = <139>,<140>,<141>,<142>,<143>;
++			interrupt-names = "msi","inta","intb","intc","intd";
++			interrupt-parent = <&intc>;
++			interrupt-map-mask = <0x0 0x0 0x0 0x7>;
++			interrupt-map = <0x0 0x0 0x0 0x1 &intc 140>,
++					<0x0 0x0 0x0 0x2 &intc 141>,
++					<0x0 0x0 0x0 0x3 &intc 142>,
++					<0x0 0x0 0x0 0x4 &intc 143>;
++			clocks = <&clk_pcie PCIE_DM_GEN3X4_AUX_CLK_EN>,
++					<&clk_pcie PCIE_DM_GEN3X4_SLV_ACLK_EN>,
++					<&clk_pcie PCIE_DM_GEN3X4_MST_ACLK_EN>,
++					<&clk_pcie PCIE_DM_GEN3X4_PCLK_EN>;
++			clock-names = "gen3x4_aux_clk","gen3x4_slv_clk","gen3x4_mst_clk","gen3x4_pclk";
++			power-domains = <&power_pcie0>;
++			//iommus = <&iommu DEVID_DIE0_PCIE_0>;
++			phys = <&e16phy>;
++			phy-names = "pcie-phy";
++			num-lanes = <4>;
++			max-link-speed = <3>;
++		};
++
++		rp3x1: pcie@b800000 {
++			compatible = "zhihe,a210-pcie";
++			reg = <0x00 0x0b800000 0x0 0x800000>,
++				<0x1E 0x00000000 0x0 0x20000>,
++				<0x00 0x0A005000 0x0 0x001000>;
++			reg-names = "dbi","config","pcie_sysreg";
++			#address-cells = <3>;
++			#size-cells = <2>;
++			#interrupt-cells = <1>;
++			device_type = "pci";
++			bus-range = <0x00 0xff>;
++			ranges = <0x81000000 0x1E 0x00200000 0x1E 0x00200000 0x0 0x600000>,
++				 <0x82000000 0x00 0x50100000 0x00 0x50100000 0x0 0x800000>,
++				 <0xc3000000 0x1E 0x00300000 0x1E 0x00300000 0x0 0x800000>;
++			interrupts = <158>,<159>,<160>,<161>,<162>;
++			interrupt-names = "msi","inta","intb","intc","intd";
++			interrupt-parent = <&intc>;
++			interrupt-map-mask = <0x0 0x0 0x0 0x7>;
++			interrupt-map = <0x0 0x0 0x0 0x1 &intc 159>,
++					<0x0 0x0 0x0 0x2 &intc 160>,
++					<0x0 0x0 0x0 0x3 &intc 161>,
++					<0x0 0x0 0x0 0x4 &intc 162>;
++			clocks = <&clk_pcie PCIE_RP_GEN3X1_AUX_CLK_EN>,
++					<&clk_pcie PCIE_RP_GEN3X1_SLV_ACLK_EN>,
++					<&clk_pcie PCIE_RP_GEN3X1_MST_ACLK_EN>,
++					<&clk_pcie PCIE_RP_GEN3X1_PCLK_EN>;
++			clock-names = "gen3x1_aux_clk","gen3x1_slv_clk","gen3x1_mst_clk","gen3x1_pclk";
++			power-domains = <&power_pcie1>;
++			//iommus = <&iommu DEVID_DIE0_PCIE_1>;
++			phys = <&e16phy>;
++			phy-names = "pcie-phy";
++			num-lanes = <1>;
++			max-link-speed = <3>;
++		};
++
++		mbox_920: mbox@0000310000 {
++			compatible = "zhihe,mailbox";
++			reg = <0x00 0x00321000 0x0 0x1000>,
++			      <0x00 0x00320000 0x0 0x1000>,
++			      <0x00 0x00311000 0x0 0x1000>;
++			reg-names = "interrupt_addr",
++				    "local_addr0",
++				    "remote_icu0";
++			resets = <&rst PERI0_MBOX0_PRST>, <&rst PERI0_MBOX1_PRST>;
++			interrupt-parent = <&intc>;
++			interrupts = <336 IRQ_TYPE_LEVEL_HIGH>;
++			icu_cpu_id = <0>;
++			#mbox-cells = <2>;
++			version = <1>;
++		};
++
++		aon: aon_subsys@308f8000 {
++			compatible = "zhihe,aon";
++			reg = <0x00 0x308f8000 0x0 0x10000>,
++			      <0x00 0x30842018 0x0 0x4>,
++			      <0x00 0x30846144 0x0 0x4>;
++			reg-names = "aon_base_addr",
++			            "aon_reset_reg",
++			            "aon_sync_reg";
++			firmware-name = "a210-aon.bin";
++			mboxes = <&mbox_920 1 0>;					 //parent / channel / type
++			mbox-names = "aon0";
++			#mbox-cells = <2>;
++			version = <1>;
++		};
++
++		sata: sata@000a200000 {
++			compatible = "snps,dwc-ahci";
++			reg = <0x0 0xa200000 0x0 0x100000>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			interrupt-parent = <&intc>;
++			interrupts = <170>;
++			clocks = <&clk_pcie SATA_PMALIVE_CLK_EN>,
++			         <&clk_pcie SATA_RXOOB0_CLK_EN>,
++			         <&clk_pcie SATA_RXOOB1_CLK_EN>,
++			         <&clk_pcie SATA_GEN3X2_ACLK_EN>;
++			clock-names = "pmalive", "rxoob0", "rxoob1", "aclk";
++			resets = <&rst PCIE_SATA_ARESET>,
++				 <&rst PCIE_SATA_RST_PMALIVE>, <&rst PCIE_SATA_RST_ASIC0>, <&rst PCIE_SATA_RST_ASIC1>,
++				 <&rst PCIE_SATA_RST_RXOOB0>, <&rst PCIE_SATA_RST_RXOOB1>;
++			power-domains = <&power_sata>;
++			//iommus = <&iommu DEVID_DIE0_SATA_0>;
++			ports-implemented = <3>;
++
++			sata0: sata-port@0 {
++				reg = <0>;
++				hba-port-cap = <HBA_PORT_FBSCP>;
++				snps,tx-ts-max = <16>;
++				snps,rx-ts-max = <16>;
++				phys = <&e16phy>;
++				phy-names = "sata-phy";
++			};
++
++			sata1: sata-port@1 {
++				reg = <1>;
++				hba-port-cap = <HBA_PORT_FBSCP>;
++				snps,tx-ts-max = <16>;
++				snps,rx-ts-max = <16>;
++				phys = <&e16phy>;
++				phy-names = "sata-phy";
++			};
++		};
++
++		iommu: iommu@0 {
++			compatible = "zhihe,iommu";
++			reg = <0x0 0x06372000 0x0 0x400>,
++			      <0x0 0x06B12000 0x0 0x400>,
++			      <0x0 0x07102000 0x0 0x400>,
++			      <0x0 0x06712000 0x0 0x400>,
++			      <0x0 0x02032000 0x0 0x400>,
++			      <0x0 0x0a012000 0x0 0x400>,
++			      <0x0 0x08022000 0x0 0x400>;
++			reg-names = "vi", "vp", "npu", "vo", "peri1", "pcie", "usb";
++			clocks = <&clk SW_IOMMU_PTW_330_ACLK_EN>, <&clk_vi VI_PTW_ACLK_EN>,
++			         <&clk_vi VI_DFMU_ACLK_EN>, <&clk_vi VI_DFMU_PCLK_EN>,
++			         <&clk_vp VP_PTW_ACLK_EN>, <&clk_vp VP_DFMU_ACLK_EN>,
++			         <&clk_vp VP_DFMU_PCLK_EN>, <&clk_vo VO_PTW_ACLK_EN>,
++			         <&clk_vo VO_DFMU_PCLK_EN>, <&clk_vo VO_DFMU_ACLK_EN>,
++			         <&clk_peri PERI1_DFMU_PTW_ACLK_EN>, <&clk_peri PERI1_DFMU_PCLK_EN>,
++			         <&clk_peri PERI1_DFMU_ACLK_EN>;
++			interrupt-parent = <&intc>;
++			interrupts = <204>, <235>, <66>, <223>, <344>, <174>, <187>;
++			power-domains = <&power_vi_isp>, <&power_venc>, <&power_vdec>, <&power_npu_ip>,
++					<&power_vo>, <&power_pcie0>, <&power_pcie1>, <&power_usb>,
++					<&power_top>;
++			#iommu-cells = <1>;
++			/* OSL v7.0 port: the vendor riscv-iommu driver (which bound
++			 * "zhihe,iommu") was dropped in favor of the riscv-iommu that
++			 * upstream has since merged, and that driver does not know
++			 * this compatible. With the node disabled,
++			 * of_iommu_configure() treats every iommus= consumer below
++			 * as NO_IOMMU and they fall back to direct DMA -- the same
++			 * thing U-Boot does, and proven on this board. Re-enabling
++			 * translation (upstream driver + this node) is a possible
++			 * future enhancement.
++			 */
++			status = "disabled";
++		};
++
++		dfmu_mt_vi: mt@0x06370000 {
++			compatible = "zhihe,memtester";
++			reg = <0x0 0x06370000 0x0 0x400>;
++			iommus = <&iommu DEVID_DIE0_VI_DFMU>;
++		};
++
++		dfmu_mt_vp: mt@0x06B10000 {
++			compatible = "zhihe,memtester";
++			reg = <0x0 0x06B10000 0x0 0x400>;
++			iommus = <&iommu DEVID_DIE0_VP_DFMU>;
++		};
++
++		dfmu_mt_npu: mt@0x07100000 {
++			compatible = "zhihe,memtester";
++			reg = <0x0 0x07100000 0x0 0x400>;
++			iommus = <&iommu DEVID_DIE0_NPU_DFMU>;
++		};
++
++		dfmu_mt_vo: mt@0x06710000 {
++			compatible = "zhihe,memtester";
++			reg = <0x0 0x06710000 0x0 0x400>;
++			iommus = <&iommu DEVID_DIE0_VO_DFMU>;
++		};
++
++		dfmu_mt_peri1: mt@0x02030000 {
++			compatible = "zhihe,memtester";
++			reg = <0x0 0x02030000 0x0 0x400>;
++			iommus = <&iommu DEVID_DIE0_PERI1_DFMU>;
++		};
++
++		dfmu_mt_pcie: mt@0x0a010000 {
++			compatible = "zhihe,memtester";
++			reg = <0x0 0x0a010000 0x0 0x400>;
++			iommus = <&iommu DEVID_DIE0_PCIE_DFMU>;
++		};
++
++		dfmu_mt_usb: mt@0x08020000 {
++			compatible = "zhihe,memtester";
++			reg = <0x0 0x08020000 0x0 0x400>;
++			iommus = <&iommu DEVID_DIE0_USB_DFMU>;
++		};
++
++		npu0: vipcore@0x07000000 {
++			compatible = "verisilicon,vipcore0";
++			reg = <0x00 0x7000000 0x00 0x10000>;
++			interrupt-parent = <&intc>;
++			interrupts = <71>;
++			clocks = <&clk_npu SW_NPU_IP_ACLK_EN>, <&clk_npu SW_NPU_IP_CCLK_EN>,
++					 <&clk_npu SW_NPU_IP_HCLK_EN>;
++			clock-names = "npu_aclk", "npu_cclk", "top_cfg_aclk";
++			power-domains = <&power_npu_ip>;
++		};
++
++		g2d: gc620@0006a00000 {
++			compatible = "xuantie,th1520-gc620", "thead,c910-gc620";
++			reg = <0x00 0x06a00000 0x0 0x40000>;
++			interrupt-parent = <&intc>;
++			interrupts = <240>;
++			interrupt-names = "irq_2d";
++			clocks = <&clk_vp VP_G2D_CCLK_EN>,
++				 <&clk_vp VP_G2D_ACLK_EN>,
++				 <&clk_vp VP_G2D_PCLK_EN>;
++			clock-names = "cclk", "aclk", "pclk";
++			operating-points-v2 = <&g2d_opp_table>;
++			power-domains = <&power_vp_wrapper>;
++			//iommus = <&iommu DEVID_DIE0_G2D>;
++			//iommu-group = <IOMMU_GROUP_VIDEO>;
++		};
++
++		eip_28: eip-28@0027500000 {
++			compatible = "xlnx,sunrise-fpga-1.0", "safexcel-eip-28";
++			reg = <0x00 0x27500000 0x0 0x40000>;
++			interrupt-parent = <&intc>;
++			interrupts = <243>,<246>,<249>,<251>;
++			clocks = <&clk_peri TEE_EIP120SI_CLKEN>,
++				 <&clk_peri TEE_EIP120SII_CLKEN>,
++				 <&clk_peri TEE_EIP120SIII_CLKEN>,
++				 <&clk_peri TEE_EIP150B_CLKEN>;
++			clock-names = "120si_clk","120sii_clk","120siii_clk","hclk";
++			//iommus = <&iommu DEVID_DIE0_TEE_EIP120SI>,
++			//	 <&iommu DEVID_DIE0_TEE_EIP120SII>,
++			//	 <&iommu DEVID_DIE0_TEE_EIP120SIII>;
++		};
++
++		mipi0_csi0: csi@0006300000 {
++			compatible = "zhihe,bm-csi";
++			//default 2lane mode: host addr; current phy ctrl addr(csi1->aphy, csi0 bphy); mipi_ctrl addr
++			reg = < 0x00 0x06300000 0x0 0x10000
++					0x00 0x063a0024 0x0 0x4
++					0x00 0x063a0028 0x0 0x4>;
++			interrupt-parent = <&intc>;
++			interrupts = <192>;
++			clocks = <&clk_vi VI_MIPI0_CSI0_PIXCLK_EN>,
++				<&clk_vi VI_MIPI0B_CFGCLK_EN>,
++				<&clk_vi VI_MIPI0CSI0_PCLK_EN>,
++				<&clk_vi VI_MIPI0CSI0_FPCLK_EN>;
++			power-domains = <&power_vi_isp>;
++			clock-names =  "pixclk", "cfg_clk", "pclk", "fpclk";
++			phy_name = "CSI_BPHY";
++		};
++
++		mipi0_csi1: csi@0006310000 {
++			compatible = "zhihe,bm-csi";
++			//default 2lane mode: host addr; current phy ctrl addr(csi1->aphy, csi0 bphy); mipi_ctrl addr
++			reg = < 0x00 0x06310000 0x0 0x10000
++					0x00 0x063a0020 0x0 0x4
++					0x00 0x063a0028 0x0 0x4>;
++			interrupt-parent = <&intc>;
++			interrupts = <193>;
++			clocks = <&clk_vi VI_MIPI0_CSI1_PIXCLK_EN>,
++				<&clk_vi VI_MIPI0A_CFGCLK_EN>,
++				<&clk_vi VI_MIPI0CSI1_PCLK_EN>,
++				<&clk_vi VI_MIPI0CSI1_FPCLK_EN>;
++			power-domains = <&power_vi_isp>;
++			clock-names = "pixclk", "cfg_clk", "pclk", "fpclk";
++			phy_name = "CSI_APHY";
++		};
++
++		mipi1_csi0: csi@0006320000 {
++			compatible = "zhihe,bm-csi";
++			//default 2lane mode: host addr; current phy ctrl addr(csi1->aphy, csi0 bphy); mipi_ctrl addr
++			reg = < 0x00 0x06320000 0x0 0x10000
++					0x00 0x063a0034 0x0 0x4
++					0x00 0x063a0038 0x0 0x4>;
++			interrupt-parent = <&intc>;
++			interrupts = <194>;
++			clocks = <&clk_vi VI_MIPI1_CSI0_PIXCLK_EN>,
++				<&clk_vi VI_MIPI1B_CFGCLK_EN>,
++				<&clk_vi VI_MIPI1CSI0_PCLK_EN>,
++				<&clk_vi VI_MIPI1CSI0_FPCLK_EN>;
++			clock-names = "pixclk", "cfg_clk", "pclk", "fpclk";
++			power-domains = <&power_vi_isp>;
++			phy_name = "CSI_BPHY";
++		};
++
++		mipi1_csi1: csi@0006330000 {
++			//default 2lane mode: host addr; current phy ctrl addr(csi1->aphy, csi0 bphy); mipi_ctrl addr
++			compatible = "zhihe,bm-csi";
++			reg = < 0x00 0x06330000 0x0 0x10000
++					0x00 0x063a0030 0x0 0x4
++					0x00 0x063a0038 0x0 0x4>;
++			interrupt-parent = <&intc>;
++			interrupts = <195>;
++			clocks = <&clk_vi VI_MIPI1_CSI1_PIXCLK_EN>,
++				<&clk_vi VI_MIPI1A_CFGCLK_EN>,
++				<&clk_vi VI_MIPI1CSI1_PCLK_EN>,
++				<&clk_vi VI_MIPI1CSI1_FPCLK_EN>;
++			clock-names = "pixclk", "cfg_clk", "pclk", "fpclk";
++			power-domains = <&power_vi_isp>;
++			phy_name = "CSI_APHY";
++		};
++
++		vipre: vipre@0006340000 {
++			compatible = "zhihe,vipre";
++			reg = <0x00 0x06340000 0x0 0x10000>;
++			interrupt-parent = <&intc>;
++			interrupts = <200>;
++			clocks = <&clk_vi VI_ARB_ACLK_EN>,
++				<&clk_vi VI_ARB_PCLK_EN>,
++				<&clk_vi VI_PTW_ACLK_EN>,
++				<&clk_vi VI_DFMU_ACLK_EN>,
++				<&clk_vi VI_DFMU_PCLK_EN>,
++				<&clk_vi VI_VIPRE_ACLK_EN>,
++				<&clk_vi VI_VIPRE_SCLK_EN>,
++				<&clk_vi VI_VIPRE_I0_PIXCLK_EN>,
++				<&clk_vi VI_VIPRE_I1_PIXCLK_EN>,
++				<&clk_vi VI_VIPRE_PCLK_EN>;
++			clock-names = "vi_arb_aclk", "vi_arb_pclk", "vi_ptw_aclk", "vi_dfmu_aclk", "vi_dfmu_pclk",
++				"aclk", "sclk", "i0pixclk", "i1pixclk", "pclk";
++			power-domains = <&power_vi_isp>;
++		};
++
++		dw200_vb: dw200_vb@95000000 {
++			compatible = "zhihe,dw200_vb";
++			address-cells = <2>;
++			size-cells = <2>;
++			reg = <0x00 0x95000000 0x0 0x8000000>;
++		};
++
++		isp8000: isp8000@06000000 {
++			compatible = "zhihe,isp8000";
++			reg = <0x00 0x06000000 0x0 0x100000
++					0x00 0x063A0400 0x0 0x4>;
++			interrupt-parent = <&intc>;
++			interrupts = <196>,<198>,<197>;
++			clocks = <&clk_vi VI_ARB_ACLK_EN>,
++				<&clk_vi VI_ARB_PCLK_EN>,
++				<&clk_vi VI_PTW_ACLK_EN>,
++				<&clk_vi VI_DFMU_ACLK_EN>,
++				<&clk_vi VI_DFMU_PCLK_EN>,
++				<&clk_vi VI_ISPOUT_CLK_EN>,
++				<&clk_vi VI_ISP_CLK_EN>,
++				<&clk_vi VI_FENCE_ACLK_EN>,
++				<&clk_vi VI_X2H1_CLK_EN>,
++				<&clk_vi VI_X2H0_CLK_EN>,
++				<&clk_vi VI_MISC_CTRL_BUS_CLK_GT_DISABLE>,
++				<&clk_vi VI_MISC_CTRL_ISP_MCM_CLK_EN>,
++				<&clk_vi VI_MISC_CTRL_ISP_FLEXA_CLK_EN>,
++				<&clk_vi VI_MISC_CTRL_ISP_CORE_CLK_EN>,
++				<&clk_vi VI_MISC_CTRL_ISP_SCLK_CLK0_EN>,
++				<&clk_vi VI_MISC_CTRL_ISP_SCLK_CLK1_EN>,
++				<&clk_vi VI_MISC_CTRL_ISP_SCLK_CLK2_EN>,
++				<&clk_vi VI_MISC_CTRL_ISP_SCLK_CLK3_EN>,
++				<&clk_vi VI_MISC_CTRL_ISP_ACLK_CLK_EN>,
++				<&clk_vi VI_MISC_CTRL_H1CLK_CLK_EN>,
++				<&clk_vi VI_MISC_CTRL_H0CLK_CLK_EN>;
++			clock-names = "vi_arb_aclk", "vi_arb_pclk", "vi_ptw_aclk", "vi_dfmu_aclk", "vi_dfmu_pclk",
++				"isp_out_clk", "isp_clk", "fence_aclk", "x2h1_clk", "x2h0_clk", "bus_clk_gt_disabled",
++				"isp_mcm_clk", "isp_flexa_clk", "isp_core_clk", "isp_sclk_slk0", "isp_sclk_slk1",
++				"isp_sclk_slk2", "isp_sclk_slk3","isp_aclk_clk", "isp_h1clk_clk", "isp_h0clk_clk";
++			power-domains = <&power_vi_isp>;
++		};
++
++		dw200_dw: dw200_dw@06200000 {
++			compatible = "zhihe,dw200_v30";
++ 			reg = <0x00 0x06200000 0x0 0x100000
++				  0x00 0x063A0400 0x0 0x4
++				  0x00 0x06350000 0x0 0x10000>;
++			interrupt-parent = <&intc>;
++			interrupts = <209>,<211>,<210>,<199>;
++			clocks = <&clk_vi VI_ARB_ACLK_EN>,
++				<&clk_vi VI_ARB_PCLK_EN>,
++				<&clk_vi VI_PTW_ACLK_EN>,
++				<&clk_vi VI_DFMU_ACLK_EN>,
++				<&clk_vi VI_DFMU_PCLK_EN>,
++				<&clk_vi VI_DW_SCLK_EN>,
++				<&clk_vi VI_VSE_CLK_EN>,
++				<&clk_vi VI_DWE_CLK_EN>,
++				<&clk_vi VI_DW200_ACLK_EN>,
++				<&clk_vi VI_DW200_HCLK_EN>,
++				<&clk_vi VI_VSEOUT_CLK_EN>,
++				<&clk_vi VI_DECOUT_CLK_EN>,
++				<&clk_vi VI_X2H2_CLK_EN>;
++			clock-names = "vi_arb_aclk", "vi_arb_pclk", "vi_ptw_aclk", "vi_dfmu_aclk", "vi_dfmu_pclk",
++				"dw_sclk", "vse_clk", "dwe_clk", "dw200_aclk", "dw200_hclk", "vseout_clk", "decout_clk", "x2h2_clk";
++			power-domains = <&power_vi_isp>;
++		};
++
++		bmu0: ddr-bmu@0004850000 {
++			compatible = "zhihe,a210-ddr-bmu";
++			reg = <0x00 0x04850000 0x0 0x10000>,
++				  <0x00 0x05850000 0x0 0x10000>;
++			zhihe,bm-num = <2>;
++			zhihe,bm-name ="bmu_ddr";
++			interrupt-parent = <&intc>;
++			interrupts = <96>,<101>,<115>,<120>;
++		};
++
++		bmu1: gpu-bmu@0006d14000 {
++			compatible = "zhihe,a210-gpu-bmu";
++			reg = <0x00 0x06d14000 0x0 0x400>;
++			zhihe,bm-num = <1>;
++			zhihe,bm-name ="bmu_gpu";
++			interrupt-parent = <&intc>;
++			interrupts = <54>;
++			power-domains = <&power_gpu>;
++		};
++
++		bmu2: npu-bmu@0007104000 {
++			compatible = "zhihe,a210-npu-bmu";
++			reg = <0x00 0x07104000 0x0 0x400>;
++			zhihe,bm-num = <1>;
++			zhihe,bm-name ="bmu_npu";
++			interrupt-parent = <&intc>;
++			interrupts = <65>;
++			power-domains = <&power_npu_ip>;
++		};
++
++		bmu3: pcie-bmu@000a014000 {
++			compatible = "zhihe,a210-pcie-bmu";
++			reg = <0x00 0x0a014000 0x0 0x400>;
++			zhihe,bm-num = <1>;
++			zhihe,bm-name ="bmu_pcie";
++			interrupt-parent = <&intc>;
++			interrupts = <173>;
++		};
++
++		bmu4: usb-bmu@0008024000 {
++			compatible = "zhihe,a210-usb-bmu";
++			reg = <0x00 0x08024000 0x0 0x400>;
++			zhihe,bm-num = <1>;
++			zhihe,bm-name ="bmu_usb";
++			interrupt-parent = <&intc>;
++			interrupts = <186>;
++		};
++
++		bmu5: vo-bmu@0006714000 {
++			compatible = "zhihe,a210-vo-bmu";
++			reg = <0x00 0x06714000 0x0 0x400>;
++			zhihe,bm-num = <1>;
++			zhihe,bm-name ="bmu_vo";
++			interrupt-parent = <&intc>;
++			interrupts = <222>;
++			power-domains = <&power_vo>;
++		};
++
++		bmu6: vi-bmu@0006374000 {
++			compatible = "zhihe,a210-vi-bmu";
++			reg = <0x00 0x06374000 0x0 0x400>;
++			zhihe,bm-num = <1>;
++			zhihe,bm-name ="bmu_vi";
++			interrupt-parent = <&intc>;
++			interrupts = <203>;
++			power-domains = <&power_vi_isp>;
++		};
++
++		bmu7: vp-bmu@0006b14000 {
++			compatible = "zhihe,a210-vp-bmu";
++			reg = <0x00 0x06b14000 0x0 0x400>;
++			zhihe,bm-num = <1>;
++			zhihe,bm-name ="bmu_vp";
++			interrupt-parent = <&intc>;
++			interrupts = <234>;
++			power-domains = <&power_venc>;
++		};
++
++		bmu8: peri-bmu@0002034000 {
++			compatible = "zhihe,a210-peri-bmu";
++			reg = <0x00 0x02034000 0x0 0x400>;
++			zhihe,bm-num = <1>;
++			zhihe,bm-name ="bmu_peri";
++			interrupt-parent = <&intc>;
++			interrupts = <343>;
++		};
++
++		bmu9: d2d-bmu@0009034000 {
++			compatible = "zhihe,a210-d2d-bmu";
++			reg = <0x00 0x09034000 0x0 0x400>;
++			zhihe,bm-num = <1>;
++			zhihe,bm-name ="bmu_d2d";
++			interrupt-parent = <&intc>;
++			interrupts = <124>;
++		};
++
++	};
++};
+-- 
+2.43.0
+

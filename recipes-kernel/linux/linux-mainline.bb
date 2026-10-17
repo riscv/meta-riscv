@@ -5,6 +5,7 @@ SUMMARY = "Mainline Linux Kernel recipe for RISC-V platforms"
 FILESEXTRAPATHS:prepend:k1 := "${THISDIR}/linux-mainline-k1:"
 FILESEXTRAPATHS:prepend:eswin-ebc77-mainline := "${THISDIR}/linux-eswin-ebc77-mainline:"
 FILESEXTRAPATHS:prepend:milkv-duo-common := "${THISDIR}/linux-milkv-duo:"
+FILESEXTRAPATHS:prepend:zhihe-a210 := "${THISDIR}/linux-mainline-a210:"
 
 KERNEL_VERSION_SANITY_SKIP = "1"
 LINUX_VERSION                       ?= "7.2.10"
@@ -97,16 +98,54 @@ SRC_URI:append:milkv-duo-common = " \
 SRC_URI:append:milkv-duo = " file://milkv-duo.cfg"
 SRC_URI:append:milkv-duo256m = " file://milkv-duo256m.cfg"
 
+SRC_URI:append:zhihe-a210 = " \
+        file://0001-a210-vendor-import-10-thead-drivers.patch \
+        file://0002-a210-vendor-import-20-zhihe-drivers.patch \
+        file://0003-a210-vendor-import-35-driver-wiring.patch \
+        file://0004-a210-vendor-import-40-a210-dts.patch \
+        file://0005-a210-vendor-import-45-boot-peripherals.patch \
+        file://0006-a210-vendor-import-50-dt-bindings.patch \
+        file://0007-a210-vendor-import-55-optional-peripherals.patch \
+        file://0008-a210-dts-build-only-a210-dev.dtb-unconditionally.patch \
+        file://0009-a210-configs-add-a210_evb_defconfig-from-vendor-tree.patch \
+        file://0010-watchdog-zhihe-a210-reset-the-SoC-from-a-reboot-noti.patch \
+        file://0011-watchdog-zhihe-a210-also-power-off-from-the-reboot-n.patch \
+        file://0012-a210-sync-A210-specific-sources-to-validated-vendor-.patch \
+        file://0013-watchdog-zhihe-a210-wire-ZHIHE_WATCHDOG-into-the-bui.patch \
+        file://0014-a210-usb-spi-include-linux-gpio-consumer.h-for-gpiod.patch \
+        file://0015-riscv-errata-thead-apply-T-Head-CMO-errata-on-A210-X.patch \
+        file://0016-PCI-zh-clear-pcie-phy-when-devm_phy_get-fails.patch \
+        file://0017-riscv-dts-zhihe-a210-disable-the-rp3x1-PCIe-port.patch \
+        file://0018-a210-build-port-vendor-drivers-to-6.6-7.0-API-change.patch \
+        file://0019-a210-build-fix-defconfig-drops-and-more-6.6-7.0-API-.patch \
+        file://0020-clk-zhihe-switch-divider-wrapper-to-.determine_rate.patch \
+        file://0021-riscv-defconfig-a210-build-the-PCF8563-RTC-into-the-.patch \
+        file://0022-crypto-zhihe-select-CRYPTO_LIB_CURVE25519-not-the-_G.patch \
+        file://0023-a210-build-fix-v7.0-v7.1-API-drift.patch \
+        file://0024-riscv-defconfig-a210-skip-the-vector-misaligned-boot.patch \
+        file://0025-a210-drivers-adapt-deferred-vendor-drivers-to-mainli.patch \
+        file://0026-riscv-configs-a210-enable-cpufreq-rpmsg-BMU-and-quad.patch \
+        file://0027-gpio-pca953x-add-Awinic-AW9535-compatible.patch \
+        file://0028-can-flexcan-add-Zhihe-A210-compatible.patch \
+        file://0029-ASoC-zhihe-port-the-A210-audio-stack-to-mainline.patch \
+        file://0030-ASoC-zhihe-drop-the-removed-possible-DAIFMT-clock-pr.patch \
+        file://0031-cpufreq-zhihe-replace-strncpy-with-memcpy.patch \
+        file://a210_evb_defconfig \
+"
+
 # --- Misc per-machine ---
 INSANE_SKIP:append:eswin-ebc77-mainline                 = " textrel"
 KERNEL_DANGLING_FEATURES_WARN_ONLY:eswin-ebc77-mainline = "1"
+KERNEL_DANGLING_FEATURES_WARN_ONLY:zhihe-a210           = "1"
 
 KBUILD_DEFCONFIG:eswin-ebc77-mainline = ""
 KBUILD_DEFCONFIG:milkv-duo-common = ""
+KBUILD_DEFCONFIG:zhihe-a210           = ""
 KERNEL_DEVICETREE:milkv-duo     ?= "sophgo/cv1800b-milkv-duo.dtb"
 KERNEL_DEVICETREE:milkv-duo256m ?= "sophgo/sg2002-milkv-duo256m.dtb"
 # duos used to inherit the duo dtb through the old shared :milkv-duo override.
 KERNEL_DEVICETREE:milkv-duos    ?= "sophgo/cv1800b-milkv-duo.dtb"
+KERNEL_DEVICETREE:zhihe-a210    ?= "zhihe/a210-dev.dtb"
 KERNEL_FEATURES_RISCV:milkv-duo-common = ""
 
 do_deploy:append:milkv-duos() {

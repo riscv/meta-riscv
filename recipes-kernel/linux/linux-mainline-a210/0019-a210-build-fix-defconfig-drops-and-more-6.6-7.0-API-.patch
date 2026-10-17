@@ -1,0 +1,377 @@
+From c1e6ce3fa3f165c9efca6f12ba542be89e61c347 Mon Sep 17 00:00:00 2001
+From: Lance Albertson <lance@osuosl.org>
+Date: Fri, 12 Jun 2026 20:24:36 -0700
+Subject: [PATCH 19/31] a210: build: fix defconfig drops and more 6.6->7.0 API
+ drift
+
+Second batch of v7.0 build fixes.
+
+defconfig (arch/riscv/configs/a210_evb_defconfig): the vendor 6.6
+savedefconfig relied on symbols that 7.0 no longer auto-enables, which
+silently dropped whole subsystems at olddefconfig. Restore them:
+- CONFIG_ETHTOOL_NETLINK=y: STMMAC_ETH now depends on it; without it the
+  entire stmmac stack (and DWMAC_ZHIHE ethernet) was dropped. STMMAC_ETH
+  in turn selects RESET_CONTROLLER, which brings back RESET_A210.
+- CONFIG_GPIOLIB=y: was off, dropping every GPIO driver (GPIO_DWAPB,
+  GPIO_PCA953X, GPIO_SYSFS).
+- CONFIG_I2C_DESIGNWARE_CORE=y: I2C_DESIGNWARE_PLATFORM is now gated
+  behind it; without it the DesignWare i2c controller dropped.
+Also drop four non-essential drivers from the defconfig that carry
+heavier API drift and are not needed for boot/install/network; they are
+left to port in a later pass: RISCV_XUANTIE_TH1520_CPUFREQ,
+RISCV_ZHIHE_CPUFREQ, RPMSG_TH1520, A210_BMU, SPI_DW_QUAD.
+
+Source fixes:
+- pwm-thead: port to the new pwm_chip model (devm_pwmchip_alloc +
+  pwmchip_get_drvdata, pwmchip_parent() for the parent device).
+- Add includes pruned from 7.0's transitive headers: <linux/platform_device.h>
+  (th1520-mailbox, zhihe-mailbox, th1520-ddr-pmu), <linux/vmalloc.h>
+  (th1520_aon_pd, a210-pd), <linux/of.h>+<linux/platform_device.h>
+  (reset-a210).
+- dwmac-zhihe: fix_mac_speed() takes int speed; drop the removed
+  stmmac_remove_config_dt() (devm config_dt auto-frees); .remove_new ->
+  .remove.
+- th1520_aon_pd: genpd xlate callback takes const struct of_phandle_args *.
+- {th1520,zhihe}_proc_debug: ALT_CMO_OP ops are upper-case now
+  (FLUSH/CLEAN/INVAL); CBO_flush/CBO_clean no longer exist.
+
+Co-developed-by: Claude Opus 4.8 <noreply@anthropic.com>
+Signed-off-by: Lance Albertson <lance@osuosl.org>
+Upstream-Status: Pending
+---
+ arch/riscv/configs/a210_evb_defconfig         |  9 ++---
+ drivers/firmware/thead/th1520_aon_pd.c        |  3 +-
+ drivers/firmware/thead/th1520_proc_debug.c    |  4 +--
+ drivers/firmware/zhihe/zhihe_proc_debug.c     |  4 +--
+ drivers/mailbox/th1520-mailbox.c              |  1 +
+ drivers/mailbox/zhihe-mailbox.c               |  1 +
+ .../net/ethernet/stmicro/stmmac/dwmac-zhihe.c |  6 ++--
+ drivers/pmdomain/zhihe/a210-pd.c              |  1 +
+ drivers/pwm/pwm-thead.c                       | 35 ++++++++++---------
+ drivers/reset/reset-a210.c                    |  1 +
+ drivers/soc/thead/th1520-ddr-pmu.c            |  1 +
+ 11 files changed, 34 insertions(+), 32 deletions(-)
+
+diff --git a/arch/riscv/configs/a210_evb_defconfig b/arch/riscv/configs/a210_evb_defconfig
+index 8e91a1a48e13c..655948c35fd01 100644
+--- a/arch/riscv/configs/a210_evb_defconfig
++++ b/arch/riscv/configs/a210_evb_defconfig
+@@ -59,8 +59,6 @@ CONFIG_CPU_FREQ_GOV_POWERSAVE=y
+ CONFIG_CPU_FREQ_GOV_USERSPACE=y
+ CONFIG_CPU_FREQ_GOV_ONDEMAND=y
+ CONFIG_CPU_FREQ_GOV_CONSERVATIVE=y
+-CONFIG_RISCV_XUANTIE_TH1520_CPUFREQ=y
+-CONFIG_RISCV_ZHIHE_CPUFREQ=y
+ CONFIG_KPROBES=y
+ CONFIG_MODULES=y
+ CONFIG_MODULE_UNLOAD=y
+@@ -104,7 +102,7 @@ CONFIG_MAC80211=m
+ CONFIG_RFKILL=y
+ CONFIG_NET_9P=y
+ CONFIG_NET_9P_VIRTIO=y
+-# CONFIG_ETHTOOL_NETLINK is not set
++CONFIG_ETHTOOL_NETLINK=y
+ CONFIG_PCI=y
+ CONFIG_PCIE_ZH=m
+ CONFIG_DEVTMPFS=y
+@@ -260,7 +258,6 @@ CONFIG_I2C_CHARDEV=y
+ CONFIG_I2C_SMBUS=m
+ CONFIG_I2C_DESIGNWARE_PLATFORM=y
+ CONFIG_SPI=y
+-CONFIG_SPI_DW_QUAD=y
+ CONFIG_SPI_DESIGNWARE=y
+ CONFIG_SPI_DW_MMIO=y
+ CONFIG_SPI_SPIDEV=y
+@@ -437,10 +434,8 @@ CONFIG_MAILBOX=y
+ CONFIG_RISCV_IOMMU=y
+ CONFIG_RPMSG_CHAR=y
+ CONFIG_RPMSG_CTRL=y
+-CONFIG_RPMSG_TH1520=y
+ CONFIG_RPMSG_VIRTIO=y
+ CONFIG_A210_POWER_DOMAIN=y
+-CONFIG_A210_BMU=y
+ CONFIG_A210_D2D=m
+ CONFIG_EXTCON=y
+ CONFIG_IIO=y
+@@ -522,3 +517,5 @@ CONFIG_FTRACE_SYSCALLS=y
+ CONFIG_BPF_KPROBE_OVERRIDE=y
+ CONFIG_FUNCTION_ERROR_INJECTION=y
+ # CONFIG_RUNTIME_TESTING_MENU is not set
++CONFIG_GPIOLIB=y
++CONFIG_I2C_DESIGNWARE_CORE=y
+diff --git a/drivers/firmware/thead/th1520_aon_pd.c b/drivers/firmware/thead/th1520_aon_pd.c
+index 087413d082fec..e5668dff0bf1e 100644
+--- a/drivers/firmware/thead/th1520_aon_pd.c
++++ b/drivers/firmware/thead/th1520_aon_pd.c
+@@ -5,6 +5,7 @@
+ 
+ #include <dt-bindings/firmware/thead/rsrc.h>
+ #include <linux/ctype.h>
++#include <linux/vmalloc.h>
+ #include <linux/debugfs.h>
+ #include <linux/firmware/thead/ipc.h>
+ #include <linux/io.h>
+@@ -112,7 +113,7 @@ static int th1520_aon_pd_power_off(struct generic_pm_domain *domain)
+ 	return th1520_aon_pd_power(domain, false);
+ }
+ 
+-static struct generic_pm_domain *th1520_aon_pd_xlate(struct of_phandle_args *spec,
++static struct generic_pm_domain *th1520_aon_pd_xlate(const struct of_phandle_args *spec,
+ 						  void *data)
+ {
+ 	struct generic_pm_domain *domain = ERR_PTR(-ENOENT);
+diff --git a/drivers/firmware/thead/th1520_proc_debug.c b/drivers/firmware/thead/th1520_proc_debug.c
+index 20d216522c81e..3d242828dd99c 100644
+--- a/drivers/firmware/thead/th1520_proc_debug.c
++++ b/drivers/firmware/thead/th1520_proc_debug.c
+@@ -61,7 +61,7 @@ static int log_proc_show(struct seq_file *file, void *v)
+ 	char *buf;
+ 	size_t i;
+ 	/*dcache clean and invalid*/
+-	ALT_CMO_OP(flush, (phys_to_virt(log_ctrl->log_phy)),
++	ALT_CMO_OP(FLUSH, (phys_to_virt(log_ctrl->log_phy)),
+ 		   sizeof(struct th1520_hw_log),
+ 		   riscv_cbom_block_size);
+ 
+@@ -112,7 +112,7 @@ static int log_proc_show(struct seq_file *file, void *v)
+ 		__raw_writel(write, &log_ctrl->log->rb.read);
+ 		kfree(buf);
+ 		/*dcahce clean*/
+-		ALT_CMO_OP(clean, (phys_to_virt(log_ctrl->log_phy)),
++		ALT_CMO_OP(CLEAN, (phys_to_virt(log_ctrl->log_phy)),
+ 			   sizeof(struct th1520_hw_log), riscv_cbom_block_size);
+ 		//seq_printf(file,"\n%d %d %d %d %d\n",log_patch_1, log_patch_2, log_size ,last_fame_size, read);
+ 		seq_printf(
+diff --git a/drivers/firmware/zhihe/zhihe_proc_debug.c b/drivers/firmware/zhihe/zhihe_proc_debug.c
+index c746c0154e4e0..01931a58bbd55 100755
+--- a/drivers/firmware/zhihe/zhihe_proc_debug.c
++++ b/drivers/firmware/zhihe/zhihe_proc_debug.c
+@@ -61,7 +61,7 @@ static int log_proc_show(struct seq_file *file, void *v)
+ 	char *buf;
+ 	size_t i;
+ 	/*dcache clean and invalid*/
+-	ALT_CMO_OP(flush, (phys_to_virt(log_ctrl->log_phy)),
++	ALT_CMO_OP(FLUSH, (phys_to_virt(log_ctrl->log_phy)),
+ 		   sizeof(struct zhihe_hw_log),
+ 		   riscv_cbom_block_size);
+ 
+@@ -104,7 +104,7 @@ static int log_proc_show(struct seq_file *file, void *v)
+ 		__raw_writel(write, &log_ctrl->log->rb.read);
+ 		kfree(buf);
+ 		/*dcahce clean*/
+-		ALT_CMO_OP(clean, (phys_to_virt(log_ctrl->log_phy)),
++		ALT_CMO_OP(CLEAN, (phys_to_virt(log_ctrl->log_phy)),
+ 			   sizeof(struct zhihe_hw_log), riscv_cbom_block_size);
+ 		//seq_printf(file,"\n%d %d %d %d %d\n",log_patch_1, log_patch_2, log_size ,last_fame_size, read);
+ 		seq_printf(file, "\n****************** end device log <<<<<<<<<<<<<<<<<\n");
+diff --git a/drivers/mailbox/th1520-mailbox.c b/drivers/mailbox/th1520-mailbox.c
+index ab87a858103f5..a0876f612c65e 100644
+--- a/drivers/mailbox/th1520-mailbox.c
++++ b/drivers/mailbox/th1520-mailbox.c
+@@ -9,6 +9,7 @@
+  */
+ 
+ #include <linux/clk.h>
++#include <linux/platform_device.h>
+ #include <linux/interrupt.h>
+ #include <linux/io.h>
+ #include <linux/kernel.h>
+diff --git a/drivers/mailbox/zhihe-mailbox.c b/drivers/mailbox/zhihe-mailbox.c
+index 19f8825be004a..8172fb501fdb9 100644
+--- a/drivers/mailbox/zhihe-mailbox.c
++++ b/drivers/mailbox/zhihe-mailbox.c
+@@ -9,6 +9,7 @@
+  */
+ 
+ #include <linux/clk.h>
++#include <linux/platform_device.h>
+ #include <linux/interrupt.h>
+ #include <linux/io.h>
+ #include <linux/kernel.h>
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-zhihe.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-zhihe.c
+index a1bb9ce6ecf65..a7b6d7d2e63e2 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-zhihe.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-zhihe.c
+@@ -194,7 +194,7 @@ void zhihe_dwmac_peri_clk_disable(struct zhihe_dwmac *dwmac)
+ /*
+  * STM platform Callback
+ */
+-static void plat_fix_mac_speed(void *priv, unsigned int speed,
++static void plat_fix_mac_speed(void *priv, int speed,
+ 				  unsigned int mode)
+ {
+ 	struct zhihe_dwmac *dwmac = priv;
+@@ -281,8 +281,6 @@ static int zhihe_dwmac_probe(struct platform_device *pdev)
+ 	zhihe_dwmac_peri_clk_disable(dwmac);
+ 
+ err_remove_config_dt:
+-	stmmac_remove_config_dt(pdev, plat_dat);
+-
+ 	return ret;
+ }
+ 
+@@ -294,7 +292,7 @@ MODULE_DEVICE_TABLE(of, zhihe_dwmac_match);
+ 
+ static struct platform_driver zhihe_dwmac_driver = {
+ 	.probe  = zhihe_dwmac_probe,
+-	.remove_new = stmmac_pltfr_remove,
++	.remove = stmmac_pltfr_remove,
+ 	.driver = {
+ 		.name	= "zhihe-dwmac",
+ 		.pm		= &stmmac_pltfr_pm_ops,
+diff --git a/drivers/pmdomain/zhihe/a210-pd.c b/drivers/pmdomain/zhihe/a210-pd.c
+index 935faffe5bcc4..682b52b2d75e8 100644
+--- a/drivers/pmdomain/zhihe/a210-pd.c
++++ b/drivers/pmdomain/zhihe/a210-pd.c
+@@ -4,6 +4,7 @@
+  */
+ 
+ #include <linux/clk.h>
++#include <linux/vmalloc.h>
+ #include <linux/delay.h>
+ #include <linux/err.h>
+ #include <linux/init.h>
+diff --git a/drivers/pwm/pwm-thead.c b/drivers/pwm/pwm-thead.c
+index bda1e6d5afad1..dda47202ebfa5 100644
+--- a/drivers/pwm/pwm-thead.c
++++ b/drivers/pwm/pwm-thead.c
+@@ -54,7 +54,6 @@
+ #define THEAD_PWM_STATUS_BUSY		BIT(8)
+ 
+ struct thead_pwm_chip {
+-	struct pwm_chip chip;
+ 	void __iomem *mmio_base;
+ 	struct clk *clk;
+ 	u8 channel_ever_started;
+@@ -62,7 +61,7 @@ struct thead_pwm_chip {
+ 
+ static inline struct thead_pwm_chip *thead_pwm_from_chip(struct pwm_chip *chip)
+ {
+-	return container_of(chip, struct thead_pwm_chip, chip);
++	return pwmchip_get_drvdata(chip);
+ }
+ 
+ static int thead_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+@@ -88,13 +87,13 @@ static int thead_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+ 
+ 			val |= THEAD_PWM_CTRL_CFG_UPDATE;
+ 			writel(val, priv->mmio_base + THEAD_PWM_CTRL(pwm->hwpwm));
+-			pm_runtime_put_sync(chip->dev);
++			pm_runtime_put_sync(pwmchip_parent(chip));
+ 		}
+ 		return 0;
+ 	}
+ 
+ 	if (!pwm->state.enabled) {
+-		ret = pm_runtime_resume_and_get(chip->dev);
++		ret = pm_runtime_resume_and_get(pwmchip_parent(chip));
+ 		if (ret < 0)
+ 			return ret;
+ 	}
+@@ -151,7 +150,7 @@ static int thead_pwm_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
+ 	u32 val;
+ 	int ret;
+ 
+-	ret = pm_runtime_resume_and_get(chip->dev);
++	ret = pm_runtime_resume_and_get(pwmchip_parent(chip));
+ 	if (ret < 0)
+ 		return ret;
+ 
+@@ -174,7 +173,7 @@ static int thead_pwm_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
+ 	 */
+ 	state->duty_cycle = DIV64_U64_ROUND_UP((u64)val * NSEC_PER_SEC, rate);
+ 
+-	pm_runtime_put_sync(chip->dev);
++	pm_runtime_put_sync(pwmchip_parent(chip));
+ 
+ 	return 0;
+ }
+@@ -186,7 +185,8 @@ static const struct pwm_ops thead_pwm_ops = {
+ 
+ static int __maybe_unused thead_pwm_runtime_suspend(struct device *dev)
+ {
+-	struct thead_pwm_chip *priv = dev_get_drvdata(dev);
++	struct pwm_chip *chip = dev_get_drvdata(dev);
++	struct thead_pwm_chip *priv = thead_pwm_from_chip(chip);
+ 
+ 	clk_disable_unprepare(priv->clk);
+ 
+@@ -195,7 +195,8 @@ static int __maybe_unused thead_pwm_runtime_suspend(struct device *dev)
+ 
+ static int __maybe_unused thead_pwm_runtime_resume(struct device *dev)
+ {
+-	struct thead_pwm_chip *priv = dev_get_drvdata(dev);
++	struct pwm_chip *chip = dev_get_drvdata(dev);
++	struct thead_pwm_chip *priv = thead_pwm_from_chip(chip);
+ 	int ret;
+ 
+ 	ret = clk_prepare_enable(priv->clk);
+@@ -208,24 +209,24 @@ static int __maybe_unused thead_pwm_runtime_resume(struct device *dev)
+ static int thead_pwm_probe(struct platform_device *pdev)
+ {
+ 	struct thead_pwm_chip *priv;
++	struct pwm_chip *chip;
+ 	int ret, i;
+ 	u32 val;
+ 
+-	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+-	if (!priv)
+-		return -ENOMEM;
++	chip = devm_pwmchip_alloc(&pdev->dev, THEAD_PWM_MAX_NUM, sizeof(*priv));
++	if (IS_ERR(chip))
++		return PTR_ERR(chip);
++	priv = thead_pwm_from_chip(chip);
+ 
+-	platform_set_drvdata(pdev, priv);
++	platform_set_drvdata(pdev, chip);
+ 
+ 	priv->mmio_base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(priv->mmio_base))
+ 		return PTR_ERR(priv->mmio_base);
+ 
+-	priv->chip.ops = &thead_pwm_ops;
+-	priv->chip.dev = &pdev->dev;
+-	priv->chip.npwm = THEAD_PWM_MAX_NUM;
++	chip->ops = &thead_pwm_ops;
+ 
+-	ret = devm_pwmchip_add(&pdev->dev, &priv->chip);
++	ret = devm_pwmchip_add(&pdev->dev, chip);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -236,7 +237,7 @@ static int thead_pwm_probe(struct platform_device *pdev)
+ 	/* Compatible with the default clock being enabled state. */
+ 	if (__clk_get_enable_count(priv->clk) > 0) {
+ 		/* check whether PWM is ever started or not */
+-		for (i = 0; i < priv->chip.npwm; i++) {
++		for (i = 0; i < chip->npwm; i++) {
+ 			val = readl(priv->mmio_base + THEAD_PWM_FP(i));
+ 			if (val)
+ 				priv->channel_ever_started |= 1 << i;
+diff --git a/drivers/reset/reset-a210.c b/drivers/reset/reset-a210.c
+index 8fbf8203c5e52..d8e0e0faf4f4d 100644
+--- a/drivers/reset/reset-a210.c
++++ b/drivers/reset/reset-a210.c
+@@ -4,6 +4,7 @@
+  */
+ 
+ #include <linux/debugfs.h>
++#include <linux/of.h>
+ #include <linux/seq_file.h>
+ #include <linux/uaccess.h>
+ #include <linux/slab.h>
+diff --git a/drivers/soc/thead/th1520-ddr-pmu.c b/drivers/soc/thead/th1520-ddr-pmu.c
+index 7ee7fa4907a13..a4a17fbd19bae 100644
+--- a/drivers/soc/thead/th1520-ddr-pmu.c
++++ b/drivers/soc/thead/th1520-ddr-pmu.c
+@@ -6,6 +6,7 @@
+  * add into th1520 by Long Jiang <cunxi@computing.com>
+  */
+ #include <linux/bitfield.h>
++#include <linux/platform_device.h>
+ #include <linux/init.h>
+ #include <linux/interrupt.h>
+ #include <linux/io.h>
+-- 
+2.43.0
+

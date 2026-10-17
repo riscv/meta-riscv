@@ -1,0 +1,42 @@
+From 0425349f10f4fa869597904e20d407df27a2cdef Mon Sep 17 00:00:00 2001
+From: Lance Albertson <lance@osuosl.org>
+Date: Mon, 15 Jun 2026 13:07:25 -0700
+Subject: [PATCH 21/31] riscv: defconfig: a210: build the PCF8563 RTC into the
+ kernel
+
+The A210's only enabled RTC is the external NXP PCF8563 on i2c4 (the SoC
+dw-apb-rtc is disabled in the board DT). i2c4 enumerates the chip fine -
+the i2c client 4-0051 is present - but RTC_DRV_PCF8563 was built as a
+module and the rootfs did not have it loadable, so nothing bound to the
+chip: no /dev/rtc0, and the system clock only looked correct because NTP
+had set it. Wall-clock time would not survive a reboot without network.
+
+For a headless server, timekeeping across reboot is essential and must
+not depend on module autoload or rootfs module staging. Build the driver
+in, matching the board's drivers-built-in approach; the kernel then binds
+it at boot and seeds the system clock from it via the default HCTOSYS.
+
+Co-developed-by: Claude Opus 4.8 <noreply@anthropic.com>
+Signed-off-by: Claude Opus 4.8 <noreply@anthropic.com>
+Signed-off-by: Lance Albertson <lance@osuosl.org>
+Upstream-Status: Pending
+---
+ arch/riscv/configs/a210_evb_defconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/riscv/configs/a210_evb_defconfig b/arch/riscv/configs/a210_evb_defconfig
+index 655948c35fd01..e557444529077 100644
+--- a/arch/riscv/configs/a210_evb_defconfig
++++ b/arch/riscv/configs/a210_evb_defconfig
+@@ -415,7 +415,7 @@ CONFIG_NEW_LEDS=y
+ CONFIG_LEDS_CLASS=y
+ CONFIG_LEDS_GPIO=y
+ CONFIG_RTC_CLASS=y
+-CONFIG_RTC_DRV_PCF8563=m
++CONFIG_RTC_DRV_PCF8563=y
+ CONFIG_RTC_DRV_XGENE=y
+ CONFIG_DMADEVICES=y
+ CONFIG_DW_AXI_DMAC=y
+-- 
+2.43.0
+

@@ -1,0 +1,67 @@
+From a5b02a525dc92e6b740f8aca2d0f9b94417e4678 Mon Sep 17 00:00:00 2001
+From: Lance Albertson <lance@osuosl.org>
+Date: Mon, 15 Jun 2026 09:34:48 -0700
+Subject: [PATCH 20/31] clk: zhihe: switch divider wrapper to .determine_rate
+
+The Zhihe divider wrapper (clk_zhihediv) reuses the generic
+clk_divider_ops by storing a pointer to it and forwarding the rate
+callbacks through thin shims, overriding only .set_rate. Its
+.round_rate shim called zhihe_div->ops->round_rate() unconditionally.
+
+Since the divider rate-determination conversion, the generic
+clk_divider_ops no longer provides .round_rate; it implements
+.determine_rate instead. Forwarding to the now-NULL .round_rate
+dereferenced a NULL function pointer the first time any consumer
+rounded a rate, which on the A210 happens during clk init and panics
+the kernel before reaching userspace:
+
+  Unable to handle kernel NULL pointer dereference at virtual address 0
+   ra : clk_zhihediv_round_rate+0xe/0x18
+  Kernel panic - not syncing: Attempted to kill init!
+
+Convert the wrapper to implement .determine_rate and forward to the
+generic clk_divider_ops.determine_rate. The embedded clk_divider
+already carries the appropriate flags (CLK_DIVIDER_ONE_BASED,
+CLK_DIVIDER_ROUND_CLOSEST), so rounding behaviour is preserved.
+.recalc_rate is unaffected and still forwards as before.
+
+Co-developed-by: Claude Opus 4.8 <noreply@anthropic.com>
+Signed-off-by: Claude Opus 4.8 <noreply@anthropic.com>
+Signed-off-by: Lance Albertson <lance@osuosl.org>
+Upstream-Status: Pending
+---
+ drivers/clk/zhihe/clk-helper.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/clk/zhihe/clk-helper.c b/drivers/clk/zhihe/clk-helper.c
+index 02e594bba59dd..f614a26632ddc 100644
+--- a/drivers/clk/zhihe/clk-helper.c
++++ b/drivers/clk/zhihe/clk-helper.c
+@@ -61,12 +61,12 @@ static unsigned long clk_zhihediv_recalc_rate(struct clk_hw *hw,
+ 	return zhihe_div->ops->recalc_rate(&zhihe_div->divider.hw, parent_rate);
+ }
+ 
+-static long clk_zhihediv_round_rate(struct clk_hw *hw, unsigned long rate,
+-			       unsigned long *prate)
++static int clk_zhihediv_determine_rate(struct clk_hw *hw,
++				       struct clk_rate_request *req)
+ {
+ 	struct clk_zhihediv *zhihe_div = to_clk_zhihediv(hw);
+ 
+-	return zhihe_div->ops->round_rate(&zhihe_div->divider.hw, rate, prate);
++	return zhihe_div->ops->determine_rate(&zhihe_div->divider.hw, req);
+ }
+ 
+ static int clk_zhihediv_set_rate(struct clk_hw *hw, unsigned long rate,
+@@ -124,7 +124,7 @@ static int clk_zhihediv_set_rate(struct clk_hw *hw, unsigned long rate,
+ 
+ static const struct clk_ops clk_zhihediv_ops = {
+ 	.recalc_rate = clk_zhihediv_recalc_rate,
+-	.round_rate = clk_zhihediv_round_rate,
++	.determine_rate = clk_zhihediv_determine_rate,
+ 	.set_rate = clk_zhihediv_set_rate,
+ };
+ 
+-- 
+2.43.0
+

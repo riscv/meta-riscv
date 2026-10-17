@@ -1,0 +1,90 @@
+From a0df3a1c41fa5099b7205c074c372e7b583fc841 Mon Sep 17 00:00:00 2001
+From: Lance Albertson <lance@osuosl.org>
+Date: Fri, 12 Jun 2026 10:05:54 -0700
+Subject: [PATCH 11/31] watchdog: zhihe: a210: also power off from the reboot
+ notifier
+
+The reboot notifier added for SYS_RESTART fixes reboot, but poweroff has
+the same ordering problem: zhihe_pm_power_off() (registered as
+pm_power_off) runs from machine_power_off(), after device_shutdown() has
+torn down the mailbox the AON RPC needs, so `poweroff` wedges the same way
+`reboot` did.
+
+The reboot notifier chain is also invoked for power-off (with
+SYS_POWER_OFF), so handle that action too: send AON_WDG_FUNC_POWER_OFF from
+the notifier, before the teardown, the same way SYS_RESTART sends
+AON_WDG_FUNC_RESTART. SYS_HALT is left alone (halt the CPU, keep power).
+The pm_power_off hook stays as an unreached fallback.
+
+Co-developed-by: Claude Opus 4.8 <noreply@anthropic.com>
+Signed-off-by: Lance Albertson <lance@osuosl.org>
+Upstream-Status: Pending
+---
+ drivers/watchdog/zhihe_wdt.c | 38 +++++++++++++++++++++++-------------
+ 1 file changed, 24 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/watchdog/zhihe_wdt.c b/drivers/watchdog/zhihe_wdt.c
+index 7e5d42ab84ec4..43831f96fbd00 100755
+--- a/drivers/watchdog/zhihe_wdt.c
++++ b/drivers/watchdog/zhihe_wdt.c
+@@ -292,33 +292,43 @@ static const struct attribute_group dev_attr_aon_sys_wdt_group = {
+ };
+ 
+ /*
+- * The only working SoC reset path is an RPC to the AON E902. The watchdog
+- * core's .restart handler (zhihe_wdt_restart) runs from machine_restart(),
++ * The only working SoC reset/power-off path is an RPC to the AON E902. The
++ * watchdog core's .restart handler (zhihe_wdt_restart) and pm_power_off
++ * (zhihe_pm_power_off) both run from machine_restart()/machine_power_off(),
+  * i.e. *after* device_shutdown()/migrate_to_reboot_cpu()/syscore_shutdown()
+  * have torn down the mailbox IRQ path the RPC needs -- so on a normal
+- * reboot(2) the RPC can no longer reach the AON and the board wedges in
+- * machine_restart()'s spin. (sysrq 'b', which jumps straight to
+- * machine_restart() and skips that teardown, resets fine -- proving the RPC
+- * itself works.) Send the restart RPC from a reboot notifier instead: the
+- * reboot notifier chain runs at the very top of kernel_restart_prepare(),
+- * before any teardown, while the mailbox is still alive.
++ * reboot(2) the RPC can no longer reach the AON and the board wedges.
++ * (sysrq 'b', which jumps straight to machine_restart() and skips that
++ * teardown, resets fine -- proving the RPC itself works.) Send the RPC from a
++ * reboot notifier instead: the reboot notifier chain runs at the very top of
++ * kernel_restart_prepare()/kernel_power_off_prepare(), before any teardown,
++ * while the mailbox is still alive.
+  */
+ static int zhihe_wdt_reboot_notify(struct notifier_block *nb,
+ 				   unsigned long action, void *data)
+ {
+ 	struct zhihe_wdt_device *wdt_dev =
+ 		container_of(nb, struct zhihe_wdt_device, reboot_nb);
+-
+-	if (action != SYS_RESTART)
++	enum aon_wdg_func func;
++
++	switch (action) {
++	case SYS_RESTART:
++		func = AON_WDG_FUNC_RESTART;
++		break;
++	case SYS_POWER_OFF:
++		func = AON_WDG_FUNC_POWER_OFF;
++		break;
++	default:		/* SYS_HALT: leave the CPU halted, keep power */
+ 		return NOTIFY_DONE;
++	}
+ 
+-	zhihe_wdt_msg_hdr_fill(&wdt_dev->msg.hdr, AON_WDG_FUNC_RESTART);
++	zhihe_wdt_msg_hdr_fill(&wdt_dev->msg.hdr, func);
+ 	zhihe_aon_call_rpc(wdt_dev->ipc_handle, &wdt_dev->msg, NULL, false);
+ 
+ 	/*
+-	 * On success the AON resets the SoC within the reset-protection window
+-	 * and we never return; the delay just gives it time to assert before
+-	 * the (now-doomed) normal restart path resumes.
++	 * On success the AON resets/powers off the SoC within the
++	 * reset-protection window and we never return; the delay just gives it
++	 * time to act before the (now-doomed) normal path resumes.
+ 	 */
+ 	mdelay(ZHIHE_RESET_PROTECTION_MS);
+ 
+-- 
+2.43.0
+

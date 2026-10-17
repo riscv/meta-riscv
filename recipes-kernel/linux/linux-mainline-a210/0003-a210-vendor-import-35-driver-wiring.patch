@@ -1,0 +1,376 @@
+From 44d2ec752fa3abb78fb3e4ea1f52ab5dcf582d41 Mon Sep 17 00:00:00 2001
+From: Lance Albertson <lance@osuosl.org>
+Date: Fri, 12 Jun 2026 10:42:31 -0700
+Subject: [PATCH 03/31] a210: vendor import: 35-driver-wiring
+
+Cherry-picked vendor enablement group 35 (35-driver-wiring) onto Linux v6.6.141 as
+the maintained A210 LTS branch (one commit per kernel/patches group). Applied
+with git apply --recount; reconciled against vendor branch osl/a210-v2.9.0.
+See kernel/patches/README.md and kernel/T2-DESIGN.md for group rationale.
+
+v7.0 port adaptations: kept upstream iommu wiring (vendor riscv-iommu was
+dropped in the group-10 pick) and reverted the io-pgtable.h hooks for the
+removed vendor io_pgtable format; united sbi.h/drivers-Kconfig/pmdomain
+Makefile hooks with their grown upstream counterparts.
+
+Signed-off-by: Lance Albertson <lance@osuosl.org>
+Upstream-Status: Pending
+---
+ arch/riscv/Kconfig.socs                     | 23 +++++++
+ arch/riscv/include/asm/sbi.h                |  7 ++
+ arch/riscv/include/asm/zh-iopmp.h           | 21 ++++++
+ drivers/Kconfig                             |  1 +
+ drivers/Makefile                            |  1 +
+ drivers/clk/Kconfig                         |  2 +
+ drivers/clk/Makefile                        |  2 +
+ drivers/crypto/Kconfig                      |  1 +
+ drivers/firmware/Kconfig                    |  2 +
+ drivers/firmware/Makefile                   |  2 +
+ drivers/phy/Kconfig                         |  1 +
+ drivers/phy/Makefile                        |  1 +
+ drivers/pmdomain/Makefile                   |  1 +
+ drivers/soc/Kconfig                         |  2 +
+ drivers/soc/Makefile                        |  2 +
+ include/soc/xuantie/th1520_system_monitor.h | 71 +++++++++++++++++++++
+ include/soc/xuantie/th1520_system_status.h  | 36 +++++++++++
+ 17 files changed, 176 insertions(+)
+ create mode 100644 arch/riscv/include/asm/zh-iopmp.h
+ create mode 100644 include/soc/xuantie/th1520_system_monitor.h
+ create mode 100644 include/soc/xuantie/th1520_system_status.h
+
+diff --git a/arch/riscv/Kconfig.socs b/arch/riscv/Kconfig.socs
+index 429e075893068..849d3d03ac787 100644
+--- a/arch/riscv/Kconfig.socs
++++ b/arch/riscv/Kconfig.socs
+@@ -59,6 +59,22 @@ config SOC_STARFIVE
+ 	help
+ 	  This enables support for StarFive SoC platform hardware.
+ 
++config ARCH_ZHIHE
++	bool "ZhiHe SoCs"
++	select CLOCKSOURCE_VALIDATE_LAST_CYCLE
++	help
++	  This enables support for ZhiHe SoC platform hardware.
++
++config NR_HARTS_PER_DIE
++	int "number harts per DIE"
++	depends on ARCH_ZHIHE || ARCH_XUANTIE
++	default "8"
++
++config XUANTIE_SSTC
++	bool "xuantie SSTC"
++	help
++	  This enables support for xuantie SSTC feature.
++
+ config ARCH_SUNXI
+ 	bool "Allwinner sun20i SoCs"
+ 	depends on MMU
+@@ -90,6 +106,13 @@ config ARCH_ULTRARISC
+ 	  This enables support for UltraRISC SoC platform hardware,
+ 	  including boards based on the UR-DP1000.
+ 
++config ARCH_XUANTIE
++	bool "XuanTie RISC-V SoCs"
++	depends on MMU && !XIP_KERNEL
++	select ERRATA_THEAD
++	help
++	  This enables support for the RISC-V based XuanTie SoCs.
++
+ config ARCH_VIRT
+ 	bool "QEMU Virt Machine"
+ 	select POWER_RESET
+diff --git a/arch/riscv/include/asm/sbi.h b/arch/riscv/include/asm/sbi.h
+index 5725e0ca4dda3..ead22df8937f8 100644
+--- a/arch/riscv/include/asm/sbi.h
++++ b/arch/riscv/include/asm/sbi.h
+@@ -38,6 +38,7 @@ enum sbi_ext_id {
+ 	SBI_EXT_FWFT = 0x46574654,
+ 	SBI_EXT_MPXY = 0x4D505859,
+ 	SBI_EXT_DBTR = 0x44425452,
++	SBI_EXT_CONFIG_IOPMP = 0x5A5A5A5A,
+ 
+ 	/* Experimentals extensions must lie within this range */
+ 	SBI_EXT_EXPERIMENTAL_START = 0x08000000,
+@@ -704,4 +705,10 @@ static inline bool riscv_use_sbi_for_rfence(void) { return false; }
+ static inline void sbi_ipi_init(void) { }
+ #endif
+ 
++
++enum sbi_ext_config_iopmp_fid {
++	SBI_EXT_CONFIG_IOPMP_ADD_RULE = 0,
++	SBI_EXT_CONFIG_IOPMP_REMOVE_RULE,
++};
++
+ #endif /* _ASM_RISCV_SBI_H */
+diff --git a/arch/riscv/include/asm/zh-iopmp.h b/arch/riscv/include/asm/zh-iopmp.h
+new file mode 100644
+index 0000000000000..1ed3d7874bb38
+--- /dev/null
++++ b/arch/riscv/include/asm/zh-iopmp.h
+@@ -0,0 +1,21 @@
++/* SPDX-License-Identifier: GPL-2.0-only WITH Linux-syscall-note */
++/*
++ *    *** IMPORTANT ***
++ * This file is not only included from C-code but also from devicetree source
++ * files. As such this file MUST only contain comments and defines.
++ *
++ * Copyright (c) 2025 Xuliang Lin <linxuliang@zhcomputing.com>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ */
++
++#ifndef _ZH_IOPMP_H
++#define _ZH_IOPMP_H
++
++long iopmp_enable(uint32_t *device_ids, uint32_t count);
++
++long iopmp_disable(uint32_t *device_ids, uint32_t count);
++
++#endif
+diff --git a/drivers/Kconfig b/drivers/Kconfig
+index f2bed2ddeb662..3f5d38f13a193 100644
+--- a/drivers/Kconfig
++++ b/drivers/Kconfig
+@@ -253,4 +253,5 @@ source "drivers/cdx/Kconfig"
+ 
+ source "drivers/resctrl/Kconfig"
+ 
++source "drivers/iopmp/Kconfig"
+ endmenu
+diff --git a/drivers/Makefile b/drivers/Makefile
+index 0841ea851847e..0ada7af1ac793 100644
+--- a/drivers/Makefile
++++ b/drivers/Makefile
+@@ -198,3 +198,4 @@ obj-y				+= resctrl/
+ 
+ obj-$(CONFIG_DIBS)		+= dibs/
+ obj-$(CONFIG_S390)		+= s390/
++obj-$(CONFIG_IOPMP)		+= iopmp/
+diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
+index 1717ce75a907e..2d975f8577fd9 100644
+--- a/drivers/clk/Kconfig
++++ b/drivers/clk/Kconfig
+@@ -546,6 +546,8 @@ source "drivers/clk/visconti/Kconfig"
+ source "drivers/clk/x86/Kconfig"
+ source "drivers/clk/xilinx/Kconfig"
+ source "drivers/clk/zynqmp/Kconfig"
++source "drivers/clk/thead/Kconfig"
++source "drivers/clk/zhihe/Kconfig"
+ 
+ # Kunit test cases
+ config CLK_KUNIT_TEST
+diff --git a/drivers/clk/Makefile b/drivers/clk/Makefile
+index cc108a75a9008..a80048b0258e3 100644
+--- a/drivers/clk/Makefile
++++ b/drivers/clk/Makefile
+@@ -169,3 +169,5 @@ endif
+ obj-y					+= xilinx/
+ obj-$(CONFIG_ARCH_ZYNQ)			+= zynq/
+ obj-$(CONFIG_COMMON_CLK_ZYNQMP)         += zynqmp/
++obj-$(CONFIG_ARCH_XUANTIE)              += thead/
++obj-$(CONFIG_ARCH_ZHIHE)                += zhihe/
+diff --git a/drivers/crypto/Kconfig b/drivers/crypto/Kconfig
+index eb834d15d6149..ab916b4c02624 100644
+--- a/drivers/crypto/Kconfig
++++ b/drivers/crypto/Kconfig
+@@ -838,4 +838,5 @@ source "drivers/crypto/starfive/Kconfig"
+ source "drivers/crypto/inside-secure/eip93/Kconfig"
+ source "drivers/crypto/ti/Kconfig"
+ 
++source "drivers/crypto/zhihe/Kconfig"
+ endif # CRYPTO_HW
+diff --git a/drivers/firmware/Kconfig b/drivers/firmware/Kconfig
+index 12dc70254842c..ca9f9032d0033 100644
+--- a/drivers/firmware/Kconfig
++++ b/drivers/firmware/Kconfig
+@@ -302,4 +302,6 @@ source "drivers/firmware/smccc/Kconfig"
+ source "drivers/firmware/tegra/Kconfig"
+ source "drivers/firmware/xilinx/Kconfig"
+ 
++source "drivers/firmware/thead/Kconfig"
++source "drivers/firmware/zhihe/Kconfig"
+ endmenu
+diff --git a/drivers/firmware/Makefile b/drivers/firmware/Makefile
+index 4ddec2820c96f..dfc7688df1141 100644
+--- a/drivers/firmware/Makefile
++++ b/drivers/firmware/Makefile
+@@ -38,3 +38,5 @@ obj-y				+= samsung/
+ obj-y				+= smccc/
+ obj-y				+= tegra/
+ obj-y				+= xilinx/
++obj-y				+= thead/
++obj-y				+= zhihe/
+diff --git a/drivers/phy/Kconfig b/drivers/phy/Kconfig
+index 19f3b7d12b7d4..3e461a1032d3a 100644
+--- a/drivers/phy/Kconfig
++++ b/drivers/phy/Kconfig
+@@ -203,4 +203,5 @@ source "drivers/phy/tegra/Kconfig"
+ source "drivers/phy/ti/Kconfig"
+ source "drivers/phy/xilinx/Kconfig"
+ 
++source "drivers/phy/zhihe/Kconfig"
+ endmenu
+diff --git a/drivers/phy/Makefile b/drivers/phy/Makefile
+index d7aa516bcc49e..9f9f39214366a 100644
+--- a/drivers/phy/Makefile
++++ b/drivers/phy/Makefile
+@@ -54,3 +54,4 @@ obj-$(CONFIG_GENERIC_PHY)		+= allwinner/	\
+ 					   tegra/	\
+ 					   ti/		\
+ 					   xilinx/
++obj-y					+= zhihe/
+diff --git a/drivers/pmdomain/Makefile b/drivers/pmdomain/Makefile
+index ebc802f13eb95..bef57cab71d5f 100644
+--- a/drivers/pmdomain/Makefile
++++ b/drivers/pmdomain/Makefile
+@@ -19,3 +19,4 @@ obj-y					+= thead/
+ obj-y					+= ti/
+ obj-y					+= xilinx/
+ obj-y					+= core.o governor.o
++obj-y					+= zhihe/
+diff --git a/drivers/soc/Kconfig b/drivers/soc/Kconfig
+index a2d65adffb805..11e6895090110 100644
+--- a/drivers/soc/Kconfig
++++ b/drivers/soc/Kconfig
+@@ -32,4 +32,6 @@ source "drivers/soc/versatile/Kconfig"
+ source "drivers/soc/vt8500/Kconfig"
+ source "drivers/soc/xilinx/Kconfig"
+ 
++source "drivers/soc/thead/Kconfig"
++source "drivers/soc/zhihe/Kconfig"
+ endmenu
+diff --git a/drivers/soc/Makefile b/drivers/soc/Makefile
+index c9e689080ceb7..98e3dba4b0f8b 100644
+--- a/drivers/soc/Makefile
++++ b/drivers/soc/Makefile
+@@ -37,3 +37,5 @@ obj-$(CONFIG_ARCH_U8500)	+= ux500/
+ obj-y				+= versatile/
+ obj-y				+= vt8500/
+ obj-y				+= xilinx/
++obj-y				+= thead/
++obj-y				+= zhihe/
+diff --git a/include/soc/xuantie/th1520_system_monitor.h b/include/soc/xuantie/th1520_system_monitor.h
+new file mode 100644
+index 0000000000000..69a756b628b78
+--- /dev/null
++++ b/include/soc/xuantie/th1520_system_monitor.h
+@@ -0,0 +1,71 @@
++
++#ifndef __SOC_TH1520_SYSTEM_MONITOR_H
++#define __SOC_TH1520_SYSTEM_MONITOR_H
++
++#include <linux/pm_opp.h>
++#include <linux/pm_qos.h>
++
++enum monitor_dev_type {
++	MONITOR_TPYE_CPU = 0,	/* CPU */
++	MONITOR_TPYE_DEV,	/* GPU, NPU, VPU and so on */
++};
++
++struct monitor_dev_info {
++	struct device *dev;
++	struct monitor_dev_profile *devp;
++	struct list_head node;
++	struct kobject kobj;
++	struct blocking_notifier_head dev_notifier;
++	struct notifier_block status_nb;
++	struct mutex status_lock;
++	spinlock_t minfreq_lock;
++
++	struct dev_pm_qos_request dev_min_freq_req;
++	struct freq_qos_request min_sta_freq_req;
++
++	unsigned long dev_monitor_status;
++	unsigned long ref_count[32];
++
++	unsigned long dev_qos_low_limit;
++	unsigned long dev_qos_high_limit;
++	unsigned int dev_qos_mid_limit;
++	unsigned int video_4k_limit;
++	unsigned int video_2k_limit;
++	unsigned int video_1080p_limit;
++	unsigned int vsync_limit;
++	unsigned int cur_min_limit;
++};
++
++struct monitor_dev_profile {
++	enum monitor_dev_type type;
++	void *data;
++	bool is_checked;
++	int (*qos_rate_adjust)(struct monitor_dev_info *info, unsigned long status);
++};
++
++#if IS_ENABLED(CONFIG_TH1520_SYSTEM_MONITOR)
++struct monitor_dev_info *
++th1520_system_monitor_register(struct device *dev, struct monitor_dev_profile *devp);
++int th1520_monitor_dev_rate_adjust(struct monitor_dev_info *info, unsigned long val);
++void th1520_system_monitor_unregister(struct monitor_dev_info *info);
++#else
++static struct monitor_dev_info *
++th1520_system_monitor_register(struct device *dev, struct monitor_dev_profile *devp)
++{
++	return ERR_PTR(-ENOTSUPP);
++};
++static int
++th1520_system_status_common_limit_freq(struct monitor_dev_info *info, unsigned long status)
++{
++	return 0;
++};
++static int th1520_monitor_dev_rate_adjust(struct monitor_dev_info *info, unsigned long val)
++{
++	return 0;
++};
++static void th1520_system_monitor_unregister(struct monitor_dev_info *info)
++{
++};
++#endif
++
++#endif
+\ No newline at end of file
+diff --git a/include/soc/xuantie/th1520_system_status.h b/include/soc/xuantie/th1520_system_status.h
+new file mode 100644
+index 0000000000000..8ceca09ff4904
+--- /dev/null
++++ b/include/soc/xuantie/th1520_system_status.h
+@@ -0,0 +1,36 @@
++
++#ifndef __SOC_TH1520_SYSTEM_STATUS_H
++#define __SOC_TH1520_SYSTEM_STATUS_H
++
++#if IS_ENABLED(CONFIG_TH1520_SYSTEM_MONITOR)
++int th1520_register_system_status_notifier(struct notifier_block *nb);
++int th1520_unregister_system_status_notifier(struct notifier_block *nb);
++void th1520_set_system_status(unsigned long status);
++void th1520_clear_system_status(unsigned long status);
++unsigned long th1520_get_system_status(void);
++void th1520_update_system_status_byname(const char *buf);
++#else
++static int th1520_register_system_status_notifier(struct notifier_block *nb)
++{
++	return -ENOTSUPP;
++};
++static int th1520_unregister_system_status_notifier(struct notifier_block *nb)
++{
++	return -ENOTSUPP;
++};
++static void th1520_set_system_status(unsigned long status)
++{
++};
++static void th1520_clear_system_status(unsigned long status)
++{
++};
++static unsigned long th1520_get_system_status(void)
++{
++	return 0;
++};
++static void th1520_update_system_status(const char *buf)
++{
++};
++#endif
++
++#endif
+-- 
+2.43.0
+

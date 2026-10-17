@@ -1,0 +1,55 @@
+From f0331556515d9c742bb2f4226e0afbf208d6295b Mon Sep 17 00:00:00 2001
+From: Lance Albertson <lance@osuosl.org>
+Date: Fri, 12 Jun 2026 14:47:54 -0700
+Subject: [PATCH 16/31] PCI: zh: clear pcie->phy when devm_phy_get() fails
+
+zhihe_pcie_phy_init() leaves pcie->phy holding the ERR_PTR when
+devm_phy_get() fails. If host init then fails -- which it always does when
+the PHY node is disabled in DT, as on boards that don't use PCIe -- the
+probe error path calls zhihe_pcie_phy_deinit() -> phy_exit(pcie->phy).
+phy_exit() only NULL-checks its argument, so the ERR_PTR is dereferenced
+and the kernel oopses in the udev coldplug worker at every boot:
+
+  zh-pcie b800000.pcie: Failed to initialize host
+  Unable to handle kernel paging request at virtual address ffffffffffffff7b
+  epc : phy_exit+0x12/0xcc
+   ra : zhihe_pcie_probe+0x1aa/0xb4a [pcie_zh]
+
+Clear pcie->phy to NULL on the failed get so the deinit path is a no-op.
+
+Co-developed-by: Claude Opus 4.8 <noreply@anthropic.com>
+Signed-off-by: Lance Albertson <lance@osuosl.org>
+Upstream-Status: Pending
+---
+ drivers/pci/controller/dwc/pcie-zh.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/pci/controller/dwc/pcie-zh.c b/drivers/pci/controller/dwc/pcie-zh.c
+index 1e8804db2d23f..bc595e070be67 100644
+--- a/drivers/pci/controller/dwc/pcie-zh.c
++++ b/drivers/pci/controller/dwc/pcie-zh.c
+@@ -178,9 +178,18 @@ static int __maybe_unused zhihe_pcie_phy_init(struct zhihe_pcie *pcie)
+ 	int ret;
+ 
+ 	pcie->phy = devm_phy_get(dev, "pcie-phy");
+-	if (IS_ERR(pcie->phy))
+-		return dev_err_probe(dev, PTR_ERR(pcie->phy),
+-				     "missing PHY\n");
++	if (IS_ERR(pcie->phy)) {
++		ret = dev_err_probe(dev, PTR_ERR(pcie->phy),
++				    "missing PHY\n");
++		/*
++		 * Clear the ERR_PTR: the probe error path calls
++		 * zhihe_pcie_phy_deinit() -> phy_exit(pcie->phy), and
++		 * phy_exit() only NULL-checks -- an ERR_PTR here oopses
++		 * (seen when the PHY node is disabled in DT).
++		 */
++		pcie->phy = NULL;
++		return ret;
++	}
+ 
+ 	ret = phy_init(pcie->phy);
+ 	if (ret)
+-- 
+2.43.0
+

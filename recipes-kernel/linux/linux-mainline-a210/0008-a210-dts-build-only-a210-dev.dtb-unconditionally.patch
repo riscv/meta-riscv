@@ -1,0 +1,38 @@
+From 89ba8527d6662adebf5dbfb08ed13c47a3d57740 Mon Sep 17 00:00:00 2001
+From: Lance Albertson <lance@osuosl.org>
+Date: Fri, 12 Jun 2026 10:45:20 -0700
+Subject: [PATCH 08/31] a210: dts: build only a210-dev.dtb unconditionally
+
+Group 40 imported the vendor zhihe DTS Makefile verbatim, which lists seven
+boards (a210-evb*, a210-som-v1, a210-usb-aistick) gated on CONFIG_ARCH_ZHIHE.
+Only a210-dev.dts is part of this subset, so the other six break the DTB build,
+and the group-35 driver-wiring fixup (which could not apply because the zhihe/
+directory did not exist yet at group-35 apply time) intended dtb-y here so the
+DTB always builds without depending on group-00's CONFIG_ARCH_ZHIHE gate.
+
+Trim the Makefile to 'dtb-y += a210-dev.dtb'.
+
+Signed-off-by: Lance Albertson <lance@osuosl.org>
+Upstream-Status: Pending
+---
+ arch/riscv/boot/dts/zhihe/Makefile | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/arch/riscv/boot/dts/zhihe/Makefile b/arch/riscv/boot/dts/zhihe/Makefile
+index b445dfeb19e4a..13fc7a4c6d91e 100644
+--- a/arch/riscv/boot/dts/zhihe/Makefile
++++ b/arch/riscv/boot/dts/zhihe/Makefile
+@@ -1,5 +1,6 @@
+ # SPDX-License-Identifier: GPL-2.0
+-
+-dtb-$(CONFIG_ARCH_ZHIHE) += a210-evb.dtb a210-dev.dtb a210-evb-d2d.dtb 
+-dtb-$(CONFIG_ARCH_ZHIHE) += a210-evb-sec.dtb a210-dev-sec.dtb
+-dtb-$(CONFIG_ARCH_ZHIHE) += a210-som-v1.dtb a210-usb-aistick.dtb
++# A210 is the only board in our import; build its DTB unconditionally.
++# The vendor's a210-evb*/som/usb-aistick sources are not part of this subset,
++# and gating on CONFIG_ARCH_ZHIHE is unnecessary (the OSL group-35 wiring fixup
++# deliberately uses dtb-y). See kernel/patches/README.md (group-40 fixup).
++dtb-y += a210-dev.dtb
+-- 
+2.43.0
+

@@ -1,0 +1,53 @@
+From faa43f956e008fb376928cab9d8030452cdccc40 Mon Sep 17 00:00:00 2001
+From: Lance Albertson <lance@osuosl.org>
+Date: Tue, 16 Jun 2026 15:56:29 -0700
+Subject: [PATCH 28/31] can: flexcan: add Zhihe A210 compatible
+
+The A210 instantiates three FlexCAN controllers (fsl,zha210-flexcan).
+The vendor drove them by adding an A210 devtype + of_match entry to this
+driver, but the delta was lost in the 6.6.x->mainline port, so the CAN
+controllers never probe.
+
+Re-add fsl_zhihe_a210_devtype_data (its quirk set is identical to the
+existing lx2160a_r1 data -- DISABLE_RXFG/ENABLE_EACEN_RRS/DISABLE_MECR/
+BROKEN_PERR_STATE/USE_RX_MAILBOX/SUPPORT_FD/SUPPORT_ECC/RX_MAILBOX[_RTR])
+and wire up the fsl,zha210-flexcan match, matching the vendor tree.
+
+Co-developed-by: Claude Opus 4.8 <noreply@anthropic.com>
+Signed-off-by: Lance Albertson <lance@osuosl.org>
+Upstream-Status: Pending
+---
+ drivers/net/can/flexcan/flexcan-core.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/drivers/net/can/flexcan/flexcan-core.c b/drivers/net/can/flexcan/flexcan-core.c
+index f5d22c61503fa..0f9a02f6212f4 100644
+--- a/drivers/net/can/flexcan/flexcan-core.c
++++ b/drivers/net/can/flexcan/flexcan-core.c
+@@ -387,6 +387,15 @@ static const struct flexcan_devtype_data fsl_lx2160a_r1_devtype_data = {
+ 		FLEXCAN_QUIRK_SUPPORT_RX_MAILBOX_RTR,
+ };
+ 
++static const struct flexcan_devtype_data fsl_zhihe_a210_devtype_data = {
++	.quirks = FLEXCAN_QUIRK_DISABLE_RXFG | FLEXCAN_QUIRK_ENABLE_EACEN_RRS |
++		FLEXCAN_QUIRK_DISABLE_MECR | FLEXCAN_QUIRK_BROKEN_PERR_STATE |
++		FLEXCAN_QUIRK_USE_RX_MAILBOX | FLEXCAN_QUIRK_SUPPORT_FD |
++		FLEXCAN_QUIRK_SUPPORT_ECC |
++		FLEXCAN_QUIRK_SUPPORT_RX_MAILBOX |
++		FLEXCAN_QUIRK_SUPPORT_RX_MAILBOX_RTR,
++};
++
+ static const struct flexcan_devtype_data nxp_s32g2_devtype_data = {
+ 	.quirks = FLEXCAN_QUIRK_DISABLE_RXFG | FLEXCAN_QUIRK_ENABLE_EACEN_RRS |
+ 		FLEXCAN_QUIRK_DISABLE_MECR | FLEXCAN_QUIRK_BROKEN_PERR_STATE |
+@@ -2069,6 +2078,7 @@ static const struct of_device_id flexcan_of_match[] = {
+ 	{ .compatible = "fsl,vf610-flexcan", .data = &fsl_vf610_devtype_data, },
+ 	{ .compatible = "fsl,ls1021ar2-flexcan", .data = &fsl_ls1021a_r2_devtype_data, },
+ 	{ .compatible = "fsl,lx2160ar1-flexcan", .data = &fsl_lx2160a_r1_devtype_data, },
++	{ .compatible = "fsl,zha210-flexcan", .data = &fsl_zhihe_a210_devtype_data, },
+ 	{ .compatible = "nxp,s32g2-flexcan", .data = &nxp_s32g2_devtype_data, },
+ 	{ /* sentinel */ },
+ };
+-- 
+2.43.0
+
