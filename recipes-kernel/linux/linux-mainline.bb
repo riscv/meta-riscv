@@ -7,9 +7,9 @@ FILESEXTRAPATHS:prepend:eswin-ebc77-mainline := "${THISDIR}/linux-eswin-ebc77-ma
 FILESEXTRAPATHS:prepend:milkv-duo-common := "${THISDIR}/linux-milkv-duo:"
 
 KERNEL_VERSION_SANITY_SKIP = "1"
-LINUX_VERSION                       ?= "7.2.10"
+LINUX_VERSION                       ?= "7.2.11"
 BRANCH                              ?= "linux-7.2.y"
-SRCREV                              ?= "7b20d05fd38de8e0be168956f6fd241d750c7d69"
+SRCREV                              ?= "a2de78ee6ed8bf8cd99d177c74865a6e8c3cb6ea"
 
 # --- DEPENDS ---
 DEPENDS:append:k1                    = " u-boot-tools-native"
@@ -32,7 +32,6 @@ SRC_URI:append:k1 = " \
 
 SRC_URI:append:bananapi-cm6-io = " \
         file://0001-dt-bindings-riscv-spacemit-Add-Banana-Pi-BPI-CM6-com.patch \
-        file://0002-riscv-dts-spacemit-k1-Split-gmac_clk_ref-into-indepe.patch \
         file://0003-riscv-dts-spacemit-k1-Add-Banana-Pi-BPI-CM6-IO-board.patch \
 "
 
