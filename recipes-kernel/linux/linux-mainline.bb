@@ -2,6 +2,8 @@ require recipes-kernel/linux/linux-mainline-common.inc
 
 SUMMARY = "Mainline Linux Kernel recipe for RISC-V platforms"
 
+RECIPE_NO_UPDATE_REASON = ""
+
 FILESEXTRAPATHS:prepend:k1 := "${THISDIR}/linux-mainline-k1:"
 FILESEXTRAPATHS:prepend:eswin-ebc77-mainline := "${THISDIR}/linux-eswin-ebc77-mainline:"
 FILESEXTRAPATHS:prepend:milkv-duo-common := "${THISDIR}/linux-milkv-duo:"
