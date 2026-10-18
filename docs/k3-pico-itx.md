@@ -110,5 +110,5 @@ Resources
 =========
 
 * [K3 Pico-ITX User
-  Guide](https://www.spacemit.com/community/document/info?nodepath=hardware/eco/k3_pico/pico_user_guide.md)
+  Guide](https://www.spacemit.com/community/document/info?lang=en&nodepath=ecohardware/k3_series/k3_pico/pico_user_guide.md)
 * [Sipeed K3](https://sipeed.com/k3)
