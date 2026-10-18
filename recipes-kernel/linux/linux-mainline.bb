@@ -91,7 +91,6 @@ SRC_URI:append:milkv-duo-common = " \
         file://0006-riscv64-dts-sophgo-add-initial-Milk-V-Duo-S-board-su.patch \
         file://milkv-duo_defconfig \
         ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', '', 'file://no-cgroups.cfg', d)} \
-        file://multi.its \
 "
 
 SRC_URI:append:milkv-duo = " file://milkv-duo.cfg"
