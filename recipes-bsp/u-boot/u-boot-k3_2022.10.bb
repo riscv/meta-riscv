@@ -6,7 +6,7 @@ require recipes-bsp/u-boot/u-boot.inc
 
 COMPATIBLE_MACHINE = "k3"
 
-DEPENDS += "bc-native dtc-native bison-native flex-native u-boot-tools-native"
+DEPENDS += "bc-native dtc-native bison-native flex-native u-boot-tools-native lzop-native"
 
 B = "${WORKDIR}/build"
 
@@ -16,9 +16,11 @@ SRC_URI = " \
             file://0001-Add-support-for-OpenSSL-Provider-API.patch \
             "
 
-SRCREV = "6747f87ae4cd359ff6e22daa38b06c3ecc2fecb4"
+SRCREV = "28805afe074715a0ede143d42999ea06bee58fbd"
 
-UBOOT_MAKE_TARGET = "all"
+# Skip "all": its u-boot.itb rule (board/spacemit/k3/config.mk) assumes an
+# in-tree build and fails out-of-tree. do_deploy builds u-boot.itb instead.
+UBOOT_MAKE_TARGET = "u-boot.bin dtbs"
 
 # Do not try to install boot.scr.uimg if it doesn't exist
 # K3 U-Boot may not generate this file
@@ -31,10 +33,14 @@ do_deploy:append() {
     mkdir -p ${S}/board/spacemit/k3/dtb
     cp ${B}/arch/riscv/dts/k3*.dtb ${S}/board/spacemit/k3/dtb/
     cp ${B}/u-boot-nodtb.bin ${S}/board/spacemit/k3/u-boot-nodtb.bin
+    # uboot_fdt.its references LZO-compressed payloads (*.lzo)
+    for f in ${S}/board/spacemit/k3/dtb/*.dtb ${S}/board/spacemit/k3/u-boot-nodtb.bin; do
+        lzop -9 -c < "$f" > "$f.lzo"
+    done
     mkimage -f ${S}/board/spacemit/k3/configs/uboot_fdt.its \
         -r ${DEPLOYDIR}/u-boot.itb
     rm -rf ${S}/board/spacemit/k3/dtb
-    rm -f ${S}/board/spacemit/k3/u-boot-nodtb.bin
+    rm -f ${S}/board/spacemit/k3/u-boot-nodtb.bin ${S}/board/spacemit/k3/u-boot-nodtb.bin.lzo
 
     # cmd_build_default_env same issue: srctree mkenvimage doesn't exist (compiled to ${B}/tools/).
     ${S}/scripts/get_default_envs.sh ${B} > ${B}/u-boot-env-default.txt
