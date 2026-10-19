@@ -17,6 +17,9 @@ SERIAL_CONSOLES = "115200;ttyS0"
 # Add esos-k3 firmware as image dependency
 EXTRA_IMAGEDEPENDS += "esos-k3 u-boot-k3 u-boot-spl-spacemit"
 
+# match the UFS storage block size
+EXTRA_IMAGECMD:ext4 ?= "-i 4096 -b 4096"
+
 UBOOT_MACHINE = "k3_defconfig"
 
 KERNEL_IMAGETYPE = "Image"
