@@ -17,4 +17,4 @@ part --part-name uboot --source rawcopy --sourceparams="file=u-boot.itb" --fixed
 
 part --part-name bootfs --source rawcopy --sourceparams="file=bootfs.ext4" --fixed-size 256M --align 12288
 
-part --part-name rootfs --source rootfs --fstype=ext4 --label rootfs --align 274432
+part --part-name rootfs --source rootfs --fstype=ext4 --label rootfs --align 274432 --mkfs-extraopts "-F -i 8192 -b 4096"
