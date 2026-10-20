@@ -31,12 +31,112 @@ Flashing the Image
 ==================
 
 The K3 Pico-ITX does not have a microSD card slot, but it does support NVMe
-storage. You can flash your image to an NVMe drive (assuming that it is
+storage. You have two main options for flashing your image:
+
+1. Write it to an NVMe drive (assuming that it is
 connected to a machine using an USB-to-NVMe adapter, or a spare NVMe slot) using `bmaptool` 
 
 ```
 $ sudo bmaptool copy build/tmp/deploy/images/k3-pico-itx/core-image-minimal-k3-pico-itx.rootfs.wic.gz /dev/sdx
 ```
+
+2. Flash it over USB using `fastboot` (see below), or SpacemiT's
+   [Titantools](https://github.com/spacemit-com/K3-Ubuntu-Images#flash-with-titantools)
+   to automate most of the process. The following section describes how to do it
+   manually.
+
+Flashing with fastboot
+----------------------
+
+The steps below are adapted from SpacemiT's
+[K3-Ubuntu-Images](https://github.com/spacemit-com/K3-Ubuntu-Images) flashing
+flow. Make sure to review the Pico-ITX [User
+Guide](https://www.spacemit.com/community/document/info?lang=en&nodepath=ecohardware/k3_series/k3_pico/pico_user_guide.md)
+as well.
+
+Install `fastboot` on your host (example for Ubuntu/Debian):
+
+```
+$ sudo apt install fastboot
+```
+
+Create a partition table description named `partition_yocto.json` that matches
+the layout in `files/wic/spacemit-k3.wks`:
+
+```
+{
+  "version": "1.0",
+  "format": "gpt",
+  "partitions": [
+    { "name": "env",      "offset": "640K",  "size": "64K",  "hidden": true },
+    { "name": "bootinfo", "offset": "1M",    "size": "128K", "hidden": true },
+    { "name": "fsbl",     "offset": "1536K", "size": "512K", "hidden": true },
+    { "name": "esos",     "offset": "4M",    "size": "3M",   "hidden": true },
+    { "name": "opensbi",  "offset": "7M",    "size": "1M",   "hidden": true },
+    { "name": "uboot",    "offset": "8M",    "size": "4M",   "hidden": true },
+    { "name": "bootfs",   "offset": "12M",   "size": "256M" },
+    { "name": "rootfs",   "offset": "268M",  "size": "-" }
+  ]
+}
+```
+
+With the USB-C flashing port connected to your PC, put the board into download
+mode: hold the FDL (Download) button while briefly pressing the RST button,
+before releasing the FDL button. `fastboot devices` should now list the board.
+
+From the deploy directory (`build/tmp/deploy/images/k3-pico-itx`), load the
+FSBL and U-Boot into RAM:
+
+```
+$ fastboot stage FSBL.bin
+$ fastboot continue
+$ sleep 10
+$ fastboot stage u-boot.itb
+$ fastboot continue
+$ sleep 10
+```
+
+The BootROM loads the boot firmware from the board's SPI NOR flash. To update
+it, create a NOR partition table description named `partition_nor.json`:
+
+```
+{
+  "version": "1.0",
+  "format": "mtd",
+  "partitions": [
+    { "name": "bootinfo", "offset": "0",     "size": "128K" },
+    { "name": "fsbl",     "offset": "128K",  "size": "512K" },
+    { "name": "env",      "offset": "640K",  "size": "64K" },
+    { "name": "esos",     "offset": "704K",  "size": "1M" },
+    { "name": "opensbi",  "offset": "1728K", "size": "384K" },
+    { "name": "uboot",    "offset": "2112K", "size": "-" }
+  ]
+}
+```
+
+Then write the NOR partition table and the boot firmware:
+
+```
+$ fastboot flash mtd partition_nor.json
+$ fastboot flash bootinfo bootinfo_spinor.bin
+$ fastboot flash fsbl FSBL.bin
+$ fastboot flash env u-boot-env-default.bin
+$ fastboot flash esos esos.itb
+$ fastboot flash opensbi fw_dynamic.itb
+$ fastboot flash uboot u-boot.itb
+```
+
+Finally, write the partition table, bootfs and rootfs to the board's storage:
+
+```
+$ fastboot flash gpt partition_yocto.json
+$ fastboot flash bootfs bootfs.ext4
+$ fastboot flash rootfs core-image-minimal-k3-pico-itx.rootfs.ext4
+```
+
+If you built a different image, replace `core-image-minimal` in the last
+command with its name. Once flashing completes, power cycle the board.
+
 
 Boot the Board
 ==============
@@ -50,8 +150,8 @@ $ tio /dev/ttyUSB0
 ```
 
 By default, the Pico-ITX EEPROM is configured to always boot from the onboard
-UFS storage. To modify this setting, use the `tlv_eeprom` command from the
-U-Boot environment like so:
+UFS storage. If you need to modify this setting, use the `tlv_eeprom` command
+from the U-Boot environment like so:
 
 ```
 => [   3.433] tlv_eeprom
@@ -103,7 +203,7 @@ TLV: 0
 [ 116.017] Checksum is valid.
 ```
 
-Cycle the board power (or run `reset` from within U-Boot)  and you will see it
+Cycle the board power (or run `reset` from within U-Boot) and you will see it
 boot to a Linux command line shell.
 
 Resources
