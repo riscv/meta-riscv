@@ -1,7 +1,7 @@
-From 12b208a94e41dc74b7e9842c9c2b736166d765ff Mon Sep 17 00:00:00 2001
-Message-ID: <12b208a94e41dc74b7e9842c9c2b736166d765ff.1791896719.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
-References: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
+From d3d1d00612e8ce6635c65a78ec70a15ebabf47d3 Mon Sep 17 00:00:00 2001
+Message-ID: <d3d1d00612e8ce6635c65a78ec70a15ebabf47d3.1792513291.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:33 -0800
 Subject: [PATCH 16/31] riscv: mm: Use physical memory aliases to apply PMAs
@@ -45,10 +45,10 @@ Upstream-Status: Submitted [https://lore.kernel.org/all/20251113014656.2605447-1
  create mode 100644 arch/riscv/mm/memory-alias.S
 
 diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-index e8ece8a37f27..3cb5032fb3c1 100644
+index b27d7fee1342..e6e1c3f35a26 100644
 --- a/arch/riscv/Kconfig
 +++ b/arch/riscv/Kconfig
-@@ -888,6 +888,23 @@ config TOOLCHAIN_NEEDS_OLD_ISA_SPEC
+@@ -910,6 +910,23 @@ config TOOLCHAIN_NEEDS_OLD_ISA_SPEC
  	  versions of GCC to be passed to GAS, which has the same result
  	  as passing zicsr and zifencei to -march.
  
@@ -73,12 +73,12 @@ index e8ece8a37f27..3cb5032fb3c1 100644
  	bool "FPU support"
  	default y
 diff --git a/arch/riscv/include/asm/hwcap.h b/arch/riscv/include/asm/hwcap.h
-index 7ef8e5f55c8d..a2dcd138f56b 100644
+index f8db798b2654..f57be99ca162 100644
 --- a/arch/riscv/include/asm/hwcap.h
 +++ b/arch/riscv/include/asm/hwcap.h
-@@ -113,6 +113,7 @@
- #define RISCV_ISA_EXT_ZICFILP		104
- #define RISCV_ISA_EXT_ZICFISS		105
+@@ -123,6 +123,7 @@
+ #define RISCV_ISA_EXT_ZICCIF		114
+ #define RISCV_ISA_EXT_ZA64RS		115
  
 +#define RISCV_ISA_EXT_XLINUXMEMALIAS	126
  #define RISCV_ISA_EXT_XLINUXENVCFG	127
@@ -196,7 +196,7 @@ index fa2c1dcb6f72..f1ecd022e3ee 100644
  static inline int pud_present(pud_t pud)
  {
 diff --git a/arch/riscv/include/asm/pgtable-bits.h b/arch/riscv/include/asm/pgtable-bits.h
-index ab570e017ce5..ecd6cd2dfb4e 100644
+index 3319479f7a82..1b72372d4f91 100644
 --- a/arch/riscv/include/asm/pgtable-bits.h
 +++ b/arch/riscv/include/asm/pgtable-bits.h
 @@ -75,7 +75,8 @@
@@ -219,10 +219,10 @@ index ab570e017ce5..ecd6cd2dfb4e 100644
  #ifdef CONFIG_RISCV_ISA_SVNAPOT
  #define _PAGE_NAPOT_SHIFT	63
 diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
-index 6ba41ca043a9..6430770e5444 100644
+index 9fe79b152898..75a9039b09b1 100644
 --- a/arch/riscv/include/asm/pgtable.h
 +++ b/arch/riscv/include/asm/pgtable.h
-@@ -1273,6 +1273,14 @@ extern u64 satp_mode;
+@@ -1280,6 +1280,14 @@ extern u64 satp_mode;
  void paging_init(void);
  void misc_mem_init(void);
  
@@ -238,10 +238,10 @@ index 6ba41ca043a9..6430770e5444 100644
   * Use set_p*_safe(), and elide TLB flushing, when confident that *no*
   * TLB flush will be required as a result of the "set". For example, use
 diff --git a/arch/riscv/kernel/cpufeature.c b/arch/riscv/kernel/cpufeature.c
-index 64c7ec6abbf1..e594004a82a5 100644
+index 7329792978cc..ca478381d949 100644
 --- a/arch/riscv/kernel/cpufeature.c
 +++ b/arch/riscv/kernel/cpufeature.c
-@@ -1142,6 +1142,12 @@ void __init riscv_fill_hwcap(void)
+@@ -1191,6 +1191,12 @@ void __init riscv_fill_hwcap(void)
  		riscv_v_setup_vsize();
  	}
  
@@ -255,10 +255,10 @@ index 64c7ec6abbf1..e594004a82a5 100644
  	for (i = 0, j = 0; i < NUM_ALPHA_EXTS; i++)
  		if (riscv_isa[0] & BIT_MASK(i))
 diff --git a/arch/riscv/kernel/setup.c b/arch/riscv/kernel/setup.c
-index 52d1d2b8f338..517bab1c6445 100644
+index d79f99b86033..c88480c8a4db 100644
 --- a/arch/riscv/kernel/setup.c
 +++ b/arch/riscv/kernel/setup.c
-@@ -350,6 +350,7 @@ void __init setup_arch(char **cmdline_p)
+@@ -352,6 +352,7 @@ void __init setup_arch(char **cmdline_p)
  	}
  
  	riscv_init_cbo_blocksizes();

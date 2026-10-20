@@ -1,5 +1,7 @@
-From f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733 Mon Sep 17 00:00:00 2001
-Message-ID: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
+From 6e46f90af514a19ab4427fdde30a783240ed475b Mon Sep 17 00:00:00 2001
+Message-ID: <6e46f90af514a19ab4427fdde30a783240ed475b.1792513291.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:18 -0800
 Subject: [PATCH 01/31] mm: Move the fallback definitions of pXXp_get()
@@ -19,7 +21,7 @@ Upstream-Status: Submitted [https://lore.kernel.org/all/20251113014656.2605447-1
  1 file changed, 35 insertions(+), 35 deletions(-)
 
 diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
-index 2981e386da7b..3014a22bbfd7 100644
+index 8c093c119e5a..d025b54a48dd 100644
 --- a/include/linux/pgtable.h
 +++ b/include/linux/pgtable.h
 @@ -71,6 +71,41 @@ static inline unsigned long pud_index(unsigned long address)

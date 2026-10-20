@@ -1,7 +1,7 @@
-From 1bc2c8ad62c4e0c539ca43413fb403ef672bf817 Mon Sep 17 00:00:00 2001
-Message-ID: <1bc2c8ad62c4e0c539ca43413fb403ef672bf817.1791896719.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
-References: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
+From c89784a5670794e06fa5aed5bf0f061eaaf0bf0c Mon Sep 17 00:00:00 2001
+Message-ID: <c89784a5670794e06fa5aed5bf0f061eaaf0bf0c.1792513291.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
 From: Min Lin <linmin@eswincomputing.com>
 Date: Wed, 14 Jan 2026 13:13:08 +0800
 Subject: [PATCH 29/31] riscv: dts: eswin:set 1.4GHz as the maximum cpu

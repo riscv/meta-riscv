@@ -1,7 +1,7 @@
-From dea8e257b792aa6a206a7bbaff23becbb335e26a Mon Sep 17 00:00:00 2001
-Message-ID: <dea8e257b792aa6a206a7bbaff23becbb335e26a.1791896719.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
-References: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
+From 0383f70f2d1830a240154cd6a2d8bd24c902d5a7 Mon Sep 17 00:00:00 2001
+Message-ID: <0383f70f2d1830a240154cd6a2d8bd24c902d5a7.1792513291.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
 From: Xuyang Dong <dongxuyang@eswincomputing.com>
 Date: Mon, 24 Nov 2025 16:19:53 +0800
 Subject: [PATCH 26/31] riscv: dts: eswin: Add ethernet node and defconfig

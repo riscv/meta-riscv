@@ -1,7 +1,7 @@
-From 92496a8576fed8b912262997241bf4df3e9d8587 Mon Sep 17 00:00:00 2001
-Message-ID: <92496a8576fed8b912262997241bf4df3e9d8587.1791896719.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
-References: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
+From 0af63e69e1029cace2076f71cce68dc9b3a6e377 Mon Sep 17 00:00:00 2001
+Message-ID: <0af63e69e1029cace2076f71cce68dc9b3a6e377.1792513291.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:31 -0800
 Subject: [PATCH 14/31] riscv: Fix logic for selecting DMA_DIRECT_REMAP
@@ -21,10 +21,10 @@ Upstream-Status: Submitted [https://lore.kernel.org/all/20251113014656.2605447-1
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-index f7028caaeae0..e8ece8a37f27 100644
+index 5874ca30f4f6..b27d7fee1342 100644
 --- a/arch/riscv/Kconfig
 +++ b/arch/riscv/Kconfig
-@@ -596,6 +596,7 @@ config RISCV_ISA_SVPBMT
+@@ -618,6 +618,7 @@ config RISCV_ISA_SVPBMT
  	depends on 64BIT && MMU
  	depends on RISCV_ALTERNATIVE
  	default y
@@ -32,7 +32,7 @@ index f7028caaeae0..e8ece8a37f27 100644
  	help
  	   Add support for the Svpbmt ISA-extension (Supervisor-mode:
  	   page-based memory types) in the kernel when it is detected at boot.
-@@ -809,7 +810,6 @@ config RISCV_ISA_ZICBOM
+@@ -831,7 +832,6 @@ config RISCV_ISA_ZICBOM
  	depends on RISCV_ALTERNATIVE
  	default y
  	select RISCV_DMA_NONCOHERENT
@@ -41,10 +41,10 @@ index f7028caaeae0..e8ece8a37f27 100644
  	   Add support for the Zicbom extension (Cache Block Management
  	   Operations) and enable its use in the kernel when it is detected
 diff --git a/arch/riscv/Kconfig.errata b/arch/riscv/Kconfig.errata
-index 3c945d086c7d..f4ea7d7b69de 100644
+index 622ade116a2d..b055d1dc8558 100644
 --- a/arch/riscv/Kconfig.errata
 +++ b/arch/riscv/Kconfig.errata
-@@ -109,6 +109,7 @@ config ERRATA_THEAD
+@@ -123,6 +123,7 @@ config ERRATA_THEAD
  config ERRATA_THEAD_MAE
  	bool "Apply T-Head's memory attribute extension (XTheadMae) errata"
  	depends on ERRATA_THEAD && 64BIT && MMU
@@ -52,7 +52,7 @@ index 3c945d086c7d..f4ea7d7b69de 100644
  	select RISCV_ALTERNATIVE_EARLY
  	default y
  	help
-@@ -120,7 +121,6 @@ config ERRATA_THEAD_MAE
+@@ -134,7 +135,6 @@ config ERRATA_THEAD_MAE
  config ERRATA_THEAD_CMO
  	bool "Apply T-Head cache management errata"
  	depends on ERRATA_THEAD && MMU

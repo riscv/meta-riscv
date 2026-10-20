@@ -1,7 +1,7 @@
-From f6006891f36393600ae0abb6cc1a198ec8f2143f Mon Sep 17 00:00:00 2001
-Message-ID: <f6006891f36393600ae0abb6cc1a198ec8f2143f.1791896719.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
-References: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
+From a191aab4aef5ddd66a5cd65627c089123deaab61 Mon Sep 17 00:00:00 2001
+Message-ID: <a191aab4aef5ddd66a5cd65627c089123deaab61.1792513291.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:24 -0800
 Subject: [PATCH 07/31] riscv: mm: Simplify set_p4d() and set_pgd()

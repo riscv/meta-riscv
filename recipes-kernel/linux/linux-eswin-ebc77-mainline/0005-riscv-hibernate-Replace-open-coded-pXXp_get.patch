@@ -1,7 +1,7 @@
-From 5c1dc4911c62aa33b3930f47d5efb75a27415568 Mon Sep 17 00:00:00 2001
-Message-ID: <5c1dc4911c62aa33b3930f47d5efb75a27415568.1791896719.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
-References: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
+From 4ceffcf5ba797d6d79eea2df9fdf301be7af1200 Mon Sep 17 00:00:00 2001
+Message-ID: <4ceffcf5ba797d6d79eea2df9fdf301be7af1200.1792513291.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:22 -0800
 Subject: [PATCH 05/31] riscv: hibernate: Replace open-coded pXXp_get()

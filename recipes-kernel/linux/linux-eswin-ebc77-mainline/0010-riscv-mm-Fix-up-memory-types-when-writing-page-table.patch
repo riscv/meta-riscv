@@ -1,7 +1,7 @@
-From 0533d3d1a09d143770e9dbea46367c403c136ee4 Mon Sep 17 00:00:00 2001
-Message-ID: <0533d3d1a09d143770e9dbea46367c403c136ee4.1791896719.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
-References: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
+From 5c6876068beacdc64b9ef3a8f1634db3d6df2fc8 Mon Sep 17 00:00:00 2001
+Message-ID: <5c6876068beacdc64b9ef3a8f1634db3d6df2fc8.1792513291.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:27 -0800
 Subject: [PATCH 10/31] riscv: mm: Fix up memory types when writing page tables
@@ -405,7 +405,7 @@ index 093f0f41fd23..aad34c754325 100644
  #ifdef CONFIG_TRANSPARENT_HUGEPAGE
  static inline pte_t pmd_pte(pmd_t pmd);
 diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
-index aa03f47f8fc4..6ba41ca043a9 100644
+index 107a39d4c824..9fe79b152898 100644
 --- a/arch/riscv/include/asm/pgtable.h
 +++ b/arch/riscv/include/asm/pgtable.h
 @@ -245,6 +245,7 @@ static inline bool pmd_leaf(pmd_t pmd)
@@ -442,7 +442,7 @@ index aa03f47f8fc4..6ba41ca043a9 100644
  }
  
  #define pte_pgprot pte_pgprot
-@@ -558,11 +551,7 @@ static inline int pmd_protnone(pmd_t pmd)
+@@ -555,11 +548,7 @@ static inline int pmd_protnone(pmd_t pmd)
  /* Modify page protection bits */
  static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
  {
@@ -455,7 +455,7 @@ index aa03f47f8fc4..6ba41ca043a9 100644
  }
  
  #define pgd_ERROR(e) \
-@@ -618,9 +607,10 @@ static inline int pte_same(pte_t pte_a, pte_t pte_b)
+@@ -625,9 +614,10 @@ static inline int pte_same(pte_t pte_a, pte_t pte_b)
   * a page table are directly modified.  Thus, the following hook is
   * made available.
   */
@@ -468,7 +468,7 @@ index aa03f47f8fc4..6ba41ca043a9 100644
  }
  
  void flush_icache_pte(struct mm_struct *mm, pte_t pte);
-@@ -675,6 +665,7 @@ static inline pte_t ptep_get_and_clear(struct mm_struct *mm,
+@@ -682,6 +672,7 @@ static inline pte_t ptep_get_and_clear(struct mm_struct *mm,
  	set_pte(ptep, __pte(0));
  #endif
  
@@ -476,7 +476,7 @@ index aa03f47f8fc4..6ba41ca043a9 100644
  	page_table_check_pte_clear(mm, address, pte);
  
  	return pte;
-@@ -1034,6 +1025,7 @@ static inline pmd_t pmdp_huge_get_and_clear(struct mm_struct *mm,
+@@ -1041,6 +1032,7 @@ static inline pmd_t pmdp_huge_get_and_clear(struct mm_struct *mm,
  	pmd_clear(pmdp);
  #endif
  
@@ -484,7 +484,7 @@ index aa03f47f8fc4..6ba41ca043a9 100644
  	page_table_check_pmd_clear(mm, address, pmd);
  
  	return pmd;
-@@ -1051,7 +1043,10 @@ static inline pmd_t pmdp_establish(struct vm_area_struct *vma,
+@@ -1058,7 +1050,10 @@ static inline pmd_t pmdp_establish(struct vm_area_struct *vma,
  				unsigned long address, pmd_t *pmdp, pmd_t pmd)
  {
  	page_table_check_pmd_set(vma->vm_mm, address, pmdp, pmd);
@@ -496,7 +496,7 @@ index aa03f47f8fc4..6ba41ca043a9 100644
  }
  
  #define pmdp_collapse_flush pmdp_collapse_flush
-@@ -1120,14 +1115,9 @@ static inline bool pudp_test_and_clear_young(struct vm_area_struct *vma,
+@@ -1127,14 +1122,9 @@ static inline bool pudp_test_and_clear_young(struct vm_area_struct *vma,
  static inline pud_t pudp_huge_get_and_clear(struct mm_struct *mm,
  					    unsigned long address,  pud_t *pudp)
  {
@@ -513,7 +513,7 @@ index aa03f47f8fc4..6ba41ca043a9 100644
  	page_table_check_pud_clear(mm, address, pud);
  
  	return pud;
-@@ -1150,7 +1140,10 @@ static inline pud_t pudp_establish(struct vm_area_struct *vma,
+@@ -1157,7 +1147,10 @@ static inline pud_t pudp_establish(struct vm_area_struct *vma,
  				   unsigned long address, pud_t *pudp, pud_t pud)
  {
  	page_table_check_pud_set(vma->vm_mm, address, pudp, pud);
