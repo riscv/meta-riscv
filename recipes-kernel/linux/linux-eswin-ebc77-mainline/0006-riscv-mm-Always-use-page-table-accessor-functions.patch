@@ -1,7 +1,7 @@
-From ebddea2dfc26098a756a68c34b7f6f4d3e302730 Mon Sep 17 00:00:00 2001
-Message-ID: <ebddea2dfc26098a756a68c34b7f6f4d3e302730.1791896719.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
-References: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
+From 4f70da377e0c1750c29b660d0b9c68646a3687f8 Mon Sep 17 00:00:00 2001
+Message-ID: <4f70da377e0c1750c29b660d0b9c68646a3687f8.1792513291.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:23 -0800
 Subject: [PATCH 06/31] riscv: mm: Always use page table accessor functions
@@ -21,10 +21,10 @@ Upstream-Status: Submitted [https://lore.kernel.org/all/20251113014656.2605447-1
  4 files changed, 50 insertions(+), 43 deletions(-)
 
 diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
-index 5d5756bda82e..76e53fe945fd 100644
+index 40b1ed4f3ea8..432deb7c6752 100644
 --- a/arch/riscv/include/asm/pgtable.h
 +++ b/arch/riscv/include/asm/pgtable.h
-@@ -1117,7 +1117,7 @@ static inline pud_t pudp_huge_get_and_clear(struct mm_struct *mm,
+@@ -1124,7 +1124,7 @@ static inline pud_t pudp_huge_get_and_clear(struct mm_struct *mm,
  #ifdef CONFIG_SMP
  	pud_t pud = __pud(xchg(&pudp->pud, 0));
  #else
@@ -33,7 +33,7 @@ index 5d5756bda82e..76e53fe945fd 100644
  
  	pud_clear(pudp);
  #endif
-@@ -1284,13 +1284,15 @@ void misc_mem_init(void);
+@@ -1291,13 +1291,15 @@ void misc_mem_init(void);
   */
  #define set_p4d_safe(p4dp, p4d) \
  ({ \
@@ -52,7 +52,7 @@ index 5d5756bda82e..76e53fe945fd 100644
  })
  #endif /* !__ASSEMBLER__ */
 diff --git a/arch/riscv/kvm/gstage.c b/arch/riscv/kvm/gstage.c
-index b0474fcf065a..657efe4773fa 100644
+index e5002cb9cbef..715f60b9098c 100644
 --- a/arch/riscv/kvm/gstage.c
 +++ b/arch/riscv/kvm/gstage.c
 @@ -172,8 +172,8 @@ int kvm_riscv_gstage_set_pte(struct kvm_gstage *gstage,
@@ -66,7 +66,7 @@ index b0474fcf065a..657efe4773fa 100644
  		set_pte(ptep, map->pte);
  		if (gstage_pte_leaf(ptep) &&
  		    !(was_invalid && riscv_has_extension_unlikely(RISCV_ISA_EXT_SVVPTC)))
-@@ -393,12 +393,12 @@ bool kvm_riscv_gstage_op_pte(struct kvm_gstage *gstage, gpa_t addr,
+@@ -402,12 +402,12 @@ bool kvm_riscv_gstage_op_pte(struct kvm_gstage *gstage, gpa_t addr,
  		if (op == GSTAGE_OP_CLEAR)
  			put_page(virt_to_page(next_ptep));
  	} else {
@@ -82,10 +82,10 @@ index b0474fcf065a..657efe4773fa 100644
  	}
  
 diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index 01d252c741d2..d2c83b78a6b9 100644
+index fb37b0b67efe..15cc1a03f7dc 100644
 --- a/arch/riscv/mm/init.c
 +++ b/arch/riscv/mm/init.c
-@@ -442,8 +442,8 @@ static void __meminit create_pte_mapping(pte_t *ptep, uintptr_t va, phys_addr_t
+@@ -440,8 +440,8 @@ static void __meminit create_pte_mapping(pte_t *ptep, uintptr_t va, phys_addr_t
  
  	BUG_ON(sz != PAGE_SIZE);
  
@@ -96,7 +96,7 @@ index 01d252c741d2..d2c83b78a6b9 100644
  }
  
  #ifndef __PAGETABLE_PMD_FOLDED
-@@ -507,18 +507,19 @@ static void __meminit create_pmd_mapping(pmd_t *pmdp,
+@@ -505,18 +505,19 @@ static void __meminit create_pmd_mapping(pmd_t *pmdp,
  	uintptr_t pmd_idx = pmd_index(va);
  
  	if (sz == PMD_SIZE) {
@@ -121,7 +121,7 @@ index 01d252c741d2..d2c83b78a6b9 100644
  		ptep = pt_ops.get_pte_virt(pte_phys);
  	}
  
-@@ -609,18 +610,19 @@ static void __meminit create_pud_mapping(pud_t *pudp, uintptr_t va, phys_addr_t
+@@ -607,18 +608,19 @@ static void __meminit create_pud_mapping(pud_t *pudp, uintptr_t va, phys_addr_t
  	uintptr_t pud_index = pud_index(va);
  
  	if (sz == PUD_SIZE) {
@@ -146,7 +146,7 @@ index 01d252c741d2..d2c83b78a6b9 100644
  		nextp = pt_ops.get_pmd_virt(next_phys);
  	}
  
-@@ -635,18 +637,19 @@ static void __meminit create_p4d_mapping(p4d_t *p4dp, uintptr_t va, phys_addr_t
+@@ -633,18 +635,19 @@ static void __meminit create_p4d_mapping(p4d_t *p4dp, uintptr_t va, phys_addr_t
  	uintptr_t p4d_index = p4d_index(va);
  
  	if (sz == P4D_SIZE) {
@@ -171,7 +171,7 @@ index 01d252c741d2..d2c83b78a6b9 100644
  		nextp = pt_ops.get_pud_virt(next_phys);
  	}
  
-@@ -692,18 +695,19 @@ void __meminit create_pgd_mapping(pgd_t *pgdp, uintptr_t va, phys_addr_t pa, phy
+@@ -690,18 +693,19 @@ void __meminit create_pgd_mapping(pgd_t *pgdp, uintptr_t va, phys_addr_t pa, phy
  	uintptr_t pgd_idx = pgd_index(va);
  
  	if (sz == PGDIR_SIZE) {

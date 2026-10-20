@@ -1,7 +1,7 @@
-From df1a27deeb93a213d7f81a95492f9e42d9714c1d Mon Sep 17 00:00:00 2001
-Message-ID: <df1a27deeb93a213d7f81a95492f9e42d9714c1d.1791896719.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
-References: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
+From 1b39e83c536da499711b52207a49bbb5b2097b74 Mon Sep 17 00:00:00 2001
+Message-ID: <1b39e83c536da499711b52207a49bbb5b2097b74.1792513291.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:35 -0800
 Subject: [PATCH 18/31] riscv: dts: eswin: eic7700: Use physical memory ranges
@@ -21,7 +21,7 @@ Upstream-Status: Submitted [https://lore.kernel.org/all/20251113014656.2605447-1
  2 files changed, 7 insertions(+)
 
 diff --git a/arch/riscv/Kconfig.socs b/arch/riscv/Kconfig.socs
-index 1f52020c4102..e4d30dd9d051 100644
+index 13c044b23aac..5062367c0b88 100644
 --- a/arch/riscv/Kconfig.socs
 +++ b/arch/riscv/Kconfig.socs
 @@ -14,6 +14,8 @@ config ARCH_ANLOGIC

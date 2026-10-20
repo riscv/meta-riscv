@@ -7,9 +7,9 @@ FILESEXTRAPATHS:prepend:eswin-ebc77-mainline := "${THISDIR}/linux-eswin-ebc77-ma
 FILESEXTRAPATHS:prepend:milkv-duo-common := "${THISDIR}/linux-milkv-duo:"
 
 KERNEL_VERSION_SANITY_SKIP = "1"
-LINUX_VERSION                       ?= "7.2.11"
-BRANCH                              ?= "linux-7.2.y"
-SRCREV                              ?= "a2de78ee6ed8bf8cd99d177c74865a6e8c3cb6ea"
+LINUX_VERSION                       ?= "7.3"
+BRANCH                              ?= "linux-7.3.y"
+SRCREV                              ?= "c03c1a14507dfaf8b856c2608f9ac216021fc222"
 
 # --- DEPENDS ---
 DEPENDS:append:k1                    = " u-boot-tools-native"
@@ -27,11 +27,6 @@ SRC_URI:append:k1 = " \
         file://misc.cfg \
         file://k1-i2c.cfg \
         file://no-vector-unaligned-probe.cfg \
-"
-
-SRC_URI:append:bananapi-cm6-io = " \
-        file://0001-dt-bindings-riscv-spacemit-Add-Banana-Pi-BPI-CM6-com.patch \
-        file://0003-riscv-dts-spacemit-k1-Add-Banana-Pi-BPI-CM6-IO-board.patch \
 "
 
 SRC_URI:append:th1520 = " \
@@ -83,12 +78,8 @@ SRC_URI:append:eswin-ebc77-mainline = " \
 
 SRC_URI:append:milkv-duo-common = " \
         file://0001-sophgo-add-cv1800-rtcsys-reset-handler.patch \
-        file://0001-riscv-dts-sophgo-cv180x-Add-PWR_GPIO-controller.patch \
-        file://0002-riscv-dts-sophgo-Add-Milk-V-Duo-256M-board-support.patch \
         file://0003-riscv-dts-sophgo-cv1800b-milkv-duo-drop-reserved-mem.patch \
         file://0004-riscv-dts-sophgo-sg2002-milkv-duo256m-drop-reserved-mem.patch \
-        file://0005-riscv64-dts-sophgo-add-SG2000-dtsi.patch \
-        file://0006-riscv64-dts-sophgo-add-initial-Milk-V-Duo-S-board-su.patch \
         file://milkv-duo_defconfig \
         ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', '', 'file://no-cgroups.cfg', d)} \
 "

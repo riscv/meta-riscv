@@ -1,7 +1,7 @@
-From f89971148fce5835d33580845f30c4db08a0d328 Mon Sep 17 00:00:00 2001
-Message-ID: <f89971148fce5835d33580845f30c4db08a0d328.1791896719.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
-References: <f458a1bc3fdfbc3c3a17b53414a6c88bbf7e7733.1791896719.git.marcel.ziswiler@codethink.co.uk>
+From 989f84fce0d86cca23ae183906f4b553e02e3574 Mon Sep 17 00:00:00 2001
+Message-ID: <989f84fce0d86cca23ae183906f4b553e02e3574.1792513291.git.marcel.ziswiler@codethink.co.uk>
+In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
 From: Pritesh Patel <pritesh.patel@einfochips.com>
 Date: Tue, 4 Nov 2025 14:40:11 +0530
 Subject: [PATCH 19/31] riscv: dts: eswin: Add Pinctrl Node
