@@ -52,6 +52,7 @@ do_deploy:append:k1() {
 
 do_deploy:append:k3() {
 	install -m 644 ${B}/bootinfo_block.bin ${DEPLOYDIR}/
+	install -m 644 ${B}/bootinfo_spinor.bin ${DEPLOYDIR}/
 }
 
 addtask deploy before do_build after do_compile
