@@ -24,8 +24,18 @@ Set these variables in a configuration file:
 Build your image:
 
 ```
-$ bitbake core-image-minimal
+$ bitbake core-image-full-cmdline
 ```
+
+How to Build - Using Kas
+========================
+
+```
+$ kas build /path/to/meta-riscv/kas/k3-pico-itx.yml
+```
+
+The `kas` tool can be installed as a package on your distribution or
+be obtained from the [kas repository](https://github.com/siemens/kas/).
 
 Flashing the Image
 ==================
@@ -37,7 +47,7 @@ storage. You have two main options for flashing your image:
 connected to a machine using an USB-to-NVMe adapter, or a spare NVMe slot) using `bmaptool` 
 
 ```
-$ sudo bmaptool copy build/tmp/deploy/images/k3-pico-itx/core-image-minimal-k3-pico-itx.rootfs.wic.gz /dev/sdx
+$ sudo bmaptool copy build/tmp/deploy/images/k3-pico-itx/core-image-full-cmdline-k3-pico-itx.rootfs.wic.gz /dev/sdx
 ```
 
 2. Flash it over USB using `fastboot` (see below), or SpacemiT's
@@ -60,8 +70,10 @@ Install `fastboot` on your host (example for Ubuntu/Debian):
 $ sudo apt install fastboot
 ```
 
-Create a partition table description named `partition_yocto.json` that matches
-the layout in `files/wic/spacemit-k3.wks`:
+Go into the deploy directory (`build/tmp/deploy/images/k3-pico-itx`).
+
+There, Create a partition table description named `partition_yocto.json` that
+matches the layout in `files/wic/spacemit-k3.wks`:
 
 ```
 {
@@ -84,8 +96,7 @@ With the USB-C flashing port connected to your PC, put the board into download
 mode: hold the FDL (Download) button while briefly pressing the RST button,
 before releasing the FDL button. `fastboot devices` should now list the board.
 
-From the deploy directory (`build/tmp/deploy/images/k3-pico-itx`), load the
-FSBL and U-Boot into RAM:
+Load the FSBL and U-Boot into RAM:
 
 ```
 $ fastboot stage FSBL.bin
@@ -131,10 +142,11 @@ Finally, write the partition table, bootfs and rootfs to the board's storage:
 ```
 $ fastboot flash gpt partition_yocto.json
 $ fastboot flash bootfs bootfs.ext4
-$ fastboot flash rootfs core-image-minimal-k3-pico-itx.rootfs.ext4
+$ fastboot flash rootfs core-image-full-cmdline-k3-pico-itx.rootfs.ext4
+$ fastboot reboot
 ```
 
-If you built a different image, replace `core-image-minimal` in the last
+If you built a different image, replace `core-image-full-cmdline` in the last
 command with its name. Once flashing completes, power cycle the board.
 
 
@@ -179,7 +191,7 @@ Programming passed.
 ```
 
 Following the change, the board should boot from the NVMe storage, and any
-further calls to tlv_eeprom should indicate `SSD` on the `Second Boot Device`
+further calls to `tlv_eeprom` should indicate `SSD` on the `Second Boot Device`
 line:
 
 ```
