@@ -9,21 +9,28 @@ require jh7110.inc
 # Common Preferred Providers
 PREFERRED_PROVIDER_virtual/kernel ?= "linux-starfive-dev"
 PREFERRED_PROVIDER_virtual/bootloader ?= "u-boot-starfive"
-PREFERRED_PROVIDER_virtual/libgl ?= "mesa-pvr"
-PREFERRED_PROVIDER_virtual/libglx ?= "mesa-pvr"
-PREFERRED_PROVIDER_virtual/mesa ?= "mesa-pvr"
-PREFERRED_PROVIDER_virtual/libgbm ?= "mesa-pvr"
-PREFERRED_PROVIDER_virtual/egl ?= "mesa-pvr"
-PREFERRED_PROVIDER_virtual/libgles3 ?= "visionfive2-pvr-graphics"
-PREFERRED_PROVIDER_virtual/libgles1 ?= "visionfive2-pvr-graphics"
-PREFERRED_PROVIDER_virtual/libgles2 ?= "visionfive2-pvr-graphics"
-PREFERRED_PROVIDER_virtual/libomxil ?= "libsf-omxil"
+
+# The PowerVR & VPU stack only works with linux-starfive-dev, so it is set
+# through an override that exists only while that is the kernel.
+MACHINEOVERRIDES =. "${@'jh7110-vendor:' if d.getVar('PREFERRED_PROVIDER_virtual/kernel') == 'linux-starfive-dev' else ''}"
+
+PREFERRED_PROVIDER_virtual/libgl:jh7110-vendor ?= "mesa-pvr"
+PREFERRED_PROVIDER_virtual/libglx:jh7110-vendor ?= "mesa-pvr"
+PREFERRED_PROVIDER_virtual/mesa:jh7110-vendor ?= "mesa-pvr"
+PREFERRED_PROVIDER_virtual/libgbm:jh7110-vendor ?= "mesa-pvr"
+PREFERRED_PROVIDER_virtual/egl:jh7110-vendor ?= "mesa-pvr"
+PREFERRED_PROVIDER_virtual/libgles3:jh7110-vendor ?= "visionfive2-pvr-graphics"
+PREFERRED_PROVIDER_virtual/libgles1:jh7110-vendor ?= "visionfive2-pvr-graphics"
+PREFERRED_PROVIDER_virtual/libgles2:jh7110-vendor ?= "visionfive2-pvr-graphics"
+PREFERRED_PROVIDER_virtual/libomxil:jh7110-vendor ?= "libsf-omxil"
 #============================================
 
 #============================================
 # Common Machine Configuration
 MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS += " \
     kernel-modules \
+"
+MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS:append:jh7110-vendor = " \
     linux-firmware-visionfive2-imggpu \
     vdec-module \
     venc-module \
@@ -34,7 +41,7 @@ MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS += " \
 
 #============================================
 # Common Kernel Configuration
-KERNEL_MODULE_AUTOLOAD += "pvrsrvkm"
+KERNEL_MODULE_AUTOLOAD:append:jh7110-vendor = " pvrsrvkm"
 #============================================
 
 # opensbi config
