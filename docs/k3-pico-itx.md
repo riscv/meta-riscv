@@ -4,6 +4,9 @@ K3 Pico-ITX
 The K3 Pico-ITX is a 64-bit, RVA23-compliant RISC-V platform based on the
 SpacemiT K3 SoC.
 
+The following examples apply to both the `k3-pico-itx-mainline` and
+`k3-pico-itx` (vendor) BSPs, but use the former for examples.
+
 How to Build
 ============
 
@@ -18,7 +21,7 @@ See [the Yocto Project](https://docs.yoctoproject.org/brief-yoctoprojectqs/index
 
 Set these variables in a configuration file:
 
-* `MACHINE = "k3-pico-itx"`
+* `MACHINE = "k3-pico-itx-mainline"`
 * `EXTRA_IMAGE_FEATURES = "allow-empty-password empty-root-password allow-root-login post-install-logging"`
 
 Build your image:
@@ -31,7 +34,7 @@ How to Build - Using Kas
 ========================
 
 ```
-$ kas build /path/to/meta-riscv/kas/k3-pico-itx.yml
+$ kas build /path/to/meta-riscv/kas/k3-pico-itx-mainline.yml
 ```
 
 The `kas` tool can be installed as a package on your distribution or
@@ -47,7 +50,7 @@ storage. You have two main options for flashing your image:
 connected to a machine using an USB-to-NVMe adapter, or a spare NVMe slot) using `bmaptool` 
 
 ```
-$ sudo bmaptool copy build/tmp/deploy/images/k3-pico-itx/core-image-full-cmdline-k3-pico-itx.rootfs.wic.gz /dev/sdx
+$ sudo bmaptool copy build/tmp/deploy/images/k3-pico-itx-mainline/core-image-full-cmdline-k3-pico-itx-mainline.rootfs.wic.gz /dev/sdx
 ```
 
 2. Flash it over USB using `fastboot` (see below), or SpacemiT's
@@ -70,7 +73,7 @@ Install `fastboot` on your host (example for Ubuntu/Debian):
 $ sudo apt install fastboot
 ```
 
-Go into the deploy directory (`build/tmp/deploy/images/k3-pico-itx`).
+Go into the deploy directory (`build/tmp/deploy/images/k3-pico-itx-mainline`).
 
 There, Create a partition table description named `partition_yocto.json` that
 matches the layout in `files/wic/spacemit-k3.wks`:
@@ -142,7 +145,7 @@ Finally, write the partition table, bootfs and rootfs to the board's storage:
 ```
 $ fastboot flash gpt partition_yocto.json
 $ fastboot flash bootfs bootfs.ext4
-$ fastboot flash rootfs core-image-full-cmdline-k3-pico-itx.rootfs.ext4
+$ fastboot flash rootfs core-image-full-cmdline-k3-pico-itx-mainline.rootfs.ext4
 $ fastboot reboot
 ```
 
