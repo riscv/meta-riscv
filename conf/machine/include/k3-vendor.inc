@@ -25,7 +25,7 @@ UBOOT_MACHINE = "k3_defconfig"
 KERNEL_IMAGETYPE = "Image"
 
 IMAGE_FSTYPES = "ext4 wic.bmap wic.gz"
-IMAGE_CLASSES += " k3-vendor-image"
+IMAGE_CLASSES += " k3-image"
 INITRAMFS_FSTYPES = "cpio.gz"
 WKS_FILE ?= "spacemit-k3.wks"
 WKS_FILE_DEPENDS:append = " u-boot-k3"
