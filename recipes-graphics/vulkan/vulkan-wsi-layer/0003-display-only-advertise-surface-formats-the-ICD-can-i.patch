@@ -1,0 +1,54 @@
+From 97b2b9ee11ae444dba5816b7aed9376923c3b587 Mon Sep 17 00:00:00 2001
+From: OOHehir <40183643+OOHehir@users.noreply.github.com>
+Date: Fri, 23 Oct 2026 13:28:32 +0100
+Subject: [PATCH 3/3] display: only advertise surface formats the ICD can
+ import
+
+Swapchain images are imported as dma-bufs with a DRM format modifier, but the
+display backend checked formats with optimal tiling only. On the StarFive
+JH7110 it advertised A1R5G5B5 first, which the PowerVR ICD has no modifiers for,
+so swapchain creation failed with "Export/Import not supported". Apply the
+check the Wayland backend already uses.
+
+Upstream-Status: Pending
+
+Signed-off-by: OOHehir <40183643+OOHehir@users.noreply.github.com>
+---
+ wsi/display/surface_properties.cpp | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
+
+diff --git a/wsi/display/surface_properties.cpp b/wsi/display/surface_properties.cpp
+index 8bf7d65..95386b2 100644
+--- a/wsi/display/surface_properties.cpp
++++ b/wsi/display/surface_properties.cpp
+@@ -149,12 +149,25 @@ VkResult surface_properties::get_surface_formats(VkPhysicalDevice physical_devic
+             continue;
+          }
+ 
++         /* Swapchain images are allocated externally and imported as dma-bufs with this modifier, so check that the
++          * ICD supports exactly that, not just optimal tiling.
++          */
++         VkPhysicalDeviceExternalImageFormatInfoKHR external_info = {};
++         external_info.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_IMAGE_FORMAT_INFO_KHR;
++         external_info.handleType = VK_EXTERNAL_MEMORY_HANDLE_TYPE_DMA_BUF_BIT_EXT;
++
++         VkPhysicalDeviceImageDrmFormatModifierInfoEXT drm_mod_info = {};
++         drm_mod_info.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_DRM_FORMAT_MODIFIER_INFO_EXT;
++         drm_mod_info.pNext = &external_info;
++         drm_mod_info.drmFormatModifier = drm_format.modifier;
++         drm_mod_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
++
+          surface_format_properties format_properties{ vk_format };
+          VkPhysicalDeviceImageFormatInfo2KHR format_info = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_FORMAT_INFO_2_KHR,
+-                                                             nullptr,
++                                                             &drm_mod_info,
+                                                              vk_format,
+                                                              VK_IMAGE_TYPE_2D,
+-                                                             VK_IMAGE_TILING_OPTIMAL,
++                                                             VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT,
+                                                              VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+                                                              0 };
+          VkResult res = format_properties.check_device_support(physical_device, format_info);
+-- 
+2.43.0
+

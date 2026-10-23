@@ -1,0 +1,41 @@
+From 257e5fad2ab4f4f799a07e2e4ab57490414fc7af Mon Sep 17 00:00:00 2001
+From: OOHehir <40183643+OOHehir@users.noreply.github.com>
+Date: Fri, 23 Oct 2026 13:28:32 +0100
+Subject: [PATCH 2/3] cmake: do not build with -Werror
+
+GCC 16 warns about a __STDC_VERSION__ redefinition in the Wayland backend & a
+possibly uninitialised local_strides in wsialloc_helpers.c, which fails the
+build.
+
+Upstream-Status: Inappropriate [oe-specific]
+
+Signed-off-by: OOHehir <40183643+OOHehir@users.noreply.github.com>
+---
+ CMakeLists.txt | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index b43b1ad..f332b98 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -38,7 +38,7 @@ if (NOT CLANG_TIDY STREQUAL "CLANG_TIDY-NOTFOUND")
+ endif()
+ 
+ string(APPEND CMAKE_CXX_FLAGS
+-    " -Wall -Werror -Wextra"
++    " -Wall -Wextra"
+     " -Wshadow -Wconversion"
+     " -Wdouble-promotion -Wnon-virtual-dtor -Wdelete-non-virtual-dtor"
+     " -Wcast-qual -Wmissing-format-attribute"
+@@ -46,7 +46,7 @@ string(APPEND CMAKE_CXX_FLAGS
+ )
+ 
+ string(APPEND CMAKE_C_FLAGS
+-    " -Wall -Werror -Wextra"
++    " -Wall -Wextra"
+     " -Wshadow -Wconversion"
+     " -Wstrict-prototypes"
+     " -fPIC"
+-- 
+2.43.0
+
