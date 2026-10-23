@@ -53,6 +53,7 @@ This layer depends on:
 | orangepi-r2s             | [OrangePi R2S](http://www.orangepi.org/html/hardWare/computerAndMicrocontrollers/details/Orange-Pi-R2S.html) | Mainline Kernel and U-Boot (uses vendor FSBL)                                    |
 | orangepi-rv2             | [OrangePi RV2](http://www.orangepi.org/html/hardWare/computerAndMicrocontrollers/details/Orange-Pi-RV2.html) | Mainline Kernel and U-Boot (uses vendor FSBL)                                    |
 | visionfive2              | [StarFive VisionFive 2](https://www.starfivetech.com/en/index.php?s=hardware&c=show&id=14)                   |                                                                                  |
+| zhihe-a210               | [Zhihe Computing Archimedes A210](https://developer.zhcomputing.com/en/docs/A210)                            | OSU-OSL mainline-based kernel; netboot via TFTP (no bootloader recipe yet)       |
 
 Note that this layer also provides improvements and features for the
 upstream qemuriscv32 and qemuriscv64 machines.
