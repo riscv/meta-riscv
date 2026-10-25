@@ -1,0 +1,157 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: OOHehir <oo.hehir@gmail.com>
+Date: Sun, 25 Oct 2026 18:58:50 +0000
+Subject: [PATCH] present_timing: require VK_KHR_calibrated_timestamps only when supported
+
+The Wayland backend requires VK_KHR_calibrated_timestamps on every device,
+although only VK_EXT_present_timing uses it, so it cannot present on an ICD
+without it, such as the PowerVR 1.19 DDK on the StarFive JH7110.
+
+Dropping the requirement alone is not enough: the present timing surface
+capabilities query then calls vkGetPhysicalDeviceCalibrateableTimeDomainsKHR,
+and the loader aborts the application. Treat the extension as a present timing
+dependency, as VK_KHR_maintenance9 already is, and advertise present timing
+only when the ICD supports both.
+
+Upstream-Status: Pending
+
+Signed-off-by: OOHehir <oo.hehir@gmail.com>
+---
+ layer/layer.cpp                    |   11 +++++++++--
+ wsi/extensions/present_timing.cpp  |    7 ++++++-
+ wsi/extensions/present_timing.hpp  |    8 +++++---
+ wsi/surface_properties.cpp         |   19 ++++++++++++++++---
+ wsi/wayland/surface_properties.cpp |    2 +-
+ 5 files changed, 37 insertions(+), 10 deletions(-)
+
+diff --git a/layer/layer.cpp b/layer/layer.cpp
+index d06bd7b..e4331fd 100644
+--- a/layer/layer.cpp
++++ b/layer/layer.cpp
+@@ -239,9 +239,15 @@ struct features
+             support = false;
+          }
+ 
++         auto dependencies_supported = wsi::present_timing_dependencies_supported(physical_device);
++         if (!std::holds_alternative<bool>(dependencies_supported) || !std::get<bool>(dependencies_supported))
++         {
++            support = false;
++         }
++
+          writable_layer_features.present_timing->presentTiming = support ? VK_TRUE : VK_FALSE;
+-         writable_layer_features.present_timing->presentAtAbsoluteTime = VK_TRUE;
+-         writable_layer_features.present_timing->presentAtRelativeTime = VK_TRUE;
++         writable_layer_features.present_timing->presentAtAbsoluteTime = support ? VK_TRUE : VK_FALSE;
++         writable_layer_features.present_timing->presentAtRelativeTime = support ? VK_TRUE : VK_FALSE;
+       }
+ 
+       if (writable_layer_features.fifo_latest_ready != nullptr)
+@@ -680,6 +686,7 @@ VKAPI_ATTR VkResult create_device(VkPhysicalDevice physicalDevice, const VkDevic
+       if (std::get<bool>(present_timing_supported))
+       {
+          TRY_LOG_CALL(enabled_extensions.add(VK_KHR_MAINTENANCE_9_EXTENSION_NAME));
++         TRY_LOG_CALL(enabled_extensions.add(VK_KHR_CALIBRATED_TIMESTAMPS_EXTENSION_NAME));
+ 
+          const auto *device_maintenance9_features = util::find_extension<VkPhysicalDeviceMaintenance9FeaturesKHR>(
+             VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_9_FEATURES_KHR, pCreateInfo->pNext);
+diff --git a/wsi/extensions/present_timing.cpp b/wsi/extensions/present_timing.cpp
+index c65c605..4cef6c8 100644
+--- a/wsi/extensions/present_timing.cpp
++++ b/wsi/extensions/present_timing.cpp
+@@ -858,7 +858,12 @@ std::variant<bool, VkResult> present_timing_dependencies_supported(VkPhysicalDev
+          return strcmp(ext.extensionName, VK_KHR_MAINTENANCE_9_EXTENSION_NAME) == 0;
+       }) != properties.end();
+ 
+-   if (!maintenance9_supported)
++   const bool calibrated_timestamps_supported =
++      std::find_if(properties.begin(), properties.end(), [](const VkExtensionProperties &ext) {
++         return strcmp(ext.extensionName, VK_KHR_CALIBRATED_TIMESTAMPS_EXTENSION_NAME) == 0;
++      }) != properties.end();
++
++   if (!maintenance9_supported || !calibrated_timestamps_supported)
+    {
+       return false;
+    }
+diff --git a/wsi/extensions/present_timing.hpp b/wsi/extensions/present_timing.hpp
+index 3cae557..aac4e74 100644
+--- a/wsi/extensions/present_timing.hpp
++++ b/wsi/extensions/present_timing.hpp
+@@ -991,9 +991,11 @@ VkResult check_time_domain_support(VkPhysicalDevice physical_device, std::tuple<
+  * @param physical_device Physical device used for the query
+  *
+  * @return std::variant<bool, VkResult>
+- *         - `true`  if the device supports present timing dependencies
+- *                    (i.e., `VK_KHR_maintenance9` extension and its feature are available).
+- *         - `false` if the device does not support the `VK_KHR_maintenance9` extension or its feature.
++ *         - `true`  if the device supports present timing dependencies
++ *                    (i.e., the `VK_KHR_maintenance9` extension and its feature, and the
++ *                    `VK_KHR_calibrated_timestamps` extension, are available).
++ *         - `false` if the device does not support `VK_KHR_maintenance9`, its feature or
++ *                    `VK_KHR_calibrated_timestamps`.
+  *         - `VkResult` (e.g., `VK_ERROR_OUT_OF_HOST_MEMORY`) if an error occurs during property enumeration.
+  */
+ std::variant<bool, VkResult> present_timing_dependencies_supported(VkPhysicalDevice physical_device);
+diff --git a/wsi/surface_properties.cpp b/wsi/surface_properties.cpp
+index 0698ae2..5a403a7 100644
+--- a/wsi/surface_properties.cpp
++++ b/wsi/surface_properties.cpp
+@@ -62,6 +62,14 @@ void populate_swapchain_supported_flags(VkPhysicalDevice physical_device,
+    }
+ 
+    swapchain_flags->swapchainSupportedFlags = common_supported_flags | backend_specific_flags;
++
++   auto present_timing_supported = present_timing_dependencies_supported(physical_device);
++   if (!std::holds_alternative<bool>(present_timing_supported) || !std::get<bool>(present_timing_supported))
++   {
++      constexpr VkSwapchainCreateFlagsKHR present_timing_flag = VK_SWAPCHAIN_CREATE_PRESENT_TIMING_BIT_EXT;
++      swapchain_flags->swapchainSupportedFlags &= ~present_timing_flag;
++   }
++
+    if (multisampled_render_to_single_sampled.multisampledRenderToSingleSampled == VK_TRUE)
+    {
+       swapchain_flags->swapchainSupportedFlags |= VK_SWAPCHAIN_CREATE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_BIT_EXT;
+@@ -186,20 +194,25 @@ void get_surface_capabilities_common(VkPhysicalDevice physical_device, VkSurface
+ VkResult surface_properties::get_present_timing_surface_caps(
+    VkPhysicalDevice physical_device, VkPresentTimingSurfaceCapabilitiesEXT *present_timing_surface_caps)
+ {
+-   TRY_LOG_CALL(get_present_timing_surface_caps_internal(physical_device, present_timing_surface_caps));
+-
+    auto present_timing_supported = wsi::present_timing_dependencies_supported(physical_device);
+    if (std::holds_alternative<VkResult>(present_timing_supported))
+    {
+       return std::get<VkResult>(present_timing_supported);
+    }
+ 
++   /* The backends call vkGetPhysicalDeviceCalibrateableTimeDomainsKHR, which needs
++    * VK_KHR_calibrated_timestamps, so only call them when present timing is supported.
++    */
+    if (!std::get<bool>(present_timing_supported))
+    {
+       present_timing_surface_caps->presentTimingSupported = VK_FALSE;
++      present_timing_surface_caps->presentAtAbsoluteTimeSupported = VK_FALSE;
++      present_timing_surface_caps->presentAtRelativeTimeSupported = VK_FALSE;
++      present_timing_surface_caps->presentStageQueries = 0;
++      return VK_SUCCESS;
+    }
+ 
+-   return VK_SUCCESS;
++   return get_present_timing_surface_caps_internal(physical_device, present_timing_surface_caps);
+ }
+ 
+ } /* namespace wsi */
+diff --git a/wsi/wayland/surface_properties.cpp b/wsi/wayland/surface_properties.cpp
+index 474203d..b98626d 100644
+--- a/wsi/wayland/surface_properties.cpp
++++ b/wsi/wayland/surface_properties.cpp
+@@ -275,7 +275,7 @@ VkResult surface_properties::get_required_device_extensions(util::extension_list
+    const std::array required_device_extensions{
+       VK_EXT_IMAGE_DRM_FORMAT_MODIFIER_EXTENSION_NAME, VK_KHR_IMAGE_FORMAT_LIST_EXTENSION_NAME,
+       VK_EXT_EXTERNAL_MEMORY_DMA_BUF_EXTENSION_NAME,   VK_KHR_EXTERNAL_MEMORY_FD_EXTENSION_NAME,
+-      VK_KHR_EXTERNAL_FENCE_FD_EXTENSION_NAME,         VK_KHR_CALIBRATED_TIMESTAMPS_EXTENSION_NAME,
++      VK_KHR_EXTERNAL_FENCE_FD_EXTENSION_NAME,
+    };
+    result = extension_list.add(required_device_extensions.data(), required_device_extensions.size());
+    if (result != VK_SUCCESS)
+-- 
+2.43.0
+
