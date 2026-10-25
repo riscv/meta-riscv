@@ -1,0 +1,32 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jiyu Yang <jiyu.yang@nxp.com>
+Date: Sat, 25 Jul 2026 06:48:45 +0800
+Subject: [PATCH] wsialloc: initialize local_strides array
+
+Initialize local_strides to zero to silence GCC
+-Wmaybe-uninitialized warnings and avoid -Werror build
+failures.
+
+Upstream-Status: Pending
+
+Signed-off-by: Jiyu Yang <jiyu.yang@nxp.com>
+---
+ util/wsialloc/wsialloc_helpers.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/util/wsialloc/wsialloc_helpers.c b/util/wsialloc/wsialloc_helpers.c
+index a87c5aa..2e93335 100644
+--- a/util/wsialloc/wsialloc_helpers.c
++++ b/util/wsialloc/wsialloc_helpers.c
+@@ -137,7 +137,7 @@ wsialloc_error wsiallocp_alloc(wsialloc_allocator *allocator, wsiallocp_alloc_ca
+       return WSIALLOC_ERROR_INVALID;
+    }
+ 
+-   int local_strides[WSIALLOC_MAX_PLANES];
++   int local_strides[WSIALLOC_MAX_PLANES] = {0};
+    uint32_t local_offsets[WSIALLOC_MAX_PLANES];
+    wsialloc_error err = WSIALLOC_ERROR_NONE;
+    wsialloc_format_descriptor selected_format_desc = {};
+-- 
+2.43.0
+

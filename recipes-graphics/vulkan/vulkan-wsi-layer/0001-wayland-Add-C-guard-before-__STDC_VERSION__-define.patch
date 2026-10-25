@@ -1,0 +1,106 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Franz Schnyder <franz.schnyder@toradex.com>
+Date: Wed, 3 Jun 2026 10:00:55 +0200
+Subject: [PATCH] wayland: Add C++ guard before __STDC_VERSION__ define
+
+'__STDC_VERSION__' is predefined by the compiler in C++ mode. Redefining
+it triggers '-Wbuiltin-macro-redefined', which with '-Werror' fails the
+build under GCC 16.
+
+Upstream-Status: Submitted [https://gitlab.freedesktop.org/mesa/vulkan-wsi-layer/-/work_items/33]
+Signed-off-by: Franz Schnyder <franz.schnyder@toradex.com>
+---
+ wsi/wayland/surface.hpp            | 3 +++
+ wsi/wayland/surface_properties.cpp | 2 ++
+ wsi/wayland/swapchain.hpp          | 3 +++
+ wsi/wayland/wl_helpers.hpp         | 3 +++
+ wsi/wayland/wl_object_owner.hpp    | 3 +++
+ 5 files changed, 14 insertions(+)
+
+diff --git a/wsi/wayland/surface.hpp b/wsi/wayland/surface.hpp
+index a882782..6557161 100644
+--- a/wsi/wayland/surface.hpp
++++ b/wsi/wayland/surface.hpp
+@@ -28,9 +28,12 @@
+ 
+ #pragma once
+ 
++#ifndef __cplusplus
+ #ifndef __STDC_VERSION__
+ #define __STDC_VERSION__ 0
+ #endif
++#endif
++
+ #include <sys/types.h>
+ #include <wayland-client.h>
+ 
+diff --git a/wsi/wayland/surface_properties.cpp b/wsi/wayland/surface_properties.cpp
+index 366e262..474203d 100644
+--- a/wsi/wayland/surface_properties.cpp
++++ b/wsi/wayland/surface_properties.cpp
+@@ -24,9 +24,11 @@
+ 
+ #define VK_USE_PLATFORM_WAYLAND_KHR 1
+ 
++#ifndef __cplusplus
+ #ifndef __STDC_VERSION__
+ #define __STDC_VERSION__ 0
+ #endif
++#endif
+ 
+ #include <wayland-client.h>
+ #include <linux-dmabuf-unstable-v1-client-protocol.h>
+diff --git a/wsi/wayland/swapchain.hpp b/wsi/wayland/swapchain.hpp
+index 5fabb5c..4c21e4d 100644
+--- a/wsi/wayland/swapchain.hpp
++++ b/wsi/wayland/swapchain.hpp
+@@ -31,9 +31,12 @@ extern "C" {
+ #include <vulkan/vk_icd.h>
+ }
+ 
++#ifndef __cplusplus
+ #ifndef __STDC_VERSION__
+ #define __STDC_VERSION__ 0
+ #endif
++#endif
++
+ #include <wayland-client.h>
+ #include <linux-dmabuf-unstable-v1-client-protocol.h>
+ #include "surface.hpp"
+diff --git a/wsi/wayland/wl_helpers.hpp b/wsi/wayland/wl_helpers.hpp
+index 5bf507a..28eafbd 100644
+--- a/wsi/wayland/wl_helpers.hpp
++++ b/wsi/wayland/wl_helpers.hpp
+@@ -26,9 +26,12 @@
+ 
+ #include <stdint.h>
+ 
++#ifndef __cplusplus
+ #ifndef __STDC_VERSION__
+ #define __STDC_VERSION__ 0
+ #endif
++#endif
++
+ #include <wayland-client.h>
+ 
+ #include "util/custom_allocator.hpp"
+diff --git a/wsi/wayland/wl_object_owner.hpp b/wsi/wayland/wl_object_owner.hpp
+index a3befef..654e1c5 100644
+--- a/wsi/wayland/wl_object_owner.hpp
++++ b/wsi/wayland/wl_object_owner.hpp
+@@ -24,9 +24,12 @@
+ 
+ #pragma once
+ 
++#ifndef __cplusplus
+ #ifndef __STDC_VERSION__
+ #define __STDC_VERSION__ 0
+ #endif
++#endif
++
+ #include <wayland-client.h>
+ #include <linux-dmabuf-unstable-v1-client-protocol.h>
+ #include <linux-explicit-synchronization-unstable-v1-protocol.h>
+-- 
+2.43.0
+

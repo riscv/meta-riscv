@@ -1,0 +1,94 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: OOHehir <oo.hehir@gmail.com>
+Date: Sun, 25 Oct 2026 18:58:50 +0000
+Subject: [PATCH] display: only advertise surface formats the ICD can import
+
+Swapchain images are imported as dma-bufs with a DRM format modifier, but the
+display backend checks formats with optimal tiling only. On the StarFive JH7110
+it advertises A1R5G5B5 first, which the PowerVR ICD has no modifiers for, so
+swapchain creation fails with "Export/Import not supported". Apply the check
+the Wayland backend already uses, so that only formats the ICD can import are
+advertised.
+
+The check and the import need VK_EXT_image_drm_format_modifier,
+VK_EXT_external_memory_dma_buf and VK_KHR_image_format_list, so require them
+as the Wayland backend does. On Vulkan 1.0, also require the extensions they
+depend on, including the external fence and semaphore capability extensions,
+which the layer needs to tell whether fences are exportable.
+
+A device without them now fails vkCreateDevice when VK_KHR_display is enabled,
+as it already does for Wayland, instead of failing at swapchain creation.
+
+Upstream-Status: Pending
+
+Signed-off-by: OOHehir <oo.hehir@gmail.com>
+---
+ wsi/display/surface_properties.cpp |   27 +++++++++++++++++++++++----
+ 1 file changed, 23 insertions(+), 4 deletions(-)
+
+diff --git a/wsi/display/surface_properties.cpp b/wsi/display/surface_properties.cpp
+index 8bf7d65..1bf0b80 100644
+--- a/wsi/display/surface_properties.cpp
++++ b/wsi/display/surface_properties.cpp
+@@ -149,12 +149,25 @@ VkResult surface_properties::get_surface_formats(VkPhysicalDevice physical_devic
+             continue;
+          }
+ 
++         /* Swapchain images are allocated externally and imported as dma-bufs with this modifier, so check that the
++          * ICD supports exactly that, not just optimal tiling.
++          */
++         VkPhysicalDeviceExternalImageFormatInfoKHR external_info = {};
++         external_info.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_IMAGE_FORMAT_INFO_KHR;
++         external_info.handleType = VK_EXTERNAL_MEMORY_HANDLE_TYPE_DMA_BUF_BIT_EXT;
++
++         VkPhysicalDeviceImageDrmFormatModifierInfoEXT drm_mod_info = {};
++         drm_mod_info.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_DRM_FORMAT_MODIFIER_INFO_EXT;
++         drm_mod_info.pNext = &external_info;
++         drm_mod_info.drmFormatModifier = drm_format.modifier;
++         drm_mod_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
++
+          surface_format_properties format_properties{ vk_format };
+          VkPhysicalDeviceImageFormatInfo2KHR format_info = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_FORMAT_INFO_2_KHR,
+-                                                             nullptr,
++                                                             &drm_mod_info,
+                                                              vk_format,
+                                                              VK_IMAGE_TYPE_2D,
+-                                                             VK_IMAGE_TILING_OPTIMAL,
++                                                             VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT,
+                                                              VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+                                                              0 };
+          VkResult res = format_properties.check_device_support(physical_device, format_info);
+@@ -521,6 +534,9 @@ VkResult surface_properties::get_required_instance_extensions(util::extension_li
+    {
+       const std::array required_extensions_pre_vulkan_1_1{
+          VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
++         VK_KHR_EXTERNAL_FENCE_CAPABILITIES_EXTENSION_NAME,
++         VK_KHR_EXTERNAL_SEMAPHORE_CAPABILITIES_EXTENSION_NAME,
++         VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME,
+       };
+       result = extension_list.add(required_extensions_pre_vulkan_1_1.data(), required_extensions_pre_vulkan_1_1.size());
+    }
+@@ -532,7 +548,8 @@ VkResult surface_properties::get_required_device_extensions(util::extension_list
+ {
+    VkResult result = VK_SUCCESS;
+    const std::array required_device_extensions{
+-      VK_KHR_EXTERNAL_MEMORY_FD_EXTENSION_NAME,
++      VK_EXT_IMAGE_DRM_FORMAT_MODIFIER_EXTENSION_NAME, VK_KHR_IMAGE_FORMAT_LIST_EXTENSION_NAME,
++      VK_EXT_EXTERNAL_MEMORY_DMA_BUF_EXTENSION_NAME,   VK_KHR_EXTERNAL_MEMORY_FD_EXTENSION_NAME,
+    };
+    result = extension_list.add(required_device_extensions.data(), required_device_extensions.size());
+    if (result != VK_SUCCESS)
+@@ -544,7 +561,9 @@ VkResult surface_properties::get_required_device_extensions(util::extension_list
+    if (api_version < VK_API_VERSION_1_1)
+    {
+       const std::array required_extensions_pre_vulkan_1_1{
+-         VK_KHR_BIND_MEMORY_2_EXTENSION_NAME,
++         VK_KHR_BIND_MEMORY_2_EXTENSION_NAME,           VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME,
++         VK_KHR_MAINTENANCE1_EXTENSION_NAME,            VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
++         VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME,
+       };
+       result = extension_list.add(required_extensions_pre_vulkan_1_1.data(), required_extensions_pre_vulkan_1_1.size());
+    }
+-- 
+2.43.0
+
