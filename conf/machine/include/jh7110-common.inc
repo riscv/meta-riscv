@@ -8,7 +8,6 @@ require jh7110.inc
 #============================================
 # Common Preferred Providers
 PREFERRED_PROVIDER_virtual/kernel ?= "linux-starfive-dev"
-PREFERRED_PROVIDER_virtual/bootloader ?= "u-boot-starfive"
 
 # The PowerVR & VPU stack only works with linux-starfive-dev, so it is set
 # through an override that exists only while that is the kernel.
