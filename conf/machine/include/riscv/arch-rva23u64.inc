@@ -1,3 +1,5 @@
+DEFAULTTUNE ?= "rva23u64"
+
 require conf/machine/include/riscv/arch-rva22u64.inc
 
 # Extensions mandated by the RVA23U64 profile that aren't in arch-rva22u64.inc
@@ -63,3 +65,12 @@ TUNE_RISCV_MARCH .= "${@bb.utils.contains("TUNE_FEATURES", "zvl64b", "_zvl64b", 
 
 TUNEVALID[supm] = "User-mode pointer masking extension."
 TUNE_RISCV_MARCH .= "${@bb.utils.contains("TUNE_FEATURES", "supm", "_supm", "", d)}"
+
+AVAILTUNES += "rva23u64"
+
+# The RVA23U64 extensions, as expanded by riscv.tune.riscv_isa_to_tune().
+# zifencei isn't part of these profiles per gcc's -march expansion, but the
+# Linux kernel requires it, so add it on top of the profile's extensions.
+TUNE_FEATURES:tune-rva23u64 ?= "rv 64 i m a f d c b v zic64b zicbom zicbop zicboz ziccamoa ziccif zicclsm ziccrse zicntr zicond zicsr zihintntl zihintpause zihpm zimop zmmul za64rs zaamo zalrsc zawrs zfa zfhmin zca zcb zcd zcmop zba zbb zbs zkt zvbb zve32f zve32x zve64d zve64f zve64x zvfhmin zvkb zvkt zvl128b zvl32b zvl64b supm zifencei"
+TUNE_RISCV_PKGARCH:tune-rva23u64 ?= "rva23u64_zifencei"
+PACKAGE_EXTRA_ARCHS:tune-rva23u64 = "${TUNE_RISCV_PKGARCH:tune-rva23u64}"
