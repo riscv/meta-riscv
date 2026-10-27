@@ -36,6 +36,17 @@ RISCV_IMPLIED = {
     'zcd': ['zca'],
     'zcmop': ['zca'],
     'zvbb': ['zvkb'],
+    # The vector subsets nest, for tunes with some of them but not v. Each
+    # entry lists everything it implies, since riscv_implied() only does one
+    # level of lookup.
+    'zve64d': ['zve32f', 'zve32x', 'zve64f', 'zve64x', 'zvl32b', 'zvl64b'],
+    'zve64f': ['zve32f', 'zve32x', 'zve64x', 'zvl32b', 'zvl64b'],
+    'zve64x': ['zve32x', 'zvl32b', 'zvl64b'],
+    'zve32f': ['zve32x', 'zvl32b'],
+    'zve32x': ['zvl32b'],
+    'zvfhmin': ['zve32f', 'zve32x', 'zvl32b'],
+    'zvl128b': ['zvl32b', 'zvl64b'],
+    'zvl64b': ['zvl32b'],
     # a reservation set of at most 64 bytes is also at most 128 bytes
     'za64rs': ['za128rs'],
 }
