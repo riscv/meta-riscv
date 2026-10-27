@@ -1,0 +1,130 @@
+# RISCV Architecture definition
+
+# Based on the RISC-V Instruction Set Manual Volume I: Unprivileged ISA from May 2025
+# As well as the RISC-V options for using GCC (as of June 2025)
+
+# Note: the following should be implemented in the order that GCC expects
+# -march= values to be defined in.
+
+# Base ISA
+# All supported march strings must start with rv32 or rv64
+TUNEVALID[rv] = "RISC-V"
+TUNE_RISCV_ARCH = "${@bb.utils.contains("TUNE_FEATURES", "rv", "riscv", "", d)}"
+TUNE_RISCV_MARCH = "${@bb.utils.contains("TUNE_FEATURES", "rv", "rv", "", d)}"
+TUNE_RISCV_ABI = ""
+
+# There are two primary ABIs, ilp32 and lp64
+# There are variants of both, that appears to be based on extensions above
+# For example:
+#   rv32i uses ilp32, rv32e uses ilp32e, rv32f uses ilp32f
+#   rv64i uses lp64, rv64if uses lp64f, rv64id uses lp64d
+TUNEVALID[32] = "ISA XLEN - 32-bit"
+TUNECONFLICTS[32] = "64"
+TUNE_RISCV_ARCH .= "${@bb.utils.contains("TUNE_FEATURES", "32", "32", "", d)}"
+TUNE_RISCV_MARCH .= "${@bb.utils.contains("TUNE_FEATURES", "32", "32", "", d)}"
+TUNE_RISCV_ABI .= "${@bb.utils.contains("TUNE_FEATURES", "32", "ilp32", "", d)}"
+
+TUNEVALID[64] = "ISA XLEN - 64-bit"
+TUNECONFLICTS[64] = "32"
+TUNE_RISCV_MARCH .= "${@bb.utils.contains("TUNE_FEATURES", "64", "64", "", d)}"
+TUNE_RISCV_ARCH .= "${@bb.utils.contains("TUNE_FEATURES", "64", "64", "", d)}"
+TUNE_RISCV_ABI .= "${@bb.utils.contains("TUNE_FEATURES", "64", "lp64", "", d)}"
+
+# Each tune sets its package arch as a literal in TUNE_RISCV_PKGARCH:tune-<name>,
+# rather than having it built from TUNE_FEATURES, so that the names stay short
+# and only change when deliberately changed. Custom tunes must set it as well.
+TUNE_RISCV_PKGARCH = "${TUNE_RISCV_PKGARCH:tune-${DEFAULTTUNE}}"
+
+# i, e, or g are defined by gcc, but 'g' refers to 'i' + extensions 'MAFD Zicsr Zifencei'
+# So 'g' will not be defined here as it is an abbreviation of the expanded version
+TUNEVALID[e] = "Reduced register base integer extension"
+TUNECONFLICTS[e] = "i"
+TUNE_RISCV_MARCH .= "${@bb.utils.contains("TUNE_FEATURES", "e", "e", "", d)}"
+TUNE_RISCV_ABI .= "${@bb.utils.contains("TUNE_FEATURES", "e", "e", "", d)}"
+
+TUNEVALID[i] = "Base integer extension"
+TUNECONFLICTS[i] = "e"
+TUNE_RISCV_MARCH .= "${@bb.utils.contains("TUNE_FEATURES", "i", "i", "", d)}"
+
+# Extensions
+TUNEVALID[m] = "Integer multiplication and division extension"
+TUNE_RISCV_MARCH .= "${@bb.utils.contains("TUNE_FEATURES", "m", "m", "", d)}"
+
+TUNEVALID[a] = "Atomic extension"
+TUNE_RISCV_MARCH .= "${@bb.utils.contains("TUNE_FEATURES", "a", "a", "", d)}"
+
+TUNEVALID[f] = "Single-precision floating-point extension"
+TUNE_RISCV_MARCH .= "${@bb.utils.contains_any("TUNE_FEATURES", "f d", "f", "", d)}"
+
+TUNEVALID[d] = "Double-precision floating-point extension"
+TUNE_RISCV_MARCH .= "${@bb.utils.contains("TUNE_FEATURES", "d", "d", "", d)}"
+
+# Only f OR d, but just one
+TUNE_RISCV_ABI .= "${@bb.utils.contains("TUNE_FEATURES", "d", "d", bb.utils.contains("TUNE_FEATURES", "f", "f", "", d), d)}"
+
+TUNEVALID[c] = "Compressed extension"
+TUNE_RISCV_MARCH .= "${@bb.utils.contains("TUNE_FEATURES", "c", "c", "", d)}"
+
+TUNEVALID[b] = "Bit Manipulation extension"
+# Handled below via zba, zbb, zbs
+# This matches current Linux kernel behavior
+#TUNE_RISCV_MARCH .= "${@bb.utils.contains("TUNE_FEATURES", "b", "b", "", d)}"
+
+TUNEVALID[v] = "Vector operations extension"
+TUNE_RISCV_MARCH .= "${@bb.utils.contains("TUNE_FEATURES", "v", "v", "", d)}"
+
+# Now the special Z extensions
+TUNEVALID[zicbom] = "Cache-block management extension"
+TUNE_RISCV_MARCH .= "${@bb.utils.contains_any("TUNE_FEATURES", "zicbom", "_zicbom", "", d)}"
+
+TUNEVALID[zicsr] = "Control and status register access extension"
+TUNE_RISCV_MARCH .= "${@bb.utils.contains_any("TUNE_FEATURES", "zicsr f d", "_zicsr", "", d)}"
+
+TUNEVALID[zifencei] = "Instruction-fetch fence extension"
+TUNE_RISCV_MARCH .= "${@bb.utils.contains("TUNE_FEATURES", "zifencei", "_zifencei", "", d)}"
+
+TUNEVALID[zmmul] = "Cheaper M subset (mul only) extension."
+TUNE_RISCV_MARCH .= "${@bb.utils.contains_any("TUNE_FEATURES", "m zmmul", "_zmmul", "", d)}"
+
+TUNEVALID[zaamo] = "Atomic read-modify-write memory operations extension."
+TUNE_RISCV_MARCH .= "${@bb.utils.contains_any("TUNE_FEATURES", "a zaamo", "_zaamo", "", d)}"
+
+TUNEVALID[zalrsc] = "Extended LR/SC semantics extension."
+TUNE_RISCV_MARCH .= "${@bb.utils.contains_any("TUNE_FEATURES", "a zalrsc", "_zalrsc", "", d)}"
+
+TUNEVALID[zca] = "Compressed base integer ops extension."
+TUNE_RISCV_MARCH .= "${@bb.utils.contains_any("TUNE_FEATURES", "c zca", "_zca", "", d)}"
+
+TUNEVALID[zba] = "Address bit manipulation extension"
+TUNE_RISCV_MARCH .= "${@bb.utils.contains_any("TUNE_FEATURES", "b zba", "_zba", "", d)}"
+
+TUNEVALID[zbb] = "Basic bit manipulation extension"
+TUNE_RISCV_MARCH .= "${@bb.utils.contains_any("TUNE_FEATURES", "b zbb", "_zbb", "", d)}"
+
+TUNEVALID[zbc] = "Carry-less multiplication extension"
+TUNE_RISCV_MARCH .= "${@bb.utils.contains_any("TUNE_FEATURES", "zbc", "_zbc", "", d)}"
+
+TUNEVALID[zbs] = "Single-bit manipulation extension"
+TUNE_RISCV_MARCH .= "${@bb.utils.contains_any("TUNE_FEATURES", "b zbs", "_zbs", "", d)}"
+
+# Construct TUNE_CCARGS
+# This should result in a CCARG similar to:
+#   -march=rv32imac -mabi=ilp32
+TUNE_CCARGS = "${@ '-march=${TUNE_RISCV_MARCH} -mabi=${TUNE_RISCV_ABI}' if not d.getVar('TUNE_CCARGS:tune-${DEFAULTTUNE}') else 'TUNE_CCARGS:tune-${DEFAULTTUNE}'}"
+
+# Construct TUNE_ARCH
+# This should result in an arch string similar to:
+#   riscv32
+TUNE_ARCH = "${TUNE_RISCV_ARCH}"
+
+# Construct TUNE_PKGARCH
+# This should result in a package are like:
+#    riscv32imac
+TUNE_PKGARCH = "${TUNE_RISCV_PKGARCH}"
+
+# Misc settings
+# Fix: ld: unrecognized option '--hash-style=sysv'
+LINKER_HASH_STYLE:libc-newlib = ""
+LINKER_HASH_STYLE:libc-picolibc = ""
+# Fix: ld: unrecognized option '--hash-style=gnu'
+LINKER_HASH_STYLE:libc-baremetal = ""
