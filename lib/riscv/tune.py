@@ -121,6 +121,10 @@ def riscv_pkgarch(features):
         current.add('f')
     implied = riscv_implied(current)
     current |= implied
+    # f implies zicsr, which riscv_implied() leaves out to keep the existing
+    # exact names (see RISCV_IMPLIED), so add it here for profile matching only
+    if current & {'f', 'd'}:
+        current.add('zicsr')
 
     best_match = None
     best_features = None
