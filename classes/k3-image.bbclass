@@ -5,7 +5,7 @@
 # Layout matches the reference titan image (Bianbu-GNOME-K3)
 # Triggered before ext4 rootfs generation and WIC image generation
 do_image_wic[depends] += " \
-    virtual/kernel:do_shared_workdir \
+    virtual/kernel:do_packagedata \
     core-image-minimal-initramfs:do_image_complete \
     e2fsprogs-native:do_populate_sysroot \
     bmaptool-native:do_populate_sysroot \
@@ -20,11 +20,12 @@ python do_create_bootfs() {
     bootfs_img = os.path.join(deploydir, 'bootfs.ext4')
     machine = d.getVar('MACHINE')
 
-    # Read kernel release (e.g. "6.18.3-k3") from the kernel build's
-    # kernel-abiversion file. virtual/kernel:do_shared_workdir is a
-    # dependency of this task so the file is guaranteed to exist.
-    kabi_path = os.path.join(d.getVar('STAGING_KERNEL_BUILDDIR'),
-                             'kernel-abiversion')
+    # Read kernel release (e.g. "6.18.3-k3") from the kernel's pkgdata.
+    # Unlike work-shared (do_shared_workdir), pkgdata is restored from
+    # sstate, so this works when the kernel itself isn't rebuilt.
+    kpn = d.getVar('KERNEL_PACKAGE_NAME') or 'kernel'
+    kabi_path = os.path.join(d.getVar('PKGDATA_DIR'), f'{kpn}-depmod',
+                             f'{kpn}-abiversion')
     with open(kabi_path) as f:
         kver_k3 = f.read().strip()
 
