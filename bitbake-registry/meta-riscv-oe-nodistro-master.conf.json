@@ -61,7 +61,8 @@
                         { "name": "machine/muse-pi-pro", "description": "SpacemiT Muse Pi Pro" },
                         { "name": "machine/orangepi-r2s", "description": "OrangePi R2S" },
                         { "name": "machine/orangepi-rv2", "description": "OrangePi RV2" },
-                        { "name": "machine/visionfive2", "description": "StarFive VisionFive 2" }
+                        { "name": "machine/visionfive2", "description": "StarFive VisionFive 2" },
+                        { "name": "machine/zhihe-a210", "description": "Zhihe A210" }
                     ]
                 }
             }
