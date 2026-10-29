@@ -11,7 +11,7 @@ from unittest.case import TestCase
 # oe-selftest only adds the layers' lib directories to sys.path after it has
 # loaded the test modules, so add this layer's here for the import below.
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')))
-from riscv.tune import RISCV_PROFILES, riscv_isa_to_tune, riscv_implied, riscv_exact_pkgarch, riscv_pkgarch
+from riscv.tune import RISCV_IMPLIED, RISCV_PROFILES, riscv_isa_to_tune, riscv_implied, riscv_exact_pkgarch, riscv_pkgarch
 
 def features(isa):
     return set(riscv_isa_to_tune(isa).split())
@@ -31,6 +31,10 @@ class TestRiscvIsaToTune(TestCase):
 
     def test_not_riscv(self):
         self.assertEqual(riscv_isa_to_tune('x86_64'), 'x86_64')
+
+    def test_profile_name_case(self):
+        for name in RISCV_PROFILES:
+            self.assertEqual(riscv_isa_to_tune(name.upper()), riscv_isa_to_tune(name))
 
 class TestRiscvImplied(TestCase):
     def test_implied(self):
@@ -53,6 +57,13 @@ class TestRiscvImplied(TestCase):
         for lower, higher in zip(names, names[1:]):
             h = features(higher)
             self.assertLessEqual(features(lower), h | riscv_implied(h), '%s is not a subset of %s' % (lower, higher))
+
+    def test_implied_closed(self):
+        # riscv_implied() only does one level of lookup, so each entry must
+        # already list everything its implied extensions imply in turn
+        for ext, implied in RISCV_IMPLIED.items():
+            with self.subTest(ext=ext):
+                self.assertLessEqual(riscv_implied(set(implied)), set(implied))
 
 class TestRiscvPkgarch(TestCase):
     def test_no_features(self):
@@ -107,3 +118,68 @@ class TestRiscvPkgarch(TestCase):
         # listed in, e.g. as in RISCV_PROFILES
         f = ' '.join(sorted(riscv_isa_to_tune('rv64gc_zicbom_zicond_zfa_zba_zkt').split()))
         self.assertEqual(riscv_exact_pkgarch(f), 'riscv64imafdc_zicbom_zicond_zicsr_zifencei_zfa_zba_zkt')
+
+    def test_exact_zicsr_only_with_float(self):
+        # zicsr is only added for f/d, so a no-float tune keeps what it lists
+        self.assertEqual(riscv_exact_pkgarch('rv 64 i m a c zifencei'), 'riscv64imac_zifencei')
+        self.assertEqual(riscv_exact_pkgarch('rv 64 i m a c zicsr zifencei'), 'riscv64imac_zicsr_zifencei')
+
+    def test_exact_e_base(self):
+        self.assertEqual(riscv_exact_pkgarch(riscv_isa_to_tune('rv32emc')), 'riscv32emc')
+
+    def test_profile_exact_roundtrip(self):
+        # The exact form of a profile's extensions maps back to the profile
+        for name in RISCV_PROFILES:
+            with self.subTest(profile=name):
+                exact = riscv_exact_pkgarch(riscv_isa_to_tune(name))
+                self.assertEqual(riscv_pkgarch(riscv_isa_to_tune('rv' + exact[len('riscv'):])), name)
+
+    def test_profile_plus_extension(self):
+        # Any one extension on top of a profile is appended to its name, and
+        # the result stays short. Extensions the added one implies are left
+        # out (e.g. zca for zcb, zvkb for zvbb).
+        known = set(RISCV_IMPLIED) | {'zbc', 'zicond', 'zvbb'}
+        for name in RISCV_PROFILES:
+            known |= features(name)
+        for name in RISCV_PROFILES:
+            base = features(name) | {'zifencei'}
+            for ext in sorted(known - base - {'32', 'e'}):
+                with self.subTest(profile=name, ext=ext):
+                    pkgarch = riscv_pkgarch(' '.join(sorted(base | {ext})))
+                    self.assertTrue(pkgarch.startswith(name + '_'), pkgarch)
+                    if ext not in riscv_implied(base):
+                        self.assertIn(ext, pkgarch.split('_'))
+                    self.assertLessEqual(len(pkgarch), 64, pkgarch)
+        self.assertEqual(riscv_pkgarch(riscv_isa_to_tune('rva20u64') + ' zcb'), 'rva20u64_zcb')
+        self.assertEqual(riscv_pkgarch(riscv_isa_to_tune('rva22u64') + ' v'), 'rva22u64_v')
+
+    def test_profile_missing_extension(self):
+        # Dropping one of a profile's own (not implied) extensions never gives
+        # the profile's name; it falls back to the largest profile still
+        # contained, or to the exact form. zicsr is implied by f, f by d, and
+        # b by zba/zbb/zbs, so dropping those changes nothing.
+        names = list(RISCV_PROFILES)
+        for name in names:
+            base = features(name)
+            for ext in sorted(base - riscv_implied(base) - {'rv', '64', 'zicsr', 'f', 'b'}):
+                with self.subTest(profile=name, ext=ext):
+                    rest = base - {ext}
+                    pkgarch = riscv_pkgarch(' '.join(sorted(rest)))
+                    self.assertNotEqual(pkgarch.split('_')[0], name, pkgarch)
+                    lower = [n for n in names if features(n) <= rest | riscv_implied(rest) | {'zicsr'}]
+                    if lower:
+                        self.assertTrue(pkgarch.startswith(lower[-1] + '_'), pkgarch)
+                    else:
+                        self.assertEqual(pkgarch, riscv_exact_pkgarch(' '.join(sorted(rest))))
+        for ext in ['zicsr', 'f', 'b']:
+            for name in names:
+                with self.subTest(profile=name, ext=ext):
+                    self.assertEqual(riscv_pkgarch(' '.join(sorted(features(name) - {ext}))), name)
+
+    def test_rv32_never_profile(self):
+        # The profiles are all RV64, so the same extensions on RV32 must not
+        # be given a profile name
+        for name in RISCV_PROFILES:
+            with self.subTest(profile=name):
+                f = riscv_isa_to_tune(name).replace('rv 64', 'rv 32')
+                self.assertTrue(riscv_pkgarch(f).startswith('riscv32'), riscv_pkgarch(f))
