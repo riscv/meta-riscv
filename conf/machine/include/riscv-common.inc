@@ -1,6 +1,6 @@
 #@DESCRIPTION: shared machine configuration settings for RISC-V boards
 
-require conf/machine/include/riscv/tune-riscv.inc
+require conf/machine/include/riscv/tune-riscv-all.inc
 
 #============================================
 # Common Linux Kernel & Uboot Configuration
