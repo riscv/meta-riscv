@@ -6,6 +6,7 @@ FILESEXTRAPATHS:prepend:k1 := "${THISDIR}/linux-mainline-k1:"
 FILESEXTRAPATHS:prepend:k3 := "${THISDIR}/linux-mainline-k3:"
 FILESEXTRAPATHS:prepend:eswin-ebc77-mainline := "${THISDIR}/linux-eswin-ebc77-mainline:"
 FILESEXTRAPATHS:prepend:milkv-duo-common := "${THISDIR}/linux-milkv-duo:"
+FILESEXTRAPATHS:prepend:visionfive2 := "${THISDIR}/linux-mainline-visionfive2:"
 
 KERNEL_VERSION_SANITY_SKIP = "1"
 LINUX_VERSION                       ?= "7.3"
@@ -107,6 +108,8 @@ SRC_URI:append:milkv-duo-common = " \
 SRC_URI:append:milkv-duo = " file://milkv-duo.cfg"
 SRC_URI:append:milkv-duo256m = " file://milkv-duo256m.cfg"
 SRC_URI:append:milkv-duos = " file://milkv-duos.cfg"
+
+SRC_URI:append:visionfive2 = " file://misc.cfg"
 
 # --- Misc per-machine ---
 INSANE_SKIP:append:eswin-ebc77-mainline                 = " textrel"
