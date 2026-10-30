@@ -37,6 +37,7 @@ SRC_URI:jh7110 = " \
            file://0001-drm-img-rogue-fix-build-with-gcc-16.patch \
            file://visionfive2-graphics.cfg \
            file://modules.cfg \
+           file://seccomp.cfg \
 "
 
 SRCREV_yocto-kernel-cache = "96ce9b7ee67702aec75816c4d44a527061c418c5"
