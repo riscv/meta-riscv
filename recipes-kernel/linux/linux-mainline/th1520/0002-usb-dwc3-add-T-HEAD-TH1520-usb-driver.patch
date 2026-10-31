@@ -20,12 +20,12 @@ Upstream-Status: Submitted
  create mode 100644 drivers/usb/dwc3/dwc3-thead.c
 
 diff --git a/drivers/usb/dwc3/Kconfig b/drivers/usb/dwc3/Kconfig
-index 310d182e10b5..d9e5ffa61ba5 100644
+index 18169727a..132435e3a 100644
 --- a/drivers/usb/dwc3/Kconfig
 +++ b/drivers/usb/dwc3/Kconfig
-@@ -189,4 +189,13 @@ config USB_DWC3_RTK
- 	  or dual-role mode.
- 	  Say 'Y' or 'M' if you have such device.
+@@ -234,4 +234,13 @@ config USB_DWC3_GOOGLE
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called dwc3-google.ko.
  
 +config USB_DWC3_THEAD
 +	tristate "T-HEAD Platform"
@@ -38,17 +38,19 @@ index 310d182e10b5..d9e5ffa61ba5 100644
 +
  endif
 diff --git a/drivers/usb/dwc3/Makefile b/drivers/usb/dwc3/Makefile
-index 830e6c9e5fe0..6c361d9355f7 100644
+index f37971197..e03384e23 100644
 --- a/drivers/usb/dwc3/Makefile
 +++ b/drivers/usb/dwc3/Makefile
-@@ -57,3 +57,4 @@ obj-$(CONFIG_USB_DWC3_IMX8MP)		+= dwc3-imx8mp.o
+@@ -59,5 +59,6 @@ obj-$(CONFIG_USB_DWC3_IMX)		+= dwc3-imx.o
  obj-$(CONFIG_USB_DWC3_XILINX)		+= dwc3-xilinx.o
  obj-$(CONFIG_USB_DWC3_OCTEON)		+= dwc3-octeon.o
  obj-$(CONFIG_USB_DWC3_RTK)		+= dwc3-rtk.o
 +obj-$(CONFIG_USB_DWC3_THEAD)		+= dwc3-thead.o
+ obj-$(CONFIG_USB_DWC3_GENERIC_PLAT)	+= dwc3-generic-plat.o
+ obj-$(CONFIG_USB_DWC3_GOOGLE)		+= dwc3-google.o
 diff --git a/drivers/usb/dwc3/dwc3-thead.c b/drivers/usb/dwc3/dwc3-thead.c
 new file mode 100644
-index 000000000000..987ac70a5afc
+index 000000000..987ac70a5
 --- /dev/null
 +++ b/drivers/usb/dwc3/dwc3-thead.c
 @@ -0,0 +1,112 @@
@@ -164,6 +166,3 @@ index 000000000000..987ac70a5afc
 +MODULE_LICENSE("GPL v2");
 +MODULE_DESCRIPTION("DesignWare DWC3 T-HEAD Glue Driver");
 +MODULE_AUTHOR("Jisheng Zhang <jszhang@kernel.org>");
--- 
-2.47.3
-
