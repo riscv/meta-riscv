@@ -8,9 +8,9 @@ FILESEXTRAPATHS:prepend:eswin-ebc77-mainline := "${THISDIR}/linux-eswin-ebc77-ma
 FILESEXTRAPATHS:prepend:milkv-duo-common := "${THISDIR}/linux-milkv-duo:"
 
 KERNEL_VERSION_SANITY_SKIP = "1"
-LINUX_VERSION                       ?= "7.3"
+LINUX_VERSION                       ?= "7.3.1"
 BRANCH                              ?= "linux-7.3.y"
-SRCREV                              ?= "c03c1a14507dfaf8b856c2608f9ac216021fc222"
+SRCREV                              ?= "79a907609d53d5cd645b42c11550d295d43abf99"
 
 # --- DEPENDS ---
 DEPENDS:append:k1                    = " u-boot-tools-native"
