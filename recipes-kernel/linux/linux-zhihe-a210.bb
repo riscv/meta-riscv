@@ -6,7 +6,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 inherit kernel
 require recipes-kernel/linux/linux-yocto.inc
 
-SRC_URI = "git://git.osuosl.org/osuosl/zhihe-a210-kernel.git;protocol=https;nobranch=1;tag=v7.2.12-osl-a210"
+SRC_URI = "git://github.com/riseproject-dev/linux.git;protocol=https;nobranch=1;tag=v7.2.12-a210"
 
 SRCREV = "5e59b3a72cd424dc1ea8aeef89ebbcf9b64c81c4"
 
