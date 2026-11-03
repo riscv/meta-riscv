@@ -65,4 +65,4 @@ kernel (`Image`), device tree (`a210-dev.dtb`), and initramfs
 Resources
 =========
 
-* [OSU-OSL Zhihe A210 Kernel Repository](https://git.osuosl.org/osuosl/zhihe-a210-kernel)
+* [RISE Project Zhihe A210 Kernel Repository](https://github.com/riseproject-dev/linux/tree/alibaba-a210)
