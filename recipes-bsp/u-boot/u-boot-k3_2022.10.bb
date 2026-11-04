@@ -16,7 +16,7 @@ SRC_URI = " \
             file://0001-Add-support-for-OpenSSL-Provider-API.patch \
             "
 
-SRCREV = "28805afe074715a0ede143d42999ea06bee58fbd"
+SRCREV = "289dc2b7bd25bf9d88ce9e7e263e95234868ca14"
 
 # Skip "all": its u-boot.itb rule (board/spacemit/k3/config.mk) assumes an
 # in-tree build and fails out-of-tree. do_deploy builds u-boot.itb instead.
