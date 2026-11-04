@@ -12,7 +12,7 @@ SRC_URI = "\
         file://0001-gcc-plugins-Always-define-CONST_CAST_GIMPLE-and-CONS.patch \
 	"
 
-SRCREV = "0bef28bfeb51b20a62d82232de44556df942f4dc"
+SRCREV = "7d17e358c660f1046eb1f27f26eea33955813afd"
 
 KCONFIG_MODE = "alldefconfig"
 KBUILD_DEFCONFIG = "k3_bianbu_defconfig"
