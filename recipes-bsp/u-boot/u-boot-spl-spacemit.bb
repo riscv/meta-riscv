@@ -18,7 +18,7 @@ SRC_URI = " \
 BRANCH:k1  ?= "k1-bl-v2.2.y"
 BRANCH:k3  ?= "k3-br-v1.0.y"
 SRCREV:k1  ?= "c6f2746cb7993a6fb6c9f51b2bff318921e13f98"
-SRCREV:k3  ?= "28805afe074715a0ede143d42999ea06bee58fbd"
+SRCREV:k3  ?= "289dc2b7bd25bf9d88ce9e7e263e95234868ca14"
 
 UBOOT_SPL_MACHINE:k1 ?= "k1_defconfig"
 UBOOT_SPL_MACHINE:k3 ?= "k3_defconfig"
