@@ -15,7 +15,7 @@ SRC_URI = " \
     git://github.com/spacemit-com/spacemit-firmware.git;protocol=https;branch=${BRANCH} \
 "
 
-SRCREV = "5969642a5b46fee5ba7f21ca54c3129bff7bb049"
+SRCREV = "ca39878b1b74c73409a2e0444e4f099d7966021e"
 
 do_deploy() {
     install -d ${DEPLOYDIR}
