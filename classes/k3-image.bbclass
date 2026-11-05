@@ -74,6 +74,12 @@ python do_create_bootfs() {
         bb.warn("No DTB files found")
     for dtb in dtbs:
         copy_file(dtb, os.path.join(dtb_subdir, dtb))
+        # Only for boards that boot an older U-Boot from SPI NOR, which
+        # looks the DTB up by its underscored product name
+        # (k3_com260_ifx.dtb). The u-boot-k3 this layer builds maps that
+        # name to the hyphenated file itself (vendor commit 0f87df54).
+        if '-' in dtb:
+            copy_file(dtb, os.path.join(dtb_subdir, dtb.replace('-', '_')))
 
     # 5. Calculate size and generate image (add 15% margin)
     total_size_kb = sum(os.path.getsize(os.path.join(root, f))
