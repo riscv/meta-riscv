@@ -1,6 +1,6 @@
 # Settings shared by all Milk-V Duo boards (duo, duo256m, duos)
 
-require conf/machine/include/riscv/tune-riscv.inc
+require conf/machine/include/riscv/tune-riscv-all.inc
 
 # Override shared by all Milk-V Duo boards (duo, duo256m, duos). Use
 # :milkv-duo-common for family-wide settings; :milkv-duo is the Duo (CV1800B) only.
