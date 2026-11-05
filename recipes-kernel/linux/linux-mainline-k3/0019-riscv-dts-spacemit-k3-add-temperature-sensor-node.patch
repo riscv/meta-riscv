@@ -1,0 +1,36 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Thomas Roos <thomas@exein.io>
+Date: Thu, 5 Nov 2026 15:36:24 +0100
+Subject: [PATCH] riscv: dts: spacemit: k3: add temperature sensor node
+
+Upstream-Status: Pending
+Signed-off-by: Thomas Roos <thomas@exein.io>
+---
+ arch/riscv/boot/dts/spacemit/k3.dtsi | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/arch/riscv/boot/dts/spacemit/k3.dtsi b/arch/riscv/boot/dts/spacemit/k3.dtsi
+index 8ae4e1f9650a..8c9264a1e174 100644
+--- a/arch/riscv/boot/dts/spacemit/k3.dtsi
++++ b/arch/riscv/boot/dts/spacemit/k3.dtsi
+@@ -916,6 +916,17 @@ uart9: serial@d4017800 {
+ 			status = "disabled";
+ 		};
+ 
++		tsensor: thermal-sensor@d4018000 {
++			compatible = "spacemit,k3-tsensor";
++			reg = <0x0 0xd4018000 0x0 0x100>;
++			interrupts = <61 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&syscon_apbc CLK_APBC_TSEN>,
++				 <&syscon_apbc CLK_APBC_TSEN_BUS>;
++			clock-names = "func", "bus";
++			resets = <&syscon_apbc RESET_APBC_TSEN>;
++			#thermal-sensor-cells = <1>;
++		};
++
+ 		i2c6: i2c@d4018800 {
+ 			compatible = "spacemit,k3-i2c", "spacemit,k1-i2c";
+ 			reg = <0x0 0xd4018800 0x0 0x38>;
+-- 
+2.56.0
+

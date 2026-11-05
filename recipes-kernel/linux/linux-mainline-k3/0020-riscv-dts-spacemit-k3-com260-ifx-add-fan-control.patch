@@ -1,0 +1,122 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Thomas Roos <thomas@exein.io>
+Date: Thu, 5 Nov 2026 15:36:24 +0100
+Subject: [PATCH] riscv: dts: spacemit: k3-com260-ifx: add fan control
+
+Enable i2c6 (pads 7/8, function 6, 3.3 V) with the Sensylink CTF2301
+fan controller at 0x4c and add a thermal zone on SoC sensor 4 with the
+fan curve from the vendor device tree.
+
+Upstream-Status: Pending
+Signed-off-by: Thomas Roos <thomas@exein.io>
+---
+ .../riscv/boot/dts/spacemit/k3-com260-ifx.dts | 75 +++++++++++++++++++
+ arch/riscv/boot/dts/spacemit/k3-pinctrl.dtsi  | 11 +++
+ 2 files changed, 86 insertions(+)
+
+diff --git a/arch/riscv/boot/dts/spacemit/k3-com260-ifx.dts b/arch/riscv/boot/dts/spacemit/k3-com260-ifx.dts
+index a5c08a7a781a..a254b87adf85 100644
+--- a/arch/riscv/boot/dts/spacemit/k3-com260-ifx.dts
++++ b/arch/riscv/boot/dts/spacemit/k3-com260-ifx.dts
+@@ -52,3 +52,78 @@ &sdhci0 {
+ 	sd-uhs-sdr104;
+ 	status = "okay";
+ };
++
++/* Sensylink CTF2301 fan controller (0x4c) */
++&i2c6 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c6_1_cfg>;
++	status = "okay";
++
++	fan: fan-controller@4c {
++		compatible = "sensylink,ctf2301";
++		reg = <0x4c>;
++		#cooling-cells = <2>;
++	};
++};
++
++/ {
++	thermal-zones {
++		/* fan curve as in the vendor device tree, SoC sensor 4 */
++		soc-thermal {
++			polling-delay = <1000>;
++			polling-delay-passive = <250>;
++			thermal-sensors = <&tsensor 4>;
++
++			trips {
++				fan0: trip-fan0 {
++					temperature = <35000>;
++					hysteresis = <5000>;
++					type = "active";
++				};
++				fan1: trip-fan1 {
++					temperature = <40000>;
++					hysteresis = <5000>;
++					type = "active";
++				};
++				fan2: trip-fan2 {
++					temperature = <50000>;
++					hysteresis = <5000>;
++					type = "active";
++				};
++				fan3: trip-fan3 {
++					temperature = <60000>;
++					hysteresis = <5000>;
++					type = "active";
++				};
++				fan4: trip-fan4 {
++					temperature = <70000>;
++					hysteresis = <5000>;
++					type = "active";
++				};
++			};
++
++			cooling-maps {
++				map0 {
++					trip = <&fan0>;
++					cooling-device = <&fan 0 50>;
++				};
++				map1 {
++					trip = <&fan1>;
++					cooling-device = <&fan 64 75>;
++				};
++				map2 {
++					trip = <&fan2>;
++					cooling-device = <&fan 102 128>;
++				};
++				map3 {
++					trip = <&fan3>;
++					cooling-device = <&fan 179 204>;
++				};
++				map4 {
++					trip = <&fan4>;
++					cooling-device = <&fan 255 255>;
++				};
++			};
++		};
++	};
++};
+diff --git a/arch/riscv/boot/dts/spacemit/k3-pinctrl.dtsi b/arch/riscv/boot/dts/spacemit/k3-pinctrl.dtsi
+index 6482d24be139..4b6df61143be 100644
+--- a/arch/riscv/boot/dts/spacemit/k3-pinctrl.dtsi
++++ b/arch/riscv/boot/dts/spacemit/k3-pinctrl.dtsi
+@@ -777,4 +777,15 @@ mmc1-uhs-clk-pins {
+ 			power-source = <1800>;
+ 		};
+ 	};
++
++	i2c6_1_cfg: i2c6-1-cfg {
++		i2c6-1-pins {
++			pinmux = <K3_PADCONF(7, 6)>,	/* i2c6 scl */
++				 <K3_PADCONF(8, 6)>;	/* i2c6 sda */
++
++			bias-pull-up = <1>;
++			drive-strength = <18>;
++			power-source = <3300>;
++		};
++	};
+ };
+-- 
+2.56.0
+

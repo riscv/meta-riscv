@@ -1,0 +1,539 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Thomas Roos <thomas@exein.io>
+Date: Thu, 5 Nov 2026 15:36:24 +0100
+Subject: [PATCH] hwmon: add Sensylink CTF2301 fan controller driver
+
+Temperature sensors, PWM fan control, tach input and a thermal cooling
+device. Taken from the SpacemiT vendor kernel (k3-br-v1.0.y, by Troy
+Mitchell), adapted to the current cooling device API, and with the
+temperature scale fixed (the chip reports 0.0625/0.125 degC per LSB;
+the vendor code was off by a factor of 10).
+
+Upstream-Status: Pending
+Signed-off-by: Thomas Roos <thomas@exein.io>
+---
+ drivers/hwmon/Kconfig   |   8 +
+ drivers/hwmon/Makefile  |   1 +
+ drivers/hwmon/ctf2301.c | 479 ++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 488 insertions(+)
+ create mode 100644 drivers/hwmon/ctf2301.c
+
+diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig
+index fecff8610ea8..fbf82dfc5a37 100644
+--- a/drivers/hwmon/Kconfig
++++ b/drivers/hwmon/Kconfig
+@@ -521,6 +521,14 @@ config SENSORS_CORSAIR_PSU
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called corsair-psu.
+ 
++config SENSORS_CTF2301
++	tristate "Sensylink CTF2301 fan controller"
++	depends on I2C
++	select REGMAP_I2C
++	help
++	  Support for the Sensylink CTF2301 temperature sensor and PWM fan
++	  controller, also usable as a thermal cooling device.
++
+ config SENSORS_CROS_EC
+ 	tristate "ChromeOS Embedded Controller sensors"
+ 	depends on MFD_CROS_EC_DEV
+diff --git a/drivers/hwmon/Makefile b/drivers/hwmon/Makefile
+index 1229b6b3996d..abbc461733ee 100644
+--- a/drivers/hwmon/Makefile
++++ b/drivers/hwmon/Makefile
+@@ -62,6 +62,7 @@ obj-$(CONFIG_SENSORS_AXI_FAN_CONTROL) += axi-fan-control.o
+ obj-$(CONFIG_SENSORS_CGBC)	+= cgbc-hwmon.o
+ obj-$(CONFIG_SENSORS_CHIPCAP2) += chipcap2.o
+ obj-$(CONFIG_SENSORS_CORETEMP)	+= coretemp.o
++obj-$(CONFIG_SENSORS_CTF2301)	+= ctf2301.o
+ obj-$(CONFIG_SENSORS_CORSAIR_CPRO) += corsair-cpro.o
+ obj-$(CONFIG_SENSORS_CORSAIR_PSU) += corsair-psu.o
+ obj-$(CONFIG_SENSORS_CROS_EC)	+= cros_ec_hwmon.o
+diff --git a/drivers/hwmon/ctf2301.c b/drivers/hwmon/ctf2301.c
+new file mode 100644
+index 000000000000..f5b2e27bf382
+--- /dev/null
++++ b/drivers/hwmon/ctf2301.c
+@@ -0,0 +1,479 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Driver for CTF2301 system-level thermal management solution chip
++ * Datasheet: https://www.sensylink.com/upload/1/net.sensylink.portal/1689557281035.pdf
++ *
++ * Copyright (C) 2025 Troy Mitchell <troy.mitchell@linux.dev>
++ */
++
++#include <linux/hwmon.h>
++#include <linux/i2c.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/regmap.h>
++#include <linux/thermal.h>
++
++#define PWM_PARENT_CLOCK			360000
++
++#define CTF2301_LOCAL_TEMP_MSB			0x00
++#define CTF2301_RMT_TEMP_MSB			0x01
++#define CTF2301_ALERT_STATUS			0x02
++#define CTF2301_GLOBAL_CFG			0x03
++#define CTF2301_RMT_TEMP_LSB			0x10
++#define CTF2301_LOCAL_TEMP_LSB			0x15
++#define	CTF2301_ENHANCED_CFG			0x45
++#define CTF2301_TACH_COUNT_LSB			0x46
++#define CTF2301_TACH_COUNT_MSB			0x47
++#define CTF2301_PWM_AND_TACH_CFG		0x4a
++#define CTF2301_PWM_VALUE			0x4c
++#define CTF2301_PWM_FREQ			0x4d
++#define CTF2301_RMT_DIODE_TEMP_FILTER		0xbf
++
++/* remote diode fault alarm */
++#define ALERT_STATUS_RDFA			BIT(2)
++
++/* alert interrupts enable  */
++#define GLOBAL_CFG_ALERT_MASK			BIT(7)
++/* tach input enable  */
++#define GLOBAL_CFG_TACH_SEL			BIT(2)
++
++/* enables signed format for high and t_crit setpoints */
++#define ENHANGCED_CFG_USF			BIT(3)
++
++/* PWM Programming enable */
++#define PWM_AND_TACH_CFG_PWPGM			BIT(5)
++
++#define PWM_DEFAULT_FREQ_CODE			0x17
++#define CTF2301_PWM_MAX				255
++
++
++struct ctf2301 {
++	struct i2c_client *client;
++
++	struct regmap *regmap;
++	struct thermal_cooling_device *cdev;
++
++	unsigned int pwm_freq_code;
++	unsigned int pwm_save;		/* Saved PWM value for suspend/resume */
++	bool temp_signed;
++};
++
++static int ctf2301_read_temp(struct device *dev, u32 attr, int channel, long *val)
++{
++	int regval[2], raw, err, flag = 1, shift = 4, scale = 625;
++	struct ctf2301 *ctf2301 = dev_get_drvdata(dev);
++	unsigned int reg_msb = CTF2301_LOCAL_TEMP_MSB,
++		     reg_lsb = CTF2301_LOCAL_TEMP_LSB;
++
++	switch (attr) {
++	case hwmon_temp_input:
++		if (channel != 0 && channel != 1)
++			return -EOPNOTSUPP;
++
++		if (channel == 1) {
++			err = regmap_read(ctf2301->regmap, CTF2301_ALERT_STATUS, regval);
++			if (err)
++				return err;
++
++			if (regval[0] & ALERT_STATUS_RDFA)
++				return -ENODEV;
++
++			shift = 5;
++			scale = 1250;
++			reg_msb = CTF2301_RMT_TEMP_MSB;
++			reg_lsb = CTF2301_RMT_TEMP_LSB;
++		}
++
++		err = regmap_read(ctf2301->regmap, reg_msb, regval);
++		if (err)
++			return err;
++
++		err = regmap_read(ctf2301->regmap, reg_lsb, regval + 1);
++		if (err)
++			return err;
++
++		raw = (s16)((regval[0] << 8) | regval[1]);
++
++		raw >>= shift;
++
++		/* 0.0625 / 0.125 degC per LSB: scale is in 0.1 m°C */
++		*val = raw * scale * flag / 10;
++
++		break;
++	default:
++		return -EOPNOTSUPP;
++	}
++
++	return 0;
++}
++
++static int ctf2301_read_fan(struct device *dev, u32 attr, long *val)
++{
++	struct ctf2301 *ctf2301 = dev_get_drvdata(dev);
++	int regval[2], err, speed;
++
++	switch (attr) {
++	case hwmon_fan_input:
++		err = regmap_read(ctf2301->regmap, CTF2301_TACH_COUNT_MSB, regval);
++		if (err)
++			return err;
++
++		err = regmap_read(ctf2301->regmap, CTF2301_TACH_COUNT_LSB, regval + 1);
++		if (err)
++			return err;
++
++		speed = (regval[0] << 8) | regval[1];
++
++		*val = speed == 0 ? 0 : (unsigned int)(1 * (5400000 / speed));
++		break;
++	default:
++		return -EOPNOTSUPP;
++	}
++
++	return 0;
++}
++
++static int ctf2301_update_pwm(struct ctf2301 *data, long val)
++{
++	int map_val;
++
++	val = clamp_val(val, 0, CTF2301_PWM_MAX);
++
++	map_val = (val * data->pwm_freq_code * 2) / CTF2301_PWM_MAX;
++
++	return regmap_write(data->regmap, CTF2301_PWM_VALUE, map_val);
++}
++
++static int ctf2301_write_pwm(struct device *dev, u32 attr, long val)
++{
++	struct ctf2301 *ctf2301 = dev_get_drvdata(dev);
++	int err;
++
++	switch (attr) {
++	case hwmon_pwm_input:
++		return ctf2301_update_pwm(ctf2301, val);
++	case hwmon_pwm_freq:
++		ctf2301->pwm_freq_code = DIV_ROUND_UP(PWM_PARENT_CLOCK, val) / 2;
++
++		err = regmap_write(ctf2301->regmap, CTF2301_PWM_FREQ, ctf2301->pwm_freq_code);
++		if (err)
++			return err;
++		break;
++	default:
++		return -EOPNOTSUPP;
++	}
++
++	return 0;
++}
++
++static int ctf2301_read_pwm(struct device *dev, u32 attr, long *val)
++{
++	struct ctf2301 *ctf2301 = dev_get_drvdata(dev);
++	int err;
++	unsigned int reg_val;
++	unsigned int freq_code;
++
++	switch (attr) {
++	case hwmon_pwm_input:
++		err = regmap_read(ctf2301->regmap, CTF2301_PWM_VALUE, &reg_val);
++		if (err)
++			return err;
++
++		freq_code = ctf2301->pwm_freq_code;
++
++		if (freq_code == 0)
++			freq_code = 1;
++
++		*val = (reg_val * CTF2301_PWM_MAX) / (freq_code * 2);
++
++		if (*val > CTF2301_PWM_MAX)
++			*val = CTF2301_PWM_MAX;
++		break;
++
++	case hwmon_pwm_freq:
++		err = regmap_read(ctf2301->regmap, CTF2301_PWM_FREQ, &reg_val);
++		if (err)
++			return err;
++
++		if (reg_val == 0)
++			reg_val = 1;
++
++		*val = PWM_PARENT_CLOCK / (2 * reg_val);
++		break;
++	default:
++		return -EOPNOTSUPP;
++	}
++
++	return 0;
++}
++
++static umode_t ctf2301_is_visible(const void *drvdata,
++				 enum hwmon_sensor_types type,
++				 u32 attr, int channel)
++{
++	switch (type) {
++	case hwmon_temp:
++		switch (attr) {
++		case hwmon_temp_input:
++			return 0444;
++		default:
++			return 0;
++		}
++	case hwmon_fan:
++		switch (attr) {
++		case hwmon_fan_input:
++			return 0444;
++		default:
++			return 0;
++		}
++	case hwmon_pwm:
++		switch (attr) {
++		case hwmon_pwm_input:
++		case hwmon_pwm_freq:
++			return 0644;
++		default:
++			return 0;
++		}
++	default:
++		return 0;
++	}
++}
++
++static int ctf2301_read(struct device *dev, enum hwmon_sensor_types type,
++		       u32 attr, int channel, long *val)
++{
++	switch (type) {
++	case hwmon_temp:
++		return ctf2301_read_temp(dev, attr, channel, val);
++	case hwmon_fan:
++		return ctf2301_read_fan(dev, attr, val);
++	case hwmon_pwm:
++		return ctf2301_read_pwm(dev, attr, val);
++	default:
++		return -EOPNOTSUPP;
++	}
++	return 0;
++}
++
++static int ctf2301_write(struct device *dev, enum hwmon_sensor_types type,
++			 u32 attr, int channel, long val)
++{
++	switch (type) {
++	case hwmon_pwm:
++		return ctf2301_write_pwm(dev, attr, val);
++	default:
++		return -EOPNOTSUPP;
++	}
++	return 0;
++}
++
++static int ctf2301_cdev_get_max_state(struct thermal_cooling_device *cdev,
++				 unsigned long *state)
++{
++	*state = CTF2301_PWM_MAX;
++	return 0;
++}
++
++static int ctf2301_cdev_get_cur_state(struct thermal_cooling_device *cdev,
++                                 unsigned long *state)
++{
++	struct ctf2301 *data = cdev->devdata;
++	unsigned int reg_val;
++	long val;
++	int err;
++
++	err = regmap_read(data->regmap, CTF2301_PWM_VALUE, &reg_val);
++	if (err)
++		return err;
++
++	val = (reg_val * CTF2301_PWM_MAX) / (data->pwm_freq_code * 2);
++
++	*state = clamp_val(val, 0, CTF2301_PWM_MAX);
++
++	return 0;
++}
++
++static int ctf2301_cdev_set_cur_state(struct thermal_cooling_device *cdev,
++                                 unsigned long state)
++{
++	struct ctf2301 *data = cdev->devdata;
++
++	return ctf2301_update_pwm(data, state);
++}
++
++static const struct thermal_cooling_device_ops ctf2301_cooling_ops = {
++	.get_max_state = ctf2301_cdev_get_max_state,
++	.get_cur_state = ctf2301_cdev_get_cur_state,
++	.set_cur_state = ctf2301_cdev_set_cur_state,
++};
++
++static const struct hwmon_channel_info * const ctf2301_info[] = {
++	HWMON_CHANNEL_INFO(temp, HWMON_T_INPUT, HWMON_T_INPUT),
++	HWMON_CHANNEL_INFO(pwm, HWMON_PWM_INPUT | HWMON_PWM_FREQ),
++	HWMON_CHANNEL_INFO(fan, HWMON_F_INPUT),
++	NULL
++};
++
++static const struct hwmon_ops ctf2301_hwmon_ops = {
++	.is_visible = ctf2301_is_visible,
++	.read = ctf2301_read,
++	.write = ctf2301_write
++};
++
++static const struct hwmon_chip_info ctf2301_chip_info = {
++	.ops = &ctf2301_hwmon_ops,
++	.info = ctf2301_info,
++};
++
++static const struct regmap_config ctf2301_regmap_config = {
++	.max_register = CTF2301_RMT_DIODE_TEMP_FILTER,
++	.reg_bits = 8,
++	.val_bits = 8,
++};
++
++static void ctf2301_parse_dt(struct device_node *np, struct ctf2301 *ctf2301)
++{
++	int ret;
++	u32 pwm_freq;
++
++	ret = of_property_read_u32(np, "sensylink,pwm-freq", &pwm_freq);
++	if (ret)
++		ctf2301->pwm_freq_code = PWM_DEFAULT_FREQ_CODE;
++	else
++		ctf2301->pwm_freq_code = DIV_ROUND_UP(PWM_PARENT_CLOCK, pwm_freq) / 2;
++
++	ctf2301->temp_signed = of_property_read_bool(np, "sensylink,temp-signed");
++}
++
++static int ctf2301_probe(struct i2c_client *client)
++{
++	struct device *dev = &client->dev;
++	struct device *hwmon_dev;
++	struct ctf2301 *ctf2301;
++	int err;
++
++	ctf2301 = devm_kzalloc(dev, sizeof(*ctf2301), GFP_KERNEL);
++	if (!ctf2301)
++		return -ENOMEM;
++
++	ctf2301->client = client;
++
++	i2c_set_clientdata(client, ctf2301);
++
++	ctf2301_parse_dt(client->dev.of_node, ctf2301);
++
++	ctf2301->regmap = devm_regmap_init_i2c(client, &ctf2301_regmap_config);
++	if (IS_ERR(ctf2301->regmap))
++		return dev_err_probe(dev, PTR_ERR(ctf2301->regmap),
++				     "failed to allocate register map");
++
++	err = regmap_write(ctf2301->regmap, CTF2301_GLOBAL_CFG,
++			   GLOBAL_CFG_ALERT_MASK | GLOBAL_CFG_TACH_SEL);
++	if (err)
++		return dev_err_probe(dev, err,
++				     "failed to write CTF2301_GLOBAL_CFG register");
++
++	err = regmap_write(ctf2301->regmap, CTF2301_ENHANCED_CFG, ENHANGCED_CFG_USF);
++	if (err)
++		return dev_err_probe(dev, err,
++				     "failed to write CTF2301_ENHANCED_CFG");
++
++	err = regmap_write(ctf2301->regmap, CTF2301_PWM_AND_TACH_CFG, PWM_AND_TACH_CFG_PWPGM);
++	if (err)
++		return dev_err_probe(dev, err,
++				     "failed to write CTF2301_PWM_AND_TACH_CFG");
++
++	/* default to enable the fan */
++	ctf2301_update_pwm(ctf2301, CTF2301_PWM_MAX);
++	/*
++	 * Fail-safe default for suspend/resume: if the very first suspend
++	 * ever hits a PWM read failure before a real value was cached, fall
++	 * back to full speed rather than leaving the fan off.
++	 */
++	ctf2301->pwm_save = CTF2301_PWM_MAX;
++
++	hwmon_dev = devm_hwmon_device_register_with_info(dev, client->name, ctf2301,
++							 &ctf2301_chip_info,
++							 NULL);
++	if (IS_ERR(hwmon_dev))
++		return dev_err_probe(dev, PTR_ERR(hwmon_dev),
++				     "failed to register hwmon device");
++
++	if (IS_ENABLED(CONFIG_THERMAL)) {
++		ctf2301->cdev = devm_thermal_of_cooling_device_register(dev,
++									0,
++									"ctf2301_fan",
++									ctf2301,
++									&ctf2301_cooling_ops);
++		if (IS_ERR(ctf2301->cdev))
++			dev_warn(dev, "failed to register cooling device");
++	}
++
++	return 0;
++}
++
++static const struct of_device_id ctf2301_of_match[] = {
++	{ .compatible = "sensylink,ctf2301", },
++	{ /* sentinel */ }
++};
++MODULE_DEVICE_TABLE(of, ctf2301_of_match);
++
++static int ctf2301_suspend(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct ctf2301 *ctf2301 = i2c_get_clientdata(client);
++	long pwm_val;
++	int ret;
++
++	/* Read current PWM value before suspend */
++	ret = ctf2301_read_pwm(dev, hwmon_pwm_input, &pwm_val);
++	if (ret) {
++		/*
++		 * Keep the last known-good pwm_save on a transient read
++		 * failure instead of clobbering it with 0 -- otherwise a
++		 * single I2C glitch here would permanently leave the fan
++		 * stopped after every future resume.
++		 */
++		dev_warn(dev, "failed to read PWM value before suspend: %d, keeping last saved value %u\n",
++			 ret, ctf2301->pwm_save);
++	} else {
++		ctf2301->pwm_save = (unsigned int)pwm_val;
++	}
++
++	/* Set fan to stop (PWM = 0) */
++	ret = ctf2301_update_pwm(ctf2301, 0);
++	if (ret)
++		dev_warn(dev, "failed to stop fan during suspend: %d\n", ret);
++
++	return 0;
++}
++
++static int ctf2301_resume(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct ctf2301 *ctf2301 = i2c_get_clientdata(client);
++	int ret;
++
++	/* Restore PWM value saved before suspend */
++	ret = ctf2301_update_pwm(ctf2301, ctf2301->pwm_save);
++	if (ret)
++		dev_warn(dev, "failed to restore fan speed after resume: %d\n", ret);
++
++	return ret;
++}
++
++static DEFINE_SIMPLE_DEV_PM_OPS(ctf2301_pm, ctf2301_suspend, ctf2301_resume);
++
++static struct i2c_driver ctf2301_driver = {
++	.driver = {
++		.name	= "ctf2301",
++		.of_match_table = of_match_ptr(ctf2301_of_match),
++		.pm	= pm_sleep_ptr(&ctf2301_pm),
++	},
++	.probe		= ctf2301_probe,
++};
++module_i2c_driver(ctf2301_driver);
++
++MODULE_AUTHOR("Troy Mitchell <troy.mitchell@linux.dev>");
++MODULE_DESCRIPTION("ctf2301 driver");
++MODULE_LICENSE("GPL");
+-- 
+2.56.0
+
