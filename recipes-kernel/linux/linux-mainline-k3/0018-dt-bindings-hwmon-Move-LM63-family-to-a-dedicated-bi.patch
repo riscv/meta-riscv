@@ -1,0 +1,108 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Troy Mitchell <troy.mitchell@linux.dev>
+Date: Mon, 14 Sep 2026 16:03:54 +0800
+Subject: [PATCH] dt-bindings: hwmon: Move LM63 family to a dedicated
+ binding
+
+Move the National Semiconductor LM63, LM64, and LM96163 compatibles out
+of trivial-devices.yaml and into a dedicated binding. Describe their
+integrated fan control and preserve the optional interrupt used by the
+ALERT output. Permit use as thermal cooling devices via #cooling-cells.
+
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+Signed-off-by: Troy Mitchell <troy.mitchell@linux.dev>
+Link: https://patch.msgid.link/20260914-ctl2301-v5-2-b44b81cd2c3c@linux.dev
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+(cherry picked from commit 2ebe47827efd944b7057e8987671b938736451d4)
+
+Upstream-Status: Backport [https://git.kernel.org/torvalds/c/2ebe47827efd]
+Signed-off-by: Thomas Roos <thomas@exein.io>
+---
+ .../bindings/hwmon/national,lm63.yaml         | 53 +++++++++++++++++++
+ .../devicetree/bindings/trivial-devices.yaml  |  6 ---
+ 2 files changed, 53 insertions(+), 6 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/hwmon/national,lm63.yaml
+
+diff --git a/Documentation/devicetree/bindings/hwmon/national,lm63.yaml b/Documentation/devicetree/bindings/hwmon/national,lm63.yaml
+new file mode 100644
+index 000000000000..f2e0993cfbef
+--- /dev/null
++++ b/Documentation/devicetree/bindings/hwmon/national,lm63.yaml
+@@ -0,0 +1,53 @@
++# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/hwmon/national,lm63.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: LM63-compatible temperature sensors with integrated fan control
++
++maintainers:
++  - Guenter Roeck <linux@roeck-us.net>
++
++description: |
++  The LM63 family provides local and remote temperature monitoring together
++  with fan speed monitoring and PWM fan control. Supported devices include
++  the National Semiconductor LM63, LM64 and LM96163.
++
++allOf:
++  - $ref: hwmon-common.yaml#
++
++properties:
++  compatible:
++    enum:
++      - national,lm63
++      - national,lm64
++      - national,lm96163
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  "#cooling-cells":
++    const: 2
++
++required:
++  - compatible
++  - reg
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        temperature-sensor@4c {
++            compatible = "national,lm63";
++            reg = <0x4c>;
++            #cooling-cells = <2>;
++        };
++    };
+diff --git a/Documentation/devicetree/bindings/trivial-devices.yaml b/Documentation/devicetree/bindings/trivial-devices.yaml
+index 2de8eb09cb7d..e46912ba2fd6 100644
+--- a/Documentation/devicetree/bindings/trivial-devices.yaml
++++ b/Documentation/devicetree/bindings/trivial-devices.yaml
+@@ -368,16 +368,10 @@ properties:
+           - mps,mpq82d00
+             # Murata D1U74T-W power supply unit
+           - murata,d1u74t
+-            # Temperature sensor with integrated fan control
+-          - national,lm63
+-            # Temperature sensor with integrated fan control
+-          - national,lm64
+             # Temperature sensor
+           - national,lm95235
+             # Temperature sensor
+           - national,lm95245
+-            # Temperature sensor with integrated fan control
+-          - national,lm96163
+             # Serial Interface ACPI-Compatible Microprocessor System Hardware Monitor
+           - national,lm80
+             # Serial Interface ACPI-Compatible Microprocessor System Hardware Monitor
+-- 
+2.56.1
+

@@ -1,0 +1,47 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Troy Mitchell <troy.mitchell@linux.dev>
+Date: Mon, 14 Sep 2026 16:18:05 +0800
+Subject: [PATCH] riscv: dts: spacemit: Add K3 I2C6 pinctrl state
+
+Add the K3 I2C6 pinctrl state used by boards that route I2C6 to pads 7
+and 8. Use a 25 mA drive strength, which is supported for both K3 IO
+voltage domains, and leave board-specific IO voltage selection to board
+files.
+
+Signed-off-by: Troy Mitchell <troy.mitchell@linux.dev>
+Reviewed-by: Yixun Lan <dlan@kernel.org>
+Link: https://patch.msgid.link/20260914-ctl2301-v5-5-522def70acb4@linux.dev
+Signed-off-by: Yixun Lan <dlan@kernel.org>
+(cherry picked from commit 97bd8165a3f734fe97664e186406686bfa34f42f)
+
+Upstream-Status: Backport [https://git.kernel.org/torvalds/c/97bd8165a3f7]
+Signed-off-by: Thomas Roos <thomas@exein.io>
+---
+ arch/riscv/boot/dts/spacemit/k3-pinctrl.dtsi | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/arch/riscv/boot/dts/spacemit/k3-pinctrl.dtsi b/arch/riscv/boot/dts/spacemit/k3-pinctrl.dtsi
+index 6482d24be139..cb4f4f4e33af 100644
+--- a/arch/riscv/boot/dts/spacemit/k3-pinctrl.dtsi
++++ b/arch/riscv/boot/dts/spacemit/k3-pinctrl.dtsi
+@@ -101,6 +101,17 @@ i2c2-1-pins {
+ 		};
+ 	};
+ 
++	/omit-if-no-ref/
++	i2c6_1_cfg: i2c6-1-cfg {
++		i2c6-1-pins {
++			pinmux = <K3_PADCONF(7, 6)>,	/* i2c6 scl */
++				 <K3_PADCONF(8, 6)>;	/* i2c6 sda */
++
++			bias-pull-up = <0>;
++			drive-strength = <25>;
++		};
++	};
++
+ 	/omit-if-no-ref/
+ 	i2c8_cfg: i2c8-cfg {
+ 		i2c8-pins {
+-- 
+2.56.1
+
