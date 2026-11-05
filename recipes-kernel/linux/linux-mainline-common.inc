@@ -15,11 +15,12 @@ KCONFIG_MODE = "--alldefconfig"
 KBUILD_DEFCONFIG ?= "defconfig"
 KBUILD_DEFCONFIG:qemuriscv32 = "rv32_defconfig"
 
-COMPATIBLE_MACHINE = "(qemuriscv32|qemuriscv64|th1520|beaglev-fire|freedom-u540|dc-roma-fml13v01|eswin-ebc77-mainline|k1|k3|milkv-duo-common)"
+COMPATIBLE_MACHINE = "(qemuriscv32|qemuriscv64|th1520|beaglev-fire|freedom-u540|dc-roma-fml13v01|eswin-ebc77-mainline|k1|k3|milkv-duo-commonn|visionfive2)"
 
 KERNEL_FEATURES:remove = "features/debug/printk.scc"
 KERNEL_FEATURES:remove = "features/kernel-sample/kernel-sample.scc"
 KERNEL_FEATURES:remove = "features/taskstats/taskstats.scc"
 KERNEL_FEATURES:remove = "cfg/fs/vfat.scc"
+KERNEL_FEATURES:remove = "cfg/efi.scc"
 KERNEL_FEATURES:remove:riscv32 = " ${KERNEL_FEATURES_RISCV}"
 KERNEL_FEATURES:remove:riscv64 = " ${KERNEL_FEATURES_RISCV}"
