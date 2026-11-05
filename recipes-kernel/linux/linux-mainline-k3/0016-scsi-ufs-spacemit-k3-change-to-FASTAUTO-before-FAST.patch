@@ -1,0 +1,84 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Thomas Roos <thomas@exein.io>
+Date: Thu, 5 Nov 2026 14:06:32 +0100
+Subject: [PATCH] scsi: ufs: spacemit: k3: change to FASTAUTO before the FAST
+ power mode
+
+The SpacemiT vendor kernel and U-Boot never change the link straight to
+FAST: they change to FASTAUTO at the target gear/rate first, wait
+100 ms, and only then to FAST. A direct FAST change kills the link at
+the M-PHY PLL rate change: on the K3 CoM260 IFX (YMTC YMUS8B5TH1A1C1)
+every mode except HS-G1 rate A fails with DL errors 0x80000002 /
+0x80000001 / 0x80002000 and PA_ERR 0x80000010, and the disk is lost.
+
+Do the FASTAUTO step in the PRE_CHANGE hook; the core then sends the
+FAST request. With this the link runs at HS-G3 rate B on two lanes.
+
+Upstream-Status: Pending
+Signed-off-by: Thomas Roos <thomas@exein.io>
+---
+ drivers/ufs/host/ufs-spacemit.c | 41 +++++++++++++++++++++++++++++++++
+ 1 file changed, 41 insertions(+)
+
+diff --git a/drivers/ufs/host/ufs-spacemit.c b/drivers/ufs/host/ufs-spacemit.c
+index 65aeba393b0f..6cb195deb9a6 100644
+--- a/drivers/ufs/host/ufs-spacemit.c
++++ b/drivers/ufs/host/ufs-spacemit.c
+@@ -343,6 +343,42 @@ static int ufs_spacemit_negotiate_pwr_mode(struct ufs_hba *hba,
+ 	return ret;
+ }
+ 
++/*
++ * As in the vendor kernel and U-Boot: change to FASTAUTO at the target
++ * gear/rate first and only then (from the core) to FAST. A direct FAST
++ * change kills the link after the M-PHY PLL rate change, so only HS-G1A
++ * would work.
++ */
++static int ufs_spacemit_fastauto_step(struct ufs_hba *hba,
++				      struct ufs_pa_layer_attr *p)
++{
++	int ret;
++
++	ufshcd_dme_set(hba, UIC_ARG_MIB(PA_RXGEAR), p->gear_rx);
++	ufshcd_dme_set(hba, UIC_ARG_MIB(PA_ACTIVERXDATALANES), p->lane_rx);
++	ufshcd_dme_set(hba, UIC_ARG_MIB(PA_RXTERMINATION), 1);
++	ufshcd_dme_set(hba, UIC_ARG_MIB(PA_TXGEAR), p->gear_tx);
++	ufshcd_dme_set(hba, UIC_ARG_MIB(PA_ACTIVETXDATALANES), p->lane_tx);
++	ufshcd_dme_set(hba, UIC_ARG_MIB(PA_TXTERMINATION), 1);
++	ufshcd_dme_set(hba, UIC_ARG_MIB(PA_HSSERIES), p->hs_rate);
++	ufshcd_dme_set(hba, UIC_ARG_MIB(PA_PWRMODEUSERDATA0), DL_FC0ProtectionTimeOutVal_Default);
++	ufshcd_dme_set(hba, UIC_ARG_MIB(PA_PWRMODEUSERDATA1), DL_TC0ReplayTimeOutVal_Default);
++	ufshcd_dme_set(hba, UIC_ARG_MIB(PA_PWRMODEUSERDATA2), DL_AFC0ReqTimeOutVal_Default);
++	ufshcd_dme_set(hba, UIC_ARG_MIB(PA_PWRMODEUSERDATA3), DL_FC1ProtectionTimeOutVal_Default);
++	ufshcd_dme_set(hba, UIC_ARG_MIB(PA_PWRMODEUSERDATA4), DL_TC1ReplayTimeOutVal_Default);
++	ufshcd_dme_set(hba, UIC_ARG_MIB(PA_PWRMODEUSERDATA5), DL_AFC1ReqTimeOutVal_Default);
++	ufshcd_dme_set(hba, UIC_ARG_MIB(DME_LocalFC0ProtectionTimeOutVal), DL_FC0ProtectionTimeOutVal_Default);
++	ufshcd_dme_set(hba, UIC_ARG_MIB(DME_LocalTC0ReplayTimeOutVal), DL_TC0ReplayTimeOutVal_Default);
++	ufshcd_dme_set(hba, UIC_ARG_MIB(DME_LocalAFC0ReqTimeOutVal), DL_AFC0ReqTimeOutVal_Default);
++
++	ret = ufshcd_uic_change_pwr_mode(hba, FASTAUTO_MODE << 4 | FASTAUTO_MODE);
++	if (ret)
++		return ret;
++	msleep(100);
++
++	return ufs_spacemit_wait_mphy_pll_lock(hba);
++}
++
+ static int ufs_spacemit_pwr_change_notify(struct ufs_hba *hba,
+ 					  enum ufs_notify_change_status status,
+ 					  struct ufs_pa_layer_attr *dev_req_params)
+@@ -356,6 +392,11 @@ static int ufs_spacemit_pwr_change_notify(struct ufs_hba *hba,
+ 
+ 	switch (status) {
+ 	case PRE_CHANGE:
++		/* the core sends the FAST request after this hook */
++		if (dev_req_params->pwr_rx == FAST_MODE &&
++		    dev_req_params->pwr_tx == FAST_MODE &&
++		    memcmp(dev_req_params, &hba->pwr_info, sizeof(*dev_req_params)))
++			ret = ufs_spacemit_fastauto_step(hba, dev_req_params);
+ 		break;
+ 	case POST_CHANGE:
+ 		ret = ufs_spacemit_wait_mphy_pll_lock(hba);
+-- 
+2.56.0
+
