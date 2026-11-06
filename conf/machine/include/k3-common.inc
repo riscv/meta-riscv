@@ -37,3 +37,10 @@ MACHINE_EXTRA_RRECOMMENDS += "\
         linux-firmware-rtl8852 \
         linux-firmware-rtl8922 \
         "
+
+# FIT kernel load address for linux-yocto-fitimage: where the vendor U-Boot's
+# booti relocates an Image to, i.e. its ram_base (DRAM at 0x100000000 plus
+# a 32 MiB secure region) plus the Image's 2 MiB text_offset. DRAM is above
+# 4 GiB, so FIT addresses need two cells.
+FIT_ADDRESS_CELLS = "2"
+UBOOT_ENTRYPOINT ?= "0x00000001 0x02200000"
