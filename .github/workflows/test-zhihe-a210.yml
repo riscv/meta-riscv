@@ -14,7 +14,11 @@ on:
     branches:
       - master
     paths:
+      - 'classes/**'
+      - 'conf/layer.conf'
+      - 'conf/machine/include/**'
       - 'conf/machine/zhihe-a210.conf'
+      - 'recipes-bsp/**'
       - 'recipes-kernel/linux/linux-zhihe-a210*'
       - 'kas/base-riscv.yml'
       - 'kas/include/**'
@@ -24,7 +28,11 @@ on:
     branches:
       - master
     paths:
+      - 'classes/**'
+      - 'conf/layer.conf'
+      - 'conf/machine/include/**'
       - 'conf/machine/zhihe-a210.conf'
+      - 'recipes-bsp/**'
       - 'recipes-kernel/linux/linux-zhihe-a210*'
       - 'kas/base-riscv.yml'
       - 'kas/include/**'
@@ -120,7 +128,7 @@ jobs:
             kas build "meta-riscv/kas/zhihe-a210.yml:meta-riscv/kas/ci-overrides.yml" --target core-image-minimal
 
           DEPLOY_DIR="build/tmp/deploy/images/zhihe-a210"
-          KERNEL_VERSION="$(basename "$(readlink "${DEPLOY_DIR}/Image" || true)" | sed -n 's/^Image--\([0-9][0-9.]*\).*/\1/p')"
+          KERNEL_VERSION="$(basename "$(readlink -f "${DEPLOY_DIR}/Image" || true)" | sed -n 's/^Image--\([0-9][0-9.]*\).*/\1/p')"
           cp -L "${DEPLOY_DIR}/Image" out/Image
           cp -L "${DEPLOY_DIR}/a210-dev.dtb" out/a210-dev.dtb
           cp -L "${DEPLOY_DIR}/core-image-minimal-zhihe-a210.rootfs.cpio.gz" out/rootfs.cpio.gz
