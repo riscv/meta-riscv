@@ -1,10 +1,7 @@
-From c68dbb375794bc6935f8cdef694181a4912d7f1d Mon Sep 17 00:00:00 2001
-Message-ID: <c68dbb375794bc6935f8cdef694181a4912d7f1d.1792513291.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
-References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+From 20c9018056dfdd88813a1cdf6fc1ca594a45fdb7 Mon Sep 17 00:00:00 2001
 From: Pritesh Patel <pritesh.patel@einfochips.com>
 Date: Fri, 7 Nov 2025 15:05:57 +0530
-Subject: [PATCH 24/31] riscv: dts: eswin: Dts Changes for SD Card Boot
+Subject: [PATCH] riscv: dts: eswin: Dts Changes for SD Card Boot
 
 Signed-off-by: Pritesh Patel <pritesh.patel@einfochips.com>
 
@@ -69,6 +66,3 @@ index 21597df25325..dd89c2d40d51 100644
 +		};
  	};
  };
--- 
-2.53.0
-

@@ -1,10 +1,7 @@
-From c8d03674554a97b05e4cdb988d84e8f74371e139 Mon Sep 17 00:00:00 2001
-Message-ID: <c8d03674554a97b05e4cdb988d84e8f74371e139.1792513291.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
-References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+From 998c102c05f9f5f2d35ddbd4ec1114f753a62f9a Mon Sep 17 00:00:00 2001
 From: Huan He <hehuan1@eswincomputing.com>
 Date: Tue, 24 Feb 2026 15:54:54 +0800
-Subject: [PATCH 30/31] dts: add mmc axi clk
+Subject: [PATCH] dts: add mmc axi clk
 
 Signed-off-by: Huan He <hehuan1@eswincomputing.com>
 
@@ -39,6 +36,3 @@ index 3f52e77c4a6f..1fd626ef724a 100644
  			resets = <&reset 76>,
  				   <&reset 73>,
  				   <&reset 87>,
--- 
-2.53.0
-

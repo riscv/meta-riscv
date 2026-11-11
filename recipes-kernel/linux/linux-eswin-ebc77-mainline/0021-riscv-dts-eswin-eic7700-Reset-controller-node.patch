@@ -1,10 +1,7 @@
-From 98b704874fef822ec5a1c801a8253d0083796153 Mon Sep 17 00:00:00 2001
-Message-ID: <98b704874fef822ec5a1c801a8253d0083796153.1792513291.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
-References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+From 4247796073ec3d0011058f140a2f1623307b57ae Mon Sep 17 00:00:00 2001
 From: Anish Rana <anish.rana@einfochips.com>
 Date: Tue, 4 Nov 2025 12:59:49 +0530
-Subject: [PATCH 21/31] riscv: dts: eswin: eic7700: Reset-controller node
+Subject: [PATCH] riscv: dts: eswin: eic7700: Reset-controller node
 
 Signed-off-by: Anish Rana <anish.rana@einfochips.com>
 
@@ -55,6 +52,3 @@ index 38042bed2ba3..22ad6dabafe1 100644
  		ccache: cache-controller@2010000 {
  			compatible = "eswin,eic7700-l3-cache", "sifive,ccache0", "cache";
  			reg = <0x0 0x2010000 0x0 0x4000>;
--- 
-2.53.0
-

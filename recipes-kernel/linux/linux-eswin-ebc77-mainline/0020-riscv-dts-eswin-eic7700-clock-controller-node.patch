@@ -1,10 +1,7 @@
-From ebcc5b3d57cb8c24a540bdfd2eaf96e7fd3df2c6 Mon Sep 17 00:00:00 2001
-Message-ID: <ebcc5b3d57cb8c24a540bdfd2eaf96e7fd3df2c6.1792513291.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
-References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+From 49f640b18e6b7e04a64a17c2bd18891aea4e21be Mon Sep 17 00:00:00 2001
 From: Anish Rana <anish.rana@einfochips.com>
 Date: Tue, 4 Nov 2025 12:47:45 +0530
-Subject: [PATCH 20/31] riscv: dts: eswin: eic7700: clock-controller node
+Subject: [PATCH] riscv: dts: eswin: eic7700: clock-controller node
 
 Signed-off-by: Anish Rana <anish.rana@einfochips.com>
 
@@ -63,6 +60,3 @@ index 43456ccd2057..38042bed2ba3 100644
  		ccache: cache-controller@2010000 {
  			compatible = "eswin,eic7700-l3-cache", "sifive,ccache0", "cache";
  			reg = <0x0 0x2010000 0x0 0x4000>;
--- 
-2.53.0
-

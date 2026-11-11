@@ -1,10 +1,7 @@
-From 2bc54ee6635ed89aa57a56203ed4b1d702369e84 Mon Sep 17 00:00:00 2001
-Message-ID: <2bc54ee6635ed89aa57a56203ed4b1d702369e84.1792513291.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
-References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+From a88affd9e0e698a163aadf7b71d8cabc65735c90 Mon Sep 17 00:00:00 2001
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:29 -0800
-Subject: [PATCH 12/31] riscv: alternative: Add an ALTERNATIVE_3 macro
+Subject: [PATCH] riscv: alternative: Add an ALTERNATIVE_3 macro
 
 ALT_FIXUP_MT() is already using ALTERNATIVE_2(), but it needs to be
 extended to handle a fourth case. Add ALTERNATIVE_3(), which extends
@@ -113,6 +110,3 @@ index 9619bd5c8eba..e8bf384da5c2 100644
 +					new_content_3, vendor_id_3, patch_id_3, CONFIG_k_3)
 +
  #endif
--- 
-2.53.0
-

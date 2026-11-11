@@ -1,10 +1,7 @@
-From 0af63e69e1029cace2076f71cce68dc9b3a6e377 Mon Sep 17 00:00:00 2001
-Message-ID: <0af63e69e1029cace2076f71cce68dc9b3a6e377.1792513291.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
-References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+From 36998cd77c69d1dd22116cd2c979e676b3cad85a Mon Sep 17 00:00:00 2001
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:31 -0800
-Subject: [PATCH 14/31] riscv: Fix logic for selecting DMA_DIRECT_REMAP
+Subject: [PATCH] riscv: Fix logic for selecting DMA_DIRECT_REMAP
 
 DMA_DIRECT_REMAP allows the kernel to make pages coherent for DMA by
 remapping them in the page tables with a different pgprot_t value. On
@@ -60,6 +57,3 @@ index 622ade116a2d..b055d1dc8558 100644
  	select RISCV_DMA_NONCOHERENT
  	select RISCV_NONSTANDARD_CACHE_OPS
  	default y
--- 
-2.53.0
-

@@ -1,11 +1,8 @@
-From cbd45d0282ad7d69a9aa7377f5f03652a7ab6033 Mon Sep 17 00:00:00 2001
-Message-ID: <cbd45d0282ad7d69a9aa7377f5f03652a7ab6033.1792513291.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
-References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+From 6cf11e25cc87a61bd5144159400ca1b14f539fb0 Mon Sep 17 00:00:00 2001
 From: Pritesh Patel <pritesh.patel@einfochips.com>
 Date: Tue, 11 Nov 2025 17:25:02 +0530
-Subject: [PATCH 25/31] riscv: Add sata, sata_phy node in dtsi and add sata
- related configs in defconfig
+Subject: [PATCH] riscv: Add sata, sata_phy node in dtsi and add sata related
+ configs in defconfig
 
 Signed-off-by: Pritesh Patel <pritesh.patel@einfochips.com>
 
@@ -69,6 +66,3 @@ index dd89c2d40d51..928e309c022d 100644
 +		};
  	};
  };
--- 
-2.53.0
-

@@ -1,10 +1,7 @@
-From 4f70da377e0c1750c29b660d0b9c68646a3687f8 Mon Sep 17 00:00:00 2001
-Message-ID: <4f70da377e0c1750c29b660d0b9c68646a3687f8.1792513291.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
-References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+From a0d4b546cbc542193c5c247cc47f4ec130299e97 Mon Sep 17 00:00:00 2001
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:23 -0800
-Subject: [PATCH 06/31] riscv: mm: Always use page table accessor functions
+Subject: [PATCH] riscv: mm: Always use page table accessor functions
 
 Use the semantically appropriate accessor function instead of a raw
 pointer dereference. This will become important once these functions
@@ -21,10 +18,10 @@ Upstream-Status: Submitted [https://lore.kernel.org/all/20251113014656.2605447-1
  4 files changed, 50 insertions(+), 43 deletions(-)
 
 diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
-index 40b1ed4f3ea8..432deb7c6752 100644
+index bda7c021b429..11bbe17ac8f4 100644
 --- a/arch/riscv/include/asm/pgtable.h
 +++ b/arch/riscv/include/asm/pgtable.h
-@@ -1124,7 +1124,7 @@ static inline pud_t pudp_huge_get_and_clear(struct mm_struct *mm,
+@@ -1131,7 +1131,7 @@ static inline pud_t pudp_huge_get_and_clear(struct mm_struct *mm,
  #ifdef CONFIG_SMP
  	pud_t pud = __pud(xchg(&pudp->pud, 0));
  #else
@@ -33,7 +30,7 @@ index 40b1ed4f3ea8..432deb7c6752 100644
  
  	pud_clear(pudp);
  #endif
-@@ -1291,13 +1291,15 @@ void misc_mem_init(void);
+@@ -1298,13 +1298,15 @@ void misc_mem_init(void);
   */
  #define set_p4d_safe(p4dp, p4d) \
  ({ \
@@ -304,6 +301,3 @@ index 9c4427d0b187..87ae1b6ad1c0 100644
  
  	flush_pud_tlb_range(vma, address, address + HPAGE_PUD_SIZE);
  	return old;
--- 
-2.53.0
-

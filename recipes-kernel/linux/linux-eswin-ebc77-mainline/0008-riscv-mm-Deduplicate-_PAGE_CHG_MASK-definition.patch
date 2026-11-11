@@ -1,10 +1,7 @@
-From b6d7499c8129ea75dc87bfd6adecef463104ea86 Mon Sep 17 00:00:00 2001
-Message-ID: <b6d7499c8129ea75dc87bfd6adecef463104ea86.1792513291.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
-References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+From 78f7916e51ebfb8dfe19e09f9e1a4e28e150be52 Mon Sep 17 00:00:00 2001
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:25 -0800
-Subject: [PATCH 08/31] riscv: mm: Deduplicate _PAGE_CHG_MASK definition
+Subject: [PATCH] riscv: mm: Deduplicate _PAGE_CHG_MASK definition
 
 The two existing definitions are equivalent because _PAGE_MTMASK is
 defined as 0 on riscv32.
@@ -61,7 +58,7 @@ index 5532f8515450..093f0f41fd23 100644
  {
  	return (pud_val(pud) & _PAGE_PRESENT);
 diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
-index 432deb7c6752..107a39d4c824 100644
+index 11bbe17ac8f4..e1843d12e2b6 100644
 --- a/arch/riscv/include/asm/pgtable.h
 +++ b/arch/riscv/include/asm/pgtable.h
 @@ -199,6 +199,12 @@ extern struct pt_alloc_ops pt_ops __meminitdata;
@@ -77,6 +74,3 @@ index 432deb7c6752..107a39d4c824 100644
  extern pgd_t swapper_pg_dir[];
  extern pgd_t trampoline_pg_dir[];
  extern pgd_t early_pg_dir[];
--- 
-2.53.0
-

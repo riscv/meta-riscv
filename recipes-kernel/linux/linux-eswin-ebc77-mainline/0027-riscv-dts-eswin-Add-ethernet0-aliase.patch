@@ -1,10 +1,7 @@
-From 17c9685fcc4ee21aaa2d64b0e08ff212b8e9733f Mon Sep 17 00:00:00 2001
-Message-ID: <17c9685fcc4ee21aaa2d64b0e08ff212b8e9733f.1792513291.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
-References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+From d949e88e6bd7b58f1f896ff94db6dd199ef04c94 Mon Sep 17 00:00:00 2001
 From: Xuyang Dong <dongxuyang@eswincomputing.com>
 Date: Mon, 24 Nov 2025 17:45:15 +0800
-Subject: [PATCH 27/31] riscv: dts: eswin: Add ethernet0 aliase
+Subject: [PATCH] riscv: dts: eswin: Add ethernet0 aliase
 
 Signed-off-by: Xuyang Dong <dongxuyang@eswincomputing.com>
 
@@ -25,6 +22,3 @@ index 8100a8f35b93..7fcfab41eb14 100644
  	};
  
  	chosen {
--- 
-2.53.0
-

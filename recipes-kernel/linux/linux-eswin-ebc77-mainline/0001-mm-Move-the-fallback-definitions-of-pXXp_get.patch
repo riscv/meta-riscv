@@ -1,10 +1,7 @@
-From 6e46f90af514a19ab4427fdde30a783240ed475b Mon Sep 17 00:00:00 2001
-Message-ID: <6e46f90af514a19ab4427fdde30a783240ed475b.1792513291.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
-References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+From 0ca51a4584e0530103ad4a757633c16685003093 Mon Sep 17 00:00:00 2001
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:18 -0800
-Subject: [PATCH 01/31] mm: Move the fallback definitions of pXXp_get()
+Subject: [PATCH] mm: Move the fallback definitions of pXXp_get()
 
 Some platforms need to fix up the values when reading or writing page
 tables. Because of this, the accessors must always be used; it is not
@@ -108,6 +105,3 @@ index 8c093c119e5a..d025b54a48dd 100644
  #ifndef __HAVE_ARCH_PTEP_TEST_AND_CLEAR_YOUNG
  static inline bool ptep_test_and_clear_young(struct vm_area_struct *vma,
  		unsigned long address, pte_t *ptep)
--- 
-2.53.0
-

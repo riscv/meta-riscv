@@ -1,10 +1,7 @@
-From b41ad468400f9b7a69e6dbe66c28c435b8c319e7 Mon Sep 17 00:00:00 2001
-Message-ID: <b41ad468400f9b7a69e6dbe66c28c435b8c319e7.1792513291.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
-References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+From a1cb89a8ab93662d3231caccb4695873da9775d1 Mon Sep 17 00:00:00 2001
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:20 -0800
-Subject: [PATCH 03/31] checkpatch: Warn on page table access without accessors
+Subject: [PATCH] checkpatch: Warn on page table access without accessors
 
 Architectures may have special rules for accessing the hardware page
 tables (for example, atomicity/ordering requirements), so the generic MM
@@ -49,6 +46,3 @@ index 8a7787d228a6..9d1cb0a762c9 100755
  	}
  
  	# If we have no input at all, then there is nothing to report on
--- 
-2.53.0
-

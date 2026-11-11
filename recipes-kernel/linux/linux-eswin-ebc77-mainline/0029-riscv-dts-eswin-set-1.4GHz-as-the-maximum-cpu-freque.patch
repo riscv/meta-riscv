@@ -1,11 +1,7 @@
-From c89784a5670794e06fa5aed5bf0f061eaaf0bf0c Mon Sep 17 00:00:00 2001
-Message-ID: <c89784a5670794e06fa5aed5bf0f061eaaf0bf0c.1792513291.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
-References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+From 56e2c3d4b7f12d3c2f81cb8c9fcd020d9a811cdd Mon Sep 17 00:00:00 2001
 From: Min Lin <linmin@eswincomputing.com>
 Date: Wed, 14 Jan 2026 13:13:08 +0800
-Subject: [PATCH 29/31] riscv: dts: eswin:set 1.4GHz as the maximum cpu
- frequency
+Subject: [PATCH] riscv: dts: eswin:set 1.4GHz as the maximum cpu frequency
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -41,6 +37,3 @@ index 5d55a419ef64..d065dcdf1be1 100644
  	};
  
  	dsp_opp_table: opp-table@dsp {
--- 
-2.53.0
-
