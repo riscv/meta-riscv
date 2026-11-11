@@ -8,9 +8,9 @@ FILESEXTRAPATHS:prepend:eswin-ebc77-mainline := "${THISDIR}/linux-eswin-ebc77-ma
 FILESEXTRAPATHS:prepend:milkv-duo-common := "${THISDIR}/linux-milkv-duo:"
 
 KERNEL_VERSION_SANITY_SKIP = "1"
-LINUX_VERSION                       ?= "7.3.1"
+LINUX_VERSION                       ?= "7.3.4"
 BRANCH                              ?= "linux-7.3.y"
-SRCREV                              ?= "79a907609d53d5cd645b42c11550d295d43abf99"
+SRCREV                              ?= "7595a62d45ee1a2297eafa5f2ef5d0a45142d84d"
 
 # --- DEPENDS ---
 DEPENDS:append:k1                    = " u-boot-tools-native"
@@ -42,7 +42,6 @@ SRC_URI:append:k3 = " \
         file://0009-irqchip-aclint-sswi-Add-support-for-SpacemiT-K3.patch \
         file://0010-riscv-dts-spacemit-k3-Replace-incorrect-CLINT-node-w.patch \
         file://0011-riscv-dts-spacemit-k3-Drop-guest-properties-from-M-l.patch \
-        file://0012-riscv-dts-spacemit-k3-fix-IMSIC-num-guest-ids.patch \
         file://0013-riscv-dts-spacemit-k3-Add-UFS-support.patch \
         file://0014-scsi-ufs-spacemit-dt-bindings-Add-UFS-controller-for.patch \
         file://0015-scsi-ufs-spacemit-k3-Add-UFS-Host-Controller-driver.patch \
