@@ -1,10 +1,7 @@
-From a2733f5dff4d7863e7674052572dba81f6b09016 Mon Sep 17 00:00:00 2001
-Message-ID: <a2733f5dff4d7863e7674052572dba81f6b09016.1792513291.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
-References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+From 2ef9d49e25180fd38a53d112c3dbaab5b45524a2 Mon Sep 17 00:00:00 2001
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:21 -0800
-Subject: [PATCH 04/31] mm: Allow page table accessors to be non-idempotent
+Subject: [PATCH] mm: Allow page table accessors to be non-idempotent
 
 Currently, some functions such as pte_offset_map() are passed both
 pointers to hardware page tables, and pointers to previously-read PMD
@@ -57,10 +54,10 @@ index c7f3f708d19d..b449dbd55182 100644
  		return 0;
  	do {
 diff --git a/mm/khugepaged.c b/mm/khugepaged.c
-index b7d2a0c54ccb..658c9b2b8cb6 100644
+index e7e2589fd623..6f174a363ee6 100644
 --- a/mm/khugepaged.c
 +++ b/mm/khugepaged.c
-@@ -2139,7 +2139,7 @@ static void retract_page_tables(struct address_space *mapping, pgoff_t pgoff)
+@@ -2147,7 +2147,7 @@ static void retract_page_tables(struct address_space *mapping, pgoff_t pgoff)
  		struct mmu_notifier_range range;
  		struct mm_struct *mm;
  		unsigned long addr;
@@ -69,7 +66,7 @@ index b7d2a0c54ccb..658c9b2b8cb6 100644
  		spinlock_t *pml;
  		spinlock_t *ptl;
  		bool success = false;
-@@ -2179,7 +2179,9 @@ static void retract_page_tables(struct address_space *mapping, pgoff_t pgoff)
+@@ -2187,7 +2187,9 @@ static void retract_page_tables(struct address_space *mapping, pgoff_t pgoff)
  		 */
  		if (check_pmd_state(pmd) != SCAN_SUCCEED)
  			goto drop_pml;
@@ -81,7 +78,7 @@ index b7d2a0c54ccb..658c9b2b8cb6 100644
  			spin_lock_nested(ptl, SINGLE_DEPTH_NESTING);
  
 diff --git a/mm/page_table_check.c b/mm/page_table_check.c
-index a1d3c258b9f2..abb6cde0fc1f 100644
+index 0917f6f72df1..f303c0d36ac5 100644
 --- a/mm/page_table_check.c
 +++ b/mm/page_table_check.c
 @@ -279,7 +279,10 @@ void __page_table_check_pte_clear_range(struct mm_struct *mm,
@@ -108,6 +105,3 @@ index 14784d8a28a3..32ada4235dde 100644
  	return __pte_map(&pmdval, addr);
  nomap:
  	rcu_read_unlock();
--- 
-2.53.0
-

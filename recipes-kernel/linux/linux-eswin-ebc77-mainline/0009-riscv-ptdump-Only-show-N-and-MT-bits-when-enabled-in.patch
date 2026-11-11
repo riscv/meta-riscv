@@ -1,11 +1,8 @@
-From 5e6dc9dffbea5b64a2e03f840bee2bd18a53f29e Mon Sep 17 00:00:00 2001
-Message-ID: <5e6dc9dffbea5b64a2e03f840bee2bd18a53f29e.1792513291.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
-References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+From 0950f45784ae103d387f2ec141a284fa997577d7 Mon Sep 17 00:00:00 2001
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:26 -0800
-Subject: [PATCH 09/31] riscv: ptdump: Only show N and MT bits when enabled in
- the kernel
+Subject: [PATCH] riscv: ptdump: Only show N and MT bits when enabled in the
+ kernel
 
 When the Svnapot or Svpbmt extension is not implemented, the
 corresponding page table bits are reserved, and must be zero. There is
@@ -53,6 +50,3 @@ index f4b4a9fcbbd8..cc7ced9fc737 100644
  			else if (pte_bits[i].mask == _PAGE_MTMASK_SVPBMT) {
  				if (val == _PAGE_NOCACHE_SVPBMT)
  					snprintf(s, sizeof(s), pte_bits[i].set, "NC");
--- 
-2.53.0
-

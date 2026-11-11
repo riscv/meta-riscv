@@ -1,10 +1,7 @@
-From d3d1d00612e8ce6635c65a78ec70a15ebabf47d3 Mon Sep 17 00:00:00 2001
-Message-ID: <d3d1d00612e8ce6635c65a78ec70a15ebabf47d3.1792513291.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
-References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+From e9fdaa26983880c25123bbb8e3284109a02abc6f Mon Sep 17 00:00:00 2001
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:33 -0800
-Subject: [PATCH 16/31] riscv: mm: Use physical memory aliases to apply PMAs
+Subject: [PATCH] riscv: mm: Use physical memory aliases to apply PMAs
 
 On some RISC-V platforms, RAM is mapped simultaneously to multiple
 physical address ranges, with each alias having a different set of
@@ -219,10 +216,10 @@ index 3319479f7a82..1b72372d4f91 100644
  #ifdef CONFIG_RISCV_ISA_SVNAPOT
  #define _PAGE_NAPOT_SHIFT	63
 diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
-index 9fe79b152898..75a9039b09b1 100644
+index bfbc4926fdc9..1bcb68c7c195 100644
 --- a/arch/riscv/include/asm/pgtable.h
 +++ b/arch/riscv/include/asm/pgtable.h
-@@ -1280,6 +1280,14 @@ extern u64 satp_mode;
+@@ -1287,6 +1287,14 @@ extern u64 satp_mode;
  void paging_init(void);
  void misc_mem_init(void);
  
@@ -526,6 +523,3 @@ index 4b30b32d6bbe..2f9ed33319c7 100644
  		.mask = _PAGE_MTMASK,
  		.set = "MT(%s)",
  		.clear = "  ..  ",
--- 
-2.53.0
-

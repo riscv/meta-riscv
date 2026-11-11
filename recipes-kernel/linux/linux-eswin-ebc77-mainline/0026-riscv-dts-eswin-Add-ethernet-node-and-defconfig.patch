@@ -1,10 +1,7 @@
-From 0383f70f2d1830a240154cd6a2d8bd24c902d5a7 Mon Sep 17 00:00:00 2001
-Message-ID: <0383f70f2d1830a240154cd6a2d8bd24c902d5a7.1792513291.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
-References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+From 01bb6ef52b612fb868cb344e00f09531b78c0135 Mon Sep 17 00:00:00 2001
 From: Xuyang Dong <dongxuyang@eswincomputing.com>
 Date: Mon, 24 Nov 2025 16:19:53 +0800
-Subject: [PATCH 26/31] riscv: dts: eswin: Add ethernet node and defconfig
+Subject: [PATCH] riscv: dts: eswin: Add ethernet node and defconfig
 
 1. Add ethernet node.
 2. Add ethernet defconfig.
@@ -118,6 +115,3 @@ index 928e309c022d..25bc90092db3 100644
  		sdhci_emmc: mmc@50450000 {
  			compatible = "eswin,eic7700-dwcmshc";
  			reg = <0x0 0x50450000 0x0 0x10000>;
--- 
-2.53.0
-

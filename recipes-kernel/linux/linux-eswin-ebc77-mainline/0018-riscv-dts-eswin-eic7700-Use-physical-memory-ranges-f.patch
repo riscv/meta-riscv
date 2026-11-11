@@ -1,11 +1,8 @@
-From 1b39e83c536da499711b52207a49bbb5b2097b74 Mon Sep 17 00:00:00 2001
-Message-ID: <1b39e83c536da499711b52207a49bbb5b2097b74.1792513291.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
-References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+From a0c77a286d96cdca8e46f3e815c34241cf76c8d5 Mon Sep 17 00:00:00 2001
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:35 -0800
-Subject: [PATCH 18/31] riscv: dts: eswin: eic7700: Use physical memory ranges
- for DMA
+Subject: [PATCH] riscv: dts: eswin: eic7700: Use physical memory ranges for
+ DMA
 
 EIC7700 provides a physical memory region which is a noncached alias of
 normal cacheable DRAM. Declare this alias in the devicetree so Linux can
@@ -52,6 +49,3 @@ index c3ed93008bca..d566bca4e09e 100644
  
  	cpus {
  		#address-cells = <1>;
--- 
-2.53.0
-

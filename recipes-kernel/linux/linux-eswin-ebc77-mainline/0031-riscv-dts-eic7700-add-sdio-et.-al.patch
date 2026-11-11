@@ -1,10 +1,7 @@
-From 7f038e34ca46d12d4f24bf4c7f327553b715aec0 Mon Sep 17 00:00:00 2001
-Message-ID: <7f038e34ca46d12d4f24bf4c7f327553b715aec0.1792513291.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
-References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+From ebb49f97d75ea2bbd591125d6876ba1231429584 Mon Sep 17 00:00:00 2001
 From: Marcel Ziswiler <marcel@ziswiler.com>
 Date: Mon, 5 Jan 2026 16:40:22 +0100
-Subject: [PATCH 31/31] riscv: dts: eic7700: add sdio et. al.
+Subject: [PATCH] riscv: dts: eic7700: add sdio et. al.
 
 Upstream-Status: Pending
 ---
@@ -2732,6 +2729,3 @@ index 000000000000..4716365ab43d
 +CONFIG_TEST_BPF=m
 +CONFIG_TEST_BLACKHOLE_DEV=m
 +CONFIG_MEMTEST=y
--- 
-2.53.0
-

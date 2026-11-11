@@ -1,11 +1,8 @@
-From 34ae98491b124c7d97111c9327afb8fccb0ea7f4 Mon Sep 17 00:00:00 2001
-Message-ID: <34ae98491b124c7d97111c9327afb8fccb0ea7f4.1792513291.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
-References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+From 706dbdf1ff87a75bc3f2f9fdc642c48dc53b53bb Mon Sep 17 00:00:00 2001
 From: Samuel Holland <samuel.holland@sifive.com>
 Date: Wed, 12 Nov 2025 17:45:34 -0800
-Subject: [PATCH 17/31] riscv: dts: starfive: jh7100: Use physical memory
- ranges for DMA
+Subject: [PATCH] riscv: dts: starfive: jh7100: Use physical memory ranges for
+ DMA
 
 JH7100 provides a physical memory region which is a noncached alias of
 normal cacheable DRAM. Now that Linux can apply PMAs by selecting
@@ -122,6 +119,3 @@ index 7de0732b8eab..c7d7ec9ed8c9 100644
  
  	cpus: cpus {
  		#address-cells = <1>;
--- 
-2.53.0
-

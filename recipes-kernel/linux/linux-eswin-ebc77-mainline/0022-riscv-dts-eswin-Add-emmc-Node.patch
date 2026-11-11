@@ -1,10 +1,7 @@
-From b8c855a1b73b95909135d96549c2a9bf27ebc605 Mon Sep 17 00:00:00 2001
-Message-ID: <b8c855a1b73b95909135d96549c2a9bf27ebc605.1792513291.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
-References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+From b90b8899007c51a2c97c32cae6f0ae60b32bd73e Mon Sep 17 00:00:00 2001
 From: Pritesh Patel <pritesh.patel@einfochips.com>
 Date: Tue, 4 Nov 2025 15:02:00 +0530
-Subject: [PATCH 22/31] riscv: dts: eswin: Add emmc Node
+Subject: [PATCH] riscv: dts: eswin: Add emmc Node
 
 Signed-off-by: Pritesh Patel <pritesh.patel@einfochips.com>
 
@@ -48,6 +45,3 @@ index 22ad6dabafe1..d3f96c248f3f 100644
 +		};
  	};
  };
--- 
-2.53.0
-

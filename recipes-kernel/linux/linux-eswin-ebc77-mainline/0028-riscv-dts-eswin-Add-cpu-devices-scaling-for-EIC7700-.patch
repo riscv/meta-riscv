@@ -1,11 +1,7 @@
-From eb1d311f0c2adfdf3c77d0a7c771a001af12fe70 Mon Sep 17 00:00:00 2001
-Message-ID: <eb1d311f0c2adfdf3c77d0a7c771a001af12fe70.1792513291.git.marcel.ziswiler@codethink.co.uk>
-In-Reply-To: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
-References: <cover.1792513291.git.marcel.ziswiler@codethink.co.uk>
+From cf05cb46d2174fee4e8a0ad7bf01acdb2787ce78 Mon Sep 17 00:00:00 2001
 From: Min Lin <linmin@eswincomputing.com>
 Date: Wed, 7 Jan 2026 17:16:09 +0800
-Subject: [PATCH 28/31] riscv: dts: eswin: Add cpu&devices scaling for EIC7700
- SoC
+Subject: [PATCH] riscv: dts: eswin: Add cpu&devices scaling for EIC7700 SoC
 
 Add the operating-points-v2 to support cpu and other devices scaling
 on ESWIN EIC7700 SoC.
@@ -362,6 +358,3 @@ index 25bc90092db3..3f52e77c4a6f 100644
  			cpu3_intc: interrupt-controller {
  				compatible = "riscv,cpu-intc";
  				#interrupt-cells = <1>;
--- 
-2.53.0
-
