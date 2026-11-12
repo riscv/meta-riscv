@@ -32,8 +32,13 @@ TUNE_RISCV_ABI .= "${@bb.utils.contains("TUNE_FEATURES", "64", "lp64", "", d)}"
 
 # Each tune sets its package arch as a literal in TUNE_RISCV_PKGARCH:tune-<name>,
 # rather than having it built from TUNE_FEATURES, so that the names stay short
-# and only change when deliberately changed. Custom tunes must set it as well.
-TUNE_RISCV_PKGARCH = "${TUNE_RISCV_PKGARCH:tune-${DEFAULTTUNE}}"
+# and only change when deliberately changed. Custom tunes should set it as
+# well; for those that don't, it is derived from TUNE_FEATURES by
+# riscv.tune.riscv_pkgarch(), so it may change along with lib/riscv/tune.py.
+TUNE_RISCV_PKGARCH = "${@d.getVar('TUNE_RISCV_PKGARCH:tune-${DEFAULTTUNE}') or riscv.tune.riscv_pkgarch(d.getVar('TUNE_FEATURES'))}"
+# Hash the resulting name rather than the code of riscv.tune, so that changes to
+# lib/riscv/tune.py only rebuild tunes whose package arch actually changes
+TUNE_RISCV_PKGARCH[vardepvalue] = "${TUNE_RISCV_PKGARCH}"
 
 # i, e, or g are defined by gcc, but 'g' refers to 'i' + extensions 'MAFD Zicsr Zifencei'
 # So 'g' will not be defined here as it is an abbreviation of the expanded version

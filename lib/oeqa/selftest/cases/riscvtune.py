@@ -72,6 +72,18 @@ class RiscvTuneTests(OESelftestTestCase):
                 self.assertIn(alias, tunes)
                 self.assertEqual(vars[alias], vars[target])
 
+    def test_riscv_pkgarch_fallback(self):
+        """
+        Check that a custom tune which doesn't set TUNE_RISCV_PKGARCH gets the
+        package arch derived from its TUNE_FEATURES.
+        """
+        features = riscv_isa_to_tune('rva22u64') + ' zifencei zicond'
+        self.write_config(self.machine_config('freedom-u540') +
+                          'AVAILTUNES += "rva22-fallback"\n'
+                          'TUNE_FEATURES:tune-rva22-fallback = "%s"\n'
+                          'DEFAULTTUNE = "rva22-fallback"\n' % features)
+        self.assertEqual(get_bb_var('TUNE_PKGARCH'), riscv_pkgarch(features))
+
     def test_riscv_unusual_tunes(self):
         """
         Define custom tunes with unusual extension combinations, as a BSP
