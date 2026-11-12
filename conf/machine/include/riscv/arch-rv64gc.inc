@@ -13,7 +13,9 @@ PACKAGE_EXTRA_ARCHS:tune-riscv64gc = "${TUNE_RISCV_PKGARCH:tune-riscv64gc}"
 
 TUNE_FEATURES:tune-riscv64gcv ?= "rv 64 i m a f d c v zicsr zifencei"
 TUNE_RISCV_PKGARCH:tune-riscv64gcv ?= "riscv64imafdcv_zicsr_zifencei"
-PACKAGE_EXTRA_ARCHS:tune-riscv64gcv = "${TUNE_RISCV_PKGARCH:tune-riscv64gcv}"
+# Lowest priority first, with the package archs of the tunes that this one is
+# a superset of (with the same lp64d ABI)
+PACKAGE_EXTRA_ARCHS:tune-riscv64gcv = "${TUNE_RISCV_PKGARCH:tune-riscv64gc} ${TUNE_RISCV_PKGARCH:tune-riscv64gcv}"
 
 # Compatibility alias so that layers using old tunes don't break
 TUNE_FEATURES:tune-riscv64 ?= "${TUNE_FEATURES:tune-riscv64gc}"

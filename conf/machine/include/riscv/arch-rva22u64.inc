@@ -27,8 +27,9 @@ TUNE_RISCV_MARCH .= "${@bb.utils.contains("TUNE_FEATURES", "zkt", "_zkt", "", d)
 AVAILTUNES += "rva22u64"
 
 # The RVA22U64 extensions, as expanded by riscv.tune.riscv_isa_to_tune().
-# zifencei isn't part of these profiles per gcc's -march expansion, but the
-# Linux kernel requires it, so add it on top of the profile's extensions.
+# zifencei isn't a mandatory extension in these profiles, but the Linux kernel
+# requires it, so add it on top of the profile's extensions.
 TUNE_FEATURES:tune-rva22u64 ?= "rv 64 i m a f d c b zic64b zicbom zicbop zicboz ziccamoa ziccif zicclsm ziccrse zicntr zicsr zihintpause zmmul za64rs zaamo zalrsc zfhmin zca zcd zba zbb zbs zkt zifencei"
 TUNE_RISCV_PKGARCH:tune-rva22u64 ?= "rva22u64_zifencei"
-PACKAGE_EXTRA_ARCHS:tune-rva22u64 = "${TUNE_RISCV_PKGARCH:tune-rva22u64}"
+# Lowest priority first
+PACKAGE_EXTRA_ARCHS:tune-rva22u64 = "${TUNE_RISCV_PKGARCH:tune-riscv64gc} ${TUNE_RISCV_PKGARCH:tune-rva20u64} ${TUNE_RISCV_PKGARCH:tune-rva22u64}"
