@@ -3,6 +3,7 @@
 #@SOC: T-Head 1520
 #@DESCRIPTION: SOC configuration for the Alibaba T-Head 1520 SoC with 4 Xuantie C910 cores
 
+require conf/machine/include/riscv/tune-riscv-all.inc
 require riscv-common.inc
 require conf/machine/include/soc-family.inc
 
