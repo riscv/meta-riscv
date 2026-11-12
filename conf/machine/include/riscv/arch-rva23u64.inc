@@ -66,6 +66,23 @@ TUNE_RISCV_MARCH .= "${@bb.utils.contains("TUNE_FEATURES", "zvl64b", "_zvl64b", 
 TUNEVALID[supm] = "User-mode pointer masking extension."
 TUNE_RISCV_MARCH .= "${@bb.utils.contains("TUNE_FEATURES", "supm", "_supm", "", d)}"
 
+# RVA23U64 expansion options, which aren't part of the rva23u64 tune but can be
+# added by tunes built on it (or on earlier profiles)
+TUNEVALID[zfh] = "Half-precision floating point extension."
+TUNE_RISCV_MARCH .= "${@bb.utils.contains("TUNE_FEATURES", "zfh", "_zfh", "", d)}"
+
+TUNEVALID[zvfh] = "Vector half-precision floating point extension."
+TUNE_RISCV_MARCH .= "${@bb.utils.contains("TUNE_FEATURES", "zvfh", "_zvfh", "", d)}"
+
+TUNEVALID[zfbfmin] = "Scalar BF16 conversion extension."
+TUNE_RISCV_MARCH .= "${@bb.utils.contains("TUNE_FEATURES", "zfbfmin", "_zfbfmin", "", d)}"
+
+TUNEVALID[zvfbfmin] = "Vector BF16 conversion extension."
+TUNE_RISCV_MARCH .= "${@bb.utils.contains("TUNE_FEATURES", "zvfbfmin", "_zvfbfmin", "", d)}"
+
+TUNEVALID[zvfbfwma] = "Vector BF16 widening multiply-add extension."
+TUNE_RISCV_MARCH .= "${@bb.utils.contains("TUNE_FEATURES", "zvfbfwma", "_zvfbfwma", "", d)}"
+
 AVAILTUNES += "rva23u64"
 
 # The RVA23U64 extensions, as expanded by riscv.tune.riscv_isa_to_tune().
