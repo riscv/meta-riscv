@@ -3,7 +3,8 @@
 #@SOC: SpacemiT K1
 #@DESCRIPTION: SOC configuration for the SpacemiT K1 SoC
 
-require conf/machine/include/riscv/tune-riscv-all.inc
+DEFAULTTUNE ?= "spacemit-x60"
+require conf/machine/include/riscv/rva22/tune-spacemit-x60.inc
 require conf/machine/include/soc-family.inc
 
 SOC_FAMILY = "k1"
