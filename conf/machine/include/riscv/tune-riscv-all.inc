@@ -5,4 +5,4 @@
 # as each arch-*.inc defaults to its own tune.
 DEFAULTTUNE ?= "riscv64gc"
 
-require conf/machine/include/riscv/arch-rva20u64.inc
+require conf/machine/include/riscv/arch-rva22u64.inc
