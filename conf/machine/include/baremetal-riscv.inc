@@ -1,5 +1,5 @@
 require conf/machine/include/qemu.inc
-require conf/machine/include/riscv/tune-riscv.inc
+require conf/machine/include/riscv/tune-riscv-all.inc
 
 PREFERRED_VERSION_openocd-native = "riscv"
 PREFERRED_VERSION_openocd = "riscv"

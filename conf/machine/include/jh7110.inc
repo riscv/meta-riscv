@@ -3,6 +3,7 @@
 #@SOC: StarFive JH7110
 #@DESCRIPTION: SOC configuration for the StarFive JH7110
 
+require conf/machine/include/riscv/tune-riscv-all.inc
 require riscv-common.inc
 require conf/machine/include/soc-family.inc
 
