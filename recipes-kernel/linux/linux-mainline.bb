@@ -45,6 +45,7 @@ SRC_URI:append:k3 = " \
         file://0013-riscv-dts-spacemit-k3-Add-UFS-support.patch \
         file://0014-scsi-ufs-spacemit-dt-bindings-Add-UFS-controller-for.patch \
         file://0015-scsi-ufs-spacemit-k3-Add-UFS-Host-Controller-driver.patch \
+        file://0016-scsi-ufs-spacemit-k3-change-to-FASTAUTO-before-FAST.patch \
         file://k3.cfg \
 "
 
