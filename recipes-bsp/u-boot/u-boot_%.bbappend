@@ -105,6 +105,10 @@ do_compile:prepend:k1() {
     export OPENSBI=${DEPLOY_DIR_IMAGE}/fw_dynamic.bin
 }
 
+do_compile:prepend:orangepi-rv() {
+    export OPENSBI=${DEPLOY_DIR_IMAGE}/fw_dynamic.bin
+}
+
 do_compile:prepend:visionfive2() {
     export OPENSBI=${DEPLOY_DIR_IMAGE}/fw_dynamic.bin
 }
