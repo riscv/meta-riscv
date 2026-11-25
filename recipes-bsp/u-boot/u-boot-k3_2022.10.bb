@@ -14,6 +14,7 @@ BRANCH = "k3-br-v1.0.y"
 SRC_URI = " \
             git://github.com/spacemit-com/uboot-2022.10.git;protocol=https;branch=${BRANCH} \
             file://0001-Add-support-for-OpenSSL-Provider-API.patch \
+            file://0001-k3-env-don-t-clobber-fdt_addr_r-and-ramdisk_addr_r-o.patch \
             "
 
 SRCREV = "289dc2b7bd25bf9d88ce9e7e263e95234868ca14"

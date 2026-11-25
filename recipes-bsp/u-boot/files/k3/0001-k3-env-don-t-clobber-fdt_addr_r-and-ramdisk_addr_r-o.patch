@@ -1,0 +1,78 @@
+From 53b6d5169ff872114af24e765b07320fe41c7f83 Mon Sep 17 00:00:00 2001
+From: Trevor Gamblin <tgamblin@baylibre.com>
+Date: Tue, 24 Nov 2026 16:54:42 +0000
+Subject: [PATCH] k3: env: don't clobber fdt_addr_r and ramdisk_addr_r on load
+ failure
+
+When the dtb or ramdisk cannot be loaded from bootfs, loaddtb clears
+fdt_addr_r and loadramdisk sets ramdisk_addr_r to "-" so that the
+built-in ones are used. If the environment is saved afterwards (e.g.
+it lives on UFS with CONFIG_ENV_IS_IN_UFS), every later boot runs
+load with an empty or "-" address and fails with the load usage text
+until the environment is reset with "env default -a; saveenv".
+
+Keep the load addresses intact and pass the dtb address to
+bootm/booti/bootefi through a separate fdt_arg variable instead, and
+set ramdisk_combo to "-" when the ramdisk load fails.
+
+Upstream-Status: Submitted [https://github.com/spacemit-com/uboot-2022.10/pull/16]
+Signed-off-by: Trevor Gamblin <tgamblin@baylibre.com>
+---
+ board/spacemit/k3/k3.env | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/board/spacemit/k3/k3.env b/board/spacemit/k3/k3.env
+index 394ee4a85d..ab2c5d653f 100755
+--- a/board/spacemit/k3/k3.env
++++ b/board/spacemit/k3/k3.env
+@@ -160,15 +160,16 @@ loadramdisk=echo "Loading ramdisk ..."; \
+             setenv ramdisk_combo ${ramdisk_addr_r}:${ramdisk_size}; \
+         else \
+             echo "load ramdisk from bootfs fail, use built-in ramdisk"; \
+-            setenv ramdisk_addr_r -; \
++            setenv ramdisk_combo -; \
+         fi;
+ 
+ loaddtb=run dtb_fixup; \
+         echo "Loading dtb..."; \
+         if load ${boot_devname} ${boot_devnum}:${bootfs_part} ${fdt_addr_r} ${dtb_name}; then \
++            setenv fdt_arg ${fdt_addr_r}; \
+         else \
+             echo "load dtb from bootfs fail, use built-in dtb"; \
+-            setenv fdt_addr_r ""; \
++            setenv fdt_arg; \
+         fi;
+ 
+ load_grub=echo "Loading grub..."; \
+@@ -177,9 +178,9 @@ load_grub=echo "Loading grub..."; \
+ # bootm command for fit image, booti command for PE or compress PE image
+ start_kernel=fdt addr ${kernel_addr_r}; \
+         if fdt list /; then \
+-            bootm ${kernel_addr_r} ${ramdisk_combo} ${fdt_addr_r}; \
++            bootm ${kernel_addr_r} ${ramdisk_combo} ${fdt_arg}; \
+         else \
+-            booti ${kernel_addr_r} ${ramdisk_combo} ${fdt_addr_r}; \
++            booti ${kernel_addr_r} ${ramdisk_combo} ${fdt_arg}; \
+         fi;
+ 
+ boot_kernel=run set_root_arg; \
+@@ -195,7 +196,7 @@ boot_grub=env set -e -bs bootargs "${bootargs}"; \
+         run detect_dtb; \
+         run loaddtb; \
+         env set -e -bs product_name "${product_name}"; \
+-        bootefi ${kernel_addr_r} ${fdt_addr_r}; \
++        bootefi ${kernel_addr_r} ${fdt_arg}; \
+         env set stdout "serial,vidconsole"; env set stderr "serial,vidconsole"
+ 
+ // Nor+ssd boot combo
+@@ -337,6 +338,7 @@ nfs_boot=echo "Try to boot from NFS ..."; \
+         nfs ${kernel_addr_r} ${serverip}:${bootfs_path}/${knl_name}; \
+         echo "Loading dtb from NFS..."; \
+         nfs ${fdt_addr_r} ${serverip}:${bootfs_path}/${dtb_name}; \
++        setenv fdt_arg ${fdt_addr_r}; \
+         if test -n "${ramdisk_name}"; then \
+             echo "Loading ramdisk from NFS..."; \
+             nfs ${ramdisk_addr_r} ${serverip}:${bootfs_path}/${ramdisk_name}; \
+-- 
+2.39.5
+
