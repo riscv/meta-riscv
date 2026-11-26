@@ -3,7 +3,8 @@
 #@SOC: Spacemit K3
 #@DESCRIPTION: SoC configuration for the Spacemit K3 - vendor repo version
 
-require conf/machine/include/riscv/tune-riscv.inc
+DEFAULTTUNE ?= "spacemit-x100"
+require conf/machine/include/riscv/rva23/tune-spacemit-x100.inc
 require conf/machine/include/riscv-common.inc
 require conf/machine/include/soc-family.inc
 
