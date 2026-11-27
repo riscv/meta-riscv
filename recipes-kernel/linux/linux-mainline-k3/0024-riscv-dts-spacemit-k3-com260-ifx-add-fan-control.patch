@@ -1,0 +1,105 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Thomas Roos <thomas@exein.io>
+Date: Fri, 27 Nov 2026 15:24:56 +0100
+Subject: [PATCH] riscv: dts: spacemit: k3-com260-ifx: add fan control
+
+Make the CTF2301 on the CoM260 a cooling device and add a thermal zone
+on SoC sensor 4 that drives it, with the fan curve from the SpacemiT
+vendor device tree.
+
+Upstream-Status: Pending
+Signed-off-by: Thomas Roos <thomas@exein.io>
+---
+ .../riscv/boot/dts/spacemit/k3-com260-ifx.dts | 62 +++++++++++++++++++
+ arch/riscv/boot/dts/spacemit/k3-com260.dtsi   |  3 +-
+ 2 files changed, 64 insertions(+), 1 deletion(-)
+
+diff --git a/arch/riscv/boot/dts/spacemit/k3-com260-ifx.dts b/arch/riscv/boot/dts/spacemit/k3-com260-ifx.dts
+index a5c08a7a781a..cd397d16e7ab 100644
+--- a/arch/riscv/boot/dts/spacemit/k3-com260-ifx.dts
++++ b/arch/riscv/boot/dts/spacemit/k3-com260-ifx.dts
+@@ -52,3 +52,65 @@ &sdhci0 {
+ 	sd-uhs-sdr104;
+ 	status = "okay";
+ };
++
++/ {
++	thermal-zones {
++		/* fan curve as in the vendor device tree, SoC sensor 4 */
++		soc-thermal {
++			polling-delay = <1000>;
++			polling-delay-passive = <250>;
++			thermal-sensors = <&tsensor 4>;
++
++			trips {
++				fan0: trip-fan0 {
++					temperature = <35000>;
++					hysteresis = <5000>;
++					type = "active";
++				};
++				fan1: trip-fan1 {
++					temperature = <40000>;
++					hysteresis = <5000>;
++					type = "active";
++				};
++				fan2: trip-fan2 {
++					temperature = <50000>;
++					hysteresis = <5000>;
++					type = "active";
++				};
++				fan3: trip-fan3 {
++					temperature = <60000>;
++					hysteresis = <5000>;
++					type = "active";
++				};
++				fan4: trip-fan4 {
++					temperature = <70000>;
++					hysteresis = <5000>;
++					type = "active";
++				};
++			};
++
++			cooling-maps {
++				map0 {
++					trip = <&fan0>;
++					cooling-device = <&fan 0 50>;
++				};
++				map1 {
++					trip = <&fan1>;
++					cooling-device = <&fan 64 75>;
++				};
++				map2 {
++					trip = <&fan2>;
++					cooling-device = <&fan 102 128>;
++				};
++				map3 {
++					trip = <&fan3>;
++					cooling-device = <&fan 179 204>;
++				};
++				map4 {
++					trip = <&fan4>;
++					cooling-device = <&fan 255 255>;
++				};
++			};
++		};
++	};
++};
+diff --git a/arch/riscv/boot/dts/spacemit/k3-com260.dtsi b/arch/riscv/boot/dts/spacemit/k3-com260.dtsi
+index 2e8e8bf6c028..e04b8ae1ae38 100644
+--- a/arch/riscv/boot/dts/spacemit/k3-com260.dtsi
++++ b/arch/riscv/boot/dts/spacemit/k3-com260.dtsi
+@@ -69,9 +69,10 @@ &i2c6 {
+ 	pinctrl-0 = <&i2c6_1_cfg>;
+ 	status = "okay";
+ 
+-	temperature-sensor@4c {
++	fan: temperature-sensor@4c {
+ 		compatible = "sensylink,ctf2301";
+ 		reg = <0x4c>;
++		#cooling-cells = <2>;
+ 	};
+ };
+ 
+-- 
+2.56.1
+

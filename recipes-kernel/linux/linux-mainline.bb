@@ -37,6 +37,15 @@ SRC_URI:append:k3 = " \
         file://0013-riscv-dts-spacemit-k3-Add-UFS-support.patch \
         file://0014-scsi-ufs-spacemit-dt-bindings-Add-UFS-controller-for.patch \
         file://0015-scsi-ufs-spacemit-k3-Add-UFS-Host-Controller-driver.patch \
+        file://0016-scsi-ufs-spacemit-k3-change-to-FASTAUTO-before-FAST.patch \
+        file://0017-thermal-spacemit-add-K3-temperature-sensor-driver.patch \
+        file://0018-dt-bindings-hwmon-Move-LM63-family-to-a-dedicated-bi.patch \
+        file://0019-dt-bindings-hwmon-Add-Sensylink-CTF2301.patch \
+        file://0020-hwmon-lm63-Add-Sensylink-CTF2301-support.patch \
+        file://0021-riscv-dts-spacemit-Add-K3-I2C6-pinctrl-state.patch \
+        file://0022-riscv-dts-spacemit-Add-CTF2301-on-K3-CoM260.patch \
+        file://0023-riscv-dts-spacemit-k3-add-temperature-sensor-node.patch \
+        file://0024-riscv-dts-spacemit-k3-com260-ifx-add-fan-control.patch \
         file://k3.cfg \
 "
 
